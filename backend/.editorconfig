@@ -1,0 +1,22 @@
+# top-most EditorConfig File
+root = true
+
+# 모든 파일에 적용
+[*]
+# 인코딩을 UTF-8로
+charset = utf-8
+# 개행문자를 LF로
+end_of_line = lf
+# 들여쓰기 유형은 tab
+indent_style = tab
+# 들여쓰기의 크기는 tab
+indent_size = tab
+# tab의 크기는 4
+tab_width = 4
+# 마지막 문장은 빈 문장
+insert_final_newline = true
+# 한줄을 120자를 넘어갈 수 없음
+max_line_length = 120
+
+
+
