@@ -1,5 +1,6 @@
 plugins {
 	java
+	checkstyle
 	id("org.springframework.boot") version "3.4.1"
 	id("io.spring.dependency-management") version "1.1.7"
 }
@@ -11,6 +12,12 @@ java {
 	toolchain {
 		languageVersion = JavaLanguageVersion.of(21)
 	}
+}
+
+checkstyle {
+	maxWarnings = 0
+	configFile = file("${rootDir}/checkstyle/naver-checkstyle-rules.xml")
+	configProperties = mapOf("suppressionFile" to "${rootDir}/config/naver-checkstyle-suppressions.xml")
 }
 
 repositories {
