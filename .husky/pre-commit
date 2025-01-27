@@ -16,20 +16,21 @@ backend_changes=$(echo "$changed_files" | grep "$backend_project_path" || true)
 # 프론트엔드 변경사항이 있을 때만 ESLint와 Prettier 실행
 if [ ! -z "$frontend_changes" ]; then
   echo "프론트엔드 변경사항 감지: ESLint 및 Prettier 검사 실행 중..."
-  
+  cd $frontend_project_path
   # ESLint 실행
-  npx eslint "$frontend_project_path" --fix
+  npx eslint --fix
   if [[ $? -ne 0 ]]; then
     echo "Error: ESLint 검사 실패"
     exit 1
   fi
   
   # Prettier 검사 실행
-  npx prettier --check "$frontend_project_path"
+  npx prettier --check
   if [[ $? -ne 0 ]]; then
     echo "Error: Prettier 검사 실패. 'npm run format' 명령어로 코드를 포맷팅해주세요."
     exit 1
   fi
+  cd ..
 else
   echo "프론트엔드 변경사항 없음: ESLint 및 Prettier 검사 건너뜀"
 fi
@@ -37,12 +38,14 @@ fi
 # 백엔드 변경사항이 있을 때만 Checkstyle 실행
 if [ ! -z "$backend_changes" ]; then
   echo "백엔드 변경사항 감지: Checkstyle 실행 중..."
-  ./gradlew checkstyle
+  cd $backend_project_path
+  ./gradlew check
 
   if [[ $? -ne 0 ]]; then
     echo "Error: Checkstyle 검사 실패"
     exit 1
   fi
+  cd ..
 else
   echo "백엔드 변경사항 없음: Checkstyle 검사 건너뜀"
 fi
