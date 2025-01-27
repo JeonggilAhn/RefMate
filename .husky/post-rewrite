@@ -1,0 +1,30 @@
+#!/bin/sh
+
+# rebase 작업인지 확인
+if [ "$1" = "rebase" ]; then
+    # 최신 커밋 메시지 가져오기
+    commit_msg=$(git log -1 --pretty=%B)
+    
+    # 이미 이모지가 있는지 확인
+    if [[ ! "$commit_msg" =~ ^[[:space:]]*[[:punct:]].*$ ]]; then
+        # prefix 찾기
+        prefix=$(echo "$commit_msg" | grep -oE "^(feat|fix|docs|style|refactor|test|chore|hotfix)")
+        
+        if [ ! -z "$prefix" ]; then
+            # 이모지 매핑
+            case "$prefix" in
+                "feat") emoji="✨";;
+                "fix") emoji="🐛";;
+                "docs") emoji="📝";;
+                "style") emoji="🎨";;
+                "refactor") emoji="♻️";;
+                "test") emoji="☑️";;
+                "chore") emoji="⚙️";;
+                "hotfix") emoji="👺";;
+            esac
+            
+            # 새 커밋 메시지로 amend
+            git commit --amend -m "$emoji $commit_msg"
+        fi
+    fi
+fi 

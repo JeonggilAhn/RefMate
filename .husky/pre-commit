@@ -1,0 +1,48 @@
+#!/bin/sh
+
+# 변경된 파일 목록 가져오기
+changed_files=$(git diff --cached --name-only)
+
+# 프로젝트 경로 설정
+frontend_project_path="frontend/"
+backend_project_path="backend/"
+
+# 프론트엔드 파일 변경 확인
+frontend_changes=$(echo "$changed_files" | grep "$frontend_project_path" || true)
+
+# 백엔드 파일 변경 확인
+backend_changes=$(echo "$changed_files" | grep "$backend_project_path" || true)
+
+# 프론트엔드 변경사항이 있을 때만 ESLint와 Prettier 실행
+if [ ! -z "$frontend_changes" ]; then
+  echo "프론트엔드 변경사항 감지: ESLint 및 Prettier 검사 실행 중..."
+  
+  # ESLint 실행
+  npx eslint "$frontend_project_path" --fix
+  if [[ $? -ne 0 ]]; then
+    echo "Error: ESLint 검사 실패"
+    exit 1
+  fi
+  
+  # Prettier 검사 실행
+  npx prettier --check "$frontend_project_path"
+  if [[ $? -ne 0 ]]; then
+    echo "Error: Prettier 검사 실패. 'npm run format' 명령어로 코드를 포맷팅해주세요."
+    exit 1
+  fi
+else
+  echo "프론트엔드 변경사항 없음: ESLint 및 Prettier 검사 건너뜀"
+fi
+
+# 백엔드 변경사항이 있을 때만 Checkstyle 실행
+if [ ! -z "$backend_changes" ]; then
+  echo "백엔드 변경사항 감지: Checkstyle 실행 중..."
+  ./gradlew checkstyle
+
+  if [[ $? -ne 0 ]]; then
+    echo "Error: Checkstyle 검사 실패"
+    exit 1
+  fi
+else
+  echo "백엔드 변경사항 없음: Checkstyle 검사 건너뜀"
+fi
