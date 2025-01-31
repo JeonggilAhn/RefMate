@@ -1,26 +1,21 @@
 import './App.css';
-import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import ProjectLayout from './layouts/ProjectLayout';
 import MainLayout from './layouts/MainLayout';
 
 function App() {
   return (
-    <Router>
+    <div className="App">
+      <Router>
       <Routes>
         <Route
           path="/"
-          element={
-            <div>
-              <div className="App">
-                <MainLayout />
-              </div>
-              <Link to="/projects">프로젝트 페이지</Link>
-            </div>
-          }
+          element={<MainLayout />}
         />
         <Route path="/projects" element={<ProjectLayout />} />
       </Routes>
     </Router>
+    </div>
   );
 }
 
