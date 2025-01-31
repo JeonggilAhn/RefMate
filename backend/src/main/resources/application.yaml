@@ -1,0 +1,17 @@
+spring:
+    config:
+        import: optional:.env
+
+    application:
+        name: dawn-backend
+
+    datasource:
+        driver-class-name: ${DB_DRIVER_CLASS_NAME}
+        url: ${DB_URL}
+        username: ${DB_USERNAME}
+        password: ${DB_PASSWORD}
+
+    jpa:
+        hibernate:
+            ddl-auto: update
+        show-sql: true
