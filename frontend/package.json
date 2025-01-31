@@ -37,8 +37,10 @@
     ]
   },
   "devDependencies": {
+    "autoprefixer": "^10.4.20",
     "eslint-config-prettier": "^10.0.1",
     "eslint-plugin-prettier": "^5.2.3",
-    "prettier": "^3.4.2"
+    "postcss": "^8.5.1",
+    "tailwind": "^4.0.0"
   }
 }
