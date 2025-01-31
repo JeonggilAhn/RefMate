@@ -1,5 +1,6 @@
 package com.dawn.backend.config;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
@@ -13,8 +14,23 @@ import org.springframework.web.cors.CorsConfiguration;
 
 import jakarta.servlet.http.HttpServletRequest;
 
+import com.dawn.backend.domain.user.handler.CustomOAuth2SuccessHandler;
+import com.dawn.backend.domain.user.service.CustomOAuth2UserService;
+
 @Configuration
 public class SecurityConfig {
+
+	private final CustomOAuth2UserService customOAuth2UserService;
+	private final CustomOAuth2SuccessHandler customOAuth2SuccessHandler;
+
+	@Autowired
+	SecurityConfig(
+		CustomOAuth2UserService customOAuth2UserService,
+		CustomOAuth2SuccessHandler customOAuth2SuccessHandler
+	) {
+		this.customOAuth2UserService = customOAuth2UserService;
+		this.customOAuth2SuccessHandler = customOAuth2SuccessHandler;
+	}
 
 	// secret encoder
 	@Bean
@@ -55,6 +71,14 @@ public class SecurityConfig {
 		// stateless session
 		http.sessionManagement((session) -> session
 			.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+		);
+
+		// oauth2 config
+		http.oauth2Login(oauth2 -> oauth2
+			.userInfoEndpoint(userInfoEndpointConfig -> userInfoEndpointConfig
+				.userService(customOAuth2UserService)
+			)
+			.successHandler(customOAuth2SuccessHandler)
 		);
 
 		return http.build();
