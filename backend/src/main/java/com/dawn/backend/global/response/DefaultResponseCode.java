@@ -1,4 +1,4 @@
-package com.dawn.backend.response;
+package com.dawn.backend.global.response;
 
 import java.util.Arrays;
 

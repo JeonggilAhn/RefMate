@@ -1,4 +1,4 @@
-package com.dawn.backend.response;
+package com.dawn.backend.global.response;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;

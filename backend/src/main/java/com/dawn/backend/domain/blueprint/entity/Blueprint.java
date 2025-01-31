@@ -14,8 +14,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import com.dawn.backend.domain.base.BaseTimeEntity;
 import com.dawn.backend.domain.project.entity.Project;
+import com.dawn.backend.global.jpa.base.BaseTimeEntity;
 
 @Entity
 @Getter
