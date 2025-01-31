@@ -42,6 +42,8 @@ public class BlueprintVersion extends BaseTimeEntity {
 
 	private String previewImg;
 
+	private int blueprintVersionSeq;
+
 	@Builder
 	public BlueprintVersion(
 		Long blueprintVersionId,
@@ -51,7 +53,8 @@ public class BlueprintVersion extends BaseTimeEntity {
 		String blueprintImg,
 		BlueprintVersion preBlueprintVersion,
 		BlueprintVersion postBlueprintVersion,
-		String previewImg
+		String previewImg,
+		int blueprintVersionSeq
 	) {
 		this.blueprint = blueprint;
 		this.blueprintVersionName = blueprintVersionName;
@@ -60,5 +63,6 @@ public class BlueprintVersion extends BaseTimeEntity {
 		this.preBlueprintVersion = preBlueprintVersion;
 		this.postBlueprintVersion = postBlueprintVersion;
 		this.previewImg = previewImg;
+		this.blueprintVersionSeq = blueprintVersionSeq;
 	}
 }
