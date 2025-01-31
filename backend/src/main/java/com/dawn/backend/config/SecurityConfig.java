@@ -10,26 +10,36 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 
 import jakarta.servlet.http.HttpServletRequest;
 
 import com.dawn.backend.domain.user.handler.CustomOAuth2SuccessHandler;
+import com.dawn.backend.domain.user.repository.UserRepository;
 import com.dawn.backend.domain.user.service.CustomOAuth2UserService;
+import com.dawn.backend.global.filter.JwtFilter;
+import com.dawn.backend.global.util.jwt.JwtUtil;
 
 @Configuration
 public class SecurityConfig {
 
 	private final CustomOAuth2UserService customOAuth2UserService;
 	private final CustomOAuth2SuccessHandler customOAuth2SuccessHandler;
+	private final JwtUtil jwtUtil;
+	private final UserRepository userRepository;
 
 	@Autowired
 	SecurityConfig(
 		CustomOAuth2UserService customOAuth2UserService,
-		CustomOAuth2SuccessHandler customOAuth2SuccessHandler
+		CustomOAuth2SuccessHandler customOAuth2SuccessHandler,
+		JwtUtil jwtUtil,
+		UserRepository userRepository
 	) {
 		this.customOAuth2UserService = customOAuth2UserService;
 		this.customOAuth2SuccessHandler = customOAuth2SuccessHandler;
+		this.jwtUtil = jwtUtil;
+		this.userRepository = userRepository;
 	}
 
 	// secret encoder
@@ -80,6 +90,10 @@ public class SecurityConfig {
 			)
 			.successHandler(customOAuth2SuccessHandler)
 		);
+
+		// jwt filter
+		JwtFilter jwtFilter = new JwtFilter(jwtUtil, userRepository);
+		http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
 		return http.build();
 	}
