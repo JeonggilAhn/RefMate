@@ -2,6 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 import { Link } from 'react-router-dom';
 import Header from '../components/common/Header';
+import BackButton from '../components/common/BackButton';
 
 const MainPage = () => {
   return (
@@ -25,6 +26,7 @@ const MainPage = () => {
             ),
           )}
         </ButtonSection>
+        <BackButton />
       </Container>
     </>
   );

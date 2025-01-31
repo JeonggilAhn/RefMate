@@ -1,6 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import Header from '../components/common/Header';
+import BackButton from '../components/common/BackButton';
 
 const Wrapper = styled.div`
   box-sizing: border-box;
@@ -84,6 +85,7 @@ function ProjectLayout() {
             ))}
           </Components>
         </ContentWrapper>
+        <BackButton />
       </Wrapper>
     </>
   );
