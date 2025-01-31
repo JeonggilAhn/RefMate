@@ -1,27 +1,32 @@
 import React from 'react';
 import styled from 'styled-components';
 import { Link } from 'react-router-dom';
+import Header from '../components/common/Header';
 
 const MainPage = () => {
   return (
-    <Container>
-      헤더 영역
-      <Explain>
-        <LeftSection>
-          <Title>서비스 소개</Title>
-          <Description>서비스설명</Description>
-          <StartButton><Link to="/projects">프로젝트 페이지</Link></StartButton>
-        </LeftSection>
-        <ImageBox>이미지 표시 영역</ImageBox>
-      </Explain>
-      <ButtonSection>
-        {['버튼 1', '버튼 2', '버튼 3', '버튼 4', '버튼 5'].map(
-          (text, index) => (
-            <ContentButton key={index}>{text}</ContentButton>
-          ),
-        )}
-      </ButtonSection>
-    </Container>
+    <>
+      <Header /> {/* 헤더를 최상단에 위치 */}
+      <Container>
+        <Explain>
+          <LeftSection>
+            <Title>서비스 소개</Title>
+            <Description>서비스설명</Description>
+            <StartButton>
+              <Link to="/projects">프로젝트 페이지</Link>
+            </StartButton>
+          </LeftSection>
+          <ImageBox>이미지 표시 영역</ImageBox>
+        </Explain>
+        <ButtonSection>
+          {['버튼 1', '버튼 2', '버튼 3', '버튼 4', '버튼 5'].map(
+            (text, index) => (
+              <ContentButton key={index}>{text}</ContentButton>
+            ),
+          )}
+        </ButtonSection>
+      </Container>
+    </>
   );
 };
 
@@ -76,6 +81,7 @@ const StartButton = styled.button`
   color: white;
   border: none;
   border-radius: 5px;
+  cursor: pointer;
 
   &:hover {
     background-color: #6589bf;
@@ -97,6 +103,7 @@ const ContentButton = styled.button`
   padding: 7px 16px;
   border: 1px solid #ccc;
   background-color: white;
+  cursor: pointer;
 
   &:hover {
     background-color: #d9d9d9;
