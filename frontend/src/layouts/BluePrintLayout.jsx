@@ -2,7 +2,7 @@ const BluePrintLayout = () => {
 
     return (
         <div>
-            <p>hello</p>
+            <div class="border border-black">sidebar</div>
         </div>
     );
 };
