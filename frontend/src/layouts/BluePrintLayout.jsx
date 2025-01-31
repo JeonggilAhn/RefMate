@@ -1,10 +1,12 @@
-const BluePrintLayout = () => {
+import BackButton from '../components/common/BackButton';
 
-    return (
-        <div>
-            <div class="border border-black">sidebar</div>
-        </div>
-    );
+const BluePrintLayout = () => {
+  return (
+    <div>
+      <BackButton />
+      <div class="border border-black">sidebar</div>
+    </div>
+  );
 };
 
 export default BluePrintLayout;
