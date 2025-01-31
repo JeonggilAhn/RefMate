@@ -17,7 +17,7 @@ java {
 checkstyle {
 	maxWarnings = 0
 	configFile = file("${rootDir}/checkstyle/naver-checkstyle-rules.xml")
-	configProperties = mapOf("suppressionFile" to "${rootDir}/config/naver-checkstyle-suppressions.xml")
+	configProperties = mapOf("suppressionFile" to "${rootDir}/checkstyle/naver-checkstyle-suppressions.xml")
 }
 
 repositories {
