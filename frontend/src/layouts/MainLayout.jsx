@@ -1,5 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
+import { Link } from 'react-router-dom';
 
 const MainPage = () => {
   return (
@@ -9,7 +10,7 @@ const MainPage = () => {
         <LeftSection>
           <Title>서비스 소개</Title>
           <Description>서비스설명</Description>
-          <StartButton>시작하기</StartButton>
+          <StartButton><Link to="/projects">프로젝트 페이지</Link></StartButton>
         </LeftSection>
         <ImageBox>이미지 표시 영역</ImageBox>
       </Explain>
