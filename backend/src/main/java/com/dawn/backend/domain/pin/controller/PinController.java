@@ -5,8 +5,8 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Repository;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -16,7 +16,12 @@ import com.dawn.backend.domain.pin.dto.PinGroupDto;
 import com.dawn.backend.domain.pin.dto.PinImageItem;
 import com.dawn.backend.domain.pin.dto.PinItem;
 import com.dawn.backend.domain.pin.dto.request.CreatePinRequestDto;
+import com.dawn.backend.domain.pin.dto.request.UpdatePinGroupRequestDto;
+import com.dawn.backend.domain.pin.dto.request.UpdatePinNameRequestDto;
 import com.dawn.backend.domain.pin.dto.response.CreatePinResponseDto;
+import com.dawn.backend.domain.pin.dto.response.UpdatePinGroupResponseDto;
+import com.dawn.backend.domain.pin.dto.response.UpdatePinNameResponseDto;
+import com.dawn.backend.domain.pin.dto.response.UpdatePinStatusResponseDto;
 import com.dawn.backend.domain.pin.service.PinService;
 import com.dawn.backend.global.response.ResponseWrapper;
 import com.dawn.backend.global.response.ResponseWrapperFactory;
@@ -74,6 +79,43 @@ public class PinController {
 			HttpStatus.OK,
 			null,
 			pinService.createPin(blueprintId, versionId, pinInfo)
+		);
+	}
+
+	@PatchMapping("/pins/{pinId}/{versionId}/status")
+	public ResponseEntity<ResponseWrapper<UpdatePinStatusResponseDto>> updatePinStatus(
+			@PathVariable("pinId") Long pinId,
+			@PathVariable("versionId") Long versionId
+	) {
+		return ResponseWrapperFactory.setResponse(
+			HttpStatus.OK,
+			null,
+			pinService.updatePinStatus(pinId, versionId)
+		);
+	}
+
+	@PatchMapping("/pins/{pinId}/name")
+	public ResponseEntity<ResponseWrapper<UpdatePinNameResponseDto>> updatePinName(
+			@PathVariable("pinId") Long pinId,
+			@RequestBody UpdatePinNameRequestDto pinInfo
+	) {
+		return ResponseWrapperFactory.setResponse(
+				HttpStatus.OK,
+				null,
+				pinService.updatePinName(pinId, pinInfo)
+		);
+	}
+
+	@PatchMapping("/pins/{pinId}/{versionId}/group")
+	public ResponseEntity<ResponseWrapper<UpdatePinGroupResponseDto>> updatePinGroup(
+			@PathVariable("pinId") Long pinId,
+			@PathVariable("versionId") Long versionId,
+			@RequestBody UpdatePinGroupRequestDto pinInfo
+	) {
+		return ResponseWrapperFactory.setResponse(
+				HttpStatus.OK,
+				null,
+				pinService.updatePinGroup(pinId, versionId, pinInfo)
 		);
 	}
 }

@@ -19,7 +19,12 @@ import com.dawn.backend.domain.pin.dto.PinGroupDto;
 import com.dawn.backend.domain.pin.dto.PinImageItem;
 import com.dawn.backend.domain.pin.dto.PinItem;
 import com.dawn.backend.domain.pin.dto.request.CreatePinRequestDto;
+import com.dawn.backend.domain.pin.dto.request.UpdatePinGroupRequestDto;
+import com.dawn.backend.domain.pin.dto.request.UpdatePinNameRequestDto;
 import com.dawn.backend.domain.pin.dto.response.CreatePinResponseDto;
+import com.dawn.backend.domain.pin.dto.response.UpdatePinGroupResponseDto;
+import com.dawn.backend.domain.pin.dto.response.UpdatePinNameResponseDto;
+import com.dawn.backend.domain.pin.dto.response.UpdatePinStatusResponseDto;
 import com.dawn.backend.domain.pin.entity.Pin;
 import com.dawn.backend.domain.pin.entity.PinGroup;
 import com.dawn.backend.domain.pin.entity.PinVersion;
@@ -175,6 +180,55 @@ public class PinService {
 
 		return new CreatePinResponseDto(
 			savedPin.getPinId()
+		);
+	}
+
+	public UpdatePinStatusResponseDto updatePinStatus(Long pinId, Long versionId) {
+
+		PinVersion pinVersion =
+			pinVersionRepository.findFirstByBlueprintVersionBlueprintVersionIdAndPinPinId(versionId, pinId);
+
+		pinVersion.setIsActive(!pinVersion.getIsActive());
+		PinVersion savedPinVersion = pinVersionRepository.save(pinVersion);
+
+		return new UpdatePinStatusResponseDto(
+			savedPinVersion.getPin().getPinId(),
+			savedPinVersion.getIsActive()
+		);
+	}
+
+	public UpdatePinNameResponseDto updatePinName(
+		Long pinId,
+		UpdatePinNameRequestDto pinInfo
+	) {
+		Pin pin = pinRepository.findById(pinId).get();
+
+		pin.setPinName(pinInfo.pinName());
+		Pin savedPin = pinRepository.save(pin);
+
+		return new UpdatePinNameResponseDto(
+			savedPin.getPinId(),
+			savedPin.getPinName()
+		);
+	}
+
+	public UpdatePinGroupResponseDto updatePinGroup(
+		Long pinId,
+		Long versionId,
+		UpdatePinGroupRequestDto pinInfo
+	) {
+		PinVersion pinVersion =
+			pinVersionRepository.findFirstByBlueprintVersionBlueprintVersionIdAndPinPinId(versionId, pinId);
+
+		PinGroup pinGroup =
+			pinGroupRepository.findById(pinInfo.pinGroupId()).get();
+
+		pinVersion.setPinGroup(pinGroup);
+		PinVersion savedPinVersion = pinVersionRepository.save(pinVersion);
+
+		return new UpdatePinGroupResponseDto(
+			savedPinVersion.getPinVersionId(),
+			savedPinVersion.getPinGroup().getPinGroupId()
 		);
 	}
 }
