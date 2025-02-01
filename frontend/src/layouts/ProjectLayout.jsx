@@ -2,7 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 import Header from '../components/common/Header';
 import BackButton from '../components/common/BackButton';
-import TabComponent from '../components/common/TabComponent';
+import Tabs from '../components/common/Tabs';
 
 const Wrapper = styled.div`
   box-sizing: border-box;
@@ -67,7 +67,7 @@ function ProjectLayout() {
           <h3>공간</h3>
           <button>만들기</button>
         </SubHeader>
-        <TabComponent
+        <Tabs
           tabs={['모든 프로젝트', '내 프로젝트', '공유 프로젝트']}
           iconType="search"
         />

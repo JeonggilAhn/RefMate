@@ -40,7 +40,7 @@ const IconButton = styled.div`
   }
 `;
 
-function TabComponent({ tabs, iconType }) {
+function Tabs({ tabs, iconType }) {
   const [activeTab, setActiveTab] = useState(tabs[0]); // 탭 종류류
   // 아이콘 종류
   const renderIcon = () => {
@@ -68,4 +68,4 @@ function TabComponent({ tabs, iconType }) {
   );
 }
 
-export default TabComponent;
+export default Tabs;
