@@ -9,7 +9,7 @@ const formatDate = (dateString) => {
 };
 
 const Thumbnail = ({ userId }) => {
-  const [projects, setProjects] = useState(mockData); // 목업 데이터를 상태로 설정
+  const [projects] = useState(mockData); // 목업 데이터를 상태로 설정
 
   // 실제 API 호출 부분 (목업 데이터 대신 실제 API를 호출할 때는 이 부분을 사용)
   // useEffect(() => {
