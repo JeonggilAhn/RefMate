@@ -3,6 +3,21 @@ import styled from 'styled-components';
 import { FiSearch, FiList, FiGrid } from 'react-icons/fi';
 import SearchBar from '../project/SearchBar';
 
+// Tab 컴포넌트에 shouldForwardProp을 추가
+const Tab = styled.div.withConfig({
+  shouldForwardProp: (prop) => prop !== 'active', // active는 DOM에 전달되지 않도록 필터링
+})`
+  padding: 8px 16px;
+  cursor: pointer;
+  font-weight: ${({ active }) => (active ? 'bold' : 'normal')};
+  color: ${({ active }) => (active ? '#7ba8ec;' : '#333')};
+  border-bottom: ${({ active }) => (active ? '2px solid #7BA8EC' : 'none')};
+
+  &:hover {
+    color: #7ba8ec;
+  }
+`;
+
 const TabContainer = styled.div`
   display: flex;
   justify-content: space-between;
@@ -15,18 +30,6 @@ const TabContainer = styled.div`
 const TabGroup = styled.div`
   display: flex;
   gap: 10px;
-`;
-
-const Tab = styled.div`
-  padding: 8px 16px;
-  cursor: pointer;
-  font-weight: ${({ active }) => (active ? 'bold' : 'normal')};
-  color: ${({ active }) => (active ? '#7ba8ec;' : '#333')};
-  border-bottom: ${({ active }) => (active ? '2px solid #7BA8EC' : 'none')};
-
-  &:hover {
-    color: #7ba8ec;
-  }
 `;
 
 const IconButton = styled.div`
