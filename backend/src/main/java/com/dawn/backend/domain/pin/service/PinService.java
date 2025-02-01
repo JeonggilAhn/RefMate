@@ -1,5 +1,7 @@
 package com.dawn.backend.domain.pin.service;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -7,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import jakarta.transaction.Transactional;
 
+import com.dawn.backend.domain.blueprint.entity.Blueprint;
 import com.dawn.backend.domain.blueprint.entity.BlueprintVersion;
 import com.dawn.backend.domain.blueprint.repository.BlueprintVersionRepository;
 import com.dawn.backend.domain.note.entity.Note;
@@ -25,6 +28,7 @@ import com.dawn.backend.domain.pin.dto.response.CreatePinResponseDto;
 import com.dawn.backend.domain.pin.dto.response.UpdatePinGroupResponseDto;
 import com.dawn.backend.domain.pin.dto.response.UpdatePinNameResponseDto;
 import com.dawn.backend.domain.pin.dto.response.UpdatePinStatusResponseDto;
+import com.dawn.backend.domain.pin.entity.DefaultPinGroup;
 import com.dawn.backend.domain.pin.entity.Pin;
 import com.dawn.backend.domain.pin.entity.PinGroup;
 import com.dawn.backend.domain.pin.entity.PinVersion;
@@ -230,5 +234,29 @@ public class PinService {
 			savedPinVersion.getPinVersionId(),
 			savedPinVersion.getPinGroup().getPinGroupId()
 		);
+	}
+
+	public void createDefaultPinGroup(Blueprint targetBlueprint) {
+		List<PinGroup> pinGroupList = Arrays.stream(DefaultPinGroup.values())
+			.map(defaultPinGroup -> PinGroup.builder()
+				.pinGroupName(defaultPinGroup.getName())
+				.pinGroupColor(defaultPinGroup.getColor())
+				.blueprint(targetBlueprint)
+				.build()
+			)
+			.toList();
+
+		pinGroupRepository.saveAll(pinGroupList);
+	}
+
+	public void copyPreVersionPins(BlueprintVersion preVersion, BlueprintVersion postVersion) {
+		List<PinVersion> pinVersionList =
+			pinVersionRepository.findAllByBlueprintVersionBlueprintVersionId(preVersion.getBlueprintVersionId());
+
+		pinVersionList.forEach(pinVersion -> {
+			pinVersion.setBlueprintVersion(postVersion);
+		});
+
+		pinVersionRepository.saveAll(pinVersionList);
 	}
 }

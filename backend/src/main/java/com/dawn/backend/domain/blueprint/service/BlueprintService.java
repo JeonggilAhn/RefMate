@@ -2,7 +2,6 @@ package com.dawn.backend.domain.blueprint.service;
 
 import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.Objects;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -22,6 +21,7 @@ import com.dawn.backend.domain.blueprint.entity.Blueprint;
 import com.dawn.backend.domain.blueprint.entity.BlueprintVersion;
 import com.dawn.backend.domain.blueprint.repository.BlueprintRepository;
 import com.dawn.backend.domain.blueprint.repository.BlueprintVersionRepository;
+import com.dawn.backend.domain.pin.service.PinService;
 import com.dawn.backend.domain.project.entity.Project;
 import com.dawn.backend.domain.project.repository.ProjectRepository;
 
@@ -30,16 +30,19 @@ public class BlueprintService {
 	private final BlueprintRepository blueprintRepository;
 	private final BlueprintVersionRepository blueprintVersionRepository;
 	private final ProjectRepository projectRepository;
+	private final PinService pinService;
 
 	@Autowired
 	public BlueprintService(
 		BlueprintRepository blueprintRepository,
 		BlueprintVersionRepository blueprintVersionRepository,
-		ProjectRepository projectRepository
+		ProjectRepository projectRepository,
+		PinService pinService
 	) {
 		this.blueprintRepository = blueprintRepository;
 		this.blueprintVersionRepository = blueprintVersionRepository;
 		this.projectRepository = projectRepository;
+		this.pinService = pinService;
 	}
 
 	public List<BlueprintDto> blueprints(Long projectId) {
@@ -107,6 +110,8 @@ public class BlueprintService {
 
 		Blueprint savedBlueprint = blueprintRepository.save(blueprint);
 
+		pinService.createDefaultPinGroup(savedBlueprint);
+
 		return new CreateBlueprintResponseDto(
 			savedBlueprint.getBlueprintId(),
 			createBlueprintVersion(
@@ -161,6 +166,10 @@ public class BlueprintService {
 
 		BlueprintVersion savedBlueprintVersion =
 			blueprintVersionRepository.save(blueprintVersion);
+
+		if (savedBlueprintVersion.getBlueprintVersionSeq() != 1) {
+			pinService.copyPreVersionPins(latestVersion, savedBlueprintVersion);
+		}
 
 		blueprintVersionRepository.updatePostVersion(latestVersion, savedBlueprintVersion);
 
