@@ -34,5 +34,13 @@ public class ProjectServiceImpl implements ProjectService {
 			.orElseThrow(() -> new IllegalArgumentException(HttpStatus.INTERNAL_SERVER_ERROR.toString()));
 		project.updateProjectTitle(request.projectTitle());
 	}
-	
+
+	@Transactional
+	@Override
+	public void deleteProject(Long projectId) {
+		Project project = projectRepository.findById(projectId)
+			.orElseThrow(() -> new IllegalArgumentException(HttpStatus.INTERNAL_SERVER_ERROR.toString()));
+		project.deleteProject();
+	}
+
 }

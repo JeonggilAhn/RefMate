@@ -9,4 +9,5 @@ public interface ProjectService {
 
 	void updateProject(Long projectId, UpdateProjectRequestDto request);
 
+	void deleteProject(Long projectId);
 }

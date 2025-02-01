@@ -42,5 +42,9 @@ public class Project extends BaseTimeEntity {
 	public void updateProjectTitle(String projectTitle) {
 		this.projectTitle = projectTitle;
 	}
-	
+
+	public void deleteProject() {
+		this.isDeleted = true;
+		this.deletedAt = LocalDateTime.now();
+	}
 }
