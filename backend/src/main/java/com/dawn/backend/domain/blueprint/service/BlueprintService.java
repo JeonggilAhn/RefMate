@@ -2,30 +2,40 @@ package com.dawn.backend.domain.blueprint.service;
 
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Objects;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import jakarta.transaction.Transactional;
+
 import com.dawn.backend.domain.blueprint.dto.BlueprintDto;
 import com.dawn.backend.domain.blueprint.dto.BlueprintVersionDto;
 import com.dawn.backend.domain.blueprint.dto.BlueprintVersionItem;
+import com.dawn.backend.domain.blueprint.dto.request.CreateBlueprintRequestDto;
+import com.dawn.backend.domain.blueprint.dto.response.CreateBlueprintResponseDto;
 import com.dawn.backend.domain.blueprint.entity.Blueprint;
 import com.dawn.backend.domain.blueprint.entity.BlueprintVersion;
 import com.dawn.backend.domain.blueprint.repository.BlueprintRepository;
 import com.dawn.backend.domain.blueprint.repository.BlueprintVersionRepository;
+import com.dawn.backend.domain.project.entity.Project;
+import com.dawn.backend.domain.project.repository.ProjectRepository;
 
 @Service
 public class BlueprintService {
 	private final BlueprintRepository blueprintRepository;
 	private final BlueprintVersionRepository blueprintVersionRepository;
+	private final ProjectRepository projectRepository;
 
 	@Autowired
 	public BlueprintService(
 		BlueprintRepository blueprintRepository,
-		BlueprintVersionRepository blueprintVersionRepository
+		BlueprintVersionRepository blueprintVersionRepository,
+		ProjectRepository projectRepository
 	) {
 		this.blueprintRepository = blueprintRepository;
 		this.blueprintVersionRepository = blueprintVersionRepository;
+		this.projectRepository = projectRepository;
 	}
 
 	public List<BlueprintDto> blueprints(Long projectId) {
@@ -76,5 +86,63 @@ public class BlueprintService {
 			blueprintVersion.getBlueprintVersionName(),
 			blueprintVersion.getBlueprintImg()
 		);
+	}
+
+	@Transactional
+	public CreateBlueprintResponseDto createBlueprint(
+		Long projectId,
+		CreateBlueprintRequestDto createBlueprintRequestDto
+	) {
+		Project targetProject =
+			projectRepository.findById(projectId).orElse(null);
+
+		Blueprint blueprint = Blueprint.builder()
+			.project(targetProject)
+			.blueprintTitle(createBlueprintRequestDto.blueprintTitle())
+			.build();
+
+		Blueprint savedBlueprint = blueprintRepository.save(blueprint);
+
+		return new CreateBlueprintResponseDto(
+			savedBlueprint.getBlueprintId(),
+			createBlueprintVersion(
+				savedBlueprint,
+				savedBlueprint.getBlueprintTitle(),
+				createBlueprintRequestDto.originFile()
+			)
+		);
+	}
+
+	@Transactional
+	public Long createBlueprintVersion(
+		Blueprint targetBlueprint,
+		String blueprintVersionName,
+		String originFile
+	) {
+
+		BlueprintVersion latestVersion =
+			blueprintVersionRepository.findLatestVersion(targetBlueprint.getBlueprintId());
+
+		int newSeq = 1;
+		if (latestVersion != null) {
+			newSeq += latestVersion.getBlueprintVersionSeq();
+		}
+
+		BlueprintVersion blueprintVersion = BlueprintVersion.builder()
+			.blueprint(targetBlueprint)
+			.blueprintVersionName(blueprintVersionName)
+			.originFile(originFile)
+			.blueprintImg(null)
+			.previewImg(null)
+			.preBlueprintVersion(latestVersion)
+			.blueprintVersionSeq(newSeq)
+			.build();
+
+		BlueprintVersion savedBlueprintVersion =
+			blueprintVersionRepository.save(blueprintVersion);
+
+		blueprintVersionRepository.updatePostVersion(latestVersion, savedBlueprintVersion);
+
+		return savedBlueprintVersion.getBlueprintVersionId();
 	}
 }

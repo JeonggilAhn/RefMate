@@ -7,11 +7,15 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.dawn.backend.domain.blueprint.dto.BlueprintDto;
 import com.dawn.backend.domain.blueprint.dto.BlueprintVersionDto;
 import com.dawn.backend.domain.blueprint.dto.BlueprintVersionItem;
+import com.dawn.backend.domain.blueprint.dto.request.CreateBlueprintRequestDto;
+import com.dawn.backend.domain.blueprint.dto.response.CreateBlueprintResponseDto;
 import com.dawn.backend.domain.blueprint.service.BlueprintService;
 import com.dawn.backend.global.response.ResponseWrapper;
 import com.dawn.backend.global.response.ResponseWrapperFactory;
@@ -56,6 +60,18 @@ public class BlueprintController {
 			HttpStatus.OK,
 			null,
 			blueprintService.blueprintSpec(blueprintId, versionId)
+		);
+	}
+
+	@PostMapping("/projects/{projectId}/blueprints")
+	public ResponseEntity<ResponseWrapper<CreateBlueprintResponseDto>> addBlueprint(
+		@PathVariable("projectId") Long projectId,
+		@RequestBody CreateBlueprintRequestDto createBlueprintRequestDto
+	) {
+		return ResponseWrapperFactory.setResponse(
+			HttpStatus.CREATED,
+			null,
+			null
 		);
 	}
 
