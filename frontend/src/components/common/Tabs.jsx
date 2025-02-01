@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { FiSearch, FiList, FiGrid } from 'react-icons/fi';
+import SearchBar from '../project/SearchBar';
 
 const TabContainer = styled.div`
   display: flex;
@@ -41,13 +42,31 @@ const IconButton = styled.div`
 `;
 
 function Tabs({ tabs, iconType }) {
-  const [activeTab, setActiveTab] = useState(tabs[0]); // 탭 종류류
+  // 탭 선택 종류
+  const [activeTab, setActiveTab] = useState(tabs[0]);
+
+  // 검색 상태
+  const [isSearching, setIsSearching] = useState(false);
+
+  // 아이콘 클릭 핸들러
+  const handleIconClick = () => {
+    if (iconType === 'search') {
+      setIsSearching((prev) => !prev); // search일 때만 toggle
+    }
+  };
+
   // 아이콘 종류
   const renderIcon = () => {
+    if (isSearching) return;
     if (iconType === 'search') return <FiSearch />;
     if (iconType === 'list') return <FiList />;
     if (iconType === 'grid') return <FiGrid />;
     return null;
+  };
+
+  // 검색 상태 종료 핸들러
+  const handleClearSearch = () => {
+    setIsSearching(false); // 검색 상태 종료
   };
 
   return (
@@ -63,7 +82,8 @@ function Tabs({ tabs, iconType }) {
           </Tab>
         ))}
       </TabGroup>
-      {iconType && <IconButton>{renderIcon()}</IconButton>}
+      <IconButton onClick={handleIconClick}>{renderIcon()}</IconButton>
+      {isSearching && <SearchBar onClear={handleClearSearch} />}
     </TabContainer>
   );
 }
