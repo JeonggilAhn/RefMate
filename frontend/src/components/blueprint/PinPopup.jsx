@@ -1,10 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
-import { get, post, put } from '../../api'; // API 요청 함수 임포트
+import { get, post, patch } from '../../api'; // API 요청 함수 임포트
 
-// 테스트 시 import해서 확인, 버튼 형식으로 만듦.
-
-const PinPopup = () => {
+const PinPopup = ({ blueprintId, blueprintVersion, pinId }) => {
   const [isPopupOpen, setIsPopupOpen] = useState(false); // 자체 상태 관리
   const [isEditing, setIsEditing] = useState(false);
   const [pinName, setPinName] = useState('');
@@ -15,16 +13,18 @@ const PinPopup = () => {
   useEffect(() => {
     const fetchGroups = async () => {
       try {
-        const response = await get('pingroups'); // 그룹 리스트 가져오기
+        const response = await get(
+          `blueprints/${blueprintId}/${blueprintVersion}/pingroups`,
+        );
         setGroupOptions(response.data || []);
       } catch (error) {
         console.error('그룹 목록을 불러오는데 실패했습니다.', error);
       }
     };
     fetchGroups();
-  }, []);
+  }, [blueprintId, blueprintVersion]);
 
-  // 핀 생성 버튼 클릭 시 (팝업 열기)
+  // 팝업 열기
   const openCreatePopup = () => {
     setIsEditing(false);
     setPinName('');
@@ -32,7 +32,6 @@ const PinPopup = () => {
     setIsPopupOpen(true);
   };
 
-  // 핀 수정 버튼 클릭 시 (팝업 열기)
   const openEditPopup = () => {
     setIsEditing(true);
     setPinName('기존 핀 이름'); // 예시 데이터
@@ -51,10 +50,18 @@ const PinPopup = () => {
 
     try {
       if (isEditing) {
-        await put(`pins/1`, { name: pinName, group: pinGroup }); // 기존 핀 ID 사용 (테스트용)
+        // 핀 이름 및 그룹 변경
+        await patch(`pins/${pinId}/name`, { name: pinName });
+        await patch(`pins/${pinId}/${blueprintVersion}/group`, {
+          group: pinGroup,
+        });
         console.log('핀 수정 완료:', { name: pinName, group: pinGroup });
       } else {
-        await post('pins', { name: pinName, group: pinGroup });
+        // 새 핀 생성
+        await post(`blueprints/${blueprintId}/${blueprintVersion}/pins`, {
+          name: pinName,
+          group: pinGroup,
+        });
         console.log('새 핀 생성 완료:', { name: pinName, group: pinGroup });
       }
       closePopup();
