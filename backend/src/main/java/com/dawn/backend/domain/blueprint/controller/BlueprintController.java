@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.dawn.backend.domain.blueprint.dto.BlueprintDto;
+import com.dawn.backend.domain.blueprint.dto.BlueprintVersionDto;
 import com.dawn.backend.domain.blueprint.dto.BlueprintVersionItem;
 import com.dawn.backend.domain.blueprint.service.BlueprintService;
 import com.dawn.backend.global.response.ResponseWrapper;
@@ -43,6 +44,18 @@ public class BlueprintController {
 			HttpStatus.OK,
 			null,
 			blueprintService.blueprintVersions(blueprintId)
+		);
+	}
+
+	@GetMapping("/blueprints/{blueprintId}/{versionId}")
+	public ResponseEntity<ResponseWrapper<BlueprintVersionDto>> getBlueprintSpec(
+		@PathVariable("blueprintId") Long blueprintId,
+		@PathVariable("versionId") Long versionId
+	) {
+		return ResponseWrapperFactory.setResponse(
+			HttpStatus.OK,
+			null,
+			blueprintService.blueprintSpec(blueprintId, versionId)
 		);
 	}
 

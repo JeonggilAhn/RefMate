@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.dawn.backend.domain.blueprint.dto.BlueprintDto;
+import com.dawn.backend.domain.blueprint.dto.BlueprintVersionDto;
 import com.dawn.backend.domain.blueprint.dto.BlueprintVersionItem;
 import com.dawn.backend.domain.blueprint.entity.Blueprint;
 import com.dawn.backend.domain.blueprint.entity.BlueprintVersion;
@@ -63,5 +64,17 @@ public class BlueprintService {
 				blueprintVersion.getBlueprintVersionSeq()
 			))
 			.toList();
+	}
+
+	public BlueprintVersionDto blueprintSpec(Long blueprintId, Long versionId) {
+
+		BlueprintVersion blueprintVersion =
+			blueprintVersionRepository.findById(versionId).orElse(null);
+
+		return new BlueprintVersionDto(
+			blueprintVersion.getBlueprintVersionId(),
+			blueprintVersion.getBlueprintVersionName(),
+			blueprintVersion.getBlueprintImg()
+		);
 	}
 }
