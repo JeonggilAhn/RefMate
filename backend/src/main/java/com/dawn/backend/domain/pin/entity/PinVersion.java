@@ -11,12 +11,14 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import com.dawn.backend.domain.blueprint.entity.BlueprintVersion;
 import com.dawn.backend.global.jpa.base.BaseTimeEntity;
 
 @Entity
 @Getter
+@Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class PinVersion extends BaseTimeEntity {
 	@Id
