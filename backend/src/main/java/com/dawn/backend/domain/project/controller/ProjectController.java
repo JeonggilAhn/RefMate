@@ -1,5 +1,7 @@
 package com.dawn.backend.domain.project.controller;
 
+import java.util.List;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -17,6 +19,7 @@ import com.dawn.backend.domain.project.dto.request.CreateProjectRequestDto;
 import com.dawn.backend.domain.project.dto.request.UpdateProjectRequestDto;
 import com.dawn.backend.domain.project.dto.response.CreateProjectResponseDto;
 import com.dawn.backend.domain.project.service.ProjectService;
+import com.dawn.backend.domain.user.dto.ProjectUserDto;
 import com.dawn.backend.global.response.ResponseWrapper;
 import com.dawn.backend.global.response.ResponseWrapperFactory;
 
@@ -55,5 +58,13 @@ public class ProjectController {
 	) {
 		CreateProjectResponseDto createProjectResponseDto = projectService.createProject(userId, request);
 		return ResponseWrapperFactory.setResponse(HttpStatus.CREATED, null, createProjectResponseDto);
+	}
+
+	@GetMapping("/projects/{projectId}/users")
+	public ResponseEntity<ResponseWrapper<List<ProjectUserDto>>> getProjectUsers(
+		@PathVariable("projectId") Long projectId
+	) {
+		List<ProjectUserDto> projectUserDtos = projectService.getProjectUsers(projectId);
+		return ResponseWrapperFactory.setResponse(HttpStatus.OK, null, projectUserDtos);
 	}
 }

@@ -1,5 +1,7 @@
 package com.dawn.backend.domain.project.service;
 
+import java.util.List;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -12,6 +14,7 @@ import com.dawn.backend.domain.project.dto.request.UpdateProjectRequestDto;
 import com.dawn.backend.domain.project.dto.response.CreateProjectResponseDto;
 import com.dawn.backend.domain.project.entity.Project;
 import com.dawn.backend.domain.project.repository.ProjectRepository;
+import com.dawn.backend.domain.user.dto.ProjectUserDto;
 import com.dawn.backend.domain.user.entity.User;
 import com.dawn.backend.domain.user.entity.UserProject;
 import com.dawn.backend.domain.user.repository.UserProjectRepository;
@@ -74,5 +77,10 @@ public class ProjectServiceImpl implements ProjectService {
 
 		return new CreateProjectResponseDto(savedProject.getProjectId());
 
+	}
+
+	@Override
+	public List<ProjectUserDto> getProjectUsers(Long projectId) {
+		return userProjectRepository.findProjectUsers(projectId);
 	}
 }
