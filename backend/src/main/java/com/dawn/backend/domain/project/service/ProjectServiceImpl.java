@@ -7,6 +7,7 @@ import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 
 import com.dawn.backend.domain.project.dto.ProjectDto;
+import com.dawn.backend.domain.project.dto.request.UpdateProjectRequestDto;
 import com.dawn.backend.domain.project.entity.Project;
 import com.dawn.backend.domain.project.repository.ProjectRepository;
 
@@ -25,4 +26,13 @@ public class ProjectServiceImpl implements ProjectService {
 			project.getProjectTitle(),
 			project.getCreatedAt());
 	}
+
+	@Transactional
+	@Override
+	public void updateProject(Long projectId, UpdateProjectRequestDto request) {
+		Project project = projectRepository.findById(projectId)
+			.orElseThrow(() -> new IllegalArgumentException(HttpStatus.INTERNAL_SERVER_ERROR.toString()));
+		project.updateProjectTitle(request.projectTitle());
+	}
+	
 }

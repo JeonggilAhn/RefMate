@@ -1,8 +1,12 @@
 package com.dawn.backend.domain.project.service;
 
 import com.dawn.backend.domain.project.dto.ProjectDto;
+import com.dawn.backend.domain.project.dto.request.UpdateProjectRequestDto;
 
 public interface ProjectService {
-	// 프로젝트 상세 조회
+
 	ProjectDto getProjectDetail(Long projectId);
+
+	void updateProject(Long projectId, UpdateProjectRequestDto request);
+
 }
