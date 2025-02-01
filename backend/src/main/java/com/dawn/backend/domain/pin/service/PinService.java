@@ -5,11 +5,14 @@ import java.util.List;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import com.dawn.backend.domain.note.entity.Note;
 import com.dawn.backend.domain.note.entity.NoteImage;
 import com.dawn.backend.domain.note.repository.ImageRepository;
 import com.dawn.backend.domain.note.repository.NoteCheckRepository;
+import com.dawn.backend.domain.note.repository.NoteRepository;
 import com.dawn.backend.domain.pin.dto.ImageItem;
 import com.dawn.backend.domain.pin.dto.PinGroupDto;
+import com.dawn.backend.domain.pin.dto.PinImageItem;
 import com.dawn.backend.domain.pin.dto.PinItem;
 import com.dawn.backend.domain.pin.entity.PinVersion;
 import com.dawn.backend.domain.pin.repository.PinGroupRepository;
@@ -24,19 +27,21 @@ public class PinService {
 	private final PinGroupRepository pinGroupRepository;
 	private final ImageRepository imageRepository;
 	private final NoteCheckRepository noteCheckRepository;
+	private final NoteRepository noteRepository;
 
 	public PinService(
 		PinRepository pinRepository,
 		PinVersionRepository pinVersionRepository,
 		PinGroupRepository pinGroupRepository,
 		ImageRepository imageRepository,
-		NoteCheckRepository noteCheckRepository
-	) {
+		NoteCheckRepository noteCheckRepository,
+		NoteRepository noteRepository) {
 		this.pinRepository = pinRepository;
 		this.pinVersionRepository = pinVersionRepository;
 		this.pinGroupRepository = pinGroupRepository;
 		this.imageRepository = imageRepository;
 		this.noteCheckRepository = noteCheckRepository;
+		this.noteRepository = noteRepository;
 	}
 
 	public List<PinItem> pins(Long blueprintId, Long blueprintVersionId) {
@@ -52,6 +57,7 @@ public class PinService {
 
 				List<ImageItem> previewImages = noteImages.stream()
 					.map(noteImage -> new ImageItem(
+						noteImage.getImageId(),
 						noteImage.getImageOrigin(),
 						noteImage.getImagePreview(),
 						noteImage.getBookmark()
@@ -81,6 +87,35 @@ public class PinService {
 					pinGroupDto,
 					hasUnreadNote,
 					pinVersion.getIsActive()
+				);
+			})
+			.toList();
+	}
+
+	public List<PinImageItem> pinImages(Long pinId) {
+
+		List<Note> noteList =
+			noteRepository.findAllByPinPinId(pinId);
+
+		return noteList.stream()
+			.map(note -> {
+
+				List<NoteImage> noteImages =
+					imageRepository.findAllByNoteNoteIdOrderByBookmark(note.getNoteId());
+
+				List<ImageItem> imageItems = noteImages.stream()
+					.map(noteImage -> new ImageItem(
+						noteImage.getImageId(),
+						noteImage.getImageOrigin(),
+						noteImage.getImagePreview(),
+						noteImage.getBookmark()
+					))
+					.toList();
+
+				return new PinImageItem(
+					note.getNoteId(),
+					note.getNoteTitle(),
+					imageItems
 				);
 			})
 			.toList();

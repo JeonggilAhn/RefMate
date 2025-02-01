@@ -18,4 +18,6 @@ public interface ImageRepository extends JpaRepository<NoteImage, Long> {
 		+ "ORDER BY im.bookmark"
 	)
 	List<NoteImage> findAllByPinOrderByBookmark(Pin pin);
+
+	List<NoteImage> findAllByNoteNoteIdOrderByBookmark(Long noteId);
 }
