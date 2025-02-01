@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -16,8 +17,10 @@ import com.dawn.backend.domain.blueprint.dto.BlueprintVersionDto;
 import com.dawn.backend.domain.blueprint.dto.BlueprintVersionItem;
 import com.dawn.backend.domain.blueprint.dto.request.CreateBlueprintRequestDto;
 import com.dawn.backend.domain.blueprint.dto.request.CreateBlueprintVersionRequestDto;
+import com.dawn.backend.domain.blueprint.dto.request.UpdateBlueprintRequestDto;
 import com.dawn.backend.domain.blueprint.dto.response.CreateBlueprintResponseDto;
 import com.dawn.backend.domain.blueprint.dto.response.CreateBlueprintVersionResponseDto;
+import com.dawn.backend.domain.blueprint.dto.response.UpdateBlueprintResponseDto;
 import com.dawn.backend.domain.blueprint.service.BlueprintService;
 import com.dawn.backend.global.response.ResponseWrapper;
 import com.dawn.backend.global.response.ResponseWrapperFactory;
@@ -86,6 +89,21 @@ public class BlueprintController {
 			HttpStatus.CREATED,
 			null,
 			blueprintService.createBlueprintVersion(blueprintId, createBlueprintVersionRequestDto)
+		);
+	}
+
+	@PatchMapping("/blueprints/{blueprintId}")
+	public ResponseEntity<ResponseWrapper<UpdateBlueprintResponseDto>> updateBlueprint(
+		@PathVariable("blueprintId") Long blueprintId,
+		@RequestBody UpdateBlueprintRequestDto updateBlueprintRequestDto
+	) {
+		return ResponseWrapperFactory.setResponse(
+			HttpStatus.OK,
+			null,
+			blueprintService.updateBlueprint(
+				blueprintId,
+				updateBlueprintRequestDto
+			)
 		);
 	}
 }

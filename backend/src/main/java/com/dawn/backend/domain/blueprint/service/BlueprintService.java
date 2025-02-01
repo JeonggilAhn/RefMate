@@ -14,8 +14,10 @@ import com.dawn.backend.domain.blueprint.dto.BlueprintVersionDto;
 import com.dawn.backend.domain.blueprint.dto.BlueprintVersionItem;
 import com.dawn.backend.domain.blueprint.dto.request.CreateBlueprintRequestDto;
 import com.dawn.backend.domain.blueprint.dto.request.CreateBlueprintVersionRequestDto;
+import com.dawn.backend.domain.blueprint.dto.request.UpdateBlueprintRequestDto;
 import com.dawn.backend.domain.blueprint.dto.response.CreateBlueprintResponseDto;
 import com.dawn.backend.domain.blueprint.dto.response.CreateBlueprintVersionResponseDto;
+import com.dawn.backend.domain.blueprint.dto.response.UpdateBlueprintResponseDto;
 import com.dawn.backend.domain.blueprint.entity.Blueprint;
 import com.dawn.backend.domain.blueprint.entity.BlueprintVersion;
 import com.dawn.backend.domain.blueprint.repository.BlueprintRepository;
@@ -163,5 +165,22 @@ public class BlueprintService {
 		blueprintVersionRepository.updatePostVersion(latestVersion, savedBlueprintVersion);
 
 		return savedBlueprintVersion.getBlueprintVersionId();
+	}
+
+	public UpdateBlueprintResponseDto updateBlueprint(
+		Long blueprintId,
+		UpdateBlueprintRequestDto updateBlueprintRequestDto
+	) {
+		Blueprint blueprint =
+			blueprintRepository.findById(blueprintId).orElse(null);
+
+		blueprint.setBlueprintTitle(updateBlueprintRequestDto.blueprintTitle());
+
+		Blueprint savedBlueprint = blueprintRepository.save(blueprint);
+
+		return new UpdateBlueprintResponseDto(
+			savedBlueprint.getBlueprintId(),
+			savedBlueprint.getBlueprintTitle()
+		);
 	}
 }
