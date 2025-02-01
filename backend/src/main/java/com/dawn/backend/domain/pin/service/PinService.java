@@ -14,6 +14,7 @@ import com.dawn.backend.domain.pin.dto.ImageItem;
 import com.dawn.backend.domain.pin.dto.PinGroupDto;
 import com.dawn.backend.domain.pin.dto.PinImageItem;
 import com.dawn.backend.domain.pin.dto.PinItem;
+import com.dawn.backend.domain.pin.entity.PinGroup;
 import com.dawn.backend.domain.pin.entity.PinVersion;
 import com.dawn.backend.domain.pin.repository.PinGroupRepository;
 import com.dawn.backend.domain.pin.repository.PinRepository;
@@ -118,6 +119,20 @@ public class PinService {
 					imageItems
 				);
 			})
+			.toList();
+	}
+
+	public List<PinGroupDto> pinGroups(Long blueprintId) {
+
+		List<PinGroup> pinGroups =
+			pinGroupRepository.findAllByBlueprintBlueprintId(blueprintId);
+
+		return pinGroups.stream()
+			.map(pinGroup -> new PinGroupDto(
+				pinGroup.getPinGroupId(),
+				pinGroup.getPinGroupName(),
+				pinGroup.getPinGroupColor()
+			))
 			.toList();
 	}
 }

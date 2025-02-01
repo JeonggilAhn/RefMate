@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.dawn.backend.domain.pin.dto.PinGroupDto;
 import com.dawn.backend.domain.pin.dto.PinImageItem;
 import com.dawn.backend.domain.pin.dto.PinItem;
 import com.dawn.backend.domain.pin.service.PinService;
@@ -44,6 +45,17 @@ public class PinController {
 			HttpStatus.OK,
 			null,
 			pinService.pinImages(pinId)
+		);
+	}
+
+	@GetMapping("/blueprints/{blueprintId}/pin-groups")
+	public ResponseEntity<ResponseWrapper<List<PinGroupDto>>> getPinGroups(
+		@PathVariable("blueprintId") Long blueprintId
+	) {
+		return ResponseWrapperFactory.setResponse(
+			HttpStatus.OK,
+			null,
+			pinService.pinGroups(blueprintId)
 		);
 	}
 }
