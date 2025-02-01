@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { get, post, put } from '../../api'; // API 요청 함수 임포트
 
-// 테스트 시 import해서 확인
+// 테스트 시 import해서 확인, 버튼 형식으로 만듦.
 
 const PinPopup = () => {
   const [isPopupOpen, setIsPopupOpen] = useState(false); // 자체 상태 관리
