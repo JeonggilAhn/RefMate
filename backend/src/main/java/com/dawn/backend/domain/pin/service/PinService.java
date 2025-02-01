@@ -5,6 +5,10 @@ import java.util.List;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import jakarta.transaction.Transactional;
+
+import com.dawn.backend.domain.blueprint.entity.BlueprintVersion;
+import com.dawn.backend.domain.blueprint.repository.BlueprintVersionRepository;
 import com.dawn.backend.domain.note.entity.Note;
 import com.dawn.backend.domain.note.entity.NoteImage;
 import com.dawn.backend.domain.note.repository.ImageRepository;
@@ -14,6 +18,9 @@ import com.dawn.backend.domain.pin.dto.ImageItem;
 import com.dawn.backend.domain.pin.dto.PinGroupDto;
 import com.dawn.backend.domain.pin.dto.PinImageItem;
 import com.dawn.backend.domain.pin.dto.PinItem;
+import com.dawn.backend.domain.pin.dto.request.CreatePinRequestDto;
+import com.dawn.backend.domain.pin.dto.response.CreatePinResponseDto;
+import com.dawn.backend.domain.pin.entity.Pin;
 import com.dawn.backend.domain.pin.entity.PinGroup;
 import com.dawn.backend.domain.pin.entity.PinVersion;
 import com.dawn.backend.domain.pin.repository.PinGroupRepository;
@@ -29,6 +36,7 @@ public class PinService {
 	private final ImageRepository imageRepository;
 	private final NoteCheckRepository noteCheckRepository;
 	private final NoteRepository noteRepository;
+	private final BlueprintVersionRepository blueprintVersionRepository;
 
 	public PinService(
 		PinRepository pinRepository,
@@ -36,13 +44,14 @@ public class PinService {
 		PinGroupRepository pinGroupRepository,
 		ImageRepository imageRepository,
 		NoteCheckRepository noteCheckRepository,
-		NoteRepository noteRepository) {
+		NoteRepository noteRepository, BlueprintVersionRepository blueprintVersionRepository) {
 		this.pinRepository = pinRepository;
 		this.pinVersionRepository = pinVersionRepository;
 		this.pinGroupRepository = pinGroupRepository;
 		this.imageRepository = imageRepository;
 		this.noteCheckRepository = noteCheckRepository;
 		this.noteRepository = noteRepository;
+		this.blueprintVersionRepository = blueprintVersionRepository;
 	}
 
 	public List<PinItem> pins(Long blueprintId, Long blueprintVersionId) {
@@ -134,5 +143,38 @@ public class PinService {
 				pinGroup.getPinGroupColor()
 			))
 			.toList();
+	}
+
+	@Transactional
+	public CreatePinResponseDto createPin(
+		Long blueprintId,
+		Long versionId,
+		CreatePinRequestDto pinInfo
+	) {
+		Pin pin = Pin.builder()
+			.pinX(pinInfo.pinX())
+			.pinY(pinInfo.pinY())
+			.pinName(pinInfo.pinName())
+			.build();
+
+		Pin savedPin = pinRepository.save(pin);
+
+		BlueprintVersion blueprintVersion =
+			blueprintVersionRepository.findById(versionId).get();
+
+		PinGroup pinGroup =
+			pinGroupRepository.findById(pinInfo.pinGroupId()).get();
+
+		PinVersion pinVersion = PinVersion.builder()
+			.pin(savedPin)
+			.blueprintVersion(blueprintVersion)
+			.pinGroup(pinGroup)
+			.build();
+
+		pinVersionRepository.save(pinVersion);
+
+		return new CreatePinResponseDto(
+			savedPin.getPinId()
+		);
 	}
 }
