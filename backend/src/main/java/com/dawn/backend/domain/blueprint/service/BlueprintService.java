@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.dawn.backend.domain.blueprint.dto.BlueprintDto;
+import com.dawn.backend.domain.blueprint.dto.BlueprintVersionItem;
 import com.dawn.backend.domain.blueprint.entity.Blueprint;
 import com.dawn.backend.domain.blueprint.entity.BlueprintVersion;
 import com.dawn.backend.domain.blueprint.repository.BlueprintRepository;
@@ -28,7 +29,8 @@ public class BlueprintService {
 
 	public List<BlueprintDto> blueprints(Long projectId) {
 
-		List<Blueprint> blueprintList = blueprintRepository.findAllByProjectProjectId(projectId);
+		List<Blueprint> blueprintList =
+			blueprintRepository.findAllByProjectProjectIdOrderByCreatedAtDesc(projectId);
 
 		return blueprintList.stream()
 			.map(blueprint -> {
@@ -44,6 +46,22 @@ public class BlueprintService {
 					latestVersion.getBlueprintVersionId()
 				);
 			})
+			.toList();
+	}
+
+	public List<BlueprintVersionItem> blueprintVersions(Long blueprintId) {
+
+		List<BlueprintVersion> blueprintVersionList =
+			blueprintVersionRepository.findAllByBlueprintBlueprintIdOrderByBlueprintVersionSeq(blueprintId);
+
+		return blueprintVersionList.stream()
+			.map(blueprintVersion -> new BlueprintVersionItem(
+				blueprintVersion.getBlueprintVersionId(),
+				blueprintVersion.getBlueprintVersionName(),
+				blueprintVersion.getPreviewImg(),
+				blueprintVersion.getCreatedAt().format(DateTimeFormatter.ISO_DATE_TIME),
+				blueprintVersion.getBlueprintVersionSeq()
+			))
 			.toList();
 	}
 }

@@ -9,5 +9,5 @@ import com.dawn.backend.domain.blueprint.entity.Blueprint;
 
 @Repository
 public interface BlueprintRepository extends JpaRepository<Blueprint, Long> {
-	List<Blueprint> findAllByProjectProjectId(Long projectId);
+	List<Blueprint> findAllByProjectProjectIdOrderByCreatedAtDesc(Long projectId);
 }

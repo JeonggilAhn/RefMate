@@ -1,5 +1,7 @@
 package com.dawn.backend.domain.blueprint.repository;
 
+import java.util.List;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -15,4 +17,6 @@ public interface BlueprintVersionRepository extends JpaRepository<BlueprintVersi
 		+ " ORDER BY bv.blueprintVersionSeq"
 	)
 	BlueprintVersion findLatestVersion(Long blueprintId);
+
+	List<BlueprintVersion> findAllByBlueprintBlueprintIdOrderByBlueprintVersionSeq(Long blueprintId);
 }
