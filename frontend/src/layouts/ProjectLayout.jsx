@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import Header from '../components/common/Header';
 import BackButton from '../components/common/BackButton';
 import Tabs from '../components/common/Tabs';
+import Thumbnail from '../components/project/Thumbnail';
 
 const Wrapper = styled.div`
   box-sizing: border-box;
@@ -59,6 +60,8 @@ const Item = styled.div`
 `;
 
 function ProjectLayout() {
+  const userId = 96168794; // 예시 userId
+
   return (
     <Wrapper>
       <Header />
@@ -71,11 +74,7 @@ function ProjectLayout() {
           tabs={['모든 프로젝트', '내 프로젝트', '공유 프로젝트']}
           iconType="search"
         />
-        <Components>
-          {Array.from({ length: 25 }, (_, i) => (
-            <Item key={i}>프로젝트 컴포넌트 {i + 1}</Item>
-          ))}
-        </Components>
+        <Thumbnail userId={userId} />
       </ContentWrapper>
       <BackButton />
     </Wrapper>
