@@ -1,18 +1,40 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import styled from 'styled-components';
 import ButtonList from './ButtonList';
 import { get, post } from '../../api';
 
 const pinIcon = require('../../assets/icons/Pin_Blue.svg').default;
 
-const PinComponent = ({ blueprintId, blueprintVersion }) => {
-  const [selectedPin, setSelectedPin] = useState(null);
+const PinComponent = ({ blueprintId, blueprintVersion, pin }) => {
+  const [pinInfo, setPinInfo] = useState(pin);
   const [hoveredPin, setHoveredPin] = useState(null);
   const [recentNotes, setRecentNotes] = useState(null);
   const [unreadNotes, setUnreadNotes] = useState(false);
   const [isClicked, setIsClicked] = useState(false);
-  const [popupPosition, setPopupPosition] = useState({ top: 0, left: 0 });
   const pinRef = useRef(null);
+
+  const fetchRecentNote = useCallback(async () => {
+    try {
+      const response = await get(`pins/${pinInfo.pin_id}/notes/recent`);
+      setRecentNotes(response.data?.content || null);
+      setUnreadNotes(pinInfo.has_unread_note || false);
+    } catch (error) {
+      console.error(`핀 ${pinInfo.pin_id}의 최근 노트 조회 실패:`, error);
+    }
+  }, [pinInfo]);
+
+  const markNotesAsRead = async () => {
+    if (!pinInfo || !unreadNotes) return;
+
+    try {
+      await post(`blueprints/${blueprintId}/${blueprintVersion}/task/read`, {
+        pin_id: pinInfo.pin_id,
+      });
+      setUnreadNotes(false);
+    } catch (error) {
+      console.error('노트 읽음 처리 실패:', error);
+    }
+  };
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -26,78 +48,16 @@ const PinComponent = ({ blueprintId, blueprintVersion }) => {
   }, []);
 
   useEffect(() => {
-    if (!blueprintId || !blueprintVersion) return;
-
-    const fetchSelectedPin = async () => {
-      try {
-        const response = await get(
-          `blueprints/${blueprintId}/${blueprintVersion}/pins`,
-        );
-        const pinList = response.data?.content || [];
-
-        if (pinList.length > 0) {
-          setSelectedPin(pinList[0]); // 첫 번째 핀 선택
-        }
-      } catch (error) {
-        console.error('블루프린트 핀 조회 실패:', error);
-      }
-    };
-
-    fetchSelectedPin();
-  }, [blueprintId, blueprintVersion]);
-
-  useEffect(() => {
-    if (!selectedPin) return;
-
-    const fetchRecentNote = async () => {
-      try {
-        const response = await get(`pins/${selectedPin.pin_id}/notes/recent`);
-        setRecentNotes(response.data?.content || null);
-        setUnreadNotes(selectedPin.has_unread_note || false);
-      } catch (error) {
-        console.error(`핀 ${selectedPin.pin_id}의 최근 노트 조회 실패:`, error);
-      }
-    };
-
-    fetchRecentNote();
-  }, [selectedPin]);
-
-  const markNotesAsRead = async () => {
-    if (!selectedPin || !unreadNotes) return;
-
-    try {
-      await post(`blueprints/${blueprintId}/${blueprintVersion}/task/read`, {
-        pin_id: selectedPin.pin_id,
-      });
-      setUnreadNotes(false);
-    } catch (error) {
-      console.error('노트 읽음 처리 실패:', error);
+    if (!pin) {
+      return;
     }
-  };
 
-  const adjustPopupPosition = () => {
-    if (!pinRef.current) return;
+    setPinInfo(pin);
+    console.log('pin', pin);
+    fetchRecentNote();
+  }, [pin, fetchRecentNote]);
 
-    const pinRect = pinRef.current.getBoundingClientRect();
-    const popupHeight = 80;
-    const popupWidth = 160;
-    const viewportWidth = window.innerWidth;
-    const viewportHeight = window.innerHeight;
-
-    let top = pinRect.top - popupHeight - 8;
-    let left = pinRect.left + pinRect.width / 2 - popupWidth / 2;
-
-    if (top < 0) top = pinRect.bottom + 8;
-    if (left < 0) left = 8;
-    if (left + popupWidth > viewportWidth)
-      left = viewportWidth - popupWidth - 8;
-    if (top + popupHeight > viewportHeight)
-      top = viewportHeight - popupHeight - 8;
-
-    setPopupPosition({ top, left });
-  };
-
-  if (!selectedPin) return null;
+  if (!pin) return null;
 
   return (
     <PinContainer>
@@ -105,8 +65,7 @@ const PinComponent = ({ blueprintId, blueprintVersion }) => {
         ref={pinRef}
         onMouseEnter={() => {
           if (!isClicked) {
-            setHoveredPin(selectedPin);
-            adjustPopupPosition();
+            setHoveredPin(pinInfo);
             markNotesAsRead();
           }
         }}
@@ -118,12 +77,7 @@ const PinComponent = ({ blueprintId, blueprintVersion }) => {
       </Pin>
 
       {!isClicked && hoveredPin && (
-        <Popup
-          style={{
-            top: `${popupPosition.top}px`,
-            left: `${popupPosition.left}px`,
-          }}
-        >
+        <Popup>
           <PopupTitle>{recentNotes?.note_title || ''}</PopupTitle>
           <PopupDivider />
           <PopupContent>{recentNotes?.note_content || ''}</PopupContent>
@@ -144,24 +98,18 @@ export default PinComponent;
 const PinContainer = styled.div`
   position: relative;
   display: inline-block;
-  margin: 0.5rem;
 `;
 
 const Icon = styled.img`
   width: 1.5rem;
   height: 1.5rem;
   position: relative;
-  z-index: 1;
 `;
 
 const Pin = styled.div`
-  position: relative;
+  position: absolute;
   width: 2rem;
   height: 2rem;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  cursor: pointer;
 `;
 
 const UnreadDot = styled.div`
@@ -172,11 +120,11 @@ const UnreadDot = styled.div`
   height: 0.5rem;
   background-color: red;
   border-radius: 50%;
-  z-index: 2;
 `;
 
 const Popup = styled.div`
-  position: fixed;
+  position: absolute;
+  margin-left: 2rem;
   width: 10rem;
   background: rgba(0, 0, 0, 0.52);
   color: white;
@@ -204,7 +152,7 @@ const PopupContent = styled.div`
 
 const ButtonGroupContainer = styled.div`
   position: absolute;
-  top: 2.5rem;
+  top: 1rem;
   left: 1.5rem;
-  z-index: 15;
+  z-index: 2;
 `;

@@ -6,7 +6,12 @@ import PinComponent from './PinComponent ';
 const A3_WIDTH = 1587; // A3 크기 (픽셀 단위)
 const A3_HEIGHT = 1123; // A3 크기 (픽셀 단위)
 
-const BlueprintCanvas = ({ imageUrl, isPinButtonEnaled, initialPins }) => {
+const BlueprintCanvas = ({
+  imageUrl,
+  isPinButtonEnaled,
+  initialPins,
+  isAllPinVisible,
+}) => {
   const canvasRef = useRef(null);
   const [scale, setScale] = useState(1);
   const [position, setPosition] = useState({ x: 0, y: 0 });
@@ -14,6 +19,10 @@ const BlueprintCanvas = ({ imageUrl, isPinButtonEnaled, initialPins }) => {
   const [startPos, setStartPos] = useState({ x: 0, y: 0 });
   const [pins, setPins] = useState([]);
   const imgRef = useRef(new Image());
+
+  // params 로 변경
+  const blueprint_id = 1;
+  const blueprint_version_id = 1987029227680993;
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -136,7 +145,7 @@ const BlueprintCanvas = ({ imageUrl, isPinButtonEnaled, initialPins }) => {
         pingroup_name: 'rr',
       },
       pin_id: null,
-      pin_nme: 'test',
+      pin_name: 'test',
       pin_x: x,
       pin_y: y,
       preview_image_count: 0,
@@ -165,19 +174,17 @@ const BlueprintCanvas = ({ imageUrl, isPinButtonEnaled, initialPins }) => {
           style={{
             position: 'absolute',
             left: `${position.x + item.pin_x * scale}px`,
-            top: `${position.y + item.pin_y * scale}px`,
+            top: `${position.y + item.pin_y * scale - 40}px`,
             // transform: `translate(-50%, -50%) scale(${Math.pow(2 / scale)})`,
             zIndex: 3,
             pointerEvents: 'auto',
+            visibility: isAllPinVisible ? 'visible' : 'hidden',
           }}
         >
           <PinComponent
-            pinId={item.pin_id}
-            pinName={item.pin_name}
-            groupNumber={item.pin_group.pin_group_id}
-            recentNoteTitle={''}
-            recentNoteContent={''}
-            unreadNotes={item.has_unread_note ? 1 : 0}
+            blueprintId={blueprint_id}
+            blueprintVersion={blueprint_version_id}
+            pin={item}
           />
         </div>
       ))}
