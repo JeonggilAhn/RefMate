@@ -195,7 +195,7 @@ const Icon = styled.img`
 `;
 
 const Pin = styled.div`
-  position: relative;
+  position: absolute;
   width: 2rem;
   height: 2rem;
   display: flex;
@@ -216,7 +216,8 @@ const UnreadDot = styled.div`
 `;
 
 const Popup = styled.div`
-  position: fixed;
+  position: absolute;
+  margin-left: 2rem;
   width: 10rem;
   background: rgba(0, 0, 0, 0.52);
   color: white;
