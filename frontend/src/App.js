@@ -3,7 +3,7 @@ import './styles/index.css';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import ProjectLayout from './layouts/ProjectLayout';
 import MainLayout from './layouts/MainLayout';
-import BluePrintLayout from './layouts/BluePrintLayout';
+import Blueprint from './pages/Blueprint';
 
 function App() {
   return (
@@ -16,7 +16,7 @@ function App() {
             path="/projects/:projectId/blueprints"
             element={<ProjectLayout />}
           ></Route>
-          <Route path="/blueprint" element={<BluePrintLayout />} />
+          <Route path="/blueprint" element={<Blueprint />} />
         </Routes>
       </Router>
     </div>
