@@ -1,22 +1,27 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
+import Login from '../components/main/Login';
 import { Link } from 'react-router-dom';
 import Header from '../components/common/Header';
 import BackButton from '../components/common/BackButton';
 
 const MainPage = () => {
+  const [isLoginVisible, setIsLoginVisible] = useState(false);
+
+  const handleOpenLogin = () => setIsLoginVisible(true);
+  const handleCloseLogin = () => setIsLoginVisible(false);
+
   return (
     <>
-      <Header /> {/* 헤더를 최상단에 위치 */}
+      <Header />
       <Container>
         <Explain>
           <LeftSection>
             <Title>서비스 소개</Title>
             <Description>서비스설명</Description>
-            <StartButton>
-              <Link to="/projects">프로젝트 페이지</Link>
-            </StartButton>
+            <StartButton onClick={handleOpenLogin}>시작하기</StartButton>
           </LeftSection>
+          <Link to="/projects">프로젝트 페이지</Link>
           <ImageBox>이미지 표시 영역</ImageBox>
         </Explain>
         <ButtonSection>
@@ -28,11 +33,14 @@ const MainPage = () => {
         </ButtonSection>
         <BackButton />
       </Container>
+      <Login isVisible={isLoginVisible} onClose={handleCloseLogin} />
     </>
   );
 };
 
 export default MainPage;
+
+// 기존 스타일 코드 (생략)
 
 const Container = styled.div`
   display: flex;
