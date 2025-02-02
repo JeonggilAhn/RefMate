@@ -6,6 +6,7 @@ import Tabs from '../components/common/Tabs';
 import Thumbnail from '../components/project/Thumbnail';
 import SubHeader from '../components/project/SubHeader';
 import { useLocation } from 'react-router-dom';
+import BlueprintThumbnail from '../components/project/BlueprintThumbnail';
 
 const Wrapper = styled.div`
   box-sizing: border-box;
@@ -42,7 +43,7 @@ function ProjectLayout() {
         {isBlueprintListPage ? (
           <>
             <Tabs tabs={['모든 블루프린트']} iconType="search" />
-            <div>블루프린트 컴포넌트</div>
+            <BlueprintThumbnail></BlueprintThumbnail>
           </>
         ) : (
           <>
