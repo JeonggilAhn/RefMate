@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { get } from '../../api';
 import { MdMoreHoriz } from 'react-icons/md';
+import { useNavigate } from 'react-router-dom';
 
 // 날짜 포맷 함수
 const formatDate = (dateString) => {
@@ -12,6 +13,7 @@ const formatDate = (dateString) => {
 const Thumbnail = ({ userId }) => {
   const [projects, setProjects] = useState([]); // 프로젝트 상태 추가
   const [imageLoaded, setImageLoaded] = useState(true); // 이미지 로딩 상태 추가
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchProjects = async () => {
@@ -35,12 +37,19 @@ const Thumbnail = ({ userId }) => {
     setImageLoaded((prev) => ({ ...prev, [index]: true }));
   };
 
+  const handleProjectClick = (projectId) => {
+    navigate(`/projects/${projectId}/blueprints`);
+  };
+
   return (
     <Components>
       {/* projects가 배열일 때만 map 호출 */}
       {Array.isArray(projects) &&
         projects.map((project) => (
-          <ProjectCard key={project.project_id}>
+          <ProjectCard
+            key={project.project_id}
+            onClick={() => handleProjectClick(project.project_id)}
+          >
             <ImageContainer>
               {project.preview_images.slice(0, 4).map((image, index) => (
                 <ImageWrapper key={index}>

@@ -4,6 +4,8 @@ import Header from '../components/common/Header';
 import BackButton from '../components/common/BackButton';
 import Tabs from '../components/common/Tabs';
 import Thumbnail from '../components/project/Thumbnail';
+import SubHeader from '../components/project/SubHeader';
+import { useLocation } from 'react-router-dom';
 
 const Wrapper = styled.div`
   box-sizing: border-box;
@@ -26,31 +28,31 @@ const ContentWrapper = styled.div`
   box-sizing: border-box;
 `;
 
-const SubHeader = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background-color: orange;
-  width: 100%;
-  padding: 10px 20px; /* 좌우 간격 추가 */
-`;
-
 function ProjectLayout() {
   const userId = 96168794; // 예시 userId
+  const location = useLocation();
+
+  const isBlueprintListPage = location.pathname.includes('blueprints');
 
   return (
     <Wrapper>
       <Header />
       <ContentWrapper>
-        <SubHeader>
-          <h3>공간</h3>
-          <button>만들기</button>
-        </SubHeader>
-        <Tabs
-          tabs={['모든 프로젝트', '내 프로젝트', '공유 프로젝트']}
-          iconType="search"
-        />
-        <Thumbnail userId={userId} />
+        <SubHeader userId={userId} projectId={isBlueprintListPage ? 1 : null} />{' '}
+        {isBlueprintListPage ? (
+          <>
+            <Tabs tabs={['모든 블루프린트']} iconType="search" />
+            <div>블루프린트 컴포넌트</div>
+          </>
+        ) : (
+          <>
+            <Tabs
+              tabs={['모든 프로젝트', '내 프로젝트', '공유 프로젝트']}
+              iconType="search"
+            />
+            <Thumbnail userId={userId} />
+          </>
+        )}
       </ContentWrapper>
       <BackButton />
     </Wrapper>
