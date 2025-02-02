@@ -1,6 +1,6 @@
 import Header from '../components/common/Header';
 import BackButton from '../components/common/BackButton';
-import ImportantNoteList from '../components/blueprint/ImportantNoteList';
+import ImportantNoteSection from '../components/blueprint/ImportantNoteSection';
 
 const BluePrintLayout = () => {
   return (
@@ -12,7 +12,7 @@ const BluePrintLayout = () => {
         </div>
         <div className="min-w-[20rem] w-[20rem] h-screen pt-[48px] border border-black">
           sidebar
-          <ImportantNoteList />
+          <ImportantNoteSection />
         </div>
       </div>
       <BackButton />
