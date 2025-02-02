@@ -3,10 +3,13 @@ import styled from 'styled-components';
 import { get } from '../../api';
 import { useNavigate } from 'react-router-dom';
 import EditButton from '../common/EditButton';
+import VersionHistorySidebar from './VersionHistorySidebar';
 
 const BlueprintThumbnail = ({ projectId }) => {
   const [blueprints, setBlueprints] = useState([]);
-
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [selectedBlueprintId, setSelectedBlueprintId] = useState(null);
+  const [selectedBlueprintTitle, setSelectedBlueprintTitle] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -27,12 +30,14 @@ const BlueprintThumbnail = ({ projectId }) => {
     // navigate(`/blueprint/${blueprintId}`);
   };
 
-  const handleViewAll = (blueprintId) => {
-    // 사이드바 따로 구현해서 넣어야 함
-    console.log('전체 시안 보기:', blueprintId);
+  const handleViewAll = (blueprintId, blueprintTitle) => {
+    setSelectedBlueprintId(blueprintId);
+    setSelectedBlueprintTitle(blueprintTitle);
+    setIsSidebarOpen(true);
   };
 
   return (
+    // <Container>
     <BlueprintWrapper>
       {blueprints.map((blueprint) => (
         <BlueprintItem key={blueprint.blueprint_id}>
@@ -49,17 +54,30 @@ const BlueprintThumbnail = ({ projectId }) => {
             {new Date(blueprint.created_at).toLocaleDateString()}
           </CreatedAt>
 
-          <HoverButtons className="hover-buttons">
+          <HoverButtons>
             <button onClick={() => handleViewLatest(blueprint.blueprint_id)}>
               최신 시안 보기
             </button>
-            <button onClick={() => handleViewAll(blueprint.blueprint_id)}>
+            <button
+              onClick={() =>
+                handleViewAll(blueprint.blueprint_id, blueprint.blueprint_title)
+              }
+            >
               전체 시안 보기
             </button>
           </HoverButtons>
         </BlueprintItem>
       ))}
+      {isSidebarOpen && (
+        <VersionHistorySidebar
+          blueprintId={selectedBlueprintId}
+          blueprintTitle={selectedBlueprintTitle}
+          onClose={() => setIsSidebarOpen(false)}
+        />
+      )}
     </BlueprintWrapper>
+
+    // </Container>
   );
 };
 
