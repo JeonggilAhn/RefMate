@@ -4,6 +4,7 @@ import Header from '../components/common/Header';
 import BackButton from '../components/common/BackButton';
 import Tabs from '../components/common/Tabs';
 import Thumbnail from '../components/project/Thumbnail';
+import SubHeader from '../components/project/SubHeader';
 
 const Wrapper = styled.div`
   box-sizing: border-box;
@@ -26,15 +27,6 @@ const ContentWrapper = styled.div`
   box-sizing: border-box;
 `;
 
-const SubHeader = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background-color: orange;
-  width: 100%;
-  padding: 10px 20px; /* 좌우 간격 추가 */
-`;
-
 function ProjectLayout() {
   const userId = 96168794; // 예시 userId
 
@@ -42,10 +34,7 @@ function ProjectLayout() {
     <Wrapper>
       <Header />
       <ContentWrapper>
-        <SubHeader>
-          <h3>공간</h3>
-          <button>만들기</button>
-        </SubHeader>
+        <SubHeader></SubHeader>
         <Tabs
           tabs={['모든 프로젝트', '내 프로젝트', '공유 프로젝트']}
           iconType="search"
