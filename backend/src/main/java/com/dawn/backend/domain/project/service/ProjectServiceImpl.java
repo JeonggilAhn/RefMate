@@ -1,5 +1,6 @@
 package com.dawn.backend.domain.project.service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.http.HttpStatus;
@@ -7,11 +8,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 import com.dawn.backend.domain.project.dto.ProjectDto;
 import com.dawn.backend.domain.project.dto.request.CreateProjectRequestDto;
+import com.dawn.backend.domain.project.dto.request.InviteUserRequestDto;
 import com.dawn.backend.domain.project.dto.request.UpdateProjectRequestDto;
 import com.dawn.backend.domain.project.dto.response.CreateProjectResponseDto;
+import com.dawn.backend.domain.project.dto.response.InviteUserResponseDto;
 import com.dawn.backend.domain.project.entity.Project;
 import com.dawn.backend.domain.project.repository.ProjectRepository;
 import com.dawn.backend.domain.user.dto.ProjectUserDto;
@@ -20,6 +24,7 @@ import com.dawn.backend.domain.user.entity.UserProject;
 import com.dawn.backend.domain.user.repository.UserProjectRepository;
 import com.dawn.backend.domain.user.repository.UserRepository;
 
+@Slf4j
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
@@ -82,5 +87,37 @@ public class ProjectServiceImpl implements ProjectService {
 	@Override
 	public List<ProjectUserDto> getProjectUsers(Long projectId) {
 		return userProjectRepository.findProjectUsers(projectId);
+	}
+
+	@Transactional
+	@Override
+	public InviteUserResponseDto inviteUser(Long projectId, InviteUserRequestDto request) {
+		Project project = projectRepository.findById(projectId)
+			.orElseThrow(() -> new IllegalArgumentException("존재하지 않는 프로젝트입니다."));
+
+		System.out.println("request.inviteUserList() : " + request.inviteUserList());
+
+		List<Long> invitedUserIds = new ArrayList<>();
+
+		for (String userEmail : request.inviteUserList()) {
+			User user = userRepository.findByUserEmail(userEmail)
+				.orElseThrow(() -> new IllegalArgumentException("존재하지 않는 유저입니다."));
+
+			if (userProjectRepository.existsByUserAndProject(user, project)) {
+				log.info("이미 해당 프로젝트에 속해있는 유저입니다. userId : {}", user.getUserId());
+				continue;
+			}
+
+			UserProject userProject = UserProject.builder()
+				.userRole("MEMBER")
+				.user(user)
+				.project(project)
+				.build();
+
+			userProjectRepository.save(userProject);
+			invitedUserIds.add(user.getUserId());
+		}
+
+		return new InviteUserResponseDto(invitedUserIds);
 	}
 }

@@ -7,7 +7,9 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import com.dawn.backend.domain.project.entity.Project;
 import com.dawn.backend.domain.user.dto.ProjectUserDto;
+import com.dawn.backend.domain.user.entity.User;
 import com.dawn.backend.domain.user.entity.UserProject;
 
 @Repository
@@ -21,4 +23,6 @@ public interface UserProjectRepository extends JpaRepository<UserProject, Long> 
 				WHERE up.project.projectId = :projectId
 		""")
 	List<ProjectUserDto> findProjectUsers(@Param("projectId") Long projectId);
+
+	boolean existsByUserAndProject(User user, Project project);
 }

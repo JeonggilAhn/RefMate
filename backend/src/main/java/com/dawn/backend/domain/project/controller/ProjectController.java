@@ -16,8 +16,10 @@ import lombok.RequiredArgsConstructor;
 
 import com.dawn.backend.domain.project.dto.ProjectDto;
 import com.dawn.backend.domain.project.dto.request.CreateProjectRequestDto;
+import com.dawn.backend.domain.project.dto.request.InviteUserRequestDto;
 import com.dawn.backend.domain.project.dto.request.UpdateProjectRequestDto;
 import com.dawn.backend.domain.project.dto.response.CreateProjectResponseDto;
+import com.dawn.backend.domain.project.dto.response.InviteUserResponseDto;
 import com.dawn.backend.domain.project.service.ProjectService;
 import com.dawn.backend.domain.user.dto.ProjectUserDto;
 import com.dawn.backend.global.response.ResponseWrapper;
@@ -66,5 +68,14 @@ public class ProjectController {
 	) {
 		List<ProjectUserDto> projectUserDtos = projectService.getProjectUsers(projectId);
 		return ResponseWrapperFactory.setResponse(HttpStatus.OK, null, projectUserDtos);
+	}
+
+	@PostMapping("/projects/{projectId}/users")
+	public ResponseEntity<ResponseWrapper<InviteUserResponseDto>> inviteUser(
+		@PathVariable("projectId") Long projectId,
+		@RequestBody InviteUserRequestDto request
+	) {
+		InviteUserResponseDto inviteUserResponseDto = projectService.inviteUser(projectId, request);
+		return ResponseWrapperFactory.setResponse(HttpStatus.CREATED, null, inviteUserResponseDto);
 	}
 }
