@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import ImportantNoteList from './ImportantNoteList';
 
 const ImportantNoteSection = () => {
-  const pinId = 1; // 고정된 핀 ID (나중에 props로 전달 가능)
+  const pinId = 70281145; // 고정된 핀 ID (나중에 props로 전달 가능)
 
   return (
     <SectionContainer>
