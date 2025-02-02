@@ -4,6 +4,7 @@ import { get } from '../api/index';
 import BlueprintLayout from '../layouts/BlueprintLayout';
 import BlueprintCanvas from '../components/blueprint/BlueprintCanvas';
 import ImportantNoteSection from '../components/blueprint/ImportantNoteSection';
+import NoteHistory from '../components/blueprint/NoteHistory';
 
 const Blueprint = () => {
   // params 로 변경
@@ -83,6 +84,7 @@ const Blueprint = () => {
         <div className="min-w-[20rem] w-[20rem] h-screen pt-[48px] border border-black">
           <div>sidebar</div>
           <ImportantNoteSection />
+          <NoteHistory />
         </div>
       </div>
     </BlueprintLayout>
