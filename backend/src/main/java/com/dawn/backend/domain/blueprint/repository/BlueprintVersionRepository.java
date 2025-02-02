@@ -14,9 +14,9 @@ import com.dawn.backend.domain.blueprint.entity.BlueprintVersion;
 public interface BlueprintVersionRepository extends JpaRepository<BlueprintVersion, Long> {
 	@Query(
 		"SELECT bv"
-		+ " FROM BlueprintVersion bv"
-		+ " WHERE bv.blueprint.blueprintId = :blueprintId"
-		+ " ORDER BY bv.blueprintVersionSeq"
+			+ " FROM BlueprintVersion bv"
+			+ " WHERE bv.blueprint.blueprintId = :blueprintId"
+			+ " ORDER BY bv.blueprintVersionSeq"
 	)
 	BlueprintVersion findLatestVersion(Long blueprintId);
 
@@ -25,8 +25,15 @@ public interface BlueprintVersionRepository extends JpaRepository<BlueprintVersi
 	@Modifying
 	@Query(
 		"UPDATE BlueprintVersion bv "
-		+ "SET bv.postBlueprintVersion.blueprintVersionId = :#{postVersion.blueprintVersionId} "
-		+ "WHERE bv.blueprintVersionId = :#{preVersion.blueprintVersionId}"
+			+ "SET bv.postBlueprintVersion.blueprintVersionId = :#{postVersion.blueprintVersionId} "
+			+ "WHERE bv.blueprintVersionId = :#{preVersion.blueprintVersionId}"
 	)
 	void updatePostVersion(BlueprintVersion preVersion, BlueprintVersion postVersion);
+
+	@Query("""
+			SELECT bv FROM BlueprintVersion bv
+			WHERE bv.blueprint.blueprintId IN :blueprintIds
+			ORDER BY bv.createdAt DESC
+		""")
+	List<BlueprintVersion> findLatestBlueprintVersionsByBlueprintIds(@Param("blueprintIds") List<Long> blueprintIds);
 }
