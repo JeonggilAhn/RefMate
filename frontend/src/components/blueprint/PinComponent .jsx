@@ -1,75 +1,101 @@
 import React, { useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import ButtonList from './ButtonList';
-import { get } from '../../api';
+import { get, post } from '../../api';
 
-// 아이콘 맵핑
-const groupIcons = {
-  1: require('../../assets/icons/Pin_Red.svg').default,
-  2: require('../../assets/icons/Pin_Orange.svg').default,
-  3: require('../../assets/icons/Pin_Yellow.svg').default,
-  4: require('../../assets/icons/Pin_LightGreen.svg').default,
-  5: require('../../assets/icons/Pin_Green.svg').default,
-  6: require('../../assets/icons/Pin_LightBlue.svg').default,
-  7: require('../../assets/icons/Pin_Blue.svg').default,
-  8: require('../../assets/icons/Pin_Purple.svg').default,
-  9: require('../../assets/icons/Pin_Pink.svg').default,
-  10: require('../../assets/icons/Pin_Gray.svg').default,
-  outline: require('../../assets/icons/Pin_Outline.svg').default,
-};
+// 기본 핀 아이콘 (임시 블루)
+const pinIcon = require('../../assets/icons/Pin_Blue.svg').default;
+const outlineIcon = require('../../assets/icons/Pin_Outline.svg').default;
 
-const PinComponent = ({
-  pinId,
-  pinName,
-  groupNumber,
-  recentNoteTitle,
-  recentNoteContent,
-  unreadNotes, // 안 읽은 노트 개수
-}) => {
-  const [isHovered, setIsHovered] = useState(false);
+const PinComponent = ({ blueprintId, blueprintVersion }) => {
+  const [pins, setPins] = useState([]); // 핀 리스트
+  const [selectedPin, setSelectedPin] = useState(null); // 클릭한 핀
+  const [hoveredPin, setHoveredPin] = useState(null); // 호버 중인 핀
+  const [recentNotes, setRecentNotes] = useState({}); // 핀별 최신 노트 저장
+  const [unreadNotes, setUnreadNotes] = useState({});
   const [isClicked, setIsClicked] = useState(false);
   const [popupPosition, setPopupPosition] = useState({ top: 0, left: 0 });
-  const [pinData, setPinData] = useState(null);
   const pinRef = useRef(null);
 
-  // API 데이터 가져오기
+  // 블루프린트에서 핀 리스트 가져오기
   useEffect(() => {
-    const fetchPinData = async () => {
+    if (!blueprintId || !blueprintVersion) return;
+
+    const fetchPins = async () => {
       try {
-        const response = await get(`/pins/${pinId}/notes`); // API 호출
-        setPinData(response.data);
+        const response = await get(
+          `blueprints/${blueprintId}/${blueprintVersion}/pins`,
+        );
+        const pinList = response.data?.content || [];
+
+        if (pinList.length > 0) {
+          setPins(pinList);
+          setSelectedPin(pinList[0]); // 첫 번째 핀 선택 (클릭 시 사용)
+        }
       } catch (error) {
-        // 테스트용 코드드
-        console.error('핀 데이터를 불러오는 중 에러 발생:', error);
-        setPinData({
-          pinName: pinName || '테스트 핀',
-          groupNumber: groupNumber || 7,
-          recentNoteTitle: recentNoteTitle || '테스트 노트 제목',
-          recentNoteContent: recentNoteContent || '테스트 노트 내용',
-        });
+        console.error('블루프린트 핀 조회 실패:', error);
       }
     };
 
-    fetchPinData();
-  }, [pinId]);
+    fetchPins();
+  }, [blueprintId, blueprintVersion]);
 
-  const handleMouseEnter = () => {
-    setIsHovered(true);
+  // 핀을 호버할 때 해당 핀의 최신 노트 가져오기
+  const handleMouseEnter = async (pin) => {
+    setHoveredPin(pin); // 현재 호버 중인 핀 설정
     adjustPopupPosition();
+
+    // 핀별 최신 노트가 이미 저장되어 있다면 API 호출 생략
+    if (recentNotes[pin.pin_id]) return;
+
+    try {
+      const response = await get(`pins/${pin.pin_id}/notes/recent`);
+      setRecentNotes((prevNotes) => ({
+        ...prevNotes,
+        [pin.pin_id]: {
+          title: response.data?.content?.note_title || '최근 노트 없음',
+          content: response.data?.content?.note_content || '',
+        },
+      }));
+      setUnreadNotes((prevUnread) => ({
+        ...prevUnread,
+        [pin.pin_id]: pin.has_unread_note || false,
+      }));
+    } catch (error) {
+      console.error(`핀 ${pin.pin_id}의 최근 노트 조회 실패:`, error);
+    }
   };
 
-  const handleMouseLeave = () => setIsHovered(false);
+  // 노트 읽음 처리 (호버 시 자동 호출)
+  const markNotesAsRead = async (pin) => {
+    if (!pin || !unreadNotes[pin.pin_id]) return;
 
-  const handlePinClick = () => {
+    try {
+      await post(`blueprints/${blueprintId}/${blueprintVersion}/task/read`, {
+        pin_id: pin.pin_id,
+      });
+      setUnreadNotes((prevUnread) => ({
+        ...prevUnread,
+        [pin.pin_id]: false,
+      }));
+    } catch (error) {
+      console.error('⚠️ 노트 읽음 처리 실패:', error);
+    }
+  };
+
+  const handleMouseLeave = () => setHoveredPin(null);
+  const handlePinClick = (pin) => {
+    setSelectedPin(pin);
     setIsClicked((prev) => !prev);
   };
 
+  // 팝업 위치 조정
   const adjustPopupPosition = () => {
     if (!pinRef.current) return;
 
     const pinRect = pinRef.current.getBoundingClientRect();
-    const popupHeight = 80;
-    const popupWidth = 160;
+    const popupHeight = 80; // px
+    const popupWidth = 160; // px
     const viewportWidth = window.innerWidth;
     const viewportHeight = window.innerHeight;
 
@@ -86,56 +112,54 @@ const PinComponent = ({
     setPopupPosition({ top, left });
   };
 
-  useEffect(() => {
-    window.addEventListener('resize', adjustPopupPosition);
-    return () => window.removeEventListener('resize', adjustPopupPosition);
-  }, []);
-
-  if (!pinData) return <div>Loading...</div>;
-
   return (
     <Container>
-      <PinContainer>
-        {/* Outline Icon for Highlight */}
-        {isClicked && (
-          <OutlineIcon
-            src={groupIcons.outline}
-            alt="Outline"
-            onClick={handlePinClick} // 클릭 이벤트 유지
-          />
-        )}
-        <Pin
-          ref={pinRef}
-          onMouseEnter={handleMouseEnter}
-          onMouseLeave={handleMouseLeave}
-          onClick={handlePinClick}
-        >
-          <Icon src={groupIcons[pinData.groupNumber]} alt="Pin Icon" />
-          {unreadNotes > 0 && <UnreadDot />} {/* 안 읽은 핀 표시 */}
-        </Pin>
-      </PinContainer>
+      {pins.map((pin) => (
+        <PinContainer key={pin.pin_id}>
+          {isClicked && selectedPin?.pin_id === pin.pin_id && (
+            <OutlineIcon
+              src={outlineIcon}
+              alt="Outline"
+              onClick={() => handlePinClick(pin)}
+            />
+          )}
+          <Pin
+            ref={pinRef}
+            onMouseEnter={() => {
+              handleMouseEnter(pin);
+              markNotesAsRead(pin);
+            }}
+            onMouseLeave={handleMouseLeave}
+            onClick={() => handlePinClick(pin)}
+          >
+            <Icon src={pinIcon} alt="Pin Icon" />
+            {unreadNotes[pin.pin_id] && <UnreadDot />}
+          </Pin>
 
-      {isHovered && !isClicked && (
-        <Popup
-          style={{
-            top: `${popupPosition.top}px`,
-            left: `${popupPosition.left}px`,
-          }}
-        >
-          <PopupTitle>{pinData.pinName}</PopupTitle>
-          <PopupDivider />
-          <PopupContent>
-            <PopupNoteTitle>{pinData.recentNoteTitle}</PopupNoteTitle>
-            <PopupNoteContent>{pinData.recentNoteContent}</PopupNoteContent>
-          </PopupContent>
-        </Popup>
-      )}
+          {hoveredPin?.pin_id === pin.pin_id && !isClicked && (
+            <Popup
+              style={{
+                top: `${popupPosition.top}px`,
+                left: `${popupPosition.left}px`,
+              }}
+            >
+              <PopupTitle>
+                {recentNotes[pin.pin_id]?.title || '로딩 중...'}
+              </PopupTitle>
+              <PopupDivider />
+              <PopupContent>
+                {recentNotes[pin.pin_id]?.content || ''}
+              </PopupContent>
+            </Popup>
+          )}
 
-      {isClicked && (
-        <ButtonGroupContainer>
-          <ButtonList />
-        </ButtonGroupContainer>
-      )}
+          {isClicked && selectedPin?.pin_id === pin.pin_id && (
+            <ButtonGroupContainer>
+              <ButtonList />
+            </ButtonGroupContainer>
+          )}
+        </PinContainer>
+      ))}
     </Container>
   );
 };
@@ -144,17 +168,19 @@ export default PinComponent;
 
 const Container = styled.div`
   position: relative;
-  display: inline-block;
+  display: flex;
+  flex-wrap: wrap;
 `;
 
 const PinContainer = styled.div`
   position: relative;
   display: inline-block;
+  margin: 0.5rem;
 `;
 
 const OutlineIcon = styled.img`
-  width: 32px;
-  height: 31.5px;
+  width: 2rem;
+  height: 2rem;
   position: absolute;
   z-index: 0;
   top: 0;
@@ -162,16 +188,16 @@ const OutlineIcon = styled.img`
 `;
 
 const Icon = styled.img`
-  width: 18px;
-  height: 18px;
+  width: 1.5rem;
+  height: 1.5rem;
   position: relative;
   z-index: 1;
 `;
 
 const Pin = styled.div`
   position: relative;
-  width: 27px;
-  height: 25px;
+  width: 2rem;
+  height: 2rem;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -180,10 +206,10 @@ const Pin = styled.div`
 
 const UnreadDot = styled.div`
   position: absolute;
-  top: -4px;
-  right: -4px;
-  width: 6px;
-  height: 6px;
+  top: -0.25rem;
+  right: -0.25rem;
+  width: 0.5rem;
+  height: 0.5rem;
   background-color: red;
   border-radius: 50%;
   z-index: 2;
@@ -191,48 +217,34 @@ const UnreadDot = styled.div`
 
 const Popup = styled.div`
   position: fixed;
-  width: 160px;
+  width: 10rem;
   background: rgba(0, 0, 0, 0.52);
-  color: #ffffff;
-  padding: 6px;
-  border-radius: 6px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  color: white;
+  padding: 0.5rem;
+  border-radius: 0.5rem;
   z-index: 10;
 `;
 
 const PopupTitle = styled.div`
-  font-size: 12px;
+  font-size: 0.9rem;
   font-weight: bold;
-  margin-bottom: 4px;
-  color: #ffffff;
+  margin-bottom: 0.3rem;
 `;
 
 const PopupDivider = styled.div`
   width: 100%;
   height: 1px;
   background: rgba(255, 255, 255, 0.5);
-  margin-bottom: 4px;
+  margin-bottom: 0.3rem;
 `;
 
 const PopupContent = styled.div`
-  font-size: 10px;
-  color: #ffffff;
-`;
-
-const PopupNoteTitle = styled.div`
-  margin-bottom: 4px;
-  font-weight: bold;
-  color: #ffffff;
-`;
-
-const PopupNoteContent = styled.div`
-  font-size: 10px;
-  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.8rem;
 `;
 
 const ButtonGroupContainer = styled.div`
   position: absolute;
-  top: 25px;
-  left: 20px;
+  top: 2.5rem;
+  left: 1.5rem;
   z-index: 15;
 `;
