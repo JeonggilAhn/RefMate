@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import Header from '../components/common/Header';
 import BackButton from '../components/common/BackButton';
@@ -34,6 +34,7 @@ function ProjectLayout() {
   const location = useLocation();
 
   const isBlueprintListPage = location.pathname.includes('blueprints');
+  const [filterType, setFilterType] = useState('all');
 
   return (
     <Wrapper>
@@ -50,8 +51,9 @@ function ProjectLayout() {
             <Tabs
               tabs={['모든 프로젝트', '내 프로젝트', '공유 프로젝트']}
               iconType="search"
+              setFilterType={setFilterType}
             />
-            <Thumbnail userId={userId} />
+            <Thumbnail userId={userId} filterType={filterType} />
           </>
         )}
       </ContentWrapper>

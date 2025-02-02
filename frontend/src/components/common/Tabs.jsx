@@ -3,7 +3,6 @@ import styled from 'styled-components';
 import { FiSearch, FiList, FiGrid } from 'react-icons/fi';
 import SearchBar from '../project/SearchBar';
 
-// Tab 컴포넌트에 shouldForwardProp을 추가
 const Tab = styled.div.withConfig({
   shouldForwardProp: (prop) => prop !== 'active', // active는 DOM에 전달되지 않도록 필터링
 })`
@@ -44,12 +43,20 @@ const IconButton = styled.div`
   }
 `;
 
-function Tabs({ tabs, iconType }) {
-  // 탭 선택 종류
+function Tabs({ tabs, iconType, setFilterType }) {
   const [activeTab, setActiveTab] = useState(tabs[0]);
-
-  // 검색 상태
   const [isSearching, setIsSearching] = useState(false);
+
+  const handleTabClick = (tab) => {
+    setActiveTab(tab);
+    if (tab === '모든 프로젝트') {
+      setFilterType('all');
+    } else if (tab === '내 프로젝트') {
+      setFilterType('mine');
+    } else if (tab === '공유 프로젝트') {
+      setFilterType('shared');
+    }
+  };
 
   // 아이콘 클릭 핸들러
   const handleIconClick = () => {
@@ -79,7 +86,7 @@ function Tabs({ tabs, iconType }) {
           <Tab
             key={tab}
             active={activeTab === tab}
-            onClick={() => setActiveTab(tab)}
+            onClick={() => handleTabClick(tab)}
           >
             {tab}
           </Tab>
