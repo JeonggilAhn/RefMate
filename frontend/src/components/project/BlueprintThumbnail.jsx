@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { get } from '../../api';
-import { MdMoreHoriz } from 'react-icons/md';
 import { useNavigate } from 'react-router-dom';
+import EditButton from '../common/EditButton';
 
 const BlueprintThumbnail = ({ projectId }) => {
   const [blueprints, setBlueprints] = useState([]);
-  const [loading, setLoading] = useState(true);
+
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -16,17 +16,11 @@ const BlueprintThumbnail = ({ projectId }) => {
         setBlueprints(response.data.content);
       } catch (error) {
         console.error('API 호출 오류:', error);
-      } finally {
-        setLoading(false);
       }
     };
 
     fetchBlueprints();
   }, [projectId]);
-
-  if (loading) {
-    return <div>로딩 중...</div>;
-  }
 
   const handleViewLatest = (blueprintId) => {
     navigate(`/blueprint`);
@@ -48,7 +42,7 @@ const BlueprintThumbnail = ({ projectId }) => {
           />
           <Footer>
             <Title>{blueprint.blueprint_title}</Title>
-            <EditIcon />
+            <EditButton showDelete={false} />
           </Footer>
 
           <CreatedAt>
@@ -77,15 +71,6 @@ const BlueprintWrapper = styled.div`
   overflow-y: auto;
   grid-template-columns: repeat(3, 1fr);
   max-height: calc(100vh - 200px);
-`;
-
-const EditIcon = styled(MdMoreHoriz)`
-  cursor: pointer;
-  font-size: 0.8rem;
-  color: #888;
-  &:hover {
-    color: #7ba8ec;
-  }
 `;
 
 const Image = styled.img`

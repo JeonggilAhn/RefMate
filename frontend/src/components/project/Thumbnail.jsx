@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { get } from '../../api';
-import { MdMoreHoriz } from 'react-icons/md';
 import { useNavigate } from 'react-router-dom';
+import EditButton from '../common/EditButton';
 
 // 날짜 포맷 함수
 const formatDate = (dateString) => {
@@ -46,10 +46,7 @@ const Thumbnail = ({ userId }) => {
       {/* projects가 배열일 때만 map 호출 */}
       {Array.isArray(projects) &&
         projects.map((project) => (
-          <ProjectCard
-            key={project.project_id}
-            onClick={() => handleProjectClick(project.project_id)}
-          >
+          <ProjectCard key={project.project_id}>
             <ImageContainer>
               {project.preview_images.slice(0, 4).map((image, index) => (
                 <ImageWrapper key={index}>
@@ -79,8 +76,10 @@ const Thumbnail = ({ userId }) => {
             </ImageContainer>
             <ProjectDetails>
               <ProjectFooter>
-                <Title>{project.project_title}</Title>
-                <EditIcon />
+                <Title onClick={() => handleProjectClick(project.project_id)}>
+                  {project.project_title}
+                </Title>
+                <EditButton showDelete={true} />
               </ProjectFooter>
               <FileInfoWrapper>
                 <FileCount>{project.blueprints_count} blueprints ·</FileCount>
@@ -223,15 +222,6 @@ const ProjectFooter = styled.div`
 const FileCount = styled.span`
   color: #888;
   font-size: 0.5rem;
-`;
-
-const EditIcon = styled(MdMoreHoriz)`
-  cursor: pointer;
-  font-size: 0.8rem;
-  color: #888;
-  &:hover {
-    color: #7ba8ec;
-  }
 `;
 
 const CreatedAt = styled.div`
