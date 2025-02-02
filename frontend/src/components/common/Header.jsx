@@ -1,42 +1,50 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { Link } from 'react-router-dom';
+import Login from '../main/Login'; // Login 컴포넌트 import
 import alarmIcon from '../../assets/icons/alarm.svg'; // alarm.png 파일 import
 
 function Header() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isLoggedIn] = useState(false);
+  const [isLoginVisible, setIsLoginVisible] = useState(false); // 로그인 팝업 상태 관리
+
+  const handleOpenLogin = () => {
+    setIsLoginVisible(true);
+  };
+
+  const handleCloseLogin = () => {
+    setIsLoginVisible(false);
+  };
 
   return (
-    <HeaderContainer>
-      <StyledLink to="/">
-        {/* 로고와 아이콘 누르면 home으로 */}
-        <Icon>
-          <Logo>@</Logo>
-          <Name>DAWN</Name>
-        </Icon>
-      </StyledLink>
-      {isLoggedIn ? (
-        <LoggedInSection>
-          <NotificationIcon>
-            <img src={alarmIcon} alt="알림" />
-          </NotificationIcon>
-          <ProfileIcon>
-            <ProfileImage alt="프로필" />
-          </ProfileIcon>
-        </LoggedInSection>
-      ) : (
-        <StartButton>
-          <Link to="/projects">프로젝트 페이지</Link>
-        </StartButton>
-      )}
-
-      {/* 테스트용 상태 변경 버튼 로그인 기능 생성시 제거*/}
-      <TestButton onClick={() => setIsLoggedIn(!isLoggedIn)}>
-        {isLoggedIn ? '로그아웃' : '로그인'}
-      </TestButton>
-    </HeaderContainer>
+    <>
+      <HeaderContainer>
+        <StyledLink to="/">
+          {/* 로고와 아이콘 누르면 home으로 */}
+          <Icon>
+            <Logo>@</Logo>
+            <Name>DAWN</Name>
+          </Icon>
+        </StyledLink>
+        {isLoggedIn ? (
+          <LoggedInSection>
+            <NotificationIcon>
+              <img src={alarmIcon} alt="알림" />
+            </NotificationIcon>
+            <ProfileIcon>
+              <ProfileImage alt="프로필" />
+            </ProfileIcon>
+          </LoggedInSection>
+        ) : (
+          <StartButton onClick={handleOpenLogin}>시작하기</StartButton>
+        )}
+      </HeaderContainer>
+      <Login isVisible={isLoginVisible} onClose={handleCloseLogin} />
+    </>
   );
 }
+
+export default Header;
 
 const HeaderContainer = styled.div`
   display: flex;
@@ -65,26 +73,26 @@ const Icon = styled.div`
 `;
 
 const Logo = styled.div`
-  font-size: 20px;
+  font-size: 1.25rem; /* 20px */
   font-weight: bold;
   color: #87b5fa;
-  margin-right: 8px;
+  margin-right: 0.5rem; /* 8px */
 `;
 
 const Name = styled.div`
-  font-size: 18px;
+  font-size: 1.125rem; /* 18px */
   font-weight: bold;
   color: #333;
 `;
 
 const StartButton = styled.button`
-  height: 32px;
-  padding: 8px 20px;
-  font-size: 14px;
+  height: 2rem; /* 32px */
+  padding: 0.5rem 1.25rem; /* 8px 20px */
+  font-size: 0.875rem; /* 14px */
   background-color: #7ba8ec;
   color: white;
   border: none;
-  border-radius: 5px;
+  border-radius: 0.3125rem; /* 5px */
   cursor: pointer;
 
   &:hover {
@@ -95,7 +103,7 @@ const StartButton = styled.button`
 const LoggedInSection = styled.div`
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 1rem; /* 16px */
 `;
 
 const NotificationIcon = styled.div`
@@ -103,8 +111,8 @@ const NotificationIcon = styled.div`
   cursor: pointer;
 
   img {
-    width: 32px; /* 알림 아이콘 크기*/
-    height: 32px;
+    width: 2rem; /* 32px */
+    height: 2rem; /* 32px */
   }
 `;
 
@@ -113,26 +121,8 @@ const ProfileIcon = styled.div`
 `;
 
 const ProfileImage = styled.img`
-  width: 24px;
-  height: 32px;
+  width: 1.5rem; /* 24px */
+  height: 1.5rem; /* 24px */
   border-radius: 50%;
-  border: 1px solid #ddd;
+  border: 0.0625rem solid #ddd; /* 1px */
 `;
-
-const TestButton = styled.button`
-  position: absolute;
-  top: 60px; /* 헤더 아래에 위치 */
-  right: 20px;
-  padding: 8px 16px;
-  font-size: 12px;
-  background-color: #f0f0f0;
-  border: 1px solid #ddd;
-  border-radius: 5px;
-  cursor: pointer;
-
-  &:hover {
-    background-color: #e0e0e0;
-  }
-`;
-
-export default Header;
