@@ -69,4 +69,9 @@ public class Note extends BaseTimeEntity {
 		this.blueprintVersion = blueprintVersion;
 		this.pin = pin;
 	}
+
+	public void deleteNote() {
+		this.isDeleted = true;
+		this.deletedAt = LocalDateTime.now();
+	}
 }
