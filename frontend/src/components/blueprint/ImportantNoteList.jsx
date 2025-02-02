@@ -7,6 +7,15 @@ const ImportantNoteList = ({ pinId }) => {
   const [notes, setNotes] = useState([]); // 노트 데이터를 관리하는 상태
   const [loading, setLoading] = useState(true); // 로딩 상태 관리
 
+  // 날짜 포맷 함수
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    const year = date.getFullYear().toString().slice(-2); // 연도의 마지막 두 자리
+    const month = (date.getMonth() + 1).toString().padStart(2, '0'); // 월 (2자리)
+    const day = date.getDate().toString().padStart(2, '0'); // 일 (2자리)
+    return `${year}.${month}.${day}`;
+  };
+
   // 데이터 가져오기
   useEffect(() => {
     const fetchNotes = async () => {
@@ -59,9 +68,7 @@ const ImportantNoteList = ({ pinId }) => {
                   <Icon src={ImageIcon} alt="Image Icon" />
                 )}
               </NoteContent>
-              <NoteDate>
-                {new Date(note.created_at).toISOString().split('T')[0]}
-              </NoteDate>
+              <NoteDate>{formatDate(note.created_at)}</NoteDate>
             </NoteCard>
           ))
         )}
@@ -86,7 +93,7 @@ const Container = styled.div`
 `;
 
 const Header = styled.div`
-  width: 17.75rem;
+  width: 100%;
   height: 2rem;
   flex-shrink: 0;
   background-color: #f5f5f5;
@@ -102,20 +109,20 @@ const Header = styled.div`
 const NoteList = styled.div`
   flex: 1;
   overflow-y: auto;
-  padding: 0.25rem; /* 4px → 0.25rem */
+  padding: 0.25rem;
 `;
 
 const NoteCard = styled.div`
-  width: 16.44rem; /* 263px → 16.44rem */
-  height: 1.625rem; /* 26px → 1.625rem */
+  width: 100%;
+  height: 1.625rem;
   flex-shrink: 0;
   background-color: #f9f9f9;
-  border-radius: 0.25rem; /* 4px → 0.25rem */
+  border-radius: 0.25rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 0.5rem; /* 8px → 0.5rem */
-  margin-bottom: 0.25rem; /* 4px → 0.25rem */
+  padding: 0 0.5rem;
+  margin-bottom: 0.25rem;
   cursor: pointer;
 
   &:hover {
@@ -123,6 +130,38 @@ const NoteCard = styled.div`
   }
 
   position: relative;
+`;
+
+const NoteContent = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding-left: 0.75rem;
+  overflow: hidden;
+`;
+
+const NoteTitle = styled.span`
+  font-size: 0.75rem;
+  color: #333;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: calc(100% - 3.5rem); /* 아이콘 및 날짜 공간 제외 */
+`;
+
+const NoteDate = styled.span`
+  font-size: 0.75rem;
+  color: #888;
+  text-align: right;
+  white-space: nowrap;
+  margin-left: auto;
+`;
+
+const Icon = styled.img`
+  width: 1rem;
+  height: 1rem;
+  flex-shrink: 0;
+  margin-left: 0.25rem;
 `;
 
 const LeftBar = styled.div`
@@ -133,32 +172,6 @@ const LeftBar = styled.div`
   position: absolute;
   left: 0;
   top: 0;
-`;
-
-const NoteContent = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 0.25rem;
-  padding-left: 0.75rem;
-`;
-
-const NoteTitle = styled.span`
-  font-size: 0.75rem;
-  color: #333;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-`;
-
-const NoteDate = styled.span`
-  font-size: 0.75rem;
-  color: #888;
-`;
-
-const Icon = styled.img`
-  width: 1rem;
-  height: 1rem;
-  flex-shrink: 0;
 `;
 
 const Loading = styled.div`
