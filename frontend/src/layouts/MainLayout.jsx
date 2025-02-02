@@ -1,4 +1,7 @@
 import React, { useState } from 'react';
+import { useSetRecoilState } from 'recoil';
+import { modalState } from '../recoil/common/modal';
+
 import styled from 'styled-components';
 import Login from '../components/main/Login';
 import { Link } from 'react-router-dom';
@@ -11,6 +14,9 @@ const MainPage = () => {
   const handleOpenLogin = () => setIsLoginVisible(true);
   const handleCloseLogin = () => setIsLoginVisible(false);
 
+  // modal test
+  const setModal = useSetRecoilState(modalState);
+
   return (
     <>
       <Header />
@@ -20,6 +26,42 @@ const MainPage = () => {
             <Title>서비스 소개</Title>
             <Description>서비스설명</Description>
             <StartButton onClick={handleOpenLogin}>시작하기</StartButton>
+            {/* modal test 나중에 지울 부분*/}
+            <div>
+              <button
+                onClick={() =>
+                  setModal({
+                    type: 'modal',
+                    title: '모달 제목',
+                    content: <div>여기에 컨텐츠</div>, // 여기에 react component 넣으면 돼요
+                  })
+                }
+                className="px-4 py-2 bg-green-500 text-white rounded"
+              >
+                폼 모달
+              </button>
+              <button
+                onClick={() =>
+                  setModal({
+                    type: 'confirm',
+                    message: '정말 진행하시겠습니까?',
+                    onConfirm: () => alert('확인됨'),
+                  })
+                }
+                className="px-4 py-2 bg-yellow-500 text-white rounded ml-2"
+              >
+                컨펌 모달
+              </button>
+              <button
+                onClick={() =>
+                  setModal({ type: 'alert', message: '경고 메시지입니다.' })
+                }
+                className="px-4 py-2 bg-red-500 text-white rounded ml-2"
+              >
+                알림 모달
+              </button>
+            </div>
+            {/* modal test */}
           </LeftSection>
           <Link to="/projects">프로젝트 페이지</Link>
           <ImageBox>이미지 표시 영역</ImageBox>
