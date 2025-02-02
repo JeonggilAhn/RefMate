@@ -59,7 +59,7 @@ const HeaderContainer = styled.div`
   position: fixed;
   top: 0;
   left: 0;
-  z-index: 1000;
+  z-index: 1;
 `;
 
 const StyledLink = styled(Link)`
