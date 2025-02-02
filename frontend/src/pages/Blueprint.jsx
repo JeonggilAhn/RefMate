@@ -14,6 +14,11 @@ const Blueprint = () => {
   const [blueprintTitle, setBlueprintTite] = useState('');
   const [blueprintUrl, setBlueprintUrl] = useState('');
 
+  // sidebar
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [isAllPinVisible, setIsAllPinVisible] = useState(true);
+
+  // toolbar
   const [isPinButtonEnaled, setIsPinButtonEnaled] = useState(true);
 
   const [initialPins, setInitialPins] = useState([]);
@@ -25,6 +30,18 @@ const Blueprint = () => {
   const onClickMouseButon = () => {
     setIsPinButtonEnaled(false);
   };
+
+  const toggleSidebar = () => {
+    setIsSidebarOpen((prev) => !prev);
+  };
+
+  const togglePinVisible = () => {
+    setIsAllPinVisible((prev) => !prev);
+  };
+
+  const closeAllNotePopup = () => {};
+
+  const closeAllImagePopup = () => {};
 
   // init
   useEffect(() => {
@@ -65,12 +82,13 @@ const Blueprint = () => {
 
   return (
     <BlueprintLayout>
-      <div className="flex">
+      <div className="relative overflow-hidden">
         <div className="w-full h-screen pt-[48px] border border-black">
           <BlueprintCanvas
             imageUrl={blueprintUrl}
             isPinButtonEnaled={isPinButtonEnaled}
             initialPins={initialPins}
+            isAllPinVisible={isAllPinVisible}
           />
           <div className="border border-black absolute left-[50%] bottom-4">
             <button className="border border-black" onClick={onClickPinButton}>
@@ -81,10 +99,26 @@ const Blueprint = () => {
             </button>
           </div>
         </div>
-        <div className="min-w-[20rem] w-[20rem] h-screen pt-[48px] border border-black">
+        <div
+          className={`absolute top-0 right-0 transition-transform duration-300 ease-in-out ${
+            isSidebarOpen ? 'translate-x-0 w-[20rem]' : 'translate-x-full'
+          } h-screen pt-[48px] border border-black z-[4] bg-white`}
+        >
           <div>sidebar</div>
           <ImportantNoteSection />
           <NoteHistory />
+        </div>
+        {/* sidebar open & close */}
+        <div className="fixed top-[48px] right-0 bg-gray-200 p-2 z-10">
+          {/* todo : icon 대체 필요 */}
+          <button onClick={toggleSidebar}>
+            {isSidebarOpen ? '사이드바 닫기' : '사이드바 열기'}/
+          </button>
+          <button onClick={togglePinVisible}>
+            {isAllPinVisible ? '전체 핀 끄기' : '전체 핀 켜기'}/
+          </button>
+          <button onClick={closeAllNotePopup}>전체 노트 끄기/</button>
+          <button onClick={closeAllImagePopup}>전체 이미지 끄기</button>
         </div>
       </div>
     </BlueprintLayout>
