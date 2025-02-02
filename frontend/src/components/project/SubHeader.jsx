@@ -3,8 +3,9 @@ import styled from 'styled-components';
 import { get } from '../../api';
 import { useLocation } from 'react-router-dom';
 
-const SubHeader = ({ userId }) => {
+const SubHeader = ({ userId, projectId }) => {
   const [userName, setUserName] = useState('');
+  const [projectName, setProjectName] = useState('');
   const location = useLocation();
 
   useEffect(() => {
@@ -19,15 +20,28 @@ const SubHeader = ({ userId }) => {
       }
     };
 
+    const fetchProjectName = async () => {
+      if (projectId) {
+        try {
+          const response = await get(`projects/${projectId}`);
+          setProjectName(response.data.content.project_title);
+          console.log(response.data.content.project_title);
+        } catch (error) {
+          console.error('프로젝트 이름을 가져오는데 실패했습니다.', error);
+        }
+      }
+    };
+
     fetchUserName();
-  }, [userId]);
+    fetchProjectName();
+  }, [userId, projectId]);
 
   // 'blueprints'가 URL에 포함되면 블루프린트 페이지로 간주
   const isBlueprintListPage = location.pathname.includes('blueprints');
 
   return (
     <SubHeaderWrapper>
-      <h3>{isBlueprintListPage ? '프로젝트 이름' : `${userName}님의 공간`}</h3>
+      <h3>{isBlueprintListPage ? projectName : `${userName}님의 공간`}</h3>
       <div className="border border-black">
         <button>
           {isBlueprintListPage
