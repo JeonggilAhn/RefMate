@@ -6,7 +6,6 @@ import BlueprintCanvas from '../components/blueprint/BlueprintCanvas';
 import ImportantNoteSection from '../components/blueprint/ImportantNoteSection';
 import PinNoteHistory from '../components/blueprint/PinNoteHistory';
 import PinNotes from '../components/blueprint/PinNotes';
-
 import {
   Select,
   SelectContent,
@@ -17,13 +16,14 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Slider } from '@/components/ui/slider';
+import Blueprintversions from '../components/blueprint/BlueprintVersions';
 
 const Blueprint = () => {
   // params 로 변경
   const blueprint_id = 1;
   const blueprint_version_id = 1987029227680993;
 
-  const [blueprintTitle, setBlueprintTite] = useState('');
+  const [blueprintTitle, setBlueprintTitle] = useState('');
   const [blueprintUrl, setBlueprintUrl] = useState('');
 
   // sidebar
@@ -34,6 +34,7 @@ const Blueprint = () => {
   const [isPinButtonEnaled, setIsPinButtonEnaled] = useState(true);
 
   const [initialPins, setInitialPins] = useState([]);
+  const [isVersionOpen, setIsVersionOpen] = useState(false);
 
   const onClickPinButton = () => {
     setIsPinButtonEnaled(true);
@@ -52,8 +53,10 @@ const Blueprint = () => {
   };
 
   const closeAllNotePopup = () => {};
-
   const closeAllImagePopup = () => {};
+
+  const openBlueprintVersion = () => setIsVersionOpen(true);
+  const closeBlueprintVersion = () => setIsVersionOpen(false);
 
   // init
   useEffect(() => {
@@ -65,7 +68,7 @@ const Blueprint = () => {
       } = res;
 
       if (status === 200) {
-        setBlueprintTite(content.blueprint_version_title);
+        setBlueprintTitle(content.blueprint_version_title);
         // setBlueprintUrl(content.blueprint_image);
         // 임시 도면
         setBlueprintUrl(
@@ -73,7 +76,7 @@ const Blueprint = () => {
         );
       }
     });
-  }, [blueprintTitle]);
+  }, []);
 
   useEffect(() => {
     get(`blueprints/${blueprint_id}/${blueprint_version_id}/pins`).then(
@@ -102,7 +105,12 @@ const Blueprint = () => {
         <div className="w-full h-screen pt-[48px] border border-black">
           <div className="border border-black absolute left-2 top-[58px] z-1">
             <div className="flex justify-between">
-              <button className="border border-black">시안</button>
+              <button
+                className="border border-black"
+                onClick={openBlueprintVersion}
+              >
+                시안
+              </button>
               <div>
                 <button>{'<'}</button>
                 <Select>
@@ -246,6 +254,13 @@ const Blueprint = () => {
           <button onClick={closeAllImagePopup}>전체 이미지 끄기</button>
         </div>
       </div>
+      {isVersionOpen && (
+        <Blueprintversions
+          blueprintId={blueprint_id}
+          blueprintTitle={blueprintTitle}
+          closeModal={closeBlueprintVersion}
+        />
+      )}
     </BlueprintLayout>
   );
 };
