@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { get } from '../../api';
 import { useLocation } from 'react-router-dom';
+import EditButton from '../common/EditButton';
 
 const SubHeader = ({ userId, projectId }) => {
   const [userName, setUserName] = useState('');
@@ -41,7 +42,10 @@ const SubHeader = ({ userId, projectId }) => {
 
   return (
     <SubHeaderWrapper>
-      <h3>{isBlueprintListPage ? projectName : `${userName}님의 공간`}</h3>
+      <LeftSection>
+        <h3>{isBlueprintListPage ? projectName : `${userName}님의 공간`}</h3>
+        <EditButton />
+      </LeftSection>
       <div className="border border-black">
         <button>
           {isBlueprintListPage
@@ -59,6 +63,12 @@ const SubHeaderWrapper = styled.div`
   align-items: center;
   width: 100%;
   padding: 10px 20px;
+`;
+
+const LeftSection = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 10px;
 `;
 
 export default SubHeader;

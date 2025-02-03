@@ -10,7 +10,7 @@ const formatDate = (dateString) => {
   return date.toLocaleDateString(); // 기본 날짜 형식 (yyyy/mm/dd)
 };
 
-const Thumbnail = ({ userId }) => {
+const Thumbnail = ({ userId, filterType }) => {
   const [projects, setProjects] = useState([]); // 프로젝트 상태 추가
   const [imageLoaded, setImageLoaded] = useState(true); // 이미지 로딩 상태 추가
   const navigate = useNavigate();
@@ -19,9 +19,15 @@ const Thumbnail = ({ userId }) => {
     const fetchProjects = async () => {
       try {
         const response = await get(`projects?user_id=${userId}`);
-        console.log(response.data); // 응답 데이터 확인
-        console.log(response.data.content); // content 배열 확인
-        setProjects(response.data.content); // content 배열을 projects에 설정
+        const filteredProjects = response.data.content.filter((project) => {
+          if (filterType === 'mine') return project.is_mine;
+
+          if (filterType === 'shared') return !project.is_mine;
+
+          return true; // 전체 프로젝트
+        });
+        setProjects(filteredProjects);
+        setImageLoaded(new Array(filteredProjects.length).fill(false));
       } catch (error) {
         console.error('프로젝트 목록을 불러오는데 실패했습니다.', error);
       }
@@ -30,11 +36,15 @@ const Thumbnail = ({ userId }) => {
     if (userId) {
       fetchProjects();
     }
-  }, [userId]);
+  }, [userId, filterType]); // filterType이 변경될 때마다 다시 호출
 
   // 이미지 로딩 완료 처리
   const handleImageLoad = (index) => {
-    setImageLoaded((prev) => ({ ...prev, [index]: true }));
+    setImageLoaded((prevState) => {
+      const updated = [...prevState];
+      updated[index] = true;
+      return updated;
+    });
   };
 
   const handleProjectClick = (projectId) => {
