@@ -2,6 +2,7 @@ package com.dawn.backend.domain.note.service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
@@ -11,12 +12,15 @@ import lombok.RequiredArgsConstructor;
 import com.dawn.backend.domain.blueprint.entity.BlueprintVersion;
 import com.dawn.backend.domain.blueprint.repository.BlueprintVersionRepository;
 import com.dawn.backend.domain.note.dto.request.BookmarkNoteRequestDto;
+import com.dawn.backend.domain.note.dto.NoteItem;
 import com.dawn.backend.domain.note.dto.request.CreateNoteRequestDto;
 import com.dawn.backend.domain.note.dto.request.UpdateNoteRequestDto;
 import com.dawn.backend.domain.note.dto.response.BookmarkNoteResponseDto;
+import com.dawn.backend.domain.note.dto.request.GetNotesByPinRequestDto;
 import com.dawn.backend.domain.note.dto.response.CreateNoteResponseDto;
 import com.dawn.backend.domain.note.dto.response.DeleteNoteResponseDto;
 import com.dawn.backend.domain.note.dto.response.UpdateNoteResponseDto;
+import com.dawn.backend.domain.note.dto.response.GetNotesByPinResponseDto;
 import com.dawn.backend.domain.note.entity.Note;
 import com.dawn.backend.domain.note.entity.NoteImage;
 import com.dawn.backend.domain.note.entity.UserNoteCheck;
@@ -25,13 +29,14 @@ import com.dawn.backend.domain.note.repository.NoteCheckRepository;
 import com.dawn.backend.domain.note.repository.NoteRepository;
 import com.dawn.backend.domain.pin.entity.Pin;
 import com.dawn.backend.domain.pin.repository.PinRepository;
+import com.dawn.backend.domain.user.dto.ProjectUserDto;
 import com.dawn.backend.domain.user.entity.User;
 import com.dawn.backend.domain.user.repository.UserProjectRepository;
 import com.dawn.backend.domain.user.repository.UserRepository;
 
 @Service
 @RequiredArgsConstructor
-public class  NoteService {
+public class NoteService {
 
 	private final NoteRepository noteRepository;
 	private final UserProjectRepository userProjectRepository;
@@ -171,5 +176,39 @@ public class  NoteService {
 				.forEach(noteCheckRepository::save);
 
 		return new CreateNoteResponseDto(note.getNoteId());
+	}
+
+	public GetNotesByPinResponseDto getNotesByPin(Long pinId, GetNotesByPinRequestDto getNotesByPinRequestDto) {
+		Pin pin = pinRepository.findById(pinId)
+				.orElseThrow(() -> new IllegalArgumentException("해당 핀이 존재하지 않습니다."));
+
+		List<Note> notes = noteRepository.findAllByPinPinId(pinId);
+
+		List<NoteItem> noteItems = notes.stream()
+				.map(note -> {
+
+					// TODO: 작성자 정보: join해서 userRole도 가져오기
+					ProjectUserDto noteWriter =
+							userRepository.findUserWithRoleByUserIdAndProjectId(
+									note.getUser().getUserId(),
+									getNotesByPinRequestDto.projectId());
+					// TODO: 이미지 존재 여부 확인
+					boolean isPresentImage = imageRepository.existsByNoteNoteId(note.getNoteId());
+
+					// TODO: 노트를 읽은 사용자 목록 가져오기
+					List<ProjectUserDto> readUsers = userRepository.findCheckedUsersWithRolesByNoteId(note.getNoteId());
+
+					return new NoteItem(
+							note.getNoteId(),
+							noteWriter,
+							note.getNoteTitle(),
+							note.getBookmark(),
+							note.getCreatedAt(),
+							isPresentImage,
+							readUsers
+					);
+				}).collect(Collectors.toList());
+
+		return new GetNotesByPinResponseDto(noteItems);
 	}
 }

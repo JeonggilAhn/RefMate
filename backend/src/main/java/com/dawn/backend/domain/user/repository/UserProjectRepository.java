@@ -22,15 +22,15 @@ public interface UserProjectRepository extends JpaRepository<UserProject, Long> 
 				FROM UserProject up
 				JOIN up.user u
 				WHERE up.project.projectId = :projectId
-		""")
+			""")
 	List<ProjectUserDto> findProjectUsers(@Param("projectId") Long projectId);
 
 	boolean existsByUserAndProject(User user, Project project);
 
 	@Query("""
-			SELECT up FROM UserProject up
-			WHERE up.user.userId = :userId
-		""")
+				SELECT up FROM UserProject up
+				WHERE up.user.userId = :userId
+			""")
 	List<UserProject> findByUserId(@Param("userId") Long userId);
 
 	@Query("SELECT up FROM UserProject up WHERE up.user.userId = :userId AND up.project.projectId = :projectId")
