@@ -1,11 +1,13 @@
 package com.dawn.backend.domain.user.dto;
 
+import java.time.LocalDateTime;
+
 public record ProjectUserDto(
 	Long userId,
 	String userEmail,
 	String profileUrl,
-	String signupDate,
-	String resignDate,
+	LocalDateTime signupDate,
+	LocalDateTime resignDate,
 	String role
 ) {
 }

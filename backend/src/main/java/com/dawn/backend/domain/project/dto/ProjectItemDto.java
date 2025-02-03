@@ -1,16 +1,16 @@
 package com.dawn.backend.domain.project.dto;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public record ProjectItemDto(
 	Long projectId,
 	String projectTitle,
-	String createdAt,
+	LocalDateTime createdAt,
 	List<PreviewImage> previewImages,
-	boolean includeUnreadNotes,
 	boolean isMine,
 	Long ownerId,
-	Long blueprintsCount
+	Integer blueprintsCount
 ) {
 	public record PreviewImage(
 		String blueprintTitle,

@@ -38,4 +38,13 @@ public class Project extends BaseTimeEntity {
 		this.previewImg = previewImg;
 		this.isDeleted = false;
 	}
+
+	public void updateProjectTitle(String projectTitle) {
+		this.projectTitle = projectTitle;
+	}
+
+	public void deleteProject() {
+		this.isDeleted = true;
+		this.deletedAt = LocalDateTime.now();
+	}
 }
