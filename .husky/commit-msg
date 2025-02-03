@@ -6,24 +6,13 @@ commit_msg_file=$1
 # 커밋 메시지 읽기
 commit_msg=$(cat "$commit_msg_file")
 
-# 허용되는 prefix 목록과 해당하는 이모지
-declare -A emoji_map
-emoji_map["feat"]="✨"
-emoji_map["fix"]="🐛"
-emoji_map["docs"]="📝"
-emoji_map["style"]="🎨"
-emoji_map["refactor"]="♻️"
-emoji_map["test"]="☑️"
-emoji_map["chore"]="⚙️"
-emoji_map["hotfix"]="👺"
-
 # 허용되는 prefix 목록
-allowed_prefixes=(feat fix docs style refactor test chore hotfix)
+allowed_prefixes="feat fix docs style refactor test chore hotfix"
 
 # prefix 검사
 is_valid=false
 prefix_found=""
-for prefix in "${allowed_prefixes[@]}"; do
+for prefix in $allowed_prefixes; do
   if [[ "$commit_msg" == "$prefix : "* ]]; then
     is_valid=true
     prefix_found=$prefix
@@ -34,7 +23,7 @@ done
 # 유효하지 않은 prefix인 경우 커밋 거부
 if ! $is_valid; then
   echo "Error: 커밋 메시지 prefix가 유효하지 않습니다."
-  echo "허용되는 prefix: ${allowed_prefixes[*]}"
+  echo "허용되는 prefix: $allowed_prefixes"
   echo "prefix 후에 띄어쓰기를 해주세요."
   exit 1
 fi
@@ -44,7 +33,18 @@ if [[ "$commit_msg" =~ ^[[:space:]]*[[:punct:]].*$ ]]; then
   exit 0
 fi
 
+# 이모지 매핑
+case $prefix_found in
+  "feat") emoji="✨";;
+  "fix") emoji="🐛";;
+  "docs") emoji="📝";;
+  "style") emoji="🎨";;
+  "refactor") emoji="♻️";;
+  "test") emoji="☑️";;
+  "chore") emoji="⚙️";;
+  "hotfix") emoji="👺";;
+esac
+
 # 이모지 추가
-emoji="${emoji_map[$prefix_found]}"
 new_commit_msg="$emoji $commit_msg"
 echo "$new_commit_msg" > "$commit_msg_file"
