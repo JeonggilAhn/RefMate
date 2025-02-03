@@ -64,7 +64,9 @@ const PinNotes = ({ pinId }) => {
           </NoteWithPinWrapper>
         ))}
       </NotesContainer>
-      {showCreateNote && <CreateNote closeModal={() => setShowCreateNote(false)} />}
+      {showCreateNote && (
+        <CreateNote closeModal={() => setShowCreateNote(false)} />
+      )}
     </Container>
   );
 };

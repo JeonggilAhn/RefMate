@@ -22,7 +22,6 @@ const CreateNote = ({ pinId, closeModal }) => {
       } else {
         alert('노트 생성 실패');
       }
-
     } catch (error) {
       console.error('노트 생성 중 오류 발생:', error);
       alert('노트 생성 실패');
