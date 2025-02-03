@@ -1,8 +1,0 @@
-{
-  "extends": ["react-app", "react-app/jest", "prettier"],
-  "rules": {
-    // "no-consloe":"error", // console log 방지
-    "no-var": "error", // var 사용 금지
-    "prefer-const": "warn" // const 사용 권장
-  }
-}

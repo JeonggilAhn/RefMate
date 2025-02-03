@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import ButtonList from './ButtonList';
 import { get, post } from '../../api';
 
-const pinIcon = require('../../assets/icons/Pin_Blue.svg').default;
+import pinIcon from '../../assets/icons/Pin_Blue.svg';
 
 const PinComponent = ({ blueprintId, blueprintVersion, pin }) => {
   const [pinInfo, setPinInfo] = useState(pin);
