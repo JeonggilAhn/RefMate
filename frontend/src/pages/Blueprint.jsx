@@ -4,7 +4,7 @@ import { get } from '../api/index';
 import BlueprintLayout from '../layouts/BlueprintLayout';
 import BlueprintCanvas from '../components/blueprint/BlueprintCanvas';
 import ImportantNoteSection from '../components/blueprint/ImportantNoteSection';
-import NoteHistory from '../components/blueprint/NoteHistory';
+import PinNoteHistory from '../components/blueprint/PinNoteHistory';
 
 const Blueprint = () => {
   // params 로 변경
@@ -111,7 +111,7 @@ const Blueprint = () => {
         >
           <div>sidebar</div>
           <ImportantNoteSection />
-          <NoteHistory />
+          <PinNoteHistory />
         </div>
         {/* sidebar open & close */}
         <div className="fixed top-[48px] right-0 bg-gray-200 p-2 z-10">
