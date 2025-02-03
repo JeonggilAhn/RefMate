@@ -18,14 +18,14 @@ if [ ! -z "$frontend_changes" ]; then
   echo "프론트엔드 변경사항 감지: ESLint 및 Prettier 검사 실행 중..."
   cd $frontend_project_path
   # ESLint 실행
-  npx eslint --fix
+  npx eslint --fix --max-warnings 0 "src/**/*.{js,jsx}"
   if [[ $? -ne 0 ]]; then
     echo "Error: ESLint 검사 실패"
     exit 1
   fi
   
   # Prettier 검사 실행
-  npx prettier --check
+  npx prettier --check "src"
   if [[ $? -ne 0 ]]; then
     echo "Error: Prettier 검사 실패. 'npm run format' 명령어로 코드를 포맷팅해주세요."
     exit 1
