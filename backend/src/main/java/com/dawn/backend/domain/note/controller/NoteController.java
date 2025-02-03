@@ -4,8 +4,8 @@ package com.dawn.backend.domain.note.controller;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -17,12 +17,16 @@ import lombok.RequiredArgsConstructor;
 import com.dawn.backend.domain.note.dto.request.BookmarkImageRequestDto;
 import com.dawn.backend.domain.note.dto.request.BookmarkNoteRequestDto;
 import com.dawn.backend.domain.note.dto.request.CreateNoteRequestDto;
+import com.dawn.backend.domain.note.dto.request.GetBookmarkNotesRequestDto;
+import com.dawn.backend.domain.note.dto.request.GetNotesByBlueprintRequestDto;
 import com.dawn.backend.domain.note.dto.request.GetNotesByPinRequestDto;
 import com.dawn.backend.domain.note.dto.request.UpdateNoteRequestDto;
 import com.dawn.backend.domain.note.dto.response.BookmarkImageResponseDto;
 import com.dawn.backend.domain.note.dto.response.BookmarkNoteResponseDto;
 import com.dawn.backend.domain.note.dto.response.CreateNoteResponseDto;
 import com.dawn.backend.domain.note.dto.response.DeleteNoteResponseDto;
+import com.dawn.backend.domain.note.dto.response.GetBookmarkNotesResponseDto;
+import com.dawn.backend.domain.note.dto.response.GetNotesByBlueprintResponseDto;
 import com.dawn.backend.domain.note.dto.response.GetNotesByPinResponseDto;
 import com.dawn.backend.domain.note.dto.response.UpdateNoteResponseDto;
 import com.dawn.backend.domain.note.service.NoteService;
@@ -43,9 +47,9 @@ public class NoteController {
 
 	@PostMapping("/pins/{pinId}/notes/{userId}")
 	public ResponseEntity<ResponseWrapper<CreateNoteResponseDto>> createNote(
-			@PathVariable("userId") Long userId,
-			@PathVariable("pinId") Long pinId,
-			@RequestBody CreateNoteRequestDto createNoteRequestDto
+		@PathVariable("userId") Long userId,
+		@PathVariable("pinId") Long pinId,
+		@RequestBody CreateNoteRequestDto createNoteRequestDto
 	) {
 		CreateNoteResponseDto createNoteResponseDto = noteService.createNote(userId, pinId, createNoteRequestDto);
 		return ResponseWrapperFactory.setResponse(HttpStatus.CREATED, null, createNoteResponseDto);
@@ -71,13 +75,13 @@ public class NoteController {
 
 	@GetMapping("/pins/{pinId}/notes")
 	public ResponseEntity<ResponseWrapper<GetNotesByPinResponseDto>> getNotesByPin(
-			@PathVariable Long pinId,
-			@RequestBody GetNotesByPinRequestDto getNotesByPinRequestDto
+		@PathVariable Long pinId,
+		@RequestBody GetNotesByPinRequestDto getNotesByPinRequestDto
 	) {
 		GetNotesByPinResponseDto getNotesByPinResponseDto = noteService.getNotesByPin(pinId, getNotesByPinRequestDto);
 		return ResponseWrapperFactory.setResponse(HttpStatus.OK, null, getNotesByPinResponseDto);
 	}
-	
+
 	@PatchMapping("/images/{imageId}/bookmark")
 	public ResponseEntity<ResponseWrapper<BookmarkImageResponseDto>> updateNoteImageBookmark(
 		@PathVariable Long imageId,
@@ -85,5 +89,25 @@ public class NoteController {
 	) {
 		BookmarkImageResponseDto responseDto = noteService.updateBookmarkImage(imageId, requestDto);
 		return ResponseWrapperFactory.setResponse(HttpStatus.OK, null, responseDto);
+	}
+
+	@GetMapping("/pins/{pinId}/notes/bookmark")
+	public ResponseEntity<ResponseWrapper<GetBookmarkNotesResponseDto>> getNotesBookmark(
+		@PathVariable Long pinId,
+		@RequestBody GetBookmarkNotesRequestDto request
+	) {
+		GetBookmarkNotesResponseDto response = noteService.getBookmarkNotes(pinId, request);
+		return ResponseWrapperFactory.setResponse(HttpStatus.OK, null, response);
+	}
+
+	@GetMapping("/blueprints/{blueprintId}/{blueprintVersion}/notes")
+	public ResponseEntity<ResponseWrapper<GetNotesByBlueprintResponseDto>> getNotesByBlueprint(
+		@PathVariable Long blueprintId,
+		@PathVariable Long blueprintVersion,
+		@RequestBody GetNotesByBlueprintRequestDto request
+	) {
+		GetNotesByBlueprintResponseDto response =
+			noteService.getNotesByBlueprint(blueprintId, blueprintVersion, request);
+		return ResponseWrapperFactory.setResponse(HttpStatus.OK, null, response);
 	}
 }

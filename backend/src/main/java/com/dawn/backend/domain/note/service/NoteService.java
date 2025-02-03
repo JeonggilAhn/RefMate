@@ -11,18 +11,23 @@ import lombok.RequiredArgsConstructor;
 
 import com.dawn.backend.domain.blueprint.entity.BlueprintVersion;
 import com.dawn.backend.domain.blueprint.repository.BlueprintVersionRepository;
+import com.dawn.backend.domain.note.dto.BookmarkNoteItem;
+import com.dawn.backend.domain.note.dto.NoteItem;
 import com.dawn.backend.domain.note.dto.request.BookmarkImageRequestDto;
 import com.dawn.backend.domain.note.dto.request.BookmarkNoteRequestDto;
-import com.dawn.backend.domain.note.dto.NoteItem;
 import com.dawn.backend.domain.note.dto.request.CreateNoteRequestDto;
+import com.dawn.backend.domain.note.dto.request.GetBookmarkNotesRequestDto;
+import com.dawn.backend.domain.note.dto.request.GetNotesByBlueprintRequestDto;
+import com.dawn.backend.domain.note.dto.request.GetNotesByPinRequestDto;
 import com.dawn.backend.domain.note.dto.request.UpdateNoteRequestDto;
 import com.dawn.backend.domain.note.dto.response.BookmarkImageResponseDto;
 import com.dawn.backend.domain.note.dto.response.BookmarkNoteResponseDto;
-import com.dawn.backend.domain.note.dto.request.GetNotesByPinRequestDto;
 import com.dawn.backend.domain.note.dto.response.CreateNoteResponseDto;
 import com.dawn.backend.domain.note.dto.response.DeleteNoteResponseDto;
-import com.dawn.backend.domain.note.dto.response.UpdateNoteResponseDto;
+import com.dawn.backend.domain.note.dto.response.GetBookmarkNotesResponseDto;
+import com.dawn.backend.domain.note.dto.response.GetNotesByBlueprintResponseDto;
 import com.dawn.backend.domain.note.dto.response.GetNotesByPinResponseDto;
+import com.dawn.backend.domain.note.dto.response.UpdateNoteResponseDto;
 import com.dawn.backend.domain.note.entity.Note;
 import com.dawn.backend.domain.note.entity.NoteImage;
 import com.dawn.backend.domain.note.entity.UserNoteCheck;
@@ -142,12 +147,12 @@ public class NoteService {
 		Long projectId = note.getBlueprintVersion().getBlueprint().getProject().getProjectId();
 
 		userProjectRepository.findByUserIdAndProjectId(userId, projectId)
-				.orElseThrow(() -> new RuntimeException("User does not have permission to delete this note."));
+			.orElseThrow(() -> new RuntimeException("User does not have permission to delete this note."));
 	}
 
 	private Note getNoteById(Long noteId) {
 		return noteRepository.findById(noteId)
-				.orElseThrow(() -> new RuntimeException("Note not found with id " + noteId));
+			.orElseThrow(() -> new RuntimeException("Note not found with id " + noteId));
 	}
 
 	@Transactional
@@ -156,86 +161,147 @@ public class NoteService {
 //		User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
 		User user = userRepository.findById(userId)
-				.orElseThrow(() -> new IllegalArgumentException("해당 유저가 존재하지 않습니다."));
+			.orElseThrow(() -> new IllegalArgumentException("해당 유저가 존재하지 않습니다."));
 
 		BlueprintVersion blueprintVersion
-				= blueprintVersionRepository.findById(createNoteRequestDto.blueprintVersionId())
-				.orElseThrow(() -> new IllegalArgumentException("해당 블루프린트 버전이 존재하지 않습니다."));
+			= blueprintVersionRepository.findById(createNoteRequestDto.blueprintVersionId())
+			.orElseThrow(() -> new IllegalArgumentException("해당 블루프린트 버전이 존재하지 않습니다."));
 
 		Pin pin = pinRepository.findById(pinId).orElseThrow(() -> new IllegalArgumentException("해당 핀이 존재하지 않습니다."));
 
 		Note note = Note.builder()
-				.noteTitle(createNoteRequestDto.noteTitle())
-				.user(user)
-				.noteContent(createNoteRequestDto.noteContent())
-				.blueprintVersion(blueprintVersion)
-				.pin(pin)
-				.build();
+			.noteTitle(createNoteRequestDto.noteTitle())
+			.user(user)
+			.noteContent(createNoteRequestDto.noteContent())
+			.blueprintVersion(blueprintVersion)
+			.pin(pin)
+			.build();
 
 		noteRepository.save(note);
 
 		if (createNoteRequestDto.imageUrlList() != null) {
 			for (String imageUrl : createNoteRequestDto.imageUrlList()) {
 				NoteImage noteImage = NoteImage.builder()
-						.imageOrigin(imageUrl)
-						.imagePreview(imageUrl)
-						.note(note)
-						.build();
+					.imageOrigin(imageUrl)
+					.imagePreview(imageUrl)
+					.note(note)
+					.build();
 				imageRepository.save(noteImage);
 			}
 		}
 
 		UserNoteCheck creatorNoteCheck = UserNoteCheck.builder()
-				.note(note)
-				.user(user)
-				.build();
+			.note(note)
+			.user(user)
+			.build();
 		creatorNoteCheck.updateNoteCheck(true);
 		noteCheckRepository.save(creatorNoteCheck);
 
 		List<User> projectUsers = userProjectRepository.findUserByProjectProjectId(createNoteRequestDto.projectId());
 
 		projectUsers.stream()
-				.filter(projectUser -> !projectUser.equals(user))
-				.map(projectUser -> UserNoteCheck.builder()
-						.note(note)
-						.user(projectUser)
-						.build())
-				.forEach(noteCheckRepository::save);
+			.filter(projectUser -> !projectUser.equals(user))
+			.map(projectUser -> UserNoteCheck.builder()
+				.note(note)
+				.user(projectUser)
+				.build())
+			.forEach(noteCheckRepository::save);
 
 		return new CreateNoteResponseDto(note.getNoteId());
 	}
 
 	public GetNotesByPinResponseDto getNotesByPin(Long pinId, GetNotesByPinRequestDto getNotesByPinRequestDto) {
-		Pin pin = pinRepository.findById(pinId)
-				.orElseThrow(() -> new IllegalArgumentException("해당 핀이 존재하지 않습니다."));
+		if (!pinRepository.existsById(pinId)) {
+			throw new IllegalArgumentException("해당 핀이 존재하지 않습니다.");
+		}
 
 		List<Note> notes = noteRepository.findAllByPinPinId(pinId);
 
 		List<NoteItem> noteItems = notes.stream()
-				.map(note -> {
+			.map(note -> {
+				ProjectUserDto noteWriter =
+					userRepository.findUserWithRoleByUserIdAndProjectId(
+						note.getUser().getUserId(),
+						getNotesByPinRequestDto.projectId());
+				boolean isPresentImage = imageRepository.existsByNoteNoteId(note.getNoteId());
 
-					// TODO: 작성자 정보: join해서 userRole도 가져오기
-					ProjectUserDto noteWriter =
-							userRepository.findUserWithRoleByUserIdAndProjectId(
-									note.getUser().getUserId(),
-									getNotesByPinRequestDto.projectId());
-					// TODO: 이미지 존재 여부 확인
-					boolean isPresentImage = imageRepository.existsByNoteNoteId(note.getNoteId());
+				List<ProjectUserDto> readUsers =
+					userRepository.findCheckedUsersWithRolesByNoteId(note.getNoteId(),
+						getNotesByPinRequestDto.projectId());
 
-					// TODO: 노트를 읽은 사용자 목록 가져오기
-					List<ProjectUserDto> readUsers = userRepository.findCheckedUsersWithRolesByNoteId(note.getNoteId());
-
-					return new NoteItem(
-							note.getNoteId(),
-							noteWriter,
-							note.getNoteTitle(),
-							note.getBookmark(),
-							note.getCreatedAt(),
-							isPresentImage,
-							readUsers
-					);
-				}).collect(Collectors.toList());
+				return new NoteItem(
+					note.getNoteId(),
+					noteWriter,
+					note.getNoteTitle(),
+					note.getBookmark(),
+					note.getCreatedAt(),
+					isPresentImage,
+					readUsers
+				);
+			}).collect(Collectors.toList());
 
 		return new GetNotesByPinResponseDto(noteItems);
+	}
+
+	public GetBookmarkNotesResponseDto getBookmarkNotes(Long pinId, GetBookmarkNotesRequestDto request) {
+		if (!pinRepository.existsById(pinId)) {
+			throw new IllegalArgumentException("해당 핀이 존재하지 않습니다.");
+		}
+
+		List<Note> bookmarkedNotes = noteRepository.findAllByPinPinIdAndBookmark(pinId, true);
+
+		List<BookmarkNoteItem> noteItems = bookmarkedNotes.stream()
+			.map(note -> {
+				ProjectUserDto noteWriter =
+					userRepository.findUserWithRoleByUserIdAndProjectId(
+						note.getUser().getUserId(),
+						request.projectId());
+				boolean isPresentImage = imageRepository.existsByNoteNoteId(note.getNoteId());
+				return new BookmarkNoteItem(
+					note.getNoteId(),
+					noteWriter,
+					note.getNoteTitle(),
+					note.getBookmark(),
+					note.getCreatedAt(),
+					isPresentImage
+				);
+			}).collect(Collectors.toList());
+
+		return new GetBookmarkNotesResponseDto(noteItems);
+	}
+
+	public GetNotesByBlueprintResponseDto getNotesByBlueprint(
+		Long blueprintId, Long blueprintVersion, GetNotesByBlueprintRequestDto request
+	) {
+		if (!blueprintVersionRepository.existsById(blueprintVersion)) {
+			throw new IllegalArgumentException("해당 블루프린트 버전이 존재하지 않습니다.");
+		}
+
+		List<Note> notes = noteRepository.findAllByBlueprintVersion_BlueprintVersionId(blueprintVersion);
+
+		List<NoteItem> noteItems = notes.stream()
+			.map(note -> {
+				ProjectUserDto noteWriter =
+					userRepository.findUserWithRoleByUserIdAndProjectId(
+						note.getUser().getUserId(),
+						request.projectId());
+				boolean isPresentImage = imageRepository.existsByNoteNoteId(note.getNoteId());
+
+				List<ProjectUserDto> readUsers =
+					userRepository.findCheckedUsersWithRolesByNoteId(note.getNoteId(),
+						request.projectId());
+
+				return new NoteItem(
+					note.getNoteId(),
+					noteWriter,
+					note.getNoteTitle(),
+					note.getBookmark(),
+					note.getCreatedAt(),
+					isPresentImage,
+					readUsers
+				);
+			}).collect(Collectors.toList());
+
+		return new GetNotesByBlueprintResponseDto(noteItems);
 	}
 }

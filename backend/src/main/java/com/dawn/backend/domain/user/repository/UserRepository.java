@@ -36,7 +36,8 @@ public interface UserRepository extends JpaRepository<User, Long> {
 		FROM User u
 		JOIN UserNoteCheck unc ON u.userId = unc.user.userId
 		JOIN UserProject up ON u.userId = up.user.userId
-		WHERE unc.note.noteId = :noteId AND unc.isChecked = true
+		WHERE up.project.projectId = :projectId AND unc.note.noteId = :noteId AND unc.isChecked = true
 		""")
-	List<ProjectUserDto> findCheckedUsersWithRolesByNoteId(@Param("noteId") Long noteId);
+	List<ProjectUserDto> findCheckedUsersWithRolesByNoteId(
+		@Param("noteId") Long noteId, @Param("projectId") Long projectId);
 }
