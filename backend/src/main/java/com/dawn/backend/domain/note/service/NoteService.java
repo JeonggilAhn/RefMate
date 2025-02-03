@@ -11,10 +11,12 @@ import lombok.RequiredArgsConstructor;
 
 import com.dawn.backend.domain.blueprint.entity.BlueprintVersion;
 import com.dawn.backend.domain.blueprint.repository.BlueprintVersionRepository;
+import com.dawn.backend.domain.note.dto.request.BookmarkImageRequestDto;
 import com.dawn.backend.domain.note.dto.request.BookmarkNoteRequestDto;
 import com.dawn.backend.domain.note.dto.NoteItem;
 import com.dawn.backend.domain.note.dto.request.CreateNoteRequestDto;
 import com.dawn.backend.domain.note.dto.request.UpdateNoteRequestDto;
+import com.dawn.backend.domain.note.dto.response.BookmarkImageResponseDto;
 import com.dawn.backend.domain.note.dto.response.BookmarkNoteResponseDto;
 import com.dawn.backend.domain.note.dto.request.GetNotesByPinRequestDto;
 import com.dawn.backend.domain.note.dto.response.CreateNoteResponseDto;
@@ -83,12 +85,37 @@ public class NoteService {
 //		User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 //		validatePermission(user.getUserId(), noteId);
 
-		updateBookmark(note);
+		updateNoteBookmark(note);
 
 		return BookmarkNoteResponseDto.from(note);
 	}
 
-	private void updateBookmark(Note note) {
+	@Transactional
+	public BookmarkImageResponseDto updateBookmarkImage(Long imageId, BookmarkImageRequestDto dto) {
+		NoteImage noteImage = getNoteImageById(imageId);
+//		User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+//		validatePermission(user.getUserId(), noteId);
+
+		updateImageBookmark(noteImage);
+
+		return BookmarkImageResponseDto.from(noteImage);
+	}
+
+	private void updateImageBookmark(NoteImage noteImage) {
+		boolean bookmarked = noteImage.getBookmark();
+		if (bookmarked) {
+			noteImage.removeBookmark();
+		} else {
+			noteImage.addBookmark();
+		}
+	}
+
+	private NoteImage getNoteImageById(Long imageId) {
+		return imageRepository.findById(imageId)
+			.orElseThrow(() -> new RuntimeException("Image not found"));
+	}
+
+	private void updateNoteBookmark(Note note) {
 		boolean bookmarked = note.getBookmark();
 		if (bookmarked) {
 			note.removeBookmark();

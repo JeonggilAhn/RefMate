@@ -14,10 +14,12 @@ import org.springframework.web.bind.annotation.RestController;
 
 import lombok.RequiredArgsConstructor;
 
+import com.dawn.backend.domain.note.dto.request.BookmarkImageRequestDto;
 import com.dawn.backend.domain.note.dto.request.BookmarkNoteRequestDto;
 import com.dawn.backend.domain.note.dto.request.CreateNoteRequestDto;
 import com.dawn.backend.domain.note.dto.request.GetNotesByPinRequestDto;
 import com.dawn.backend.domain.note.dto.request.UpdateNoteRequestDto;
+import com.dawn.backend.domain.note.dto.response.BookmarkImageResponseDto;
 import com.dawn.backend.domain.note.dto.response.BookmarkNoteResponseDto;
 import com.dawn.backend.domain.note.dto.response.CreateNoteResponseDto;
 import com.dawn.backend.domain.note.dto.response.DeleteNoteResponseDto;
@@ -58,7 +60,7 @@ public class NoteController {
 		return ResponseWrapperFactory.setResponse(HttpStatus.OK, null, responseDto);
 	}
 
-	@PostMapping("/notes/{noteId}/bookmark")
+	@PatchMapping("/notes/{noteId}/bookmark")
 	public ResponseEntity<ResponseWrapper<BookmarkNoteResponseDto>> updateNoteBookmark(
 		@PathVariable Long noteId,
 		@RequestBody BookmarkNoteRequestDto requestDto
@@ -74,5 +76,14 @@ public class NoteController {
 	) {
 		GetNotesByPinResponseDto getNotesByPinResponseDto = noteService.getNotesByPin(pinId, getNotesByPinRequestDto);
 		return ResponseWrapperFactory.setResponse(HttpStatus.OK, null, getNotesByPinResponseDto);
+	}
+	
+	@PatchMapping("/images/{imageId}/bookmark")
+	public ResponseEntity<ResponseWrapper<BookmarkImageResponseDto>> updateNoteImageBookmark(
+		@PathVariable Long imageId,
+		@RequestBody BookmarkImageRequestDto requestDto
+	) {
+		BookmarkImageResponseDto responseDto = noteService.updateBookmarkImage(imageId, requestDto);
+		return ResponseWrapperFactory.setResponse(HttpStatus.OK, null, responseDto);
 	}
 }
