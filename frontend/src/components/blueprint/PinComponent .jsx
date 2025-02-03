@@ -2,8 +2,9 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import styled from 'styled-components';
 import ButtonList from './ButtonList';
 import { get, post } from '../../api';
-
 import pinIcon from '../../assets/icons/Pin_Blue.svg';
+import PinNotes from './PinNotes';
+import Draggable from 'react-draggable';
 
 const PinComponent = ({ blueprintId, blueprintVersion, pin }) => {
   const [pinInfo, setPinInfo] = useState(pin);
@@ -12,6 +13,11 @@ const PinComponent = ({ blueprintId, blueprintVersion, pin }) => {
   const [unreadNotes, setUnreadNotes] = useState(false);
   const [isClicked, setIsClicked] = useState(false);
   const pinRef = useRef(null);
+  const [showPinNotes, setShowPinNotes] = useState(false);
+
+  const handleNoteClick = () => {
+    setShowPinNotes((prevState) => !prevState);
+  };
 
   const fetchRecentNote = useCallback(async () => {
     try {
@@ -86,8 +92,14 @@ const PinComponent = ({ blueprintId, blueprintVersion, pin }) => {
 
       {isClicked && (
         <ButtonGroupContainer>
-          <ButtonList />
+          <ButtonList onNoteClick={handleNoteClick} />
         </ButtonGroupContainer>
+      )}
+
+      {showPinNotes && (
+        <div className="absolute left-full top-0 z-10 w-[15rem]">
+          <PinNotes onClose={() => setShowPinNotes(false)} />
+        </div>
       )}
     </PinContainer>
   );
