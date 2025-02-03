@@ -6,14 +6,17 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import lombok.RequiredArgsConstructor;
 
 import com.dawn.backend.domain.note.dto.request.CreateNoteRequestDto;
+import com.dawn.backend.domain.note.dto.request.UpdateNoteRequestDto;
 import com.dawn.backend.domain.note.dto.response.CreateNoteResponseDto;
 import com.dawn.backend.domain.note.dto.response.DeleteNoteResponseDto;
+import com.dawn.backend.domain.note.dto.response.UpdateNoteResponseDto;
 import com.dawn.backend.domain.note.service.NoteService;
 import com.dawn.backend.global.response.ResponseWrapper;
 import com.dawn.backend.global.response.ResponseWrapperFactory;
@@ -38,5 +41,14 @@ public class NoteController {
 	) {
 		CreateNoteResponseDto createNoteResponseDto = noteService.createNote(userId, pinId, createNoteRequestDto);
 		return ResponseWrapperFactory.setResponse(HttpStatus.CREATED, null, createNoteResponseDto);
+	}
+
+	@PutMapping("/notes/{noteId}")
+	public ResponseEntity<ResponseWrapper<UpdateNoteResponseDto>> updateNote(
+		@PathVariable Long noteId,
+		@RequestBody UpdateNoteRequestDto requestDto
+	) {
+		UpdateNoteResponseDto responseDto = noteService.updateNote(noteId, requestDto);
+		return ResponseWrapperFactory.setResponse(HttpStatus.OK, null, responseDto);
 	}
 }

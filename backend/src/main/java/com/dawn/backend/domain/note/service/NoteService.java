@@ -1,5 +1,6 @@
 package com.dawn.backend.domain.note.service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
@@ -10,8 +11,10 @@ import lombok.RequiredArgsConstructor;
 import com.dawn.backend.domain.blueprint.entity.BlueprintVersion;
 import com.dawn.backend.domain.blueprint.repository.BlueprintVersionRepository;
 import com.dawn.backend.domain.note.dto.request.CreateNoteRequestDto;
+import com.dawn.backend.domain.note.dto.request.UpdateNoteRequestDto;
 import com.dawn.backend.domain.note.dto.response.CreateNoteResponseDto;
 import com.dawn.backend.domain.note.dto.response.DeleteNoteResponseDto;
+import com.dawn.backend.domain.note.dto.response.UpdateNoteResponseDto;
 import com.dawn.backend.domain.note.entity.Note;
 import com.dawn.backend.domain.note.entity.NoteImage;
 import com.dawn.backend.domain.note.entity.UserNoteCheck;
@@ -26,7 +29,7 @@ import com.dawn.backend.domain.user.repository.UserRepository;
 
 @Service
 @RequiredArgsConstructor
-public class NoteService {
+public class  NoteService {
 
 	private final NoteRepository noteRepository;
 	private final UserProjectRepository userProjectRepository;
@@ -50,6 +53,36 @@ public class NoteService {
 		return new DeleteNoteResponseDto(noteId);
 	}
 
+	@Transactional
+	public UpdateNoteResponseDto updateNote(Long noteId, UpdateNoteRequestDto dto) {
+		Note note = getNoteById(noteId);
+
+//		User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+//		validatePermission(user.getUserId(), noteId);
+
+//		validateNoteCreateTime(note);
+//		validateIsNoteDeleted(note.getIsDeleted());
+
+		note.updateNoteTitle(dto.noteTitle());
+		note.updateNoteContent(dto.noteContent());
+
+		return new UpdateNoteResponseDto(note.getNoteId());
+
+	}
+
+	private void validateIsNoteDeleted(Boolean isDeleted) {
+		if (isDeleted) {
+			throw new RuntimeException("삭제된 노트입니다.");
+		}
+	}
+
+	private void validateNoteCreateTime(Note note) {
+		if (note.getCreatedAt().plusMinutes(5).isBefore(LocalDateTime.now())) {
+			throw new RuntimeException("5분 이후에는 노트를 수정할 수 없습니다.");
+		}
+	}
+
+
 	private void validatePermission(Long userId, Long noteId) {
 		Note note = getNoteById(noteId);
 		Long projectId = note.getBlueprintVersion().getBlueprint().getProject().getProjectId();
@@ -58,7 +91,7 @@ public class NoteService {
 				.orElseThrow(() -> new RuntimeException("User does not have permission to delete this note."));
 	}
 
-	public Note getNoteById(Long noteId) {
+	private Note getNoteById(Long noteId) {
 		return noteRepository.findById(noteId)
 				.orElseThrow(() -> new RuntimeException("Note not found with id " + noteId));
 	}

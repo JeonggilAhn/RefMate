@@ -74,4 +74,12 @@ public class Note extends BaseTimeEntity {
 		this.isDeleted = true;
 		this.deletedAt = LocalDateTime.now();
 	}
+
+	public void updateNoteTitle(String newTitle) {
+		this.noteTitle = newTitle;
+	}
+
+	public void updateNoteContent(String newContent) {
+		this.noteContent = newContent;
+	}
 }
