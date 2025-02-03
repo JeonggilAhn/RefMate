@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
+const API_BASE_URL = import.meta.env.VITE_APP_API_BASE_URL;
 
 /* docs : https://www.notion.so/woorively/9to6-174c93c039f9806ba0e0df0deccd9386?p=55a3cbd6e70f47bda4c0c628f093b24c&pm=s */
 

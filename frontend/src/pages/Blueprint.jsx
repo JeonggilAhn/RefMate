@@ -83,12 +83,17 @@ const Blueprint = () => {
   return (
     <BlueprintLayout>
       <div className="relative overflow-hidden">
+        {/* todo : canvas 크기 변경시 아직 문제 많음 */}
+        {/* <div
+          className={`h-screen pt-[48px] border border-black transition-all duration-300 ${isSidebarOpen ? 'w-[calc(100%-20rem)]' : 'w-full'}`}
+        > */}
         <div className="w-full h-screen pt-[48px] border border-black">
           <BlueprintCanvas
             imageUrl={blueprintUrl}
             isPinButtonEnaled={isPinButtonEnaled}
             initialPins={initialPins}
             isAllPinVisible={isAllPinVisible}
+            isSidebarOpen={isSidebarOpen}
           />
           <div className="border border-black absolute left-[50%] bottom-4">
             <button className="border border-black" onClick={onClickPinButton}>

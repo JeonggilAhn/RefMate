@@ -11,6 +11,7 @@ const BlueprintCanvas = ({
   isPinButtonEnaled,
   initialPins,
   isAllPinVisible,
+  isSidebarOpen,
 }) => {
   const canvasRef = useRef(null);
   const [scale, setScale] = useState(1);
@@ -30,8 +31,8 @@ const BlueprintCanvas = ({
       const prevWidth = canvas.width;
       const prevHeight = canvas.height;
 
-      canvas.width = canvas.parentElement.clientWidth;
-      canvas.height = canvas.parentElement.clientHeight;
+      canvas.width = canvas.parentElement.parentElement.clientWidth;
+      canvas.height = canvas.parentElement.parentElement.clientHeight;
 
       const deltaX = (canvas.width - prevWidth) / 2;
       const deltaY = (canvas.height - prevHeight) / 2;
@@ -175,7 +176,6 @@ const BlueprintCanvas = ({
             position: 'absolute',
             left: `${position.x + item.pin_x * scale}px`,
             top: `${position.y + item.pin_y * scale - 40}px`,
-            // transform: `translate(-50%, -50%) scale(${Math.pow(2 / scale)})`,
             zIndex: 3,
             pointerEvents: 'auto',
             visibility: isAllPinVisible ? 'visible' : 'hidden',
@@ -205,6 +205,7 @@ const BlueprintCanvas = ({
             : 'default',
           width: '100%',
           height: '100%',
+          // objectFit: 'contain',
         }}
       />
     </div>
