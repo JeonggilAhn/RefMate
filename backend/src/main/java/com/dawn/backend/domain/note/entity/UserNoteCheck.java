@@ -1,7 +1,9 @@
 package com.dawn.backend.domain.note.entity;
 
+import jakarta.persistence.ConstraintMode;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
+import jakarta.persistence.ForeignKey;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -26,11 +28,11 @@ public class UserNoteCheck extends BaseTimeEntity {
 	private Boolean isChecked;
 
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "user_id")
+	@JoinColumn(name = "user_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
 	private User user;
 
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "note_id")
+	@JoinColumn(name = "note_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
 	private Note note;
 
 	@Builder

@@ -1,7 +1,9 @@
 package com.dawn.backend.domain.pin.entity;
 
+import jakarta.persistence.ConstraintMode;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
+import jakarta.persistence.ForeignKey;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -26,15 +28,15 @@ public class PinVersion extends BaseTimeEntity {
 	private Long pinVersionId;
 
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "blueprint_version_id")
+	@JoinColumn(name = "blueprint_version_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
 	private BlueprintVersion blueprintVersion;
 
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "pin_id")
+	@JoinColumn(name = "pin_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
 	private Pin pin;
 
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "pin_group_id")
+	@JoinColumn(name = "pin_group_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
 	private PinGroup pinGroup;
 
 	private Boolean isActive;

@@ -3,8 +3,10 @@ package com.dawn.backend.domain.note.entity;
 import java.time.LocalDateTime;
 
 import jakarta.persistence.Column;
+import jakarta.persistence.ConstraintMode;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
+import jakarta.persistence.ForeignKey;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -40,15 +42,15 @@ public class Note extends BaseTimeEntity {
 	private LocalDateTime deletedAt;
 
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "writer_id")
+	@JoinColumn(name = "writer_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
 	private User user;
 
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "blueprint_version_id")
+	@JoinColumn(name = "blueprint_version_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
 	private BlueprintVersion blueprintVersion;
 
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "pin_id")
+	@JoinColumn(name = "pin_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
 	private Pin pin;
 
 	@Builder
