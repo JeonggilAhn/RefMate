@@ -43,18 +43,14 @@ const PinNotes = ({ pinId }) => {
     fetchNotesWithPins();
   }, [pinId]);
 
-  const handleBack = () => {
+  const handleCreateNote = () => {
     setShowCreateNote(true); // 버튼 클릭 시 CreateNote 컴포넌트를 보여줌
   };
-
-  if (notesWithPins.length === 0) {
-    return <NoData>등록된 노트가 없습니다.</NoData>;
-  }
 
   return (
     <Container>
       <div className="flex justify-between border">
-        <button onClick={handleBack}>
+        <button onClick={handleCreateNote}>
           <img src={NoteCreation} alt="create note" />
         </button>
         <h3>🔵 핀 이름</h3>
@@ -68,7 +64,7 @@ const PinNotes = ({ pinId }) => {
           </NoteWithPinWrapper>
         ))}
       </NotesContainer>
-      {showCreateNote && <CreateNote pinId={pinId} />}
+      {showCreateNote && <CreateNote closeModal={() => setShowCreateNote(false)} />}
     </Container>
   );
 };
@@ -99,10 +95,4 @@ const NoteWithPinWrapper = styled.div`
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
-`;
-
-const NoData = styled.div`
-  font-size: 1rem;
-  color: #999;
-  text-align: center;
 `;

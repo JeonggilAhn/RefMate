@@ -8,73 +8,72 @@ const CreateNote = ({ pinId, closeModal }) => {
 
   const handleSubmit = async () => {
     try {
-      const response = await post(`/api/pins/${pinId}/notes`, {
-        blueprint_version_id: 0, // 예시로 0을 넣었어. 필요한 값으로 수정해.
-        project_id: 0, // 예시로 0을 넣었어. 필요한 값으로 수정해.
+      const response = await post(`pins/${pinId}/notes`, {
+        blueprint_version_id: 0, // 예시
+        project_id: 0, // 예시
         note_title: noteTitle,
         note_content: noteContent,
         image_url_list: imageUrls, // 이미지 URL 목록
       });
 
-      if (response.status.code === 'note-201-1') {
-        alert('노트 생성에 성공했습니다!');
-        closeModal(); // 모달 닫기
+      if (response.status === 201) {
+        alert('노트 생성 성공');
+        closeModal();
       } else {
-        alert('노트 생성에 실패했습니다.');
+        alert('노트 생성 실패');
       }
+
     } catch (error) {
       console.error('노트 생성 중 오류 발생:', error);
-      alert('노트 생성에 실패했습니다.');
+      alert('노트 생성 실패');
     }
   };
 
   return (
-    <div className="create-note-modal">
-      <div className="flex justify-between">
+    <div className="fixed right-80 border bg-white ">
+      <div className="create-note-header flex justify-between">
         <div>새 노트</div>
-        {/* 닫기 버튼 */}
         <button onClick={closeModal} className="close-button">
           X
         </button>
       </div>
-      {/* 노트 제목 입력 */}
-      <div>
-        <label>노트 제목</label>
+
+      <div className="border">
+        <label></label>
         <input
           type="text"
           value={noteTitle}
           onChange={(e) => setNoteTitle(e.target.value)}
-          placeholder="노트 제목을 입력하세요"
+          placeholder="노트 제목"
         />
       </div>
 
-      {/* 노트 내용 입력 */}
-      <div>
-        <label>노트 내용</label>
+      <div className="border">
+        <label></label>
         <textarea
           value={noteContent}
           onChange={(e) => setNoteContent(e.target.value)}
-          placeholder="노트 내용을 입력하세요"
+          placeholder="노트 내용"
         />
       </div>
 
-      {/* 이미지 첨부 아이콘 */}
-      <div>
-        <input
-          type="file"
-          accept="image/*"
-          onChange={(e) => {
-            const files = Array.from(e.target.files);
-            const urls = files.map((file) => URL.createObjectURL(file));
-            setImageUrls(urls);
-          }}
-        />
-      </div>
+      <div className="flex justify-between">
+        <div>
+          <input
+            type="file"
+            accept="image/*"
+            onChange={(e) => {
+              const files = Array.from(e.target.files);
+              const urls = files.map((file) => URL.createObjectURL(file));
+              setImageUrls(urls);
+            }}
+          />
+        </div>
 
-      {/* 저장 버튼 */}
-      <button onClick={handleSubmit} className="save-button">
-        저장
-      </button>
+        <button onClick={handleSubmit} className="save-button border">
+          저장
+        </button>
+      </div>
     </div>
   );
 };
