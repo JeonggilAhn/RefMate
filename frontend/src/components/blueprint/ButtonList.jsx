@@ -4,10 +4,10 @@ import NoteIcon from '../../assets/icons/NoteButton.svg';
 import ImageIcon from '../../assets/icons/ImageButton.svg';
 import InfoPlusIcon from '../../assets/icons/InfoPlusButton.svg';
 
-const ButtonGroup = () => {
+const ButtonGroup = ({ onNoteClick }) => {
   return (
     <GroupContainer>
-      <Button>
+      <Button onClick={onNoteClick}>
         <Icon src={NoteIcon} alt="Note Button" />
       </Button>
       <Button>

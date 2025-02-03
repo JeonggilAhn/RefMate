@@ -3,9 +3,10 @@ import styled from 'styled-components';
 import NoteButton from './NoteButton';
 import { get } from '../../api';
 import NoteCreation from '../../assets/icons/NoteCreation.svg';
+import Search from '../../assets/icons/Search.svg';
 import CreateNote from './CreateNote';
 
-const PinNotes = ({ pinId }) => {
+const PinNotes = ({ pinId, onClose }) => {
   const [notesWithPins, setNotesWithPins] = useState([]);
   const [showCreateNote, setShowCreateNote] = useState(false);
 
@@ -54,7 +55,17 @@ const PinNotes = ({ pinId }) => {
           <img src={NoteCreation} alt="create note" />
         </button>
         <h3>🔵 핀 이름</h3>
-        <div className="border">search</div>
+        {!onClose && (
+          <button>
+          <img src={Search} alt="search" />
+        </button>
+        )}
+        
+        {onClose && (
+          <button onClick={onClose} className="text-gray-500">
+            닫기
+          </button>
+        )}
       </div>
 
       <NotesContainer>
@@ -64,9 +75,7 @@ const PinNotes = ({ pinId }) => {
           </NoteWithPinWrapper>
         ))}
       </NotesContainer>
-      {showCreateNote && (
-        <CreateNote closeModal={() => setShowCreateNote(false)} />
-      )}
+      {showCreateNote && <CreateNote closeModal={() => setShowCreateNote(false)} />}
     </Container>
   );
 };
@@ -78,8 +87,9 @@ const Container = styled.div`
   flex-direction: column;
   border: 0.0625rem solid #e0e0e0;
   background-color: #fff;
-  height: 100%;
-  max-height: 20rem;
+  height: 20rem;
+  width: 100%;
+  z-index: 99;
 `;
 
 const NotesContainer = styled.div`
