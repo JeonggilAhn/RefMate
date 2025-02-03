@@ -105,7 +105,7 @@ public class NoteService {
 		creatorNoteCheck.updateNoteCheck(true);
 		noteCheckRepository.save(creatorNoteCheck);
 
-		List<User> projectUsers = userProjectRepository.findUsersByProjectId(createNoteRequestDto.projectId());
+		List<User> projectUsers = userProjectRepository.findUserByProjectProjectId(createNoteRequestDto.projectId());
 
 		projectUsers.stream()
 				.filter(projectUser -> !projectUser.equals(user))
