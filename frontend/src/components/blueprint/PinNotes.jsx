@@ -57,10 +57,10 @@ const PinNotes = ({ pinId, onClose }) => {
         <h3>🔵 핀 이름</h3>
         {!onClose && (
           <button>
-          <img src={Search} alt="search" />
-        </button>
+            <img src={Search} alt="search" />
+          </button>
         )}
-        
+
         {onClose && (
           <button onClick={onClose} className="text-gray-500">
             닫기
@@ -75,7 +75,9 @@ const PinNotes = ({ pinId, onClose }) => {
           </NoteWithPinWrapper>
         ))}
       </NotesContainer>
-      {showCreateNote && <CreateNote closeModal={() => setShowCreateNote(false)} />}
+      {showCreateNote && (
+        <CreateNote closeModal={() => setShowCreateNote(false)} />
+      )}
     </Container>
   );
 };
