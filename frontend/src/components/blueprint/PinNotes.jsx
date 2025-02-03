@@ -2,9 +2,13 @@ import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import NoteButton from './NoteButton';
 import { get } from '../../api';
+import NoteCreation from '../../assets/icons/NoteCreation.svg';
+import CreateNote from './CreateNote';
 
 const PinNotes = ({ pinId }) => {
   const [notesWithPins, setNotesWithPins] = useState([]);
+  const [showCreateNote, setShowCreateNote] = useState(false);
+
   useEffect(() => {
     const fetchNotesWithPins = async () => {
       try {
@@ -39,6 +43,10 @@ const PinNotes = ({ pinId }) => {
     fetchNotesWithPins();
   }, [pinId]);
 
+  const handleBack = () => {
+    setShowCreateNote(true); // 버튼 클릭 시 CreateNote 컴포넌트를 보여줌
+  };
+
   if (notesWithPins.length === 0) {
     return <NoData>등록된 노트가 없습니다.</NoData>;
   }
@@ -46,7 +54,9 @@ const PinNotes = ({ pinId }) => {
   return (
     <Container>
       <div className="flex justify-between border">
-        <div className="border">+</div>
+        <button onClick={handleBack}>
+          <img src={NoteCreation} alt="create note" />
+        </button>
         <h3>🔵 핀 이름</h3>
         <div className="border">search</div>
       </div>
@@ -58,6 +68,7 @@ const PinNotes = ({ pinId }) => {
           </NoteWithPinWrapper>
         ))}
       </NotesContainer>
+      {showCreateNote && <CreateNote pinId={pinId} />}
     </Container>
   );
 };
