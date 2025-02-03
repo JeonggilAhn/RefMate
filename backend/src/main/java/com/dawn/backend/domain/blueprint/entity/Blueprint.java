@@ -2,8 +2,10 @@ package com.dawn.backend.domain.blueprint.entity;
 
 import java.time.LocalDateTime;
 
+import jakarta.persistence.ConstraintMode;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
+import jakarta.persistence.ForeignKey;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -30,7 +32,7 @@ public class Blueprint extends BaseTimeEntity {
 	private String blueprintTitle;
 
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "project_id")
+	@JoinColumn(name = "project_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
 	private Project project;
 
 	private Boolean isDeleted;
