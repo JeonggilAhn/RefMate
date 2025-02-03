@@ -17,34 +17,24 @@ const NoteButton = ({ note }) => {
     }
   };
 
-  const truncateTitle = (title) => {
-    return title.length > 15 ? `${title.slice(0, 15)}...` : title;
-  };
-
-  const {
-    note_writer: { profile_url, user_email },
-    note_title,
-    created_at,
-    preview_image_list, // preview_image_list 사용
-    is_bookmark,
-  } = note;
-
-  // preview_image_list의 존재 여부를 확인하여 이미지 아이콘 표시
-  const is_present_image =
-    Array.isArray(preview_image_list) && preview_image_list.length > 0;
+  const { note_writer, note_title, created_at, is_present_image, is_bookmark } =
+    note;
 
   return (
     <NoteWrapper>
-      <ProfileImage src={profile_url} alt="프로필" />
+      <ProfileImage src={note_writer.profile_url} alt="프로필" />
       <ContentWrapper>
-        <TitleWrapper $isBookmarked={is_bookmark}>
-          <Title>{truncateTitle(note_title)}</Title>
-          {is_present_image && (
-            <ImageIcon src={ImageIconSrc} alt="이미지 아이콘" />
-          )}
+        <TitleWrapper>
+          <Title>{note_title}</Title>
+          <IconsWrapper>
+            {is_bookmark && <BookmarkIcon />}
+            {is_present_image && (
+              <ImageIcon src={ImageIconSrc} alt="이미지 아이콘" />
+            )}
+          </IconsWrapper>
         </TitleWrapper>
         <MetaData>
-          <UserInfo>{user_email.split('@')[0]}</UserInfo>
+          <UserInfo>{note_writer.user_email.split('@')[0]}</UserInfo>
           <Separator>·</Separator>
           <CreatedAt>{formatCreatedAt(created_at)}</CreatedAt>
         </MetaData>
@@ -83,55 +73,47 @@ const TitleWrapper = styled.div`
   align-items: center;
   justify-content: space-between;
   border: 0.0625rem solid #ccc;
-  border-radius: 0.2rem;
+  border-radius: 0.5rem;
   padding: 0.5rem;
   gap: 0.5rem;
-  height: 2rem;
-  cursor: pointer;
   position: relative;
-
-  &:hover {
-    background-color: #f9f9f9;
-  }
-
-  &::before {
-    content: '';
-    display: ${({ $isBookmarked }) => ($isBookmarked ? 'block' : 'none')};
-    position: absolute;
-    top: 0;
-    right: 0;
-    width: 0;
-    height: 0;
-    border-top: 1rem solid #87b5fa;
-    border-left: 1rem solid transparent;
-  }
+  cursor: pointer;
 `;
 
 const Title = styled.div`
-  font-size: 0.75rem;
+  font-size: 0.875rem;
   font-weight: bold;
-  color: #333;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+`;
+
+const IconsWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 `;
 
 const ImageIcon = styled.img`
   width: 1.5rem;
   height: 1.5rem;
-  flex-shrink: 0;
+`;
+
+const BookmarkIcon = styled.div`
+  width: 0;
+  height: 0;
+  border-top: 1rem solid #87b5fa; /* 파란색 모서리 */
+  border-left: 1rem solid transparent;
+  position: absolute;
+  top: 0;
+  right: 0;
 `;
 
 const MetaData = styled.div`
   display: flex;
   align-items: center;
-  font-size: 0.65rem;
-  color: #666;
-  margin-top: 0.25rem;
+  font-size: 0.75rem;
 `;
 
 const UserInfo = styled.div`
-  font-size: 0.65rem;
+  font-size: 0.75rem;
 `;
 
 const Separator = styled.div`
@@ -139,6 +121,6 @@ const Separator = styled.div`
 `;
 
 const CreatedAt = styled.div`
-  font-size: 0.65rem;
-  color: #999;
+  font-size: 0.75rem;
+  color: #888;
 `;
