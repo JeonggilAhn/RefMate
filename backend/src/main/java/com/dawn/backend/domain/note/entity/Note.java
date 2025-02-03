@@ -82,4 +82,12 @@ public class Note extends BaseTimeEntity {
 	public void updateNoteContent(String newContent) {
 		this.noteContent = newContent;
 	}
+
+	public void addBookmark() {
+		bookmark = true;
+	}
+
+	public void removeBookmark() {
+		bookmark = false;
+	}
 }

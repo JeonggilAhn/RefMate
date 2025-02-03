@@ -10,8 +10,10 @@ import lombok.RequiredArgsConstructor;
 
 import com.dawn.backend.domain.blueprint.entity.BlueprintVersion;
 import com.dawn.backend.domain.blueprint.repository.BlueprintVersionRepository;
+import com.dawn.backend.domain.note.dto.request.BookmarkNoteRequestDto;
 import com.dawn.backend.domain.note.dto.request.CreateNoteRequestDto;
 import com.dawn.backend.domain.note.dto.request.UpdateNoteRequestDto;
+import com.dawn.backend.domain.note.dto.response.BookmarkNoteResponseDto;
 import com.dawn.backend.domain.note.dto.response.CreateNoteResponseDto;
 import com.dawn.backend.domain.note.dto.response.DeleteNoteResponseDto;
 import com.dawn.backend.domain.note.dto.response.UpdateNoteResponseDto;
@@ -68,6 +70,26 @@ public class  NoteService {
 
 		return new UpdateNoteResponseDto(note.getNoteId());
 
+	}
+
+	@Transactional
+	public BookmarkNoteResponseDto updateBookmarkNote(Long noteId, BookmarkNoteRequestDto dto) {
+		Note note = getNoteById(noteId);
+//		User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+//		validatePermission(user.getUserId(), noteId);
+
+		updateBookmark(note);
+
+		return BookmarkNoteResponseDto.from(note);
+	}
+
+	private void updateBookmark(Note note) {
+		boolean bookmarked = note.getBookmark();
+		if (bookmarked) {
+			note.removeBookmark();
+		} else {
+			note.addBookmark();
+		}
 	}
 
 	private void validateIsNoteDeleted(Boolean isDeleted) {

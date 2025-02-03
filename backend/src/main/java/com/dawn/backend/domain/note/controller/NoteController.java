@@ -4,6 +4,7 @@ package com.dawn.backend.domain.note.controller;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -12,8 +13,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import lombok.RequiredArgsConstructor;
 
+import com.dawn.backend.domain.note.dto.request.BookmarkNoteRequestDto;
 import com.dawn.backend.domain.note.dto.request.CreateNoteRequestDto;
 import com.dawn.backend.domain.note.dto.request.UpdateNoteRequestDto;
+import com.dawn.backend.domain.note.dto.response.BookmarkNoteResponseDto;
 import com.dawn.backend.domain.note.dto.response.CreateNoteResponseDto;
 import com.dawn.backend.domain.note.dto.response.DeleteNoteResponseDto;
 import com.dawn.backend.domain.note.dto.response.UpdateNoteResponseDto;
@@ -49,6 +52,15 @@ public class NoteController {
 		@RequestBody UpdateNoteRequestDto requestDto
 	) {
 		UpdateNoteResponseDto responseDto = noteService.updateNote(noteId, requestDto);
+		return ResponseWrapperFactory.setResponse(HttpStatus.OK, null, responseDto);
+	}
+
+	@PostMapping("/notes/{noteId}/bookmark")
+	public ResponseEntity<ResponseWrapper<BookmarkNoteResponseDto>> updateNoteBookmark(
+		@PathVariable Long noteId,
+		@RequestBody BookmarkNoteRequestDto requestDto
+	) {
+		BookmarkNoteResponseDto responseDto = noteService.updateBookmarkNote(noteId, requestDto);
 		return ResponseWrapperFactory.setResponse(HttpStatus.OK, null, responseDto);
 	}
 }
