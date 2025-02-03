@@ -5,10 +5,12 @@ import { get } from '../../api';
 import NoteCreation from '../../assets/icons/NoteCreation.svg';
 import Search from '../../assets/icons/Search.svg';
 import CreateNote from './CreateNote';
+import NoteSearch from './NoteSearch';
 
 const PinNotes = ({ pinId, onClose }) => {
   const [notesWithPins, setNotesWithPins] = useState([]);
   const [showCreateNote, setShowCreateNote] = useState(false);
+  const [isSearching, setIsSearching] = useState(false);
 
   useEffect(() => {
     const fetchNotesWithPins = async () => {
@@ -48,6 +50,10 @@ const PinNotes = ({ pinId, onClose }) => {
     setShowCreateNote(true); // 버튼 클릭 시 CreateNote 컴포넌트를 보여줌
   };
 
+  const handleIconClick = () => {
+    setIsSearching((prev) => !prev);
+  };
+
   return (
     <Container>
       <div className="flex justify-between border">
@@ -56,7 +62,7 @@ const PinNotes = ({ pinId, onClose }) => {
         </button>
         <h3>🔵 핀 이름</h3>
         {!onClose && (
-          <button>
+          <button onClick={handleIconClick}>
             <img src={Search} alt="search" />
           </button>
         )}
@@ -78,6 +84,7 @@ const PinNotes = ({ pinId, onClose }) => {
       {showCreateNote && (
         <CreateNote closeModal={() => setShowCreateNote(false)} />
       )}
+      {isSearching && <NoteSearch />}
     </Container>
   );
 };
