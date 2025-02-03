@@ -44,4 +44,8 @@ public class UserNoteCheck extends BaseTimeEntity {
 		this.user = user;
 		this.note = note;
 	}
+
+	public void updateNoteCheck(Boolean isChecked) {
+		this.isChecked = isChecked;
+	}
 }
