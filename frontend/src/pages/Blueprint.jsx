@@ -7,6 +7,17 @@ import ImportantNoteSection from '../components/blueprint/ImportantNoteSection';
 import PinNoteHistory from '../components/blueprint/PinNoteHistory';
 import PinNotes from '../components/blueprint/PinNotes';
 
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Slider } from '@/components/ui/slider';
+
 const Blueprint = () => {
   // params 로 변경
   const blueprint_id = 1;
@@ -89,6 +100,112 @@ const Blueprint = () => {
           className={`h-screen pt-[48px] border border-black transition-all duration-300 ${isSidebarOpen ? 'w-[calc(100%-20rem)]' : 'w-full'}`}
         > */}
         <div className="w-full h-screen pt-[48px] border border-black">
+          <div className="border border-black absolute left-2 top-[58px] z-1">
+            <div className="flex justify-between">
+              <button className="border border-black">시안</button>
+              <div>
+                <button>{'<'}</button>
+                <Select>
+                  <SelectTrigger className="w-[280px]">
+                    <SelectValue placeholder="Select a timezone" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectGroup>
+                      <SelectLabel>North America</SelectLabel>
+                      <SelectItem value="est">
+                        Eastern Standard Time (EST)
+                      </SelectItem>
+                      <SelectItem value="cst">
+                        Central Standard Time (CST)
+                      </SelectItem>
+                      <SelectItem value="mst">
+                        Mountain Standard Time (MST)
+                      </SelectItem>
+                      <SelectItem value="pst">
+                        Pacific Standard Time (PST)
+                      </SelectItem>
+                      <SelectItem value="akst">
+                        Alaska Standard Time (AKST)
+                      </SelectItem>
+                      <SelectItem value="hst">
+                        Hawaii Standard Time (HST)
+                      </SelectItem>
+                    </SelectGroup>
+                    <SelectGroup>
+                      <SelectLabel>Europe & Africa</SelectLabel>
+                      <SelectItem value="gmt">
+                        Greenwich Mean Time (GMT)
+                      </SelectItem>
+                      <SelectItem value="cet">
+                        Central European Time (CET)
+                      </SelectItem>
+                      <SelectItem value="eet">
+                        Eastern European Time (EET)
+                      </SelectItem>
+                      <SelectItem value="west">
+                        Western European Summer Time (WEST)
+                      </SelectItem>
+                      <SelectItem value="cat">
+                        Central Africa Time (CAT)
+                      </SelectItem>
+                      <SelectItem value="eat">
+                        East Africa Time (EAT)
+                      </SelectItem>
+                    </SelectGroup>
+                    <SelectGroup>
+                      <SelectLabel>Asia</SelectLabel>
+                      <SelectItem value="msk">Moscow Time (MSK)</SelectItem>
+                      <SelectItem value="ist">
+                        India Standard Time (IST)
+                      </SelectItem>
+                      <SelectItem value="cst_china">
+                        China Standard Time (CST)
+                      </SelectItem>
+                      <SelectItem value="jst">
+                        Japan Standard Time (JST)
+                      </SelectItem>
+                      <SelectItem value="kst">
+                        Korea Standard Time (KST)
+                      </SelectItem>
+                      <SelectItem value="ist_indonesia">
+                        Indonesia Central Standard Time (WITA)
+                      </SelectItem>
+                    </SelectGroup>
+                    <SelectGroup>
+                      <SelectLabel>Australia & Pacific</SelectLabel>
+                      <SelectItem value="awst">
+                        Australian Western Standard Time (AWST)
+                      </SelectItem>
+                      <SelectItem value="acst">
+                        Australian Central Standard Time (ACST)
+                      </SelectItem>
+                      <SelectItem value="aest">
+                        Australian Eastern Standard Time (AEST)
+                      </SelectItem>
+                      <SelectItem value="nzst">
+                        New Zealand Standard Time (NZST)
+                      </SelectItem>
+                      <SelectItem value="fjt">Fiji Time (FJT)</SelectItem>
+                    </SelectGroup>
+                    <SelectGroup>
+                      <SelectLabel>South America</SelectLabel>
+                      <SelectItem value="art">Argentina Time (ART)</SelectItem>
+                      <SelectItem value="bot">Bolivia Time (BOT)</SelectItem>
+                      <SelectItem value="brt">Brasilia Time (BRT)</SelectItem>
+                      <SelectItem value="clt">
+                        Chile Standard Time (CLT)
+                      </SelectItem>
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
+                <button>{'>'}</button>
+              </div>
+            </div>
+            <div className="flex justify-between">
+              <button className="border border-black">눈알</button>
+              <Slider defaultValue={[33]} max={100} step={1} />
+            </div>
+          </div>
           <BlueprintCanvas
             imageUrl={blueprintUrl}
             isPinButtonEnaled={isPinButtonEnaled}
@@ -96,6 +213,7 @@ const Blueprint = () => {
             isAllPinVisible={isAllPinVisible}
             isSidebarOpen={isSidebarOpen}
           />
+          {/* toolbar */}
           <div className="border border-black absolute left-[50%] bottom-4">
             <button className="border border-black" onClick={onClickPinButton}>
               핀
