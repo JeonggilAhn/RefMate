@@ -8,7 +8,7 @@ const Login = ({ isVisible, onClose }) => {
   if (!isVisible) return null;
 
   const handleLogin = (provider) => {
-    window.location.href = `/oauth2/authorization/${provider}`;
+    window.location.href = `http://i12a807.p.ssafy.io:8000/oauth2/authorization/${provider}`;
   };
 
   return (
