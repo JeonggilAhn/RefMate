@@ -13,11 +13,13 @@ import com.dawn.backend.domain.pin.entity.Pin;
 public interface ImageRepository extends JpaRepository<NoteImage, Long> {
 	@Query(
 		"SELECT im "
-		+ "FROM NoteImage im "
-		+ "WHERE im.note.noteId IN (SELECT nt.noteId FROM Note nt WHERE nt.pin = :pin) "
-		+ "ORDER BY im.bookmark"
+			+ "FROM NoteImage im "
+			+ "WHERE im.note.noteId IN (SELECT nt.noteId FROM Note nt WHERE nt.pin = :pin) "
+			+ "ORDER BY im.bookmark"
 	)
 	List<NoteImage> findAllByPinOrderByBookmark(Pin pin);
 
 	List<NoteImage> findAllByNoteNoteIdOrderByBookmark(Long noteId);
+
+	boolean existsByNoteNoteId(Long noteId);
 }

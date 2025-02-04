@@ -45,4 +45,12 @@ public class NoteImage extends BaseTimeEntity {
 		this.bookmark = false;
 		this.note = note;
 	}
+
+	public void addBookmark() {
+		bookmark = true;
+	}
+
+	public void removeBookmark() {
+		bookmark = false;
+	}
 }
