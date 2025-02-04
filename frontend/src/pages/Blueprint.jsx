@@ -23,7 +23,7 @@ const Blueprint = () => {
   const blueprint_version_id = 1987029227680993;
 
   // current blueprint
-  const [blueprintTitle, setBlueprintTite] = useState('');
+  const [blueprintTitle, setBlueprintTitle] = useState('');
   const [blueprintUrl, setBlueprintUrl] = useState('');
 
   // draft blueprint
@@ -132,8 +132,8 @@ const Blueprint = () => {
           <div className="border border-black absolute left-2 top-[58px] z-1">
             <div className="flex justify-between items-center">
               <button className="border border-black">시안</button>
-              <div>
-                <button>{'<'}</button>
+              <div className="flex">
+                <button className="border border-black">{'<'}</button>
                 <Select>
                   <SelectTrigger className="w-[125px] h-[32px] bg-white border-zinc-400 text-zinc-800 focus:ring-zinc-300">
                     {/* todo : 현재 블루프린트와 일치하는 버전 노출 시키기 */}
@@ -160,7 +160,7 @@ const Blueprint = () => {
                     </SelectGroup>
                   </SelectContent>
                 </Select>
-                <button className="border">{'>'}</button>
+                <button className="border border-black">{'>'}</button>
               </div>
             </div>
             <div className="flex justify-between items-center">
