@@ -3,10 +3,9 @@ import styled from 'styled-components';
 import ImageIconSrc from '../../assets/icons/ImageButton.svg';
 import NoteReaders from './NoteReaders';
 
-const NoteButton = ({ note }) => {
+const NoteButton = ({ note, onClick }) => {
+  // ✅ onClick을 props로 받음
   const [showReaders, setShowReaders] = useState(false);
-
-  // console.log(note);
 
   const handleShowReaders = () => {
     setShowReaders((prevState) => !prevState);
@@ -35,13 +34,13 @@ const NoteButton = ({ note }) => {
     read_users,
   } = note;
 
-  // console.log('NoteButton read_user:', read_users);
-
   return (
     <NoteWrapper>
       <ProfileImage src={note_writer.profile_url} alt="프로필" />
       <ContentWrapper>
-        <TitleWrapper>
+        <TitleWrapper onClick={onClick}>
+          {' '}
+          {/* ✅ 클릭하면 NoteDetail을 열도록 설정 */}
           <Title>{note_title}</Title>
           <IconsWrapper>
             {is_bookmark && <BookmarkIcon />}
@@ -66,7 +65,6 @@ const NoteButton = ({ note }) => {
 
 export default NoteButton;
 
-// 스타일 정의
 const NoteWrapper = styled.div`
   display: flex;
   align-items: center;
@@ -89,7 +87,7 @@ const ContentWrapper = styled.div`
   flex: 1;
 `;
 
-const TitleWrapper = styled.div`
+const TitleWrapper = styled.button`
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -99,6 +97,8 @@ const TitleWrapper = styled.div`
   gap: 0.5rem;
   position: relative;
   cursor: pointer;
+  background: none;
+  width: 100%;
 `;
 
 const Title = styled.div`
@@ -120,7 +120,7 @@ const ImageIcon = styled.img`
 const BookmarkIcon = styled.div`
   width: 0;
   height: 0;
-  border-top: 1rem solid #87b5fa; /* 파란색 모서리 */
+  border-top: 1rem solid #87b5fa;
   border-left: 1rem solid transparent;
   position: absolute;
   top: 0;

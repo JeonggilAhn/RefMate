@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import NoteButton from './NoteButton';
 import { get } from '../../api';
+import NoteDetail from './NoteDetail';
 import Search from '../../assets/icons/Search.svg';
 import NoteSearch from './NoteSearch';
 
@@ -33,19 +34,19 @@ const processNotes = (noteList) => {
     return acc;
   }, {});
 
-  // 그룹화된 데이터를 배열로 변환
   return Object.entries(groupedByDate)
     .map(([date, notes]) => ({
       date,
-      notes: notes.reverse(), // 최신순으로 정렬
+      notes: notes.reverse(),
     }))
-    .reverse(); // 날짜 최신순 정렬
+    .reverse();
 };
 
 const NoteHistory = () => {
   const [notesByDate, setNotesByDate] = useState([]);
   const [errorMessage, setErrorMessage] = useState('');
   const [isSearching, setIsSearching] = useState(false);
+  const [selectedNote, setSelectedNote] = useState(null); // 노트 상세 정보 상태 추가
 
   useEffect(() => {
     const fetchNotes = async () => {
@@ -56,12 +57,8 @@ const NoteHistory = () => {
         const notesGroupedByDate = processNotes(noteList);
         setNotesByDate(notesGroupedByDate);
       } catch (error) {
-        console.error('❌ 노트 데이터 로드 실패:', error.message);
-        if (error.response?.status === 404) {
-          setErrorMessage('해당 데이터를 찾을 수 없습니다. URL을 확인하세요.');
-        } else {
-          setErrorMessage('노트를 불러오는 데 실패했습니다.');
-        }
+        console.error('노트 데이터 로드 실패:', error.message);
+        setErrorMessage('노트를 불러오는 데 실패했습니다.');
       }
     };
 
@@ -72,37 +69,56 @@ const NoteHistory = () => {
     setIsSearching((prev) => !prev);
   };
 
+  // 노트 클릭 시 상세보기 열기
+  const handleNoteClick = (note) => {
+    setSelectedNote(note);
+  };
+
+  // NoteDetail에서 뒤로 가기 기능
+  const handleBack = () => {
+    setSelectedNote(null);
+  };
+
   if (errorMessage) {
     return <NoData>{errorMessage}</NoData>;
   }
 
   return (
     <Container>
-      <Header>
-        전체 노트
-        <SearchButton onClick={handleSearchToggle}>
-          <img src={Search} alt="search" />
-        </SearchButton>
-      </Header>
-      {isSearching ? (
-        <NoteSearch />
+      {selectedNote ? (
+        <NoteDetail note={selectedNote} onBack={handleBack} /> // NoteDetail 표시
       ) : (
-        <NotesContainer>
-          {notesByDate.length === 0 ? (
-            <NoData>등록된 노트가 없습니다.</NoData>
+        <>
+          <Header>
+            전체 노트
+            <SearchButton onClick={handleSearchToggle}>
+              <img src={Search} alt="search" />
+            </SearchButton>
+          </Header>
+          {isSearching ? (
+            <NoteSearch />
           ) : (
-            notesByDate.map(({ date, notes }) => (
-              <React.Fragment key={date}>
-                <DateSeparator>{date}</DateSeparator>
-                {notes.map((note) => (
-                  <NoteWithPinWrapper key={note.note_id}>
-                    <NoteButton note={note} />
-                  </NoteWithPinWrapper>
-                ))}
-              </React.Fragment>
-            ))
+            <NotesContainer>
+              {notesByDate.length === 0 ? (
+                <NoData>등록된 노트가 없습니다.</NoData>
+              ) : (
+                notesByDate.map(({ date, notes }) => (
+                  <React.Fragment key={date}>
+                    <DateSeparator>{date}</DateSeparator>
+                    {notes.map((note) => (
+                      <NoteWithPinWrapper key={note.note_id}>
+                        <NoteButton
+                          note={note}
+                          onClick={() => handleNoteClick(note)}
+                        />
+                      </NoteWithPinWrapper>
+                    ))}
+                  </React.Fragment>
+                ))
+              )}
+            </NotesContainer>
           )}
-        </NotesContainer>
+        </>
       )}
     </Container>
   );

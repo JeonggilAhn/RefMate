@@ -3,11 +3,10 @@ import styled from 'styled-components';
 import { get } from '../../api';
 import ImageIcon from '../../assets/icons/ImageButton.svg';
 
-const ImportantNoteList = ({ pinId }) => {
+const ImportantNoteList = ({ pinId, onNoteClick }) => {
   const [notes, setNotes] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // 날짜 포맷 함수
   const formatDate = (dateString) => {
     const date = new Date(dateString);
     const year = date.getFullYear().toString().slice(-2);
@@ -26,7 +25,6 @@ const ImportantNoteList = ({ pinId }) => {
           response.data.content &&
           Array.isArray(response.data.content.note_list)
         ) {
-          // created_at 기준으로 최신순 정렬 후 역순(reverse) 적용
           const sortedNotes = response.data.content.note_list
             .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
             .reverse();
@@ -56,7 +54,7 @@ const ImportantNoteList = ({ pinId }) => {
   return (
     <Container>
       {notes.map((note) => (
-        <NoteCard key={note.note_id}>
+        <NoteCard key={note.note_id} onClick={() => onNoteClick(note.note_id)}>
           <LeftBar />
           <NoteContent>
             <NoteTitle>{note.note_title}</NoteTitle>
@@ -76,8 +74,8 @@ const Container = styled.div`
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
-  max-height: 15rem; /* 최대 높이 설정 */
-  overflow-y: auto; /* 스크롤 활성화 */
+  max-height: 15rem;
+  overflow-y: auto;
   padding: 0.5rem;
   box-sizing: border-box;
 `;
@@ -91,6 +89,7 @@ const NoteCard = styled.div`
   justify-content: space-between;
   padding: 0.5rem;
   cursor: pointer;
+  border-left: 0.25rem solid #87b5fa;
 
   &:hover {
     background-color: #e9e9e9;
@@ -105,22 +104,23 @@ const NoteContent = styled.div`
 `;
 
 const NoteTitle = styled.span`
-  font-size: 0.875rem;
+  font-size: 1rem;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: calc(100% - 4.5rem); /* 아이콘 및 날짜 공간 제외 */
+  font-weight: bold;
+  color: #333;
 `;
 
 const NoteDate = styled.span`
-  font-size: 0.75rem;
+  font-size: 0.875rem;
   color: #888;
   white-space: nowrap;
 `;
 
 const Icon = styled.img`
-  width: 1rem;
-  height: 1rem;
+  width: 1.25rem;
+  height: 1.25rem;
 `;
 
 const LeftBar = styled.div`

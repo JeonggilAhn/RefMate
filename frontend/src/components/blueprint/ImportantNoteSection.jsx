@@ -1,14 +1,28 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import ImportantNoteList from './ImportantNoteList';
+import NoteDetail from '../blueprint/NoteDetail'; // NoteDetail 불러오기
 
 const ImportantNoteSection = () => {
-  const pinId = 70281145; // 고정된 핀 ID (나중에 props로 전달 가능)
+  const pinId = 70281145; // 고정된 핀 ID
+  const [selectedNoteId, setSelectedNoteId] = useState(null); // 선택된 note_id 상태
+
+  const handleNoteClick = (noteId) => {
+    setSelectedNoteId(noteId); // 선택된 note_id 설정
+  };
+
+  const handleBack = () => {
+    setSelectedNoteId(null); // NoteDetail 닫기
+  };
 
   return (
     <SectionContainer>
       <Header>중요한 노트</Header>
-      <ImportantNoteList pinId={pinId} />
+      {selectedNoteId ? (
+        <NoteDetail noteId={selectedNoteId} onBack={handleBack} />
+      ) : (
+        <ImportantNoteList pinId={pinId} onNoteClick={handleNoteClick} />
+      )}
     </SectionContainer>
   );
 };
