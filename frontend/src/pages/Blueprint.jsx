@@ -4,7 +4,7 @@ import { get } from '../api/index';
 import BlueprintLayout from '../layouts/BlueprintLayout';
 import BlueprintCanvas from '../components/blueprint/BlueprintCanvas';
 import ImportantNoteSection from '../components/blueprint/ImportantNoteSection';
-import PinNoteHistory from '../components/blueprint/PinNoteHistory';
+import NoteHistory from '../components/blueprint/NoteHistory';
 import PinNotes from '../components/blueprint/PinNotes';
 import {
   Select,
@@ -238,7 +238,7 @@ const Blueprint = () => {
         >
           <div>sidebar</div>
           <ImportantNoteSection />
-          <PinNoteHistory />
+          <NoteHistory />
           <PinNotes />
         </div>
         {/* sidebar open & close */}
