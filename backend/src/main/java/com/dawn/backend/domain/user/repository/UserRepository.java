@@ -25,9 +25,10 @@ public interface UserRepository extends JpaRepository<User, Long> {
 		LEFT JOIN UserProject up ON u.userId = up.user.userId AND up.project.projectId = :projectId
 		WHERE u.userId = :userId
 		""")
-	ProjectUserDto findUserWithRoleByUserIdAndProjectId(@Param("userId") Long userId,
-														@Param("projectId") Long projectId);
-
+	ProjectUserDto findUserWithRoleByUserIdAndProjectId(
+		@Param("userId") Long userId,
+		@Param("projectId") Long projectId
+	);
 
 	@Query("""
 		SELECT new com.dawn.backend.domain.user.dto.ProjectUserDto(
