@@ -1,6 +1,5 @@
 package com.dawn.backend.domain.note.controller;
 
-
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -20,6 +19,7 @@ import com.dawn.backend.domain.note.dto.request.CreateNoteRequestDto;
 import com.dawn.backend.domain.note.dto.request.GetBookmarkNotesRequestDto;
 import com.dawn.backend.domain.note.dto.request.GetNotesByBlueprintRequestDto;
 import com.dawn.backend.domain.note.dto.request.GetNotesByPinRequestDto;
+import com.dawn.backend.domain.note.dto.request.NoteDetailRequestDto;
 import com.dawn.backend.domain.note.dto.request.UpdateNoteRequestDto;
 import com.dawn.backend.domain.note.dto.response.BookmarkImageResponseDto;
 import com.dawn.backend.domain.note.dto.response.BookmarkNoteResponseDto;
@@ -28,6 +28,8 @@ import com.dawn.backend.domain.note.dto.response.DeleteNoteResponseDto;
 import com.dawn.backend.domain.note.dto.response.GetBookmarkNotesResponseDto;
 import com.dawn.backend.domain.note.dto.response.GetNotesByBlueprintResponseDto;
 import com.dawn.backend.domain.note.dto.response.GetNotesByPinResponseDto;
+import com.dawn.backend.domain.note.dto.response.NoteDetailResponseDto;
+import com.dawn.backend.domain.note.dto.response.RecentNoteResponseDto;
 import com.dawn.backend.domain.note.dto.response.UpdateNoteResponseDto;
 import com.dawn.backend.domain.note.service.NoteService;
 import com.dawn.backend.global.response.ResponseWrapper;
@@ -109,5 +111,15 @@ public class NoteController {
 		GetNotesByBlueprintResponseDto response =
 			noteService.getNotesByBlueprint(blueprintId, blueprintVersion, request);
 		return ResponseWrapperFactory.setResponse(HttpStatus.OK, null, response);
+	}
+
+	// 토큰 로직 -> 추후 NoteDetailRequestDto 삭제
+	@GetMapping("/notes/{noteId}")
+	public ResponseEntity<ResponseWrapper<NoteDetailResponseDto>> findDetailNote(
+		@PathVariable Long noteId,
+		@RequestBody NoteDetailRequestDto requestDto
+	) {
+		NoteDetailResponseDto responseDto = noteService.findDetailNote(noteId, requestDto);
+		return ResponseWrapperFactory.setResponse(HttpStatus.OK, null, responseDto);
 	}
 }
