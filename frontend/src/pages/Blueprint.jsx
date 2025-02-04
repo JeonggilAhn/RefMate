@@ -131,7 +131,12 @@ const Blueprint = () => {
         <div className="w-full h-screen pt-[48px] border border-black">
           <div className="border border-black absolute left-2 top-[58px] z-1">
             <div className="flex justify-between items-center">
-              <button className="border border-black">시안</button>
+              <button
+                className="border border-black"
+                onClick={openBlueprintVersion}
+              >
+                시안
+              </button>
               <div className="flex">
                 <button className="border border-black">{'<'}</button>
                 <Select>

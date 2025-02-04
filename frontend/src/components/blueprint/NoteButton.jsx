@@ -35,7 +35,7 @@ const NoteButton = ({ note }) => {
     read_users,
   } = note;
 
-  // console.log('NoteButton read_user:', read_user);
+  // console.log('NoteButton read_user:', read_users);
 
   return (
     <NoteWrapper>
