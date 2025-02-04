@@ -1,6 +1,6 @@
 package com.dawn.backend.domain.note.dto.request;
 
 public record BookmarkImageRequestDto(
-	Integer bookmark
+	boolean bookmark
 ) {
 }
