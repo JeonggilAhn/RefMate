@@ -7,39 +7,52 @@ import Search from '../../assets/icons/Search.svg';
 import CreateNote from './CreateNote';
 import NoteSearch from './NoteSearch';
 
+const processNotes = (noteList) => {
+  if (!Array.isArray(noteList)) {
+    throw new Error('note_list 데이터가 배열 형식이 아닙니다.');
+  }
+
+  // 날짜별로 최신순 정렬 (날짜가 최신일수록 먼저 나오도록 정렬)
+  const groupedByDate = noteList.reduce((acc, note) => {
+    const date = new Date(note.created_at).toLocaleDateString('ko-KR', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      weekday: 'short',
+    });
+
+    if (!acc[date]) {
+      acc[date] = [];
+    }
+    acc[date].push(note);
+    return acc;
+  }, {});
+
+  return Object.entries(groupedByDate)
+    .sort(([dateA], [dateB]) => new Date(dateB) - new Date(dateA)) // 날짜별 최신순 정렬
+    .map(([date, notes]) => ({
+      date,
+      notes: notes.sort(
+        (a, b) => new Date(a.created_at) - new Date(b.created_at),
+      ), // 같은 날짜 내에서는 오래된 노트가 위, 최신 노트가 아래
+    }));
+};
+
 const PinNotes = ({ pinId, onClose }) => {
-  const [notesWithPins, setNotesWithPins] = useState([]);
+  const [notesByDate, setNotesByDate] = useState([]);
   const [showCreateNote, setShowCreateNote] = useState(false);
   const [isSearching, setIsSearching] = useState(false);
 
   useEffect(() => {
     const fetchNotesWithPins = async () => {
       try {
-        const notesResponse = await get(`pins/${pinId}/notes`);
-        const notes = notesResponse.data.content.note_list;
-
-        const notesPromises = notes.map(async (pin) => {
-          const notesResponse = await get(`pins/${pin.pin_id}/notes`);
-          const notes = notesResponse.data.content.note_list;
-
-          return notes.map((note) => ({
-            ...note,
-            preview_image_list: pin.preview_image_list, // 노트에 이미지 정보 추가
-          }));
-        });
-
-        const allNotesArray = await Promise.all(notesPromises);
-        const allNotesWithPins = allNotesArray.flat();
-
-        const sortedNotes = allNotesWithPins.sort(
-          (a, b) =>
-            new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
-        );
-
-        setNotesWithPins(sortedNotes);
+        const response = await get(`pins/${pinId}/notes`);
+        const fetchedNotes = response.data.content?.note_list || [];
+        const notesGroupedByDate = processNotes(fetchedNotes);
+        setNotesByDate(notesGroupedByDate);
       } catch (error) {
         console.error('핀 및 노트 데이터 로드 실패:', error);
-        setNotesWithPins([]);
+        setNotesByDate([]);
       }
     };
 
@@ -47,7 +60,7 @@ const PinNotes = ({ pinId, onClose }) => {
   }, [pinId]);
 
   const handleCreateNote = () => {
-    setShowCreateNote(true); // 버튼 클릭 시 CreateNote 컴포넌트를 보여줌
+    setShowCreateNote(true);
   };
 
   const handleIconClick = () => {
@@ -56,7 +69,7 @@ const PinNotes = ({ pinId, onClose }) => {
 
   return (
     <Container>
-      <div className="flex justify-between border">
+      <Header>
         <button onClick={handleCreateNote}>
           <img src={NoteCreation} alt="create note" />
         </button>
@@ -66,20 +79,27 @@ const PinNotes = ({ pinId, onClose }) => {
             <img src={Search} alt="search" />
           </button>
         )}
-
         {onClose && (
           <button onClick={onClose} className="text-gray-500">
             닫기
           </button>
         )}
-      </div>
-
+      </Header>
       <NotesContainer>
-        {notesWithPins.map((note) => (
-          <NoteWithPinWrapper key={note.note_id}>
-            <NoteButton note={note} />
-          </NoteWithPinWrapper>
-        ))}
+        {notesByDate.length === 0 ? (
+          <NoData>등록된 노트가 없습니다.</NoData>
+        ) : (
+          notesByDate.map(({ date, notes }) => (
+            <React.Fragment key={date}>
+              <DateSeparator>{date}</DateSeparator>
+              {notes.map((note) => (
+                <NoteWithPinWrapper key={note.note_id}>
+                  <NoteButton note={note} />
+                </NoteWithPinWrapper>
+              ))}
+            </React.Fragment>
+          ))
+        )}
       </NotesContainer>
       {showCreateNote && (
         <CreateNote closeModal={() => setShowCreateNote(false)} />
@@ -101,19 +121,42 @@ const Container = styled.div`
   z-index: 99;
 `;
 
+const Header = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  border-bottom: 1px solid #e0e0e0;
+  background-color: #f9f9f9;
+`;
+
 const NotesContainer = styled.div`
   flex: 1;
   overflow-y: auto;
   display: flex;
-  flex-direction: column-reverse;
+  flex-direction: column;
   padding: 1rem;
   gap: 0.75rem;
   max-height: calc(100% - 3rem);
   box-sizing: border-box;
 `;
 
+const DateSeparator = styled.div`
+  font-size: 0.875rem;
+  font-weight: bold;
+  color: #555;
+  padding: 0.5rem 0;
+  border-top: 1px solid #ddd;
+`;
+
 const NoteWithPinWrapper = styled.div`
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
+`;
+
+const NoData = styled.div`
+  font-size: 1rem;
+  color: #999;
+  text-align: center;
 `;

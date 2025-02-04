@@ -2,24 +2,22 @@ import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import NoteButton from './NoteButton';
 import { get } from '../../api';
+import Search from '../../assets/icons/Search.svg';
+import NoteSearch from './NoteSearch';
 
-// 🔹 블루프린트 고정 ID & 버전
 const BLUEPRINT_ID = '6430550723600965';
 const BLUEPRINT_VERSION = '1287663269766013';
 
-// 데이터를 그룹화 및 정렬하는 유틸리티 함수
 const processNotes = (noteList) => {
   if (!Array.isArray(noteList)) {
     throw new Error('note_list 데이터가 배열 형식이 아닙니다.');
   }
 
-  // 최신순 정렬
   const sortedNotes = noteList.sort(
     (a, b) =>
       new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
   );
 
-  // 날짜별로 노트를 그룹화
   const groupedByDate = sortedNotes.reduce((acc, note) => {
     const date = new Date(note.created_at).toLocaleDateString('ko-KR', {
       year: 'numeric',
@@ -47,16 +45,15 @@ const processNotes = (noteList) => {
 const NoteHistory = () => {
   const [notesByDate, setNotesByDate] = useState([]);
   const [errorMessage, setErrorMessage] = useState('');
+  const [isSearching, setIsSearching] = useState(false);
 
   useEffect(() => {
     const fetchNotes = async () => {
       try {
         const apiUrl = `blueprints/${BLUEPRINT_ID}/${BLUEPRINT_VERSION}/notes`;
         const response = await get(apiUrl);
-
         const noteList = response.data.content?.note_list || [];
         const notesGroupedByDate = processNotes(noteList);
-
         setNotesByDate(notesGroupedByDate);
       } catch (error) {
         console.error('❌ 노트 데이터 로드 실패:', error.message);
@@ -71,36 +68,48 @@ const NoteHistory = () => {
     fetchNotes();
   }, []);
 
+  const handleSearchToggle = () => {
+    setIsSearching((prev) => !prev);
+  };
+
   if (errorMessage) {
     return <NoData>{errorMessage}</NoData>;
   }
 
-  if (notesByDate.length === 0) {
-    return <NoData>등록된 노트가 없습니다.</NoData>;
-  }
-
   return (
     <Container>
-      <Header>전체 노트</Header>
-      <NotesContainer>
-        {notesByDate.map(({ date, notes }) => (
-          <React.Fragment key={date}>
-            <DateSeparator>{date}</DateSeparator>
-            {notes.map((note) => (
-              <NoteWithPinWrapper key={note.note_id}>
-                <NoteButton note={note} />
-              </NoteWithPinWrapper>
-            ))}
-          </React.Fragment>
-        ))}
-      </NotesContainer>
+      <Header>
+        전체 노트
+        <SearchButton onClick={handleSearchToggle}>
+          <img src={Search} alt="search" />
+        </SearchButton>
+      </Header>
+      {isSearching ? (
+        <NoteSearch />
+      ) : (
+        <NotesContainer>
+          {notesByDate.length === 0 ? (
+            <NoData>등록된 노트가 없습니다.</NoData>
+          ) : (
+            notesByDate.map(({ date, notes }) => (
+              <React.Fragment key={date}>
+                <DateSeparator>{date}</DateSeparator>
+                {notes.map((note) => (
+                  <NoteWithPinWrapper key={note.note_id}>
+                    <NoteButton note={note} />
+                  </NoteWithPinWrapper>
+                ))}
+              </React.Fragment>
+            ))
+          )}
+        </NotesContainer>
+      )}
     </Container>
   );
 };
 
 export default NoteHistory;
 
-// 🔹 스타일 정의
 const Container = styled.div`
   display: flex;
   flex-direction: column;
@@ -119,9 +128,18 @@ const Header = styled.div`
   padding: 1rem;
   font-size: 1.25rem;
   font-weight: bold;
-  color: #333;
   text-align: center;
+  color: #333;
   border-bottom: 1px solid #e0e0e0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+`;
+
+const SearchButton = styled.button`
+  background: none;
+  border: none;
+  cursor: pointer;
 `;
 
 const NotesContainer = styled.div`
