@@ -60,6 +60,20 @@ spring:
         secret-key: ${MINIO_SECRET_KEY}
         bucket-name: uploads
 
+
+    mail:
+        host: smtp.gmail.com
+        port: 587
+        username: ${MAIL_USERNAME}
+        password: ${MAIL_PASSWORD}
+        properties:
+            mail:
+                smtp:
+                    auth: true
+                    timeout: 5000
+                    starttls:
+                        enable: true
+
 jwt-secret: ${JWT_SECRET}
 login-endpoint: ${LOGIN_ENDPOINT}
 
