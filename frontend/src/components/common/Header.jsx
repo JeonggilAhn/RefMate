@@ -1,12 +1,42 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { Link } from 'react-router-dom';
-import Login from '../main/Login'; // Login 컴포넌트 import
-import alarmIcon from '../../assets/icons/alarm.svg'; // alarm.png 파일 import
+import Login from '../main/Login';
+import alarmIcon from '../../assets/icons/alarm.svg';
+import logoutIcon from '../../assets/icons/Logout.svg';
+import { get, post } from '../../api';
+import Profile from './Profile';
+
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 
 function Header() {
-  const [isLoggedIn] = useState(false);
-  const [isLoginVisible, setIsLoginVisible] = useState(false); // 로그인 팝업 상태 관리
+  const [isLoggedIn, setIsLoggedIn] = useState(false); // 기본 비로그인 상태
+  const [isLoginVisible, setIsLoginVisible] = useState(false);
+  const [userId, setUserId] = useState(null);
+  const [profileUrl, setProfileUrl] = useState('');
+  const [userEmail, setUserEmail] = useState('');
+  const [signupDate, setSignupDate] = useState('');
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
+
+  useEffect(() => {
+    if (isLoggedIn && userId) {
+      get(`users/${userId}`)
+        .then((response) => {
+          const data = response.data?.content;
+          setProfileUrl(data?.profile_url || 'https://via.placeholder.com/24');
+          setUserEmail(data?.user_email || 'N/A');
+          setSignupDate(
+            new Date(data?.signup_date).toLocaleDateString() || 'N/A',
+          );
+        })
+        .catch((error) => console.error('Failed to fetch user data:', error));
+    }
+  }, [isLoggedIn, userId]);
 
   const handleOpenLogin = () => {
     setIsLoginVisible(true);
@@ -16,11 +46,27 @@ function Header() {
     setIsLoginVisible(false);
   };
 
+  const handleLoginSuccess = (id) => {
+    setIsLoggedIn(true);
+    setUserId(id);
+  };
+
+  const handleLogout = () => {
+    post('auth/logout')
+      .then(() => {
+        setIsLoggedIn(false);
+        setUserId(null);
+        setProfileUrl('');
+        setUserEmail('');
+        setSignupDate('');
+      })
+      .catch((error) => console.error('Logout failed:', error));
+  };
+
   return (
     <>
       <HeaderContainer>
         <StyledLink to="/">
-          {/* 로고와 아이콘 누르면 home으로 */}
           <Icon>
             <Logo>@</Logo>
             <Name>DAWN</Name>
@@ -32,20 +78,48 @@ function Header() {
               <img src={alarmIcon} alt="알림" />
             </NotificationIcon>
             <ProfileIcon>
-              <ProfileImage alt="프로필" />
+              <DropdownMenu>
+                <DropdownMenuTrigger>
+                  <ProfileImage src={profileUrl} alt="프로필" />
+                </DropdownMenuTrigger>
+                <DropdownMenuContent>
+                  <DropdownMenuItem
+                    onClick={() => setIsProfileOpen((prev) => !prev)}
+                  >
+                    프로필
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={handleLogout}>
+                    <LogoutIcon src={logoutIcon} alt="로그아웃 아이콘" />{' '}
+                    로그아웃
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </ProfileIcon>
           </LoggedInSection>
         ) : (
           <StartButton onClick={handleOpenLogin}>시작하기</StartButton>
         )}
       </HeaderContainer>
-      <Login isVisible={isLoginVisible} onClose={handleCloseLogin} />
+      {isProfileOpen && isLoggedIn && (
+        <Profile
+          profileUrl={profileUrl}
+          userEmail={userEmail}
+          signupDate={signupDate}
+          onClose={() => setIsProfileOpen(false)}
+        />
+      )}
+      <Login
+        isVisible={isLoginVisible}
+        onClose={handleCloseLogin}
+        onSuccess={handleLoginSuccess}
+      />
     </>
   );
 }
 
 export default Header;
 
+// 스타일 정의
 const HeaderContainer = styled.div`
   display: flex;
   width: 100%;
@@ -55,7 +129,6 @@ const HeaderContainer = styled.div`
   padding: 10px 20px;
   background-color: white;
   border-bottom: 1px solid #ddd;
-  box-sizing: border-box;
   position: fixed;
   top: 0;
   left: 0;
@@ -73,37 +146,22 @@ const Icon = styled.div`
 `;
 
 const Logo = styled.div`
-  font-size: 1.25rem; /* 20px */
+  font-size: 1.25rem;
   font-weight: bold;
   color: #87b5fa;
-  margin-right: 0.5rem; /* 8px */
+  margin-right: 0.5rem;
 `;
 
 const Name = styled.div`
-  font-size: 1.125rem; /* 18px */
+  font-size: 1.125rem;
   font-weight: bold;
   color: #333;
-`;
-
-const StartButton = styled.button`
-  height: 2rem; /* 32px */
-  padding: 0.5rem 1.25rem; /* 8px 20px */
-  font-size: 0.875rem; /* 14px */
-  background-color: #7ba8ec;
-  color: white;
-  border: none;
-  border-radius: 0.3125rem; /* 5px */
-  cursor: pointer;
-
-  &:hover {
-    background-color: #6589bf;
-  }
 `;
 
 const LoggedInSection = styled.div`
   display: flex;
   align-items: center;
-  gap: 1rem; /* 16px */
+  gap: 1rem;
 `;
 
 const NotificationIcon = styled.div`
@@ -111,8 +169,8 @@ const NotificationIcon = styled.div`
   cursor: pointer;
 
   img {
-    width: 2rem; /* 32px */
-    height: 2rem; /* 32px */
+    width: 2rem;
+    height: 2rem;
   }
 `;
 
@@ -121,8 +179,29 @@ const ProfileIcon = styled.div`
 `;
 
 const ProfileImage = styled.img`
-  width: 1.5rem; /* 24px */
-  height: 1.5rem; /* 24px */
+  width: 1.5rem;
+  height: 1.5rem;
   border-radius: 50%;
-  border: 0.0625rem solid #ddd; /* 1px */
+  border: 0.0625rem solid #ddd;
+`;
+
+const LogoutIcon = styled.img`
+  width: 1rem;
+  height: 1rem;
+  margin-right: 0.5rem;
+`;
+
+const StartButton = styled.button`
+  height: 2rem;
+  padding: 0.5rem 1.25rem;
+  font-size: 0.875rem;
+  background-color: #7ba8ec;
+  color: white;
+  border: none;
+  border-radius: 0.3125rem;
+  cursor: pointer;
+
+  &:hover {
+    background-color: #6589bf;
+  }
 `;

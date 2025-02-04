@@ -93,7 +93,7 @@ const BlueprintWrapper = styled.div`
 
 const Image = styled.img`
   width: 100%;
-  height: 10rem;
+  height: 100%;
 `;
 
 const CreatedAt = styled.div`

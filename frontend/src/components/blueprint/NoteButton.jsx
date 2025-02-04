@@ -1,8 +1,17 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import ImageIconSrc from '../../assets/icons/ImageButton.svg';
+import NoteReaders from './NoteReaders';
 
 const NoteButton = ({ note }) => {
+  const [showReaders, setShowReaders] = useState(false);
+
+  // console.log(note);
+
+  const handleShowReaders = () => {
+    setShowReaders((prevState) => !prevState);
+  };
+
   const formatCreatedAt = (time) => {
     const now = new Date();
     const created = new Date(time);
@@ -17,8 +26,16 @@ const NoteButton = ({ note }) => {
     }
   };
 
-  const { note_writer, note_title, created_at, is_present_image, is_bookmark } =
-    note;
+  const {
+    note_writer,
+    note_title,
+    created_at,
+    is_present_image,
+    is_bookmark,
+    read_users,
+  } = note;
+
+  // console.log('NoteButton read_user:', read_user);
 
   return (
     <NoteWrapper>
@@ -37,8 +54,12 @@ const NoteButton = ({ note }) => {
           <UserInfo>{note_writer.user_email.split('@')[0]}</UserInfo>
           <Separator>·</Separator>
           <CreatedAt>{formatCreatedAt(created_at)}</CreatedAt>
+          <button onClick={handleShowReaders}>
+            <div>😶</div>
+          </button>
         </MetaData>
       </ContentWrapper>
+      {showReaders && <NoteReaders read_users={read_users} />}
     </NoteWrapper>
   );
 };

@@ -20,7 +20,7 @@ const VersionHistorySidebar = ({ blueprintId, blueprintTitle, onClose }) => {
 
   return (
     <SidebarContainer>
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex items-center justify-between">
         <h1 className="text-left">모든 시안</h1>
         <CloseButton onClick={onClose} className="text-xl cursor-pointer">
           ×
@@ -32,13 +32,13 @@ const VersionHistorySidebar = ({ blueprintId, blueprintTitle, onClose }) => {
       <VersionList>
         {versions.map((version) => (
           <VersionItem key={version.blueprint_version_id}>
-            <div className="flex flex-col mb-4">
+            <div className="flex flex-col">
               <PreviewImage
                 src={version.preview_image}
                 alt={version.blueprint_version_name}
                 className="mb-2"
               />
-              <div className="flex justify-between">
+              <div className="flex justify-between p-2">
                 <VersionName>{version.blueprint_version_name}</VersionName>
                 <CreatedAt>
                   {new Date(version.created_at).toLocaleDateString()}
@@ -62,7 +62,7 @@ const SidebarContainer = styled.div`
   position: fixed;
   right: 0;
   top: 0;
-  z-index: 3;
+  z-index: 10;
 `;
 
 const VersionList = styled.div`
@@ -84,10 +84,11 @@ const VersionItem = styled.div`
 `;
 
 const PreviewImage = styled.img`
-  width: 10rem;
-  height: 10rem;
+  width: 100%;
+  height: 100%;
   display: flex;
   object-fit: cover;
+  padding: 0.5rem;
 `;
 
 const VersionName = styled.div`
