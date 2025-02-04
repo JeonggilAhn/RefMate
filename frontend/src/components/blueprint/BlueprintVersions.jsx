@@ -24,8 +24,8 @@ const BlueprintVersions = ({ blueprintId, blueprintTitle, closeModal }) => {
   }, [blueprintId]);
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50">
-      <div className="bg-white p-4 relative border">
+    <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50 ">
+      <div className="h-[40rem] w-[60rem] bg-white p-4 relative border">
         <div className="flex justify-between border mb-4">
           <h2 className="text-left">{blueprintTitle}</h2>
           <button onClick={closeModal}>
@@ -35,8 +35,10 @@ const BlueprintVersions = ({ blueprintId, blueprintTitle, closeModal }) => {
 
         <div className="grid grid-cols-3 gap-4">
           <div className="border flex relative">
-            <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2">
-              +
+            <div className="aspect-[4/3]">
+              <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2">
+                +
+              </div>
             </div>
             <div className="absolute bottom-0 left-0">새 블루프린트 업로드</div>
           </div>
@@ -46,7 +48,7 @@ const BlueprintVersions = ({ blueprintId, blueprintTitle, closeModal }) => {
                 <img
                   src={version.preview_image}
                   alt={version.blueprint_version_name}
-                  className="mb-2"
+                  className="mb-2 aspect-[4/3]"
                 />
                 <div className="flex justify-between">
                   <div>{version.blueprint_version_name}</div>

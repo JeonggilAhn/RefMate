@@ -44,7 +44,7 @@ const SubHeader = ({ userId, projectId }) => {
     <SubHeaderWrapper>
       <LeftSection>
         <h3>{isBlueprintListPage ? projectName : `${userName}님의 공간`}</h3>
-        <EditButton />
+        {isBlueprintListPage && <EditButton />}
       </LeftSection>
       <div className="border border-black">
         <button>
