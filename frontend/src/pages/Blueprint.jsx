@@ -11,7 +11,6 @@ import {
   SelectContent,
   SelectGroup,
   SelectItem,
-  SelectLabel,
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
@@ -23,8 +22,15 @@ const Blueprint = () => {
   const blueprint_id = 1;
   const blueprint_version_id = 1987029227680993;
 
-  const [blueprintTitle, setBlueprintTitle] = useState('');
+  // current blueprint
+  const [blueprintTitle, setBlueprintTite] = useState('');
   const [blueprintUrl, setBlueprintUrl] = useState('');
+
+  // draft blueprint
+  const [draftUrl, setDraftUrl] = useState('');
+
+  // versionbar
+  const [blueprints, setBlueprints] = useState([]);
 
   // sidebar
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
@@ -32,6 +38,7 @@ const Blueprint = () => {
 
   // toolbar
   const [isPinButtonEnaled, setIsPinButtonEnaled] = useState(true);
+  const [isDraftVisible, setIsDraftVisible] = useState(false);
 
   const [initialPins, setInitialPins] = useState([]);
   const [isVersionOpen, setIsVersionOpen] = useState(false);
@@ -50,6 +57,10 @@ const Blueprint = () => {
 
   const togglePinVisible = () => {
     setIsAllPinVisible((prev) => !prev);
+  };
+
+  const toggleDraftVisible = () => {
+    setIsDraftVisible((prev) => !prev);
   };
 
   const closeAllNotePopup = () => {};
@@ -78,6 +89,7 @@ const Blueprint = () => {
     });
   }, []);
 
+  // 모든 pin 정보 요청
   useEffect(() => {
     get(`blueprints/${blueprint_id}/${blueprint_version_id}/pins`).then(
       (res) => {
@@ -87,12 +99,26 @@ const Blueprint = () => {
         } = res;
 
         if (status === 200) {
+          console.log(
+            'GET blueprints/${blueprint_id}/${blueprint_version_id}/pins',
+          );
           setInitialPins(content);
-          console.log('요청');
-          console.log(content);
         }
       },
     );
+
+    get(`blueprints/${blueprint_id}`).then((res) => {
+      const {
+        status,
+        data: { content },
+      } = res;
+
+      if (status === 200) {
+        console.log('GET blueprints/${blueprint_id}');
+        setBlueprints(content);
+        console.log(content);
+      }
+    });
   }, []);
 
   return (
@@ -104,114 +130,52 @@ const Blueprint = () => {
         > */}
         <div className="w-full h-screen pt-[48px] border border-black">
           <div className="border border-black absolute left-2 top-[58px] z-1">
-            <div className="flex justify-between">
-              <button
-                className="border border-black"
-                onClick={openBlueprintVersion}
-              >
-                시안
-              </button>
+            <div className="flex justify-between items-center">
+              <button className="border border-black">시안</button>
               <div>
                 <button>{'<'}</button>
                 <Select>
-                  <SelectTrigger className="w-[280px]">
-                    <SelectValue placeholder="Select a timezone" />
+                  <SelectTrigger className="w-[125px] h-[32px] bg-white border-zinc-400 text-zinc-800 focus:ring-zinc-300">
+                    {/* todo : 현재 블루프린트와 일치하는 버전 노출 시키기 */}
+                    <SelectValue
+                      placeholder={
+                        '[' +
+                        blueprints[0]?.blueprint_version_seq +
+                        '] ' +
+                        blueprints[0]?.blueprint_version_name
+                      }
+                    />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="w-[120px] bg-white border-zinc-400 text-zinc-800 break-all">
                     <SelectGroup>
-                      <SelectLabel>North America</SelectLabel>
-                      <SelectItem value="est">
-                        Eastern Standard Time (EST)
-                      </SelectItem>
-                      <SelectItem value="cst">
-                        Central Standard Time (CST)
-                      </SelectItem>
-                      <SelectItem value="mst">
-                        Mountain Standard Time (MST)
-                      </SelectItem>
-                      <SelectItem value="pst">
-                        Pacific Standard Time (PST)
-                      </SelectItem>
-                      <SelectItem value="akst">
-                        Alaska Standard Time (AKST)
-                      </SelectItem>
-                      <SelectItem value="hst">
-                        Hawaii Standard Time (HST)
-                      </SelectItem>
-                    </SelectGroup>
-                    <SelectGroup>
-                      <SelectLabel>Europe & Africa</SelectLabel>
-                      <SelectItem value="gmt">
-                        Greenwich Mean Time (GMT)
-                      </SelectItem>
-                      <SelectItem value="cet">
-                        Central European Time (CET)
-                      </SelectItem>
-                      <SelectItem value="eet">
-                        Eastern European Time (EET)
-                      </SelectItem>
-                      <SelectItem value="west">
-                        Western European Summer Time (WEST)
-                      </SelectItem>
-                      <SelectItem value="cat">
-                        Central Africa Time (CAT)
-                      </SelectItem>
-                      <SelectItem value="eat">
-                        East Africa Time (EAT)
-                      </SelectItem>
-                    </SelectGroup>
-                    <SelectGroup>
-                      <SelectLabel>Asia</SelectLabel>
-                      <SelectItem value="msk">Moscow Time (MSK)</SelectItem>
-                      <SelectItem value="ist">
-                        India Standard Time (IST)
-                      </SelectItem>
-                      <SelectItem value="cst_china">
-                        China Standard Time (CST)
-                      </SelectItem>
-                      <SelectItem value="jst">
-                        Japan Standard Time (JST)
-                      </SelectItem>
-                      <SelectItem value="kst">
-                        Korea Standard Time (KST)
-                      </SelectItem>
-                      <SelectItem value="ist_indonesia">
-                        Indonesia Central Standard Time (WITA)
-                      </SelectItem>
-                    </SelectGroup>
-                    <SelectGroup>
-                      <SelectLabel>Australia & Pacific</SelectLabel>
-                      <SelectItem value="awst">
-                        Australian Western Standard Time (AWST)
-                      </SelectItem>
-                      <SelectItem value="acst">
-                        Australian Central Standard Time (ACST)
-                      </SelectItem>
-                      <SelectItem value="aest">
-                        Australian Eastern Standard Time (AEST)
-                      </SelectItem>
-                      <SelectItem value="nzst">
-                        New Zealand Standard Time (NZST)
-                      </SelectItem>
-                      <SelectItem value="fjt">Fiji Time (FJT)</SelectItem>
-                    </SelectGroup>
-                    <SelectGroup>
-                      <SelectLabel>South America</SelectLabel>
-                      <SelectItem value="art">Argentina Time (ART)</SelectItem>
-                      <SelectItem value="bot">Bolivia Time (BOT)</SelectItem>
-                      <SelectItem value="brt">Brasilia Time (BRT)</SelectItem>
-                      <SelectItem value="clt">
-                        Chile Standard Time (CLT)
-                      </SelectItem>
+                      {blueprints.map((item, index) => (
+                        <SelectItem
+                          key={item.blueprint_version_id}
+                          value={item.blueprint_version_id}
+                        >
+                          [{item.blueprint_version_seq}]{' '}
+                          {item.blueprint_version_name}
+                        </SelectItem>
+                      ))}
                     </SelectGroup>
                   </SelectContent>
                 </Select>
-                <button>{'>'}</button>
+                <button className="border">{'>'}</button>
               </div>
             </div>
-            <div className="flex justify-between">
-              <button className="border border-black">눈알</button>
-              <Slider defaultValue={[33]} max={100} step={1} />
+            <div className="flex justify-between items-center">
+              <button
+                className="border border-black"
+                onClick={toggleDraftVisible}
+              >
+                {isDraftVisible ? '눈알 켰다' : '눈알 껐다'}
+              </button>
+              <Slider
+                defaultValue={[33]}
+                max={100}
+                step={1}
+                className="h-[8px] bg-zinc-300 rounded-full"
+              />
             </div>
           </div>
           <BlueprintCanvas
