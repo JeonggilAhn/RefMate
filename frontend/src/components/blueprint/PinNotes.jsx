@@ -6,6 +6,7 @@ import NoteCreation from '../../assets/icons/NoteCreation.svg';
 import Search from '../../assets/icons/Search.svg';
 import CreateNote from './CreateNote';
 import NoteSearch from './NoteSearch';
+import NoteDetail from './NoteDetail'; // ✅ 추가
 
 const processNotes = (noteList) => {
   if (!Array.isArray(noteList)) {
@@ -42,6 +43,7 @@ const PinNotes = ({ pinId, onClose }) => {
   const [notesByDate, setNotesByDate] = useState([]);
   const [showCreateNote, setShowCreateNote] = useState(false);
   const [isSearching, setIsSearching] = useState(false);
+  const [selectedNote, setSelectedNote] = useState(null); // ✅ 추가된 상태 (선택한 노트)
 
   useEffect(() => {
     const fetchNotesWithPins = async () => {
@@ -67,44 +69,61 @@ const PinNotes = ({ pinId, onClose }) => {
     setIsSearching((prev) => !prev);
   };
 
+  const handleNoteClick = (note) => {
+    setSelectedNote(note); // ✅ NoteDetail로 이동
+  };
+
+  const handleBack = () => {
+    setSelectedNote(null); // ✅ PinNotes 목록으로 돌아가기
+  };
+
   return (
     <Container>
-      <Header>
-        <button onClick={handleCreateNote}>
-          <img src={NoteCreation} alt="create note" />
-        </button>
-        <h3>🔵 핀 이름</h3>
-        {!onClose && (
-          <button onClick={handleIconClick}>
-            <img src={Search} alt="search" />
-          </button>
-        )}
-        {onClose && (
-          <button onClick={onClose} className="text-gray-500">
-            닫기
-          </button>
-        )}
-      </Header>
-      <NotesContainer>
-        {notesByDate.length === 0 ? (
-          <NoData>등록된 노트가 없습니다.</NoData>
-        ) : (
-          notesByDate.map(({ date, notes }) => (
-            <React.Fragment key={date}>
-              <DateSeparator>{date}</DateSeparator>
-              {notes.map((note) => (
-                <NoteWithPinWrapper key={note.note_id}>
-                  <NoteButton note={note} />
-                </NoteWithPinWrapper>
-              ))}
-            </React.Fragment>
-          ))
-        )}
-      </NotesContainer>
-      {showCreateNote && (
-        <CreateNote closeModal={() => setShowCreateNote(false)} />
+      {selectedNote ? (
+        <NoteDetail note={selectedNote} onBack={handleBack} /> // ✅ NoteDetail 표시
+      ) : (
+        <>
+          <Header>
+            <button onClick={handleCreateNote}>
+              <img src={NoteCreation} alt="create note" />
+            </button>
+            <h3>🔵 핀 이름</h3>
+            {!onClose && (
+              <button onClick={handleIconClick}>
+                <img src={Search} alt="search" />
+              </button>
+            )}
+            {onClose && (
+              <button onClick={onClose} className="text-gray-500">
+                닫기
+              </button>
+            )}
+          </Header>
+          <NotesContainer>
+            {notesByDate.length === 0 ? (
+              <NoData>등록된 노트가 없습니다.</NoData>
+            ) : (
+              notesByDate.map(({ date, notes }) => (
+                <React.Fragment key={date}>
+                  <DateSeparator>{date}</DateSeparator>
+                  {notes.map((note) => (
+                    <NoteWithPinWrapper key={note.note_id}>
+                      <NoteButton
+                        note={note}
+                        onClick={() => handleNoteClick(note)}
+                      />
+                    </NoteWithPinWrapper>
+                  ))}
+                </React.Fragment>
+              ))
+            )}
+          </NotesContainer>
+          {showCreateNote && (
+            <CreateNote closeModal={() => setShowCreateNote(false)} />
+          )}
+          {isSearching && <NoteSearch />}
+        </>
       )}
-      {isSearching && <NoteSearch />}
     </Container>
   );
 };

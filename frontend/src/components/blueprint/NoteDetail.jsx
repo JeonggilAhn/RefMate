@@ -10,8 +10,8 @@ import FlagButtonIcon from '../../assets/icons/FlagButton.svg';
 import DeleteButtonIcon from '../../assets/icons/DeleteButton.svg';
 import ImageButtonIcon from '../../assets/icons/ImageButton.svg';
 
-const NoteDetail = () => {
-  const noteId = 67398445; // note_id를 상수로 설정
+const NoteDetail = ({ noteId, onBack }) => {
+  // ✅ noteId, onBack props 추가
   const [noteData, setNoteData] = useState(null);
   const [modal, setModal] = useRecoilState(modalState); // 모달 상태 관리
 
@@ -38,6 +38,7 @@ const NoteDetail = () => {
           if (response.status === 200) {
             alert('노트가 삭제되었습니다.');
             setNoteData(null); // 노트 데이터 제거
+            onBack(); // 삭제 후 NoteHistory로 돌아가도록 설정
           } else {
             alert('노트 삭제에 실패했습니다.');
           }
@@ -64,7 +65,8 @@ const NoteDetail = () => {
     <>
       <NoteDetailWrapper>
         <Header>
-          <BackButton>
+          {/* 백 버튼 추가 */}
+          <BackButton onClick={onBack}>
             <img src={BackButtonIcon} alt="Back" />
           </BackButton>
           <TitleWrapper>
@@ -105,6 +107,9 @@ const NoteDetail = () => {
   );
 };
 
+export default NoteDetail;
+
+// 기존 스타일 유지
 const NoteDetailWrapper = styled.div`
   display: flex;
   flex-direction: column;
@@ -169,8 +174,8 @@ const IconButton = styled.button`
 `;
 
 const MainSection = styled.div`
-  flex-grow: 1; /* 헤더 제외한 나머지 영역 차지 */
-  overflow-y: auto; /* 내용이 많으면 스크롤 */
+  flex-grow: 1;
+  overflow-y: auto;
   padding: 0.5rem;
   border: 0.0625rem solid #cbcbcb;
   background-color: #fff;
@@ -219,5 +224,3 @@ const ImageGrid = styled.div`
   grid-template-columns: repeat(2, 1fr);
   gap: 0.5rem;
 `;
-
-export default NoteDetail;
