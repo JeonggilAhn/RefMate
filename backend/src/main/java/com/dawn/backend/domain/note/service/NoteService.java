@@ -363,4 +363,21 @@ public class NoteService {
 			noteCheckRepository.save(userNoteCheck);
 		}
 	}
+
+	@Transactional
+	public RecentNoteResponseDto getRecentNoteByPin(Long pinId) {
+		Pin pin = pinRepository.findById(pinId)
+			.orElseThrow(() -> new IllegalArgumentException("해당 핀이 존재하지 않습니다."));
+
+		Note recentNote = noteRepository.findFirstByPinPinIdAndIsDeletedFalseOrderByCreatedAtDesc(pinId)
+			.orElseThrow(() -> new IllegalArgumentException("해당 핀에 노트가 존재하지 않습니다."));
+
+		List<NoteImage> noteImages = imageRepository.findAllByNoteNoteIdOrderByBookmark(recentNote.getNoteId());
+
+		ProjectUserDto writerDto = ProjectUserDto.from(recentNote.getUser(), "USER");
+
+		NoteDto noteDto = NoteDto.from(recentNote, writerDto, noteImages);
+
+		return new RecentNoteResponseDto(noteDto);
+	}
 }

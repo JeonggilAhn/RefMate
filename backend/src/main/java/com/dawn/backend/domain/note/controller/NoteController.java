@@ -122,4 +122,11 @@ public class NoteController {
 		NoteDetailResponseDto responseDto = noteService.findDetailNote(noteId, requestDto);
 		return ResponseWrapperFactory.setResponse(HttpStatus.OK, null, responseDto);
 	}
+
+	@GetMapping("/pins/{pinId}/notes/recent")
+	public ResponseEntity<ResponseWrapper<RecentNoteResponseDto>> getRecentNote(
+		@PathVariable Long pinId) {
+		RecentNoteResponseDto responseDto = noteService.getRecentNoteByPin(pinId);
+		return ResponseWrapperFactory.setResponse(HttpStatus.OK, null, responseDto);
+	}
 }
