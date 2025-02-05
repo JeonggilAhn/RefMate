@@ -4,18 +4,24 @@ import { get } from '../../api';
 import { useLocation } from 'react-router-dom';
 import EditButton from '../common/EditButton';
 import CreateProject from './CreateProject';
+import EmailInput from './EmailInput';
 
 const SubHeader = ({ userId, projectId }) => {
   const [userName, setUserName] = useState('');
   const [projectName, setProjectName] = useState('');
   const location = useLocation();
 
-  // 팝업 모달 갖고 오는 것으로 수정 해야 함
   const [isCreate, setIsCreate] = useState(false);
+  const [isInviteOpen, setIsInviteOpen] = useState(false); // 이메일 초대 입력 상태 추가
 
   const handleOpenCreate = () => {
     setIsCreate(true);
   };
+
+  const handleToggleInvite = () => {
+    setIsInviteOpen((prev) => !prev); // 초대 아이콘 클릭 시 이메일 입력창 토글
+  };
+
   useEffect(() => {
     const fetchUserName = async () => {
       try {
@@ -33,7 +39,6 @@ const SubHeader = ({ userId, projectId }) => {
         try {
           const response = await get(`projects/${projectId}`);
           setProjectName(response.data.content.project_title);
-          console.log(response.data.content.project_title);
         } catch (error) {
           console.error('프로젝트 이름을 가져오는데 실패했습니다.', error);
         }
@@ -44,7 +49,6 @@ const SubHeader = ({ userId, projectId }) => {
     fetchProjectName();
   }, [userId, projectId]);
 
-  // 'blueprints'가 URL에 포함되면 블루프린트 페이지로 간주
   const isBlueprintListPage = location.pathname.includes('blueprints');
 
   return (
@@ -53,7 +57,12 @@ const SubHeader = ({ userId, projectId }) => {
         <h3>{isBlueprintListPage ? projectName : `${userName}님의 공간`}</h3>
         {isBlueprintListPage && <EditButton />}
       </LeftSection>
-      <div className="border border-black">
+      <div className="border border-black flex">
+        {isBlueprintListPage && (
+          <div className="border">
+            <button onClick={handleToggleInvite}>초대 아이콘</button>
+          </div>
+        )}
         <button onClick={handleOpenCreate}>
           {isBlueprintListPage
             ? '새 블루프린트 만들기 +'
@@ -61,6 +70,7 @@ const SubHeader = ({ userId, projectId }) => {
         </button>
       </div>
       {isCreate && <CreateProject />}
+      {isInviteOpen && <EmailInput />} {/* 이메일 입력 컴포넌트 토글 */}
     </SubHeaderWrapper>
   );
 };
