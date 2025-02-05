@@ -70,6 +70,7 @@ public enum ExceptionCode implements ResponseCode {
 	// File
 	INVALID_BLUEPRINT_FILE_TYPE("file-400-1", "블루프린트에 허용되지 않은 파일 형식입니다. ", HttpStatus.BAD_REQUEST),
 	INVALID_NOTE_FILE_TYPE("file-400-2", "노트에 허용되지 않은 파일 형식입니다. ", HttpStatus.BAD_REQUEST),
+	UPLOAD_PERMISSION_DENIED("file-403-3", "프로젝트에 파일 업로드 권한이 없습니다", HttpStatus.FORBIDDEN),
 	PRESIGNED_URL_GENERATION_FAILED("file-500-1", "Presigned URL 생성에 실패했습니다.", HttpStatus.INTERNAL_SERVER_ERROR);
 
 	private String code;

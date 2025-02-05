@@ -2,6 +2,7 @@ package com.dawn.backend.global.util.uploader.controller;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -9,6 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import lombok.RequiredArgsConstructor;
 
+import com.dawn.backend.domain.user.dto.CustomOAuth2User;
 import com.dawn.backend.global.util.uploader.dto.request.BlueprintUploadRequestDto;
 import com.dawn.backend.global.util.uploader.dto.request.NoteUploadRequestDto;
 import com.dawn.backend.global.util.uploader.dto.response.BlueprintUploadResponseDto;
@@ -29,9 +31,12 @@ public class UploadController {
 	 */
 
 	@PostMapping("/blueprint")
-	public ResponseEntity<?> getBlueprintPresignedUrl(@RequestBody BlueprintUploadRequestDto dto) {
+	public ResponseEntity<?> getBlueprintPresignedUrl(
+		@RequestBody BlueprintUploadRequestDto dto,
+		@AuthenticationPrincipal CustomOAuth2User loginUser
+		) {
 		try {
-			BlueprintUploadResponseDto response = uploadService.generateBlueprintPresignedUrl(dto);
+			BlueprintUploadResponseDto response = uploadService.generateBlueprintPresignedUrl(dto, loginUser);
 			return ResponseEntity.ok(response);
 		} catch (Exception e) {
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST)
@@ -40,9 +45,12 @@ public class UploadController {
 	}
 
 	@PostMapping("/note")
-	public ResponseEntity<?> getNotePresignedUrls(@RequestBody NoteUploadRequestDto dto) {
+	public ResponseEntity<?> getNotePresignedUrls(
+		@RequestBody NoteUploadRequestDto dto,
+		@AuthenticationPrincipal CustomOAuth2User loginUser
+	) {
 		try {
-			NoteUploadResponseDto response = uploadService.generateNotePresignedUrls(dto);
+			NoteUploadResponseDto response = uploadService.generateNotePresignedUrls(dto, loginUser);
 			return ResponseEntity.ok(response);
 		} catch (Exception e) {
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST)
