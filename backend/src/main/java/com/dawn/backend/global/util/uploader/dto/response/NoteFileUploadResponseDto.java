@@ -1,6 +1,4 @@
-package com.dawn.backend.global.utils.uploader.dto.response;
-
-import com.dawn.backend.domain.note.entity.Note;
+package com.dawn.backend.global.util.uploader.dto.response;
 
 public record NoteFileUploadResponseDto(
 	String presignedUrl,

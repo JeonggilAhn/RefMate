@@ -1,4 +1,4 @@
-package com.dawn.backend.global.utils.email.controller;
+package com.dawn.backend.global.util.email.controller;
 
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -7,8 +7,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import lombok.RequiredArgsConstructor;
 
-import com.dawn.backend.global.utils.email.dto.EmailMessageRequestDto;
-import com.dawn.backend.global.utils.email.service.EmailService;
+import com.dawn.backend.global.util.email.dto.EmailMessageRequestDto;
+import com.dawn.backend.global.util.email.service.EmailService;
 
 @RestController
 @RequestMapping("/email")

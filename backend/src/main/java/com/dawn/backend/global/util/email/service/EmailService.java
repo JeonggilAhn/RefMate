@@ -1,4 +1,4 @@
-package com.dawn.backend.global.utils.email.service;
+package com.dawn.backend.global.util.email.service;
 
 
 import org.springframework.mail.javamail.JavaMailSender;
@@ -10,7 +10,7 @@ import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-import com.dawn.backend.global.utils.email.dto.EmailMessageRequestDto;
+import com.dawn.backend.global.util.email.dto.EmailMessageRequestDto;
 
 @Slf4j
 @Service

@@ -1,4 +1,4 @@
-package com.dawn.backend.global.utils.uploader.dto.request;
+package com.dawn.backend.global.util.uploader.dto.request;
 
 import java.util.List;
 

@@ -1,4 +1,4 @@
-package com.dawn.backend.global.utils.uploader.controller;
+package com.dawn.backend.global.util.uploader.controller;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -9,11 +9,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 import lombok.RequiredArgsConstructor;
 
-import com.dawn.backend.global.utils.uploader.dto.request.BlueprintUploadRequestDto;
-import com.dawn.backend.global.utils.uploader.dto.request.NoteUploadRequestDto;
-import com.dawn.backend.global.utils.uploader.dto.response.BlueprintUploadResponseDto;
-import com.dawn.backend.global.utils.uploader.dto.response.NoteUploadResponseDto;
-import com.dawn.backend.global.utils.uploader.service.UploadService;
+import com.dawn.backend.global.util.uploader.dto.request.BlueprintUploadRequestDto;
+import com.dawn.backend.global.util.uploader.dto.request.NoteUploadRequestDto;
+import com.dawn.backend.global.util.uploader.dto.response.BlueprintUploadResponseDto;
+import com.dawn.backend.global.util.uploader.dto.response.NoteUploadResponseDto;
+import com.dawn.backend.global.util.uploader.service.UploadService;
 
 @RestController
 @RequiredArgsConstructor
