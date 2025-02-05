@@ -2,6 +2,7 @@ package com.dawn.backend.domain.note.controller;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -32,6 +33,7 @@ import com.dawn.backend.domain.note.dto.response.NoteDetailResponseDto;
 import com.dawn.backend.domain.note.dto.response.RecentNoteResponseDto;
 import com.dawn.backend.domain.note.dto.response.UpdateNoteResponseDto;
 import com.dawn.backend.domain.note.service.NoteService;
+import com.dawn.backend.domain.user.entity.User;
 import com.dawn.backend.global.response.ResponseWrapper;
 import com.dawn.backend.global.response.ResponseWrapperFactory;
 
@@ -50,9 +52,10 @@ public class NoteController {
 	@PostMapping("/pins/{pinId}/notes")
 	public ResponseEntity<ResponseWrapper<CreateNoteResponseDto>> createNote(
 		@PathVariable("pinId") Long pinId,
-		@RequestBody CreateNoteRequestDto createNoteRequestDto
+		@RequestBody CreateNoteRequestDto createNoteRequestDto,
+		@AuthenticationPrincipal User user
 	) {
-		CreateNoteResponseDto createNoteResponseDto = noteService.createNote(1L, pinId, createNoteRequestDto);
+		CreateNoteResponseDto createNoteResponseDto = noteService.createNote(user, pinId, createNoteRequestDto);
 		return ResponseWrapperFactory.setResponse(HttpStatus.CREATED, null, createNoteResponseDto);
 	}
 
@@ -116,9 +119,9 @@ public class NoteController {
 	@GetMapping("/notes/{noteId}")
 	public ResponseEntity<ResponseWrapper<NoteDetailResponseDto>> findDetailNote(
 		@PathVariable Long noteId,
-		@RequestBody NoteDetailRequestDto requestDto
+		@AuthenticationPrincipal User user
 	) {
-		NoteDetailResponseDto responseDto = noteService.findDetailNote(noteId, requestDto);
+		NoteDetailResponseDto responseDto = noteService.findDetailNote(noteId, user);
 		return ResponseWrapperFactory.setResponse(HttpStatus.OK, null, responseDto);
 	}
 

@@ -167,12 +167,7 @@ public class NoteService {
 	}
 
 	@Transactional
-	public CreateNoteResponseDto createNote(Long userId, Long pinId, CreateNoteRequestDto createNoteRequestDto) {
-
-//		User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-
-		User user = userRepository.findById(userId)
-			.orElseThrow(() -> new IllegalArgumentException("해당 유저가 존재하지 않습니다."));
+	public CreateNoteResponseDto createNote(User user, Long pinId, CreateNoteRequestDto createNoteRequestDto) {
 
 		BlueprintVersion blueprintVersion
 			= blueprintVersionRepository.findById(createNoteRequestDto.blueprintVersionId())
@@ -321,15 +316,12 @@ public class NoteService {
 	}
 
 	@Transactional
-	public NoteDetailResponseDto findDetailNote(Long noteId, NoteDetailRequestDto requestDto) {
+	public NoteDetailResponseDto findDetailNote(Long noteId, User user) {
 		Note note = getNoteById(noteId);
 //		User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 //		validatePermission(user.getUserId(), noteId);
 
 		validateNoteIsDeleted(note);
-
-		User user = userRepository.findById(requestDto.userId())
-			.orElseThrow(() -> new IllegalArgumentException("해당 유저가 존재하지 않습니다."));
 
 		updateUserNoteCheck(note, user);
 

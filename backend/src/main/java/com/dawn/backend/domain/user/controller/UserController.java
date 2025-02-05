@@ -3,6 +3,7 @@ package com.dawn.backend.domain.user.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -34,6 +35,7 @@ public class UserController {
 		);
 	}
 
+	@PreAuthorize("@authExpression.isSelf(#userId)")
 	@DeleteMapping("/users/{userId}")
 	public ResponseEntity<ResponseWrapper<Void>> deleteUser(
 		@PathVariable("userId") Long userId

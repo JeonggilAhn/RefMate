@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -24,6 +25,7 @@ import com.dawn.backend.domain.project.dto.response.CreateProjectResponseDto;
 import com.dawn.backend.domain.project.dto.response.InviteUserResponseDto;
 import com.dawn.backend.domain.project.service.ProjectService;
 import com.dawn.backend.domain.user.dto.ProjectUserDto;
+import com.dawn.backend.domain.user.entity.User;
 import com.dawn.backend.global.response.ResponseWrapper;
 import com.dawn.backend.global.response.ResponseWrapperFactory;
 
@@ -57,9 +59,10 @@ public class ProjectController {
 	// userId 는 accesstoken 으로 대체 예정
 	@PostMapping("/projects")
 	public ResponseEntity<ResponseWrapper<CreateProjectResponseDto>> createProject(
-		@RequestBody CreateProjectRequestDto request
+		@RequestBody CreateProjectRequestDto request,
+		@AuthenticationPrincipal User user
 	) {
-		CreateProjectResponseDto createProjectResponseDto = projectService.createProject(1L, request);
+		CreateProjectResponseDto createProjectResponseDto = projectService.createProject(user, request);
 		return ResponseWrapperFactory.setResponse(HttpStatus.CREATED, null, createProjectResponseDto);
 	}
 

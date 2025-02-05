@@ -26,7 +26,7 @@ public class AuthService {
 		if (user == null) {
 			return null;
 		}
-		String accessToken = jwtUtil.generateToken(user);
+		String accessToken = jwtUtil.generateToken(user, 24 * 60 * 60 * 1000L);
 		headers.set("Authorization", "Bearer " + accessToken);
 		return headers;
 	}

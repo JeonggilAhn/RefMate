@@ -10,6 +10,7 @@ import com.dawn.backend.domain.project.dto.request.UpdateProjectRequestDto;
 import com.dawn.backend.domain.project.dto.response.CreateProjectResponseDto;
 import com.dawn.backend.domain.project.dto.response.InviteUserResponseDto;
 import com.dawn.backend.domain.user.dto.ProjectUserDto;
+import com.dawn.backend.domain.user.entity.User;
 
 public interface ProjectService {
 
@@ -19,7 +20,7 @@ public interface ProjectService {
 
 	void deleteProject(Long projectId);
 
-	CreateProjectResponseDto createProject(Long userId, CreateProjectRequestDto createProjectRequestDto);
+	CreateProjectResponseDto createProject(User user, CreateProjectRequestDto createProjectRequestDto);
 
 	List<ProjectUserDto> getProjectUsers(Long projectId);
 

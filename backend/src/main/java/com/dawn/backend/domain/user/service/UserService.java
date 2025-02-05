@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import com.dawn.backend.domain.user.dto.UserDto;
 import com.dawn.backend.domain.user.entity.User;
+import com.dawn.backend.domain.user.exception.UserNotFoundException;
 import com.dawn.backend.domain.user.repository.UserRepository;
 
 @Service
@@ -21,7 +22,7 @@ public class UserService {
 
 	public UserDto user(Long id) {
 		User user =
-			userRepository.findById(id).orElse(null);
+			userRepository.findById(id).orElseThrow(UserNotFoundException::new);
 
 		return new UserDto(
 			user.getUserId(),
@@ -32,7 +33,7 @@ public class UserService {
 	}
 
 	public void userResign(Long id) {
-		User user = userRepository.findById(id).orElse(null);
+		User user = userRepository.findById(id).orElseThrow(UserNotFoundException::new);
 
 		user.setResign(true);
 		user.setResignDate(LocalDateTime.now());

@@ -72,16 +72,13 @@ public class ProjectServiceImpl implements ProjectService {
 
 	@Transactional
 	@Override
-	public CreateProjectResponseDto createProject(Long userId, CreateProjectRequestDto createProjectRequestDto) {
+	public CreateProjectResponseDto createProject(User user, CreateProjectRequestDto createProjectRequestDto) {
 		Project project = Project.builder()
 			.projectTitle(createProjectRequestDto.projectTitle())
 			.previewImg(null)
 			.build();
 
 		Project savedProject = projectRepository.save(project);
-
-		User user = userRepository.findById(userId)
-			.orElseThrow(() -> new IllegalArgumentException(HttpStatus.INTERNAL_SERVER_ERROR.toString()));
 
 		UserProject userProject = UserProject.builder()
 			.userRole("CREATOR")
