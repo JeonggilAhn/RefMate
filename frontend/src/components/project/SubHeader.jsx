@@ -4,15 +4,15 @@ import { get } from '../../api';
 import { useLocation } from 'react-router-dom';
 import EditButton from '../common/EditButton';
 import CreateProject from './CreateProject';
-import EmailInput from './EmailInput';
+import InviteUsers from './InviteUsers';
 
 const SubHeader = ({ userId, projectId }) => {
   const [userName, setUserName] = useState('');
   const [projectName, setProjectName] = useState('');
-  const location = useLocation();
-
+  const [validEmails, setValidEmails] = useState([]); // 이메일 목록 상태 추가
   const [isCreate, setIsCreate] = useState(false);
   const [isInviteOpen, setIsInviteOpen] = useState(false); // 이메일 초대 입력 상태 추가
+  const location = useLocation();
 
   const handleOpenCreate = () => {
     setIsCreate(true);
@@ -21,6 +21,18 @@ const SubHeader = ({ userId, projectId }) => {
   const handleToggleInvite = () => {
     setIsInviteOpen((prev) => !prev); // 초대 아이콘 클릭 시 이메일 입력창 토글
   };
+
+  // 페이지 분리 후 재작업 구간
+  const handleAddEmail = (email, isValid) => {
+    setValidEmails((prevEmails) => [...prevEmails, { email, isValid }]);
+  };
+
+  const handleRemoveEmail = (emailToRemove) => {
+    setValidEmails((prevEmails) =>
+      prevEmails.filter((emailObj) => emailObj.email !== emailToRemove),
+    );
+  };
+  // 페이지 분리 후 재작업 구간
 
   useEffect(() => {
     const fetchUserName = async () => {
@@ -70,7 +82,16 @@ const SubHeader = ({ userId, projectId }) => {
         </button>
       </div>
       {isCreate && <CreateProject />}
-      {isInviteOpen && <EmailInput />} {/* 이메일 입력 컴포넌트 토글 */}
+
+      {/* 페이지 분리 후 재작업 구간 */}
+      {isInviteOpen && (
+        <InviteUsers
+          validEmails={validEmails}
+          handleRemoveEmail={handleRemoveEmail}
+          handleAddEmail={handleAddEmail}
+        />
+      )}
+      {/* 페이지 분리 후 재작업 구간 */}
     </SubHeaderWrapper>
   );
 };

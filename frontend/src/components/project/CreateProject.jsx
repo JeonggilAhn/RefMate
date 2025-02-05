@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { post } from '../../api';
-import EmailInput from './EmailInput';
-import InviteUsers from './InviteUsers';
+import InviteUsers from './InviteUsers'; // EmailInput은 이제 InviteUsers에 포함되므로 제거
 
 const CreateProject = () => {
   const [projectTitle, setProjectTitle] = useState('');
@@ -58,13 +57,11 @@ const CreateProject = () => {
               disabled={isSubmitting}
             />
           </div>
-          <EmailInput
-            onAddEmail={handleAddEmail}
-            onRemoveEmail={handleRemoveEmail}
-          />
+          {/* EmailInput을 제거하고 InviteUsers만 사용 */}
           <InviteUsers
             validEmails={validEmails}
             handleRemoveEmail={handleRemoveEmail}
+            handleAddEmail={handleAddEmail} // AddEmail을 위한 handler 전달
           />
         </div>
         <div>
