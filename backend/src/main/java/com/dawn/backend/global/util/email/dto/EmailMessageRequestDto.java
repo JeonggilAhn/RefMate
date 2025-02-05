@@ -1,4 +1,4 @@
-package com.dawn.backend.global.utils.email.dto;
+package com.dawn.backend.global.util.email.dto;
 
 import lombok.Builder;
 

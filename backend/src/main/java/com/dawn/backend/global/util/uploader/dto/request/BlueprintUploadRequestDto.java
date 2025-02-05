@@ -1,6 +1,6 @@
-package com.dawn.backend.global.utils.uploader.dto.request;
+package com.dawn.backend.global.util.uploader.dto.request;
 
-import com.dawn.backend.global.utils.uploader.type.FileType;
+import com.dawn.backend.global.util.uploader.type.FileType;
 
 public record BlueprintUploadRequestDto(
 	Long userId,

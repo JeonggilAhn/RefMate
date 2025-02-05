@@ -1,4 +1,4 @@
-package com.dawn.backend.global.utils.uploader.service;
+package com.dawn.backend.global.util.uploader.service;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,13 +12,13 @@ import io.minio.http.Method;
 import lombok.RequiredArgsConstructor;
 
 import com.dawn.backend.config.MinioConfig;
-import com.dawn.backend.global.utils.uploader.dto.request.BlueprintUploadRequestDto;
-import com.dawn.backend.global.utils.uploader.dto.request.FileUploadDetail;
-import com.dawn.backend.global.utils.uploader.dto.request.NoteUploadRequestDto;
-import com.dawn.backend.global.utils.uploader.dto.response.BlueprintUploadResponseDto;
-import com.dawn.backend.global.utils.uploader.dto.response.NoteFileUploadResponseDto;
-import com.dawn.backend.global.utils.uploader.dto.response.NoteUploadResponseDto;
-import com.dawn.backend.global.utils.uploader.type.FileType;
+import com.dawn.backend.global.util.uploader.dto.request.BlueprintUploadRequestDto;
+import com.dawn.backend.global.util.uploader.dto.request.FileUploadDetail;
+import com.dawn.backend.global.util.uploader.dto.request.NoteUploadRequestDto;
+import com.dawn.backend.global.util.uploader.dto.response.BlueprintUploadResponseDto;
+import com.dawn.backend.global.util.uploader.dto.response.NoteFileUploadResponseDto;
+import com.dawn.backend.global.util.uploader.dto.response.NoteUploadResponseDto;
+import com.dawn.backend.global.util.uploader.type.FileType;
 
 @Service
 @RequiredArgsConstructor
