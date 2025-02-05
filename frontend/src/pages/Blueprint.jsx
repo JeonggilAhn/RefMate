@@ -17,6 +17,11 @@ import {
 import { Slider } from '@/components/ui/slider';
 import Blueprintversions from '../components/blueprint/BlueprintVersions';
 
+import SidebarIcon from '../assets/icons/SidebarButton.svg';
+import PinIcon from '../assets/icons/PinButton.svg';
+import NoteIcon from '../assets/icons/NoteButton.svg';
+import ImageIcon from '../assets/icons/ImageButton.svg';
+
 const Blueprint = () => {
   // params 로 변경
   const blueprint_id = 1;
@@ -114,9 +119,7 @@ const Blueprint = () => {
       } = res;
 
       if (status === 200) {
-        console.log('GET blueprints/${blueprint_id}');
         setBlueprints(content);
-        console.log(content);
       }
     });
   }, []);
@@ -124,6 +127,39 @@ const Blueprint = () => {
   return (
     <BlueprintLayout>
       <div className="relative overflow-hidden">
+        {/* 사이드바 컨트롤 버튼 */}
+        <div className="fixed top-[48px] w-[20rem] right-0 z-10 p-2 flex justify-between">
+          <button onClick={toggleSidebar} className="p-2">
+            <img
+              src={SidebarIcon}
+              alt="Toggle Sidebar"
+              width={24}
+              height={24}
+            />
+          </button>
+          <div className="flex gap-2">
+            <button onClick={togglePinVisible} className="p-2">
+              <img src={PinIcon} alt="Toggle Pins" width={24} height={24} />
+            </button>
+            <button onClick={closeAllNotePopup} className="p-2">
+              <img
+                src={NoteIcon}
+                alt="Close All Notes"
+                width={24}
+                height={24}
+              />
+            </button>
+            <button onClick={closeAllImagePopup} className="p-2">
+              <img
+                src={ImageIcon}
+                alt="Close All Images"
+                width={24}
+                height={24}
+              />
+            </button>
+          </div>
+        </div>
+
         {/* todo : canvas 크기 변경시 아직 문제 많음 */}
         {/* <div
           className={`h-screen pt-[48px] border border-black transition-all duration-300 ${isSidebarOpen ? 'w-[calc(100%-20rem)]' : 'w-full'}`}
@@ -203,24 +239,14 @@ const Blueprint = () => {
         <div
           className={`absolute top-0 right-0 transition-transform duration-300 ease-in-out ${
             isSidebarOpen ? 'translate-x-0 w-[20rem]' : 'translate-x-full'
-          } h-screen pt-[48px] border border-black z-[4] bg-white`}
+          } h-screen border border-black z-[4] bg-white flex flex-col`}
         >
-          <div>sidebar</div>
-          <ImportantNoteSection />
-          <NoteHistory />
-          <PinNotes />
-        </div>
-        {/* sidebar open & close */}
-        <div className="fixed top-[48px] right-0 bg-gray-200 p-2 z-10">
-          {/* todo : icon 대체 필요 */}
-          <button onClick={toggleSidebar}>
-            {isSidebarOpen ? '사이드바 닫기' : '사이드바 열기'}/
-          </button>
-          <button onClick={togglePinVisible}>
-            {isAllPinVisible ? '전체 핀 끄기' : '전체 핀 켜기'}/
-          </button>
-          <button onClick={closeAllNotePopup}>전체 노트 끄기/</button>
-          <button onClick={closeAllImagePopup}>전체 이미지 끄기</button>
+          <div className="pt-[48px]" />
+          <div className="mt-[60px] flex-1 overflow-y-auto">
+            <ImportantNoteSection />
+            <NoteHistory />
+            <PinNotes />
+          </div>
         </div>
       </div>
       {isVersionOpen && (
