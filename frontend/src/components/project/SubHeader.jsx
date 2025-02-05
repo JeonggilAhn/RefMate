@@ -3,12 +3,19 @@ import styled from 'styled-components';
 import { get } from '../../api';
 import { useLocation } from 'react-router-dom';
 import EditButton from '../common/EditButton';
+import CreateProject from './CreateProject';
 
 const SubHeader = ({ userId, projectId }) => {
   const [userName, setUserName] = useState('');
   const [projectName, setProjectName] = useState('');
   const location = useLocation();
 
+  // 팝업 모달 갖고 오는 것으로 수정 해야 함
+  const [isCreate, setIsCreate] = useState(false);
+
+  const handleOpenCreate = () => {
+    setIsCreate(true);
+  };
   useEffect(() => {
     const fetchUserName = async () => {
       try {
@@ -47,12 +54,13 @@ const SubHeader = ({ userId, projectId }) => {
         {isBlueprintListPage && <EditButton />}
       </LeftSection>
       <div className="border border-black">
-        <button>
+        <button onClick={handleOpenCreate}>
           {isBlueprintListPage
             ? '새 블루프린트 만들기 +'
             : '새 프로젝트 만들기 +'}
         </button>
       </div>
+      {isCreate && <CreateProject />}
     </SubHeaderWrapper>
   );
 };
