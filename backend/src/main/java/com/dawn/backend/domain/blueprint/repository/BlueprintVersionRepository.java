@@ -22,14 +22,6 @@ public interface BlueprintVersionRepository extends JpaRepository<BlueprintVersi
 
 	List<BlueprintVersion> findAllByBlueprintBlueprintIdOrderByBlueprintVersionSeq(Long blueprintId);
 
-	@Modifying
-	@Query(
-		"UPDATE BlueprintVersion bv "
-			+ "SET bv.postBlueprintVersion.blueprintVersionId = :#{postVersion.blueprintVersionId} "
-			+ "WHERE bv.blueprintVersionId = :#{preVersion.blueprintVersionId}"
-	)
-	void updatePostVersion(BlueprintVersion preVersion, BlueprintVersion postVersion);
-
 	@Query("""
 			SELECT bv FROM BlueprintVersion bv
 			WHERE bv.blueprint.blueprintId IN :blueprintIds

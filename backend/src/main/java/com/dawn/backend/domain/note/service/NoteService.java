@@ -47,6 +47,7 @@ import com.dawn.backend.domain.pin.repository.PinRepository;
 import com.dawn.backend.domain.pin.repository.PinVersionRepository;
 import com.dawn.backend.domain.user.dto.ProjectUserDto;
 import com.dawn.backend.domain.user.entity.User;
+import com.dawn.backend.domain.user.entity.UserProject;
 import com.dawn.backend.domain.user.repository.UserProjectRepository;
 import com.dawn.backend.domain.user.repository.UserRepository;
 
@@ -207,7 +208,11 @@ public class NoteService {
 		creatorNoteCheck.updateNoteCheck(true);
 		noteCheckRepository.save(creatorNoteCheck);
 
-		List<User> projectUsers = userProjectRepository.findUserByProjectProjectId(createNoteRequestDto.projectId());
+		List<User> projectUsers =
+			userProjectRepository.findUserByProjectProjectId(createNoteRequestDto.projectId())
+				.stream()
+				.map(UserProject::getUser)
+				.toList();
 
 		projectUsers.stream()
 			.filter(projectUser -> !projectUser.equals(user))

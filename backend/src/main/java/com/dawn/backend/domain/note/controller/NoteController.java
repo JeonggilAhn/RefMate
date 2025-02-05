@@ -47,13 +47,12 @@ public class NoteController {
 		return ResponseEntity.ok(response);
 	}
 
-	@PostMapping("/pins/{pinId}/notes/{userId}")
+	@PostMapping("/pins/{pinId}/notes")
 	public ResponseEntity<ResponseWrapper<CreateNoteResponseDto>> createNote(
-		@PathVariable("userId") Long userId,
 		@PathVariable("pinId") Long pinId,
 		@RequestBody CreateNoteRequestDto createNoteRequestDto
 	) {
-		CreateNoteResponseDto createNoteResponseDto = noteService.createNote(userId, pinId, createNoteRequestDto);
+		CreateNoteResponseDto createNoteResponseDto = noteService.createNote(1L, pinId, createNoteRequestDto);
 		return ResponseWrapperFactory.setResponse(HttpStatus.CREATED, null, createNoteResponseDto);
 	}
 

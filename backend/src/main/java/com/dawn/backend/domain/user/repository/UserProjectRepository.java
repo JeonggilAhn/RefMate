@@ -36,5 +36,5 @@ public interface UserProjectRepository extends JpaRepository<UserProject, Long> 
 	@Query("SELECT up FROM UserProject up WHERE up.user.userId = :userId AND up.project.projectId = :projectId")
 	Optional<UserProject> findByUserIdAndProjectId(@Param("userId") Long userId, @Param("projectId") Long projectId);
 
-	List<User> findUserByProjectProjectId(Long projectId);
+	List<UserProject> findUserByProjectProjectId(Long projectId);
 }

@@ -27,8 +27,7 @@ public class UserService {
 			user.getUserId(),
 			user.getUserEmail(),
 			user.getProfileImage(),
-			user.getCreatedAt().format(DateTimeFormatter.ISO_DATE_TIME),
-			user.getResignDate().format(DateTimeFormatter.ISO_DATE_TIME)
+			user.getCreatedAt().format(DateTimeFormatter.ISO_DATE_TIME)
 		);
 	}
 

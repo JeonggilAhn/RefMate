@@ -55,12 +55,11 @@ public class ProjectController {
 	}
 
 	// userId 는 accesstoken 으로 대체 예정
-	@PostMapping("/projects/{userId}")
+	@PostMapping("/projects")
 	public ResponseEntity<ResponseWrapper<CreateProjectResponseDto>> createProject(
-		@PathVariable("userId") Long userId,
 		@RequestBody CreateProjectRequestDto request
 	) {
-		CreateProjectResponseDto createProjectResponseDto = projectService.createProject(userId, request);
+		CreateProjectResponseDto createProjectResponseDto = projectService.createProject(1L, request);
 		return ResponseWrapperFactory.setResponse(HttpStatus.CREATED, null, createProjectResponseDto);
 	}
 

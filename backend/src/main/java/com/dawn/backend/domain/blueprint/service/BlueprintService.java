@@ -160,7 +160,6 @@ public class BlueprintService {
 			.originFile(originFile)
 			.blueprintImg(null)
 			.previewImg(null)
-			.preBlueprintVersion(latestVersion)
 			.blueprintVersionSeq(newSeq)
 			.build();
 
@@ -170,8 +169,6 @@ public class BlueprintService {
 		if (savedBlueprintVersion.getBlueprintVersionSeq() != 1) {
 			pinService.copyPreVersionPins(latestVersion, savedBlueprintVersion);
 		}
-
-		blueprintVersionRepository.updatePostVersion(latestVersion, savedBlueprintVersion);
 
 		return savedBlueprintVersion.getBlueprintVersionId();
 	}
