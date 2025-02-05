@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import googleLogo from '../../assets/icons/google_logo.svg';
 import naverLogo from '../../assets/icons/Naver_logo.svg';
 import kakaoLogo from '../../assets/icons/Kakao_logo.svg';
+import TextButton from '../common/TextButton';
 
 const Login = ({ isVisible, onClose }) => {
   if (!isVisible) return null;
@@ -16,21 +17,33 @@ const Login = ({ isVisible, onClose }) => {
       <Popup>
         <CloseButton onClick={onClose}>×</CloseButton>
         <Title>
-          <PinIcon>📌</PinIcon> DAWN에 오신 것을 환영합니다.
+          <PinIcon>📌</PinIcon> Ref Mate에 오신 것을 환영합니다.
         </Title>
         <ButtonGroup>
-          <LoginButton onClick={() => handleLogin('google')}>
+          <TextButton
+            type="content"
+            onClick={() => handleLogin('google')}
+            className="flex items-center gap-3"
+          >
             <Logo src={googleLogo} alt="Google Logo" />
             구글로 시작하기
-          </LoginButton>
-          <LoginButton onClick={() => handleLogin('naver')}>
+          </TextButton>
+          <TextButton
+            type="content"
+            onClick={() => handleLogin('naver')}
+            className="flex items-center gap-3"
+          >
             <Logo src={naverLogo} alt="Naver Logo" />
             네이버로 시작하기
-          </LoginButton>
-          <LoginButton onClick={() => handleLogin('kakao')}>
+          </TextButton>
+          <TextButton
+            type="content"
+            onClick={() => handleLogin('kakao')}
+            className="flex items-center gap-3"
+          >
             <Logo src={kakaoLogo} alt="Kakao Logo" />
             카카오로 시작하기
-          </LoginButton>
+          </TextButton>
         </ButtonGroup>
       </Popup>
     </Overlay>
@@ -90,23 +103,6 @@ const ButtonGroup = styled.div`
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
-`;
-
-const LoginButton = styled.button`
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  font-size: 1rem;
-  padding: 0.75rem 1rem;
-  border: 0.0625rem solid #ccc;
-  border-radius: 0.5rem;
-  background-color: white;
-  cursor: pointer;
-  transition: background-color 0.2s;
-
-  &:hover {
-    background-color: #eaeaea;
-  }
 `;
 
 const Logo = styled.img`
