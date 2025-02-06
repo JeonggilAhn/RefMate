@@ -3,8 +3,23 @@ import styled from 'styled-components';
 import SearchBar from './SearchBar';
 import Icon from '../common/Icon';
 
-const Tabs = ({ actions, setFilterType }) => {
+const ProjectTabs = ({ actions, setFilterType, setSearchQuery }) => {
   const [activeTab, setActiveTab] = useState(actions[0]?.name || '');
+  const [searchVisible, setSearchVisible] = useState(false); // SearchBar 표시 여부
+
+  const handleSearchClick = () => {
+    setSearchVisible(true); // 아이콘 클릭 시 SearchBar 보이기
+  };
+
+  const handleSearchBarClear = () => {
+    setSearchVisible(false); // X 아이콘 클릭 시 SearchBar 숨기기
+    setSearchQuery(''); // 검색어 초기화
+    setFilterType({ type: 'all', query: '' }); // 검색어 초기화 및 'all' 필터로 설정
+  };
+
+  const handleSearch = (query) => {
+    setSearchQuery(query);
+  };
 
   return (
     <TabContainer>
@@ -15,22 +30,33 @@ const Tabs = ({ actions, setFilterType }) => {
             active={activeTab === name}
             onClick={() => {
               setActiveTab(name);
-              setFilterType(type); // 선택한 필터 적용
+              setFilterType({ type, query: '' }); // 탭 클릭 시 필터 초기화
             }}
           >
             {name}
           </Tab>
         ))}
       </TabGroup>
-      <Icon name="IconTbSearch" />
+
+      {/* 검색 아이콘 클릭 시 SearchBar 보이기 */}
+      <SearchIconWrapper onClick={handleSearchClick}>
+        {!searchVisible && <Icon name="IconTbSearch" />}
+      </SearchIconWrapper>
+
+      {/* SearchBar가 보일 때만 나타나도록 */}
+      {searchVisible && (
+        <SearchBar
+          onSearch={handleSearch} // 검색어 처리
+          onClear={handleSearchBarClear} // X 아이콘 클릭 시 SearchBar 숨기기
+        />
+      )}
     </TabContainer>
   );
 };
 
-export default Tabs;
+export default ProjectTabs;
 
 const Tab = styled.div.withConfig({
-  // active 속성이 DOM에 전달되지 않도록 필터링
   shouldForwardProp: (prop) => prop !== 'active',
 })`
   padding: 8px 16px;
@@ -56,4 +82,16 @@ const TabContainer = styled.div`
 const TabGroup = styled.div`
   display: flex;
   gap: 10px;
+`;
+
+const SearchIconWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  padding: 5px;
+  color: #666;
+
+  &:hover {
+    color: #7ba8ec;
+  }
 `;

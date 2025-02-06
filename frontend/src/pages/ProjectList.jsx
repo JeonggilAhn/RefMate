@@ -10,6 +10,7 @@ function ProjectList() {
   const userId = 96168794; // 예시 userId
 
   const [filterType, setFilterType] = useState('all');
+  const [searchQuery, setSearchQuery] = useState('');
 
   return (
     <Wrapper>
@@ -23,8 +24,13 @@ function ProjectList() {
             { name: '공유 프로젝트', type: 'shared' },
           ]}
           setFilterType={setFilterType}
+          setSearchQuery={setSearchQuery}
         />
-        <Thumbnail userId={userId} filterType={filterType} />
+        <Thumbnail
+          userId={userId}
+          filterType={filterType}
+          searchQuery={searchQuery}
+        />
       </ContentWrapper>
       <BackButton />
     </Wrapper>

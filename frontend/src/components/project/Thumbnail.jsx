@@ -12,7 +12,7 @@ const formatDate = (dateString) => {
   return date.toLocaleDateString();
 };
 
-const Thumbnail = ({ userId, filterType }) => {
+const Thumbnail = ({ userId, filterType, searchQuery }) => {
   const [projects, setProjects] = useState([]);
   const [imageLoaded, setImageLoaded] = useState(true);
 
@@ -29,8 +29,23 @@ const Thumbnail = ({ userId, filterType }) => {
           if (filterType === 'shared') return !project.is_mine;
           return true;
         });
-        setProjects(filteredProjects);
-        setImageLoaded(new Array(filteredProjects.length).fill(false));
+
+        // 검색어가 있을 경우만 필터링 추가
+        console.log(searchQuery);
+        const searchedProjects = searchQuery
+          ? filteredProjects.filter((project) =>
+              project.project_title
+                ? project.project_title
+                    .toLowerCase()
+                    .includes(searchQuery.toLowerCase())
+                : false,
+            )
+          : filteredProjects;
+
+        console.log(filteredProjects === searchedProjects);
+
+        setProjects(searchedProjects);
+        setImageLoaded(new Array(searchedProjects.length).fill(false));
       } catch (error) {
         console.error('프로젝트 목록을 불러오는데 실패했습니다.', error);
       }
@@ -39,7 +54,7 @@ const Thumbnail = ({ userId, filterType }) => {
     if (userId) {
       fetchProjects();
     }
-  }, [userId, filterType]);
+  }, [userId, filterType, searchQuery]);
 
   const handleImageLoad = (index) => {
     setImageLoaded((prevState) => {
