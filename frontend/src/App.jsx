@@ -7,6 +7,7 @@ import Alert from './components/common/Alert';
 import ProjectLayout from './layouts/ProjectLayout';
 import MainLayout from './layouts/MainLayout';
 import Blueprint from './pages/Blueprint';
+import ProjectList from './pages/ProjectList';
 
 function App() {
   return (
@@ -14,7 +15,7 @@ function App() {
       <Router>
         <Routes>
           <Route path="/" element={<MainLayout />} />
-          <Route path="/projects" element={<ProjectLayout />} />
+          <Route path="/projects" element={<ProjectList />} />
           <Route
             path="/projects/:projectId/blueprints"
             element={<ProjectLayout />}
