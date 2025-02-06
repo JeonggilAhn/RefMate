@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -11,7 +12,6 @@ import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import lombok.RequiredArgsConstructor;
@@ -34,36 +34,12 @@ import com.dawn.backend.global.response.ResponseWrapperFactory;
 public class ProjectController {
 	private final ProjectService projectService;
 
-	@GetMapping("/projects/{projectId}")
-	public ResponseEntity<ResponseWrapper<ProjectDto>> getProjectDetail(@PathVariable("projectId") Long projectId) {
-		ProjectDto projectDto = projectService.getProjectDetail(projectId);
-		return ResponseWrapperFactory.setResponse(HttpStatus.OK, null, projectDto);
-	}
-
-	@PatchMapping("/projects/{projectId}")
-	public ResponseEntity<ResponseWrapper<Void>> updateProject(
-		@PathVariable("projectId") Long projectId,
-		@RequestBody UpdateProjectRequestDto request
-	) {
-		projectService.updateProject(projectId, request);
-		return ResponseWrapperFactory.setResponse(HttpStatus.OK, null, null);
-	}
-
-	@DeleteMapping("/projects/{projectId}")
-	public ResponseEntity<ResponseWrapper<Void>> deleteProject(
-		@PathVariable("projectId") Long projectId) {
-		projectService.deleteProject(projectId);
-		return ResponseWrapperFactory.setResponse(HttpStatus.OK, null, null);
-	}
-
-	// userId 는 accesstoken 으로 대체 예정
-	@PostMapping("/projects")
-	public ResponseEntity<ResponseWrapper<CreateProjectResponseDto>> createProject(
-		@RequestBody CreateProjectRequestDto request,
+	@GetMapping("/projects")
+	public ResponseEntity<ResponseWrapper<List<ProjectItemDto>>> getProjectList(
 		@AuthenticationPrincipal User user
 	) {
-		CreateProjectResponseDto createProjectResponseDto = projectService.createProject(user, request);
-		return ResponseWrapperFactory.setResponse(HttpStatus.CREATED, null, createProjectResponseDto);
+		List<ProjectItemDto> projectDtos = projectService.getProjectList(user);
+		return ResponseWrapperFactory.setResponse(HttpStatus.OK, null, projectDtos);
 	}
 
 	@GetMapping("/projects/{projectId}/users")
@@ -72,6 +48,15 @@ public class ProjectController {
 	) {
 		List<ProjectUserDto> projectUserDtos = projectService.getProjectUsers(projectId);
 		return ResponseWrapperFactory.setResponse(HttpStatus.OK, null, projectUserDtos);
+	}
+
+	@PostMapping("/projects")
+	public ResponseEntity<ResponseWrapper<CreateProjectResponseDto>> createProject(
+		@RequestBody CreateProjectRequestDto request,
+		@AuthenticationPrincipal User user
+	) {
+		CreateProjectResponseDto createProjectResponseDto = projectService.createProject(user, request);
+		return ResponseWrapperFactory.setResponse(HttpStatus.CREATED, null, createProjectResponseDto);
 	}
 
 	@PostMapping("/projects/{projectId}/users")
@@ -83,11 +68,29 @@ public class ProjectController {
 		return ResponseWrapperFactory.setResponse(HttpStatus.CREATED, null, inviteUserResponseDto);
 	}
 
-	@GetMapping("/projects")
-	public ResponseEntity<ResponseWrapper<List<ProjectItemDto>>> getProjectList(
-		@RequestParam("userId") Long userId
+	@PatchMapping("/projects/{projectId}")
+	@PreAuthorize("@authExpression.hasCreatorRoleInProject(#projectId)")
+	public ResponseEntity<ResponseWrapper<Void>> updateProject(
+		@PathVariable("projectId") Long projectId,
+		@RequestBody UpdateProjectRequestDto request
 	) {
-		List<ProjectItemDto> projectDtos = projectService.getProjectList(userId);
-		return ResponseWrapperFactory.setResponse(HttpStatus.OK, null, projectDtos);
+		projectService.updateProject(projectId, request);
+		return ResponseWrapperFactory.setResponse(HttpStatus.OK, null, null);
 	}
+
+	@DeleteMapping("/projects/{projectId}")
+	@PreAuthorize("@authExpression.hasCreatorRoleInProject(#projectId)")
+	public ResponseEntity<ResponseWrapper<Void>> deleteProject(
+		@PathVariable("projectId") Long projectId
+	) {
+		projectService.deleteProject(projectId);
+		return ResponseWrapperFactory.setResponse(HttpStatus.OK, null, null);
+	}
+
+	@GetMapping("/projects/{projectId}")
+	public ResponseEntity<ResponseWrapper<ProjectDto>> getProjectDetail(@PathVariable("projectId") Long projectId) {
+		ProjectDto projectDto = projectService.getProjectDetail(projectId);
+		return ResponseWrapperFactory.setResponse(HttpStatus.OK, null, projectDto);
+	}
+
 }

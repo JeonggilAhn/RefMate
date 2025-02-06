@@ -14,18 +14,18 @@ import com.dawn.backend.domain.user.entity.User;
 
 public interface ProjectService {
 
-	ProjectDto getProjectDetail(Long projectId);
+	List<ProjectItemDto> getProjectList(User user);
+
+	List<ProjectUserDto> getProjectUsers(Long projectId);
+
+	CreateProjectResponseDto createProject(User user, CreateProjectRequestDto createProjectRequestDto);
+
+	InviteUserResponseDto inviteUser(Long projectId, InviteUserRequestDto request);
 
 	void updateProject(Long projectId, UpdateProjectRequestDto request);
 
 	void deleteProject(Long projectId);
 
-	CreateProjectResponseDto createProject(User user, CreateProjectRequestDto createProjectRequestDto);
-
-	List<ProjectUserDto> getProjectUsers(Long projectId);
-
-	InviteUserResponseDto inviteUser(Long projectId, InviteUserRequestDto request);
-
-	List<ProjectItemDto> getProjectList(Long userId);
+	ProjectDto getProjectDetail(Long projectId);
 }
 

@@ -75,4 +75,10 @@ public class AuthExpression {
 
 		return hasBlueprintPermission(pinVersion.getBlueprintVersion().getBlueprint().getBlueprintId());
 	}
+
+	public boolean hasCreatorRoleInProject(Long projectId) {
+		User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		return userProjectRepository.existsByUserUserIdAndProjectProjectIdAndUserRole(
+			user.getUserId(), projectId, "CREATOR");
+	}
 }

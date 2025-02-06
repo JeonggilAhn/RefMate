@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.dawn.backend.domain.user.dto.UserDto;
-import com.dawn.backend.domain.user.entity.User;
 import com.dawn.backend.domain.user.service.UserService;
 import com.dawn.backend.global.response.ResponseWrapper;
 import com.dawn.backend.global.response.ResponseWrapperFactory;
