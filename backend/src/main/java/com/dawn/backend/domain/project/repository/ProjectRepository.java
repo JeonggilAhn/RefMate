@@ -47,6 +47,6 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
 	@Query("""
 		SELECT b FROM Blueprint b
 		WHERE b.blueprintId = :blueprintId
-	""")
+		""")
 	Optional<Project> findByBlueprintId(Long blueprintId);
 }

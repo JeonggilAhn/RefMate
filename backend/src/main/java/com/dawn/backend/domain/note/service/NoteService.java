@@ -61,9 +61,7 @@ import com.dawn.backend.domain.user.repository.UserRepository;
 
 @Service
 @RequiredArgsConstructor
-public class
-NoteService {
-
+public class NoteService {
 	private final NoteRepository noteRepository;
 	private final UserProjectRepository userProjectRepository;
 	private final BlueprintVersionRepository blueprintVersionRepository;
