@@ -2,8 +2,7 @@ package com.dawn.backend.global.util.uploader.dto.request;
 
 import com.dawn.backend.global.util.uploader.type.FileType;
 
-public record BlueprintUploadRequestDto(
-	Long projectId,
+public record FileRequestDto(
 	String fileName,
 	FileType fileType,
 	Long filesize,

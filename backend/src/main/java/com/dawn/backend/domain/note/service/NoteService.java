@@ -58,6 +58,8 @@ import com.dawn.backend.domain.user.entity.User;
 import com.dawn.backend.domain.user.entity.UserProject;
 import com.dawn.backend.domain.user.repository.UserProjectRepository;
 import com.dawn.backend.domain.user.repository.UserRepository;
+import com.dawn.backend.global.util.uploader.dto.ImagePathDto;
+import com.dawn.backend.global.util.uploader.service.UploadService;
 
 @Service
 @RequiredArgsConstructor
@@ -71,6 +73,7 @@ public class NoteService {
 	private final UserRepository userRepository;
 	private final PinVersionRepository pinVersionRepository;
 	private final ProjectRepository projectRepository;
+	private final UploadService uploadService;
 
 	/**
 	 * 일정 시간마다 note.isDeleted = true 인 노트 삭제 로직 필요
@@ -176,9 +179,11 @@ public class NoteService {
 
 		if (createNoteRequestDto.imageUrlList() != null) {
 			for (String imageUrl : createNoteRequestDto.imageUrlList()) {
+				ImagePathDto imagePathDto = uploadService.getImagePath(imageUrl);
+
 				NoteImage noteImage = NoteImage.builder()
 					.imageOrigin(imageUrl)
-					.imagePreview(imageUrl)
+					.imagePreview(imagePathDto.previewPath())
 					.note(note)
 					.build();
 				imageRepository.save(noteImage);

@@ -1,5 +1,8 @@
 package com.dawn.backend.global.util.uploader.service;
 
+import java.io.IOException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -7,24 +10,27 @@ import java.util.UUID;
 import org.springframework.stereotype.Service;
 
 import io.minio.GetPresignedObjectUrlArgs;
+import io.minio.ListObjectsArgs;
 import io.minio.MinioClient;
+import io.minio.Result;
+import io.minio.errors.ErrorResponseException;
+import io.minio.errors.InsufficientDataException;
+import io.minio.errors.InternalException;
+import io.minio.errors.InvalidResponseException;
+import io.minio.errors.ServerException;
+import io.minio.errors.XmlParserException;
 import io.minio.http.Method;
+import io.minio.messages.Item;
 import lombok.RequiredArgsConstructor;
 
 import com.dawn.backend.config.MinioConfig;
-import com.dawn.backend.domain.user.dto.CustomOAuth2User;
-import com.dawn.backend.domain.user.entity.User;
-import com.dawn.backend.domain.user.repository.UserProjectRepository;
-import com.dawn.backend.global.util.uploader.dto.request.BlueprintUploadRequestDto;
-import com.dawn.backend.global.util.uploader.dto.request.FileUploadDetail;
-import com.dawn.backend.global.util.uploader.dto.request.NoteUploadRequestDto;
-import com.dawn.backend.global.util.uploader.dto.response.BlueprintUploadResponseDto;
-import com.dawn.backend.global.util.uploader.dto.response.NoteFileUploadResponseDto;
-import com.dawn.backend.global.util.uploader.dto.response.NoteUploadResponseDto;
-import com.dawn.backend.global.util.uploader.exception.InvalidBlueprintFileTypeException;
+import com.dawn.backend.global.util.uploader.dto.ImagePathDto;
+import com.dawn.backend.global.util.uploader.dto.request.FileRequestDto;
+import com.dawn.backend.global.util.uploader.dto.request.PreSignedRequestDto;
+import com.dawn.backend.global.util.uploader.dto.response.ImageUrlDto;
+import com.dawn.backend.global.util.uploader.dto.response.PreSignedResponseDto;
 import com.dawn.backend.global.util.uploader.exception.InvalidNoteFileTypeException;
 import com.dawn.backend.global.util.uploader.exception.PresignedUrlGenerationFailException;
-import com.dawn.backend.global.util.uploader.exception.UploadPermissionDeniedException;
 import com.dawn.backend.global.util.uploader.type.FileType;
 
 @Service
@@ -33,65 +39,34 @@ public class UploadService {
 
 	private final MinioClient minioClient;
 	private final MinioConfig minioConfig;
-	private final UserProjectRepository userProjectRepository;
 
-	public BlueprintUploadResponseDto  generateBlueprintPresignedUrl(
-		BlueprintUploadRequestDto dto,
-		User user
-	) {
-		validatePermission(user.getUserId(), dto.projectId());
-		validateFileTypeForBlueprint(dto.fileType());
-		String objectName = generateUploadPath(user.getUserId(), dto.projectId(), dto.fileName());
-		String presignedUrl = generatePresignedUrl(objectName);
-		String publicUrl = generatePublicUrl(objectName);
-		return BlueprintUploadResponseDto.from(presignedUrl, publicUrl);
-	}
-
-	public NoteUploadResponseDto generateNotePresignedUrls(
-		NoteUploadRequestDto dto,
-		User user
-	) {
-		validatePermission(user.getUserId(), dto.projectId());
-		List<NoteFileUploadResponseDto> fileResponses = new ArrayList<>();
-		for (FileUploadDetail file : dto.files()) {
-			validateFileTypeForNote(file.fileType());
-			String objectName = generateUploadPath(user.getUserId(), dto.projectId(), file.fileName());
-			String presignedUrl = generatePresignedUrl(objectName);
+	public PreSignedResponseDto generateImageUrls(PreSignedRequestDto requestBody) {
+		List<ImageUrlDto> fileResponses = new ArrayList<>();
+		for (FileRequestDto file : requestBody.files()) {
+			validateFileType(file.fileType());
+			String objectName = generateObjectPath(requestBody.projectId(), file.fileType());
+			String preSignedUrl = generatePreSignedUrl(objectName);
 			String publicUrl = generatePublicUrl(objectName);
-			fileResponses.add(NoteFileUploadResponseDto.from(presignedUrl, publicUrl));
+			fileResponses.add(ImageUrlDto.from(preSignedUrl, publicUrl));
 		}
-		return NoteUploadResponseDto.from(fileResponses);
+		return PreSignedResponseDto.from(fileResponses);
 	}
 
-	private void validateFileTypeForBlueprint(FileType fileType) {
+	private void validateFileType(FileType fileType) {
 		if (!List.of(FileType.PNG, FileType.JPG, FileType.PDF, FileType.DWG).contains(fileType)) {
-			throw new InvalidBlueprintFileTypeException();
-		}
-	}
-
-	private void validateFileTypeForNote(FileType fileType) {
-		if (!List.of(FileType.PNG, FileType.JPG).contains(fileType)) {
 			throw new InvalidNoteFileTypeException();
 		}
 	}
 
-	private void validatePermission(Long userId, Long projectId) {
-		boolean hasPermission = userProjectRepository.findByUserIdAndProjectId(userId, projectId).isPresent();
-
-		if (!hasPermission) {
-			throw new UploadPermissionDeniedException();
-		}
-	}
-
-	private String generateUploadPath(Long userId, Long projectId, String fileName) {
-		return String.format("%d/%d/%s_%s",
-			userId,
+	private String generateObjectPath(Long projectId, FileType fileType) {
+		return String.format("%d/%s/%s.%s",
 			projectId,
 			UUID.randomUUID(),
-			fileName);
+			UUID.randomUUID(),
+			fileType.toString().toLowerCase());
 	}
 
-	private String generatePresignedUrl(String objectName) {
+	private String generatePreSignedUrl(String objectName) {
 		try {
 			return minioClient.getPresignedObjectUrl(
 				GetPresignedObjectUrlArgs.builder()
@@ -107,5 +82,41 @@ public class UploadService {
 
 	private String generatePublicUrl(String objectName) {
 		return String.format("%s/%s/%s", minioConfig.getUrl(), minioConfig.getBucketName(), objectName);
+	}
+
+	public ImagePathDto getImagePath(String originFilePath) {
+
+		originFilePath = originFilePath.substring(
+			minioConfig.getUrl().length() + minioConfig.getBucketName().length() + 2,
+			originFilePath.lastIndexOf("/") + 1
+		);
+
+		Iterable<Result<Item>> objects = minioClient.listObjects(
+			ListObjectsArgs.builder()
+				.bucket(minioConfig.getBucketName())
+				.prefix(originFilePath)
+				.build()
+		);
+
+		String imageUrl = null;
+		String previewImgUrl = null;
+
+		for (Result<Item> object : objects) {
+			Item item;
+
+			try {
+				item = object.get();
+			} catch (Exception e) {
+				throw new RuntimeException(e);
+			}
+
+			if (item.objectName().matches(".*_preview\\.webp$")) {
+				previewImgUrl = generatePublicUrl(item.objectName());
+			} else if (item.objectName().matches(".*\\.(png|jpg)$")) {
+				imageUrl = generatePublicUrl(item.objectName());
+			}
+		}
+
+		return new ImagePathDto(imageUrl, previewImgUrl);
 	}
 }
