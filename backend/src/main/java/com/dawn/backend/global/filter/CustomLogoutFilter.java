@@ -12,9 +12,16 @@ import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
+import com.dawn.backend.domain.user.entity.TokenBlackList;
+import com.dawn.backend.domain.user.repository.TokenBlackListRepository;
 import com.dawn.backend.global.response.ResponseWrapperFactory;
 
 public class CustomLogoutFilter extends GenericFilterBean {
+	private final TokenBlackListRepository tokenBlackListRepository;
+
+	public CustomLogoutFilter(TokenBlackListRepository tokenBlackListRepository) {
+		this.tokenBlackListRepository = tokenBlackListRepository;
+	}
 
 	@Override
 	public void doFilter(
@@ -43,6 +50,8 @@ public class CustomLogoutFilter extends GenericFilterBean {
 		}
 
 		String accessToken = request.getHeader("Authorization").substring(7);
+
+		tokenBlackListRepository.save(new TokenBlackList(accessToken));
 
 		ResponseWrapperFactory.setResponse(
 			response,
