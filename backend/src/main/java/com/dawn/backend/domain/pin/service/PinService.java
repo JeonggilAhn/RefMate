@@ -1,9 +1,9 @@
 package com.dawn.backend.domain.pin.service;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
@@ -11,6 +11,7 @@ import jakarta.transaction.Transactional;
 
 import com.dawn.backend.domain.blueprint.entity.Blueprint;
 import com.dawn.backend.domain.blueprint.entity.BlueprintVersion;
+import com.dawn.backend.domain.blueprint.exception.BlueprintVersionNotFound;
 import com.dawn.backend.domain.blueprint.repository.BlueprintVersionRepository;
 import com.dawn.backend.domain.note.entity.Note;
 import com.dawn.backend.domain.note.entity.NoteImage;
@@ -32,6 +33,8 @@ import com.dawn.backend.domain.pin.entity.DefaultPinGroup;
 import com.dawn.backend.domain.pin.entity.Pin;
 import com.dawn.backend.domain.pin.entity.PinGroup;
 import com.dawn.backend.domain.pin.entity.PinVersion;
+import com.dawn.backend.domain.pin.exception.PinGroupNotFound;
+import com.dawn.backend.domain.pin.exception.PinNotFoundException;
 import com.dawn.backend.domain.pin.repository.PinGroupRepository;
 import com.dawn.backend.domain.pin.repository.PinRepository;
 import com.dawn.backend.domain.pin.repository.PinVersionRepository;
@@ -47,6 +50,7 @@ public class PinService {
 	private final NoteRepository noteRepository;
 	private final BlueprintVersionRepository blueprintVersionRepository;
 
+	@Autowired
 	public PinService(
 		PinRepository pinRepository,
 		PinVersionRepository pinVersionRepository,
@@ -63,7 +67,7 @@ public class PinService {
 		this.blueprintVersionRepository = blueprintVersionRepository;
 	}
 
-	public List<PinItem> pins(Long blueprintId, Long blueprintVersionId) {
+	public List<PinItem> pins(Long blueprintVersionId) {
 
 		List<PinVersion> pinlist =
 			pinVersionRepository.findAllByBlueprintVersionBlueprintVersionId(blueprintVersionId);
@@ -156,7 +160,6 @@ public class PinService {
 
 	@Transactional
 	public CreatePinResponseDto createPin(
-		Long blueprintId,
 		Long versionId,
 		CreatePinRequestDto pinInfo
 	) {
@@ -169,10 +172,12 @@ public class PinService {
 		Pin savedPin = pinRepository.save(pin);
 
 		BlueprintVersion blueprintVersion =
-			blueprintVersionRepository.findById(versionId).get();
+			blueprintVersionRepository.findById(versionId)
+				.orElseThrow(BlueprintVersionNotFound::new);
 
 		PinGroup pinGroup =
-			pinGroupRepository.findById(pinInfo.pinGroupId()).get();
+			pinGroupRepository.findById(pinInfo.pinGroupId())
+				.orElseThrow(PinGroupNotFound::new);
 
 		PinVersion pinVersion = PinVersion.builder()
 			.pin(savedPin)
@@ -205,7 +210,8 @@ public class PinService {
 		Long pinId,
 		UpdatePinNameRequestDto pinInfo
 	) {
-		Pin pin = pinRepository.findById(pinId).get();
+		Pin pin = pinRepository.findById(pinId)
+			.orElseThrow(PinNotFoundException::new);
 
 		pin.setPinName(pinInfo.pinName());
 		Pin savedPin = pinRepository.save(pin);
@@ -225,7 +231,8 @@ public class PinService {
 			pinVersionRepository.findFirstByBlueprintVersionBlueprintVersionIdAndPinPinId(versionId, pinId);
 
 		PinGroup pinGroup =
-			pinGroupRepository.findById(pinInfo.pinGroupId()).get();
+			pinGroupRepository.findById(pinInfo.pinGroupId())
+				.orElseThrow(PinGroupNotFound::new);
 
 		pinVersion.setPinGroup(pinGroup);
 		PinVersion savedPinVersion = pinVersionRepository.save(pinVersion);
@@ -253,9 +260,7 @@ public class PinService {
 		List<PinVersion> pinVersionList =
 			pinVersionRepository.findAllByBlueprintVersionBlueprintVersionId(preVersion.getBlueprintVersionId());
 
-		pinVersionList.forEach(pinVersion -> {
-			pinVersion.setBlueprintVersion(postVersion);
-		});
+		pinVersionList.forEach(pinVersion -> pinVersion.setBlueprintVersion(postVersion));
 
 		pinVersionRepository.saveAll(pinVersionList);
 	}

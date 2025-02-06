@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -36,6 +37,7 @@ public class PinController {
 	}
 
 	@GetMapping("/blueprints/{blueprintId}/{versionId}/pins")
+	@PreAuthorize("@authExpression.hasBlueprintPermission(blueprintId)")
 	public ResponseEntity<ResponseWrapper<List<PinItem>>> getPinListByBlueprint(
 		@PathVariable("blueprintId") Long blueprintId,
 		@PathVariable("versionId") Long versionId
@@ -43,11 +45,12 @@ public class PinController {
 		return ResponseWrapperFactory.setResponse(
 			HttpStatus.OK,
 			null,
-			pinService.pins(blueprintId, versionId)
+			pinService.pins(versionId)
 		);
 	}
 
 	@GetMapping("/pins/{pinId}/images")
+	@PreAuthorize("@authExpression.hasPinPermission(pinId)")
 	public ResponseEntity<ResponseWrapper<List<PinImageItem>>> getImagesByPin(
 		@PathVariable("pinId") Long pinId
 	) {
@@ -59,6 +62,7 @@ public class PinController {
 	}
 
 	@GetMapping("/blueprints/{blueprintId}/pin-groups")
+	@PreAuthorize("@authExpression.hasBlueprintPermission(blueprintId)")
 	public ResponseEntity<ResponseWrapper<List<PinGroupDto>>> getPinGroups(
 		@PathVariable("blueprintId") Long blueprintId
 	) {
@@ -70,6 +74,7 @@ public class PinController {
 	}
 
 	@PostMapping("/blueprints/{blueprintId}/{versionId}/pins")
+	@PreAuthorize("@authExpression.hasBlueprintPermission(blueprintId)")
 	public ResponseEntity<ResponseWrapper<CreatePinResponseDto>> createPin(
 		@PathVariable("blueprintId") Long blueprintId,
 		@PathVariable("versionId") Long versionId,
@@ -78,11 +83,12 @@ public class PinController {
 		return ResponseWrapperFactory.setResponse(
 			HttpStatus.OK,
 			null,
-			pinService.createPin(blueprintId, versionId, pinInfo)
+			pinService.createPin(blueprintId, pinInfo)
 		);
 	}
 
 	@PatchMapping("/pins/{pinId}/{versionId}/status")
+	@PreAuthorize("@authExpression.hasPinPermission(pinId)")
 	public ResponseEntity<ResponseWrapper<UpdatePinStatusResponseDto>> updatePinStatus(
 			@PathVariable("pinId") Long pinId,
 			@PathVariable("versionId") Long versionId
@@ -95,6 +101,7 @@ public class PinController {
 	}
 
 	@PatchMapping("/pins/{pinId}/name")
+	@PreAuthorize("@authExpression.hasPinPermission(pinId)")
 	public ResponseEntity<ResponseWrapper<UpdatePinNameResponseDto>> updatePinName(
 			@PathVariable("pinId") Long pinId,
 			@RequestBody UpdatePinNameRequestDto pinInfo
@@ -107,6 +114,7 @@ public class PinController {
 	}
 
 	@PatchMapping("/pins/{pinId}/{versionId}/group")
+	@PreAuthorize("@authExpression.hasPinPermission(pinId)")
 	public ResponseEntity<ResponseWrapper<UpdatePinGroupResponseDto>> updatePinGroup(
 			@PathVariable("pinId") Long pinId,
 			@PathVariable("versionId") Long versionId,

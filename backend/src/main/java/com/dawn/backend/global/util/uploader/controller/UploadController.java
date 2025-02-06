@@ -37,7 +37,7 @@ public class UploadController {
 	public ResponseEntity<?> getBlueprintPresignedUrl(
 		@RequestBody BlueprintUploadRequestDto dto,
 		@AuthenticationPrincipal User loginUser
-		) {
+	) {
 		try {
 			BlueprintUploadResponseDto response = uploadService.generateBlueprintPresignedUrl(dto, loginUser);
 			return ResponseEntity.ok(response);
