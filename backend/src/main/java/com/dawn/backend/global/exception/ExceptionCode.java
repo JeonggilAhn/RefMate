@@ -64,7 +64,7 @@ public enum ExceptionCode implements ResponseCode {
 	NOTE_DELETE_FORBIDDEN("note-403-2", "노트를 삭제할 권한이 없습니다.", HttpStatus.FORBIDDEN),
 
 	// Image
-	IMAGE_NOT_FOUND_IN_NOTE("image-404-1", "해당 노트에 이미지가 없습니다.", HttpStatus.NOT_FOUND),
+	IMAGE_NOT_FOUND("image-404-1", "해당 이미지가 없습니다.", HttpStatus.NOT_FOUND),
 	// IMAGE_NOT_FOUND_BY_PIN("image-404-2", "해당 핀과 연결된 이미지가 없습니다.", HttpStatus.NOT_FOUND);
 
 	// File
