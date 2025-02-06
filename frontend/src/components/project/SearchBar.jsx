@@ -2,37 +2,7 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import { FiX, FiSearch } from 'react-icons/fi';
 
-const SearchWrapper = styled.div`
-  display: flex;
-  align-items: center;
-  padding: 5px 10px;
-  width: 200px;
-  height: 40px;
-  border: 1px solid #ccc;
-`;
-
-const Input = styled.input`
-  border: none;
-  outline: none;
-  background: transparent;
-  padding: 5px;
-  width: 100%;
-`;
-
-const IconWrapper = styled.div`
-  font-size: 18px;
-  display: flex;
-  align-items: center;
-  padding: 2px;
-  cursor: pointer;
-  color: #666;
-
-  &:hover {
-    color: #7ba8ec;
-  }
-`;
-
-function SearchBar({ onClear, onSearch }) {
+const SearchBar = ({ onClear, onSearch }) => {
   const [query, setQuery] = useState(''); // 입력값을 관리할 상태
 
   // 검색어 입력값 변경 시 상태 업데이트
@@ -69,6 +39,36 @@ function SearchBar({ onClear, onSearch }) {
       </IconWrapper>
     </SearchWrapper>
   );
-}
+};
 
 export default SearchBar;
+
+const SearchWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  padding: 5px 10px;
+  width: 200px;
+  height: 40px;
+  border: 1px solid #ccc;
+`;
+
+const Input = styled.input`
+  border: none;
+  outline: none;
+  background: transparent;
+  padding: 5px;
+  width: 100%;
+`;
+
+const IconWrapper = styled.div`
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  padding: 2px;
+  cursor: pointer;
+  color: #666;
+
+  &:hover {
+    color: #7ba8ec;
+  }
+`;

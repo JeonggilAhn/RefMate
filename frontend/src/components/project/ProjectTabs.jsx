@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
+import SearchBar from './SearchBar';
+import Icon from '../common/Icon';
 
 const Tabs = ({ actions, setFilterType }) => {
   const [activeTab, setActiveTab] = useState(actions[0]?.name || '');
@@ -20,7 +22,7 @@ const Tabs = ({ actions, setFilterType }) => {
           </Tab>
         ))}
       </TabGroup>
-      <div className="border">아이콘</div>
+      <Icon name="IconTbSearch" />
     </TabContainer>
   );
 };

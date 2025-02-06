@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
+import Icon from '../common/Icon';
 
 const Tabs = ({ actions }) => {
   // 첫 번째 탭을 기본값으로 설정
@@ -21,7 +22,7 @@ const Tabs = ({ actions }) => {
           </Tab>
         ))}
       </TabGroup>
-      <div className="border">아이콘</div>
+      <Icon name="IconTbSearch" />
     </TabContainer>
   );
 };
