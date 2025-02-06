@@ -27,6 +27,8 @@ import com.dawn.backend.domain.pin.service.PinService;
 import com.dawn.backend.domain.project.entity.Project;
 import com.dawn.backend.domain.project.exception.ProjectNotFoundException;
 import com.dawn.backend.domain.project.repository.ProjectRepository;
+import com.dawn.backend.global.util.uploader.dto.ImagePathDto;
+import com.dawn.backend.global.util.uploader.service.UploadService;
 
 @Service
 public class BlueprintService {
@@ -34,18 +36,21 @@ public class BlueprintService {
 	private final BlueprintVersionRepository blueprintVersionRepository;
 	private final ProjectRepository projectRepository;
 	private final PinService pinService;
+	private final UploadService uploadService;
 
 	@Autowired
 	public BlueprintService(
 		BlueprintRepository blueprintRepository,
 		BlueprintVersionRepository blueprintVersionRepository,
 		ProjectRepository projectRepository,
-		PinService pinService
+		PinService pinService,
+		UploadService uploadService
 	) {
 		this.blueprintRepository = blueprintRepository;
 		this.blueprintVersionRepository = blueprintVersionRepository;
 		this.projectRepository = projectRepository;
 		this.pinService = pinService;
+		this.uploadService = uploadService;
 	}
 
 	public List<BlueprintDto> blueprints(Long projectId) {
@@ -157,12 +162,14 @@ public class BlueprintService {
 			newSeq += latestVersion.getBlueprintVersionSeq();
 		}
 
+		ImagePathDto imagePathDto = uploadService.getImagePath(originFile);
+
 		BlueprintVersion blueprintVersion = BlueprintVersion.builder()
 			.blueprint(targetBlueprint)
 			.blueprintVersionName(blueprintVersionName)
 			.originFile(originFile)
-			.blueprintImg(null)
-			.previewImg(null)
+			.blueprintImg(imagePathDto.imagePath())
+			.previewImg(imagePathDto.previewPath())
 			.blueprintVersionSeq(newSeq)
 			.build();
 

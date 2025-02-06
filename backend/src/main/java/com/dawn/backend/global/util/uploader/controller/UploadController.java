@@ -2,29 +2,26 @@ package com.dawn.backend.global.util.uploader.controller;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import lombok.RequiredArgsConstructor;
 
 import com.dawn.backend.domain.user.entity.User;
-import com.dawn.backend.domain.user.repository.UserRepository;
-import com.dawn.backend.global.util.uploader.dto.request.BlueprintUploadRequestDto;
-import com.dawn.backend.global.util.uploader.dto.request.NoteUploadRequestDto;
-import com.dawn.backend.global.util.uploader.dto.response.BlueprintUploadResponseDto;
-import com.dawn.backend.global.util.uploader.dto.response.NoteUploadResponseDto;
+import com.dawn.backend.global.response.ResponseWrapper;
+import com.dawn.backend.global.response.ResponseWrapperFactory;
+import com.dawn.backend.global.util.uploader.dto.request.PreSignedRequestDto;
+import com.dawn.backend.global.util.uploader.dto.response.PreSignedResponseDto;
 import com.dawn.backend.global.util.uploader.service.UploadService;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/uploads/presigned-url")
 public class UploadController {
 
 	private final UploadService uploadService;
-	private final UserRepository userRepository;
 
 	/**
 	 * login 로직 완료 되면 추후 수정
@@ -32,32 +29,15 @@ public class UploadController {
 	 * service - 기존 dto에서 가져오던 user_id로직 수정
 	 */
 
-	@PostMapping("/blueprint")
-	public ResponseEntity<?> getBlueprintPresignedUrl(
-		@RequestBody BlueprintUploadRequestDto dto,
-		@AuthenticationPrincipal User loginUser
+	@PreAuthorize("@authExpression.hasProjectPermission(#requestBody.projectId())")
+	@PostMapping("/uploads/pre-signed-url")
+	public ResponseEntity<ResponseWrapper<PreSignedResponseDto>> getBlueprintPreSignedUrl(
+		@RequestBody PreSignedRequestDto requestBody
 	) {
-		try {
-			BlueprintUploadResponseDto response = uploadService.generateBlueprintPresignedUrl(dto, loginUser);
-			return ResponseEntity.ok(response);
-		} catch (Exception e) {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-				.body("Presigned URL 생성 실패: " + e.getMessage());
-		}
+		return ResponseWrapperFactory.setResponse(
+			HttpStatus.OK,
+			null,
+			uploadService.generateImageUrls(requestBody)
+		);
 	}
-
-	@PostMapping("/note")
-	public ResponseEntity<?> getNotePresignedUrls(
-		@RequestBody NoteUploadRequestDto dto,
-		@AuthenticationPrincipal User loginUser
-	) {
-		try {
-			NoteUploadResponseDto response = uploadService.generateNotePresignedUrls(dto, loginUser);
-			return ResponseEntity.ok(response);
-		} catch (Exception e) {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-				.body("Presigned URL 생성 실패: " + e.getMessage());
-		}
-	}
-
 }

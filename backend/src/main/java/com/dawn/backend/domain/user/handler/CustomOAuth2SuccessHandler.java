@@ -39,8 +39,8 @@ public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler 
 	) throws IOException, ServletException {
 		OAuth2User oAuth2User = (OAuth2User) authentication.getPrincipal();
 		String authenticationToken = jwtUtil.generateToken(
-				((CustomOAuth2User)oAuth2User).getUser(),
-				10 * 60 * 60 * 1000L
+			((CustomOAuth2User)oAuth2User).getUser(),
+			10 * 60 * 60 * 1000L
 		);
 		System.out.println(authenticationToken);
 		ResponseWrapperFactory.setResponse(HttpStatus.OK, null, authenticationToken);
