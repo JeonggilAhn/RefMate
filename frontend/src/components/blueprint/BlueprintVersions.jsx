@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import Close from '../../assets/icons/Close.svg';
+import Icon from '../common/Icon';
 import { get } from '../../api';
 
 const BlueprintVersions = ({ blueprintId, blueprintTitle, closeModal }) => {
   const [versions, setVersions] = useState([]);
   console.log(blueprintTitle);
+
   useEffect(() => {
     const fetchVersions = async () => {
       try {
@@ -24,12 +25,12 @@ const BlueprintVersions = ({ blueprintId, blueprintTitle, closeModal }) => {
   }, [blueprintId]);
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50 ">
+    <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50">
       <div className="h-[40rem] w-[60rem] bg-white p-4 relative border">
         <div className="flex justify-between border mb-4">
           <h2 className="text-left">{blueprintTitle}</h2>
           <button onClick={closeModal}>
-            <img src={Close} alt="닫기" />
+            <Icon name="IconCgClose" width={24} height={24} />
           </button>
         </div>
 

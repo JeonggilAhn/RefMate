@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import styled from 'styled-components';
 import { get } from '../../api';
-import ImageIcon from '../../assets/icons/ImageButton.svg';
+import Icon from '../common/Icon';
 
 const ImportantNoteList = ({ pinId, onNoteClick }) => {
   const [notes, setNotes] = useState([]);
@@ -44,99 +43,42 @@ const ImportantNoteList = ({ pinId, onNoteClick }) => {
   }, [pinId]);
 
   if (loading) {
-    return <Loading>Loading...</Loading>;
+    return <div className="text-sm text-left">Loading...</div>;
   }
 
   if (notes.length === 0) {
-    return <NoData>등록된 노트가 없습니다.</NoData>;
+    return (
+      <div className="text-sm text-left text-gray-500">
+        등록된 노트가 없습니다.
+      </div>
+    );
   }
 
   return (
-    <Container>
+    <div className="flex flex-col gap-2 max-h-60 overflow-y-auto p-2 box-border">
       {notes.map((note) => (
-        <NoteCard key={note.note_id} onClick={() => onNoteClick(note.note_id)}>
-          <LeftBar />
-          <NoteContent>
-            <NoteTitle>{note.note_title}</NoteTitle>
-            {note.is_present_image && <Icon src={ImageIcon} alt="Image Icon" />}
-          </NoteContent>
-          <NoteDate>{formatDate(note.created_at)}</NoteDate>
-        </NoteCard>
+        <div
+          key={note.note_id}
+          onClick={() => onNoteClick(note.note_id)}
+          className="w-full bg-gray-100 rounded-md flex items-center p-2 cursor-pointer border-l-4 border-blue-400 hover:bg-gray-200"
+        >
+          <div className="flex-1 min-w-0">
+            <span className="block text-sm font-bold text-gray-900 truncate max-w-[8rem]">
+              {note.note_title.length > 10
+                ? `${note.note_title.slice(0, 20)}...`
+                : note.note_title}
+            </span>
+          </div>
+          {note.is_present_image && (
+            <Icon name="IconTbPhoto" width={18} height={18} />
+          )}
+          <span className="text-xs text-gray-500 whitespace-nowrap pl-2">
+            {formatDate(note.created_at)}
+          </span>
+        </div>
       ))}
-    </Container>
+    </div>
   );
 };
 
 export default ImportantNoteList;
-
-// 스타일 정의
-const Container = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  max-height: 15rem;
-  overflow-y: auto;
-  padding: 0.5rem;
-  box-sizing: border-box;
-`;
-
-const NoteCard = styled.div`
-  width: 100%;
-  background-color: #f9f9f9;
-  border-radius: 0.25rem;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0.5rem;
-  cursor: pointer;
-  border-left: 0.25rem solid #87b5fa;
-
-  &:hover {
-    background-color: #e9e9e9;
-  }
-`;
-
-const NoteContent = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  overflow: hidden;
-`;
-
-const NoteTitle = styled.span`
-  font-size: 1rem;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  font-weight: bold;
-  color: #333;
-`;
-
-const NoteDate = styled.span`
-  font-size: 0.875rem;
-  color: #888;
-  white-space: nowrap;
-`;
-
-const Icon = styled.img`
-  width: 1.25rem;
-  height: 1.25rem;
-`;
-
-const LeftBar = styled.div`
-  width: 0.25rem;
-  height: 100%;
-  background-color: #87b5fa;
-  border-radius: 0.25rem 0 0 0.25rem;
-`;
-
-const Loading = styled.div`
-  font-size: 0.875rem;
-  text-align: center;
-`;
-
-const NoData = styled.div`
-  font-size: 0.875rem;
-  text-align: center;
-  color: #888;
-`;

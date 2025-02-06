@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import Login from '../main/Login';
-import alarmIcon from '../../assets/icons/alarm.svg';
-import logoutIcon from '../../assets/icons/Logout.svg';
 import { get, post } from '../../api';
 import Profile from './Profile';
 import TextButton from '../common/TextButton';
+import Icon from '../common/Icon';
 
 import {
   DropdownMenu,
@@ -70,7 +69,7 @@ function Header() {
           <div className="flex items-center gap-4">
             {/* 알림 아이콘 */}
             <div className="relative cursor-pointer">
-              <img src={alarmIcon} alt="알림" className="w-8 h-8" />
+              <Icon name="IconTbBell" width={24} height={24} />
             </div>
 
             {/* 프로필 드롭다운 */}
@@ -90,10 +89,11 @@ function Header() {
                     프로필
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={handleLogout}>
-                    <img
-                      src={logoutIcon}
-                      alt="로그아웃 아이콘"
-                      className="w-4 h-4 mr-2"
+                    <Icon
+                      name="IconTbLogout2"
+                      width={16}
+                      height={16}
+                      className="mr-2"
                     />
                     로그아웃
                   </DropdownMenuItem>

@@ -1,9 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
-import googleLogo from '../../assets/icons/google_logo.svg';
-import naverLogo from '../../assets/icons/Naver_logo.svg';
-import kakaoLogo from '../../assets/icons/Kakao_logo.svg';
 import TextButton from '../common/TextButton';
+import Icon from '../common/Icon';
 
 const Login = ({ isVisible, onClose }) => {
   if (!isVisible) return null;
@@ -25,7 +23,7 @@ const Login = ({ isVisible, onClose }) => {
             onClick={() => handleLogin('google')}
             className="flex items-center gap-3"
           >
-            <Logo src={googleLogo} alt="Google Logo" />
+            <Icon name="IconGoogleLogo" width={24} height={24} />
             구글로 시작하기
           </TextButton>
           <TextButton
@@ -33,7 +31,7 @@ const Login = ({ isVisible, onClose }) => {
             onClick={() => handleLogin('naver')}
             className="flex items-center gap-3"
           >
-            <Logo src={naverLogo} alt="Naver Logo" />
+            <Icon name="IconNaverLogo" width={24} height={24} />
             네이버로 시작하기
           </TextButton>
           <TextButton
@@ -41,7 +39,7 @@ const Login = ({ isVisible, onClose }) => {
             onClick={() => handleLogin('kakao')}
             className="flex items-center gap-3"
           >
-            <Logo src={kakaoLogo} alt="Kakao Logo" />
+            <Icon name="IconKakaoLogo" width={24} height={24} />
             카카오로 시작하기
           </TextButton>
         </ButtonGroup>
@@ -103,9 +101,4 @@ const ButtonGroup = styled.div`
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
-`;
-
-const Logo = styled.img`
-  width: 1.5rem;
-  height: 1.5rem;
 `;

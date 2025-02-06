@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import styled from 'styled-components';
 import ButtonList from './ButtonList';
 import { get, post } from '../../api';
-import pinIcon from '../../assets/icons/Pin_Blue.svg';
+import Icon from '../common/Icon';
 import PinNotes from './PinNotes';
 import Draggable from 'react-draggable';
 
@@ -78,7 +78,7 @@ const PinComponent = ({ blueprintId, blueprintVersion, pin }) => {
         onMouseLeave={() => setHoveredPin(null)}
         onClick={() => setIsClicked((prev) => !prev)}
       >
-        <Icon src={pinIcon} alt="Pin Icon" />
+        <Icon name="IconTbPinFill" width={24} height={24} />
         {unreadNotes && <UnreadDot />}
       </Pin>
 
@@ -110,12 +110,6 @@ export default PinComponent;
 const PinContainer = styled.div`
   position: relative;
   display: inline-block;
-`;
-
-const Icon = styled.img`
-  width: 1.5rem;
-  height: 1.5rem;
-  position: relative;
 `;
 
 const Pin = styled.div`

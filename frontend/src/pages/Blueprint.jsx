@@ -17,36 +17,20 @@ import {
 import { Slider } from '@/components/ui/slider';
 import Blueprintversions from '../components/blueprint/BlueprintVersions';
 
-import SidebarIcon from '../assets/icons/SidebarButton.svg';
-import PinIcon from '../assets/icons/PinButton.svg';
-import NoteIcon from '../assets/icons/NoteButton.svg';
-import ImageIcon from '../assets/icons/ImageButton.svg';
-
 import Icon from '../components/common/Icon';
 
 const Blueprint = () => {
-  // params 로 변경
   const blueprint_id = 1;
   const blueprint_version_id = 1987029227680993;
 
-  // current blueprint
   const [blueprintTitle, setBlueprintTitle] = useState('');
   const [blueprintUrl, setBlueprintUrl] = useState('');
-
-  // draft blueprint
   const [draftUrl, setDraftUrl] = useState('');
-
-  // versionbar
   const [blueprints, setBlueprints] = useState([]);
-
-  // sidebar
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [isAllPinVisible, setIsAllPinVisible] = useState(true);
-
-  // toolbar
   const [isPinButtonEnaled, setIsPinButtonEnaled] = useState(true);
   const [isDraftVisible, setIsDraftVisible] = useState(false);
-
   const [initialPins, setInitialPins] = useState([]);
   const [isVersionOpen, setIsVersionOpen] = useState(false);
 
@@ -76,9 +60,7 @@ const Blueprint = () => {
   const openBlueprintVersion = () => setIsVersionOpen(true);
   const closeBlueprintVersion = () => setIsVersionOpen(false);
 
-  // init
   useEffect(() => {
-    // 개별 blueprint 요청
     get(`blueprints/${blueprint_id}/${blueprint_version_id}`).then((res) => {
       const {
         status,
@@ -87,8 +69,6 @@ const Blueprint = () => {
 
       if (status === 200) {
         setBlueprintTitle(content.blueprint_version_title);
-        // setBlueprintUrl(content.blueprint_image);
-        // 임시 도면
         setBlueprintUrl(
           'https://magazine.brique.co/wp-content/uploads/2022/08/3_%EB%8F%84%EB%A9%B4_3%EC%B8%B5%ED%8F%89%EB%A9%B4%EB%8F%84.jpeg',
         );
@@ -96,7 +76,6 @@ const Blueprint = () => {
     });
   }, []);
 
-  // 모든 pin 정보 요청
   useEffect(() => {
     get(`blueprints/${blueprint_id}/${blueprint_version_id}/pins`).then(
       (res) => {
@@ -106,9 +85,6 @@ const Blueprint = () => {
         } = res;
 
         if (status === 200) {
-          console.log(
-            'GET blueprints/${blueprint_id}/${blueprint_version_id}/pins',
-          );
           setInitialPins(content);
         }
       },
@@ -132,40 +108,21 @@ const Blueprint = () => {
         {/* 사이드바 컨트롤 버튼 */}
         <div className="fixed top-[48px] w-[20rem] right-0 z-10 p-2 flex justify-between">
           <button onClick={toggleSidebar} className="p-2">
-            <img
-              src={SidebarIcon}
-              alt="Toggle Sidebar"
-              width={24}
-              height={24}
-            />
+            <Icon name="IconLuPanelRight" width={24} height={24} />
           </button>
           <div className="flex gap-2">
             <button onClick={togglePinVisible} className="p-2">
-              <img src={PinIcon} alt="Toggle Pins" width={24} height={24} />
+              <Icon name="IconTbPinStroke" width={24} height={24} />
             </button>
             <button onClick={closeAllNotePopup} className="p-2">
-              <img
-                src={NoteIcon}
-                alt="Close All Notes"
-                width={24}
-                height={24}
-              />
+              <Icon name="IconTbNotes" width={24} height={24} />
             </button>
             <button onClick={closeAllImagePopup} className="p-2">
-              <img
-                src={ImageIcon}
-                alt="Close All Images"
-                width={24}
-                height={24}
-              />
+              <Icon name="IconTbPhoto" width={24} height={24} />
             </button>
           </div>
         </div>
 
-        {/* todo : canvas 크기 변경시 아직 문제 많음 */}
-        {/* <div
-          className={`h-screen pt-[48px] border border-black transition-all duration-300 ${isSidebarOpen ? 'w-[calc(100%-20rem)]' : 'w-full'}`}
-        > */}
         <div className="w-full h-screen pt-[48px] border border-black">
           <div className="border border-black absolute left-2 top-[58px] z-1">
             <div className="flex justify-between items-center">
@@ -179,7 +136,6 @@ const Blueprint = () => {
                 <button className="border border-black">{'<'}</button>
                 <Select>
                   <SelectTrigger className="w-[125px] h-[32px] bg-white border-zinc-400 text-zinc-800 focus:ring-zinc-300">
-                    {/* todo : 현재 블루프린트와 일치하는 버전 노출 시키기 */}
                     <SelectValue
                       placeholder={
                         '[' +
@@ -191,7 +147,7 @@ const Blueprint = () => {
                   </SelectTrigger>
                   <SelectContent className="w-[120px] bg-white border-zinc-400 text-zinc-800 break-all">
                     <SelectGroup>
-                      {blueprints.map((item, index) => (
+                      {blueprints.map((item) => (
                         <SelectItem
                           key={item.blueprint_version_id}
                           value={item.blueprint_version_id}
@@ -250,7 +206,6 @@ const Blueprint = () => {
             <NoteHistory />
             <PinNotes />
           </div>
-          ``
         </div>
       </div>
       {isVersionOpen && (
