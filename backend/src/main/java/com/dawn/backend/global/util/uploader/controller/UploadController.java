@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.RestController;
 import lombok.RequiredArgsConstructor;
 
 import com.dawn.backend.domain.user.dto.CustomOAuth2User;
+import com.dawn.backend.domain.user.entity.User;
+import com.dawn.backend.domain.user.repository.UserRepository;
 import com.dawn.backend.global.util.uploader.dto.request.BlueprintUploadRequestDto;
 import com.dawn.backend.global.util.uploader.dto.request.NoteUploadRequestDto;
 import com.dawn.backend.global.util.uploader.dto.response.BlueprintUploadResponseDto;
@@ -23,6 +25,7 @@ import com.dawn.backend.global.util.uploader.service.UploadService;
 public class UploadController {
 
 	private final UploadService uploadService;
+	private final UserRepository userRepository;
 
 	/**
 	 * login 로직 완료 되면 추후 수정
@@ -33,7 +36,7 @@ public class UploadController {
 	@PostMapping("/blueprint")
 	public ResponseEntity<?> getBlueprintPresignedUrl(
 		@RequestBody BlueprintUploadRequestDto dto,
-		@AuthenticationPrincipal CustomOAuth2User loginUser
+		@AuthenticationPrincipal User loginUser
 		) {
 		try {
 			BlueprintUploadResponseDto response = uploadService.generateBlueprintPresignedUrl(dto, loginUser);
@@ -47,7 +50,7 @@ public class UploadController {
 	@PostMapping("/note")
 	public ResponseEntity<?> getNotePresignedUrls(
 		@RequestBody NoteUploadRequestDto dto,
-		@AuthenticationPrincipal CustomOAuth2User loginUser
+		@AuthenticationPrincipal User loginUser
 	) {
 		try {
 			NoteUploadResponseDto response = uploadService.generateNotePresignedUrls(dto, loginUser);

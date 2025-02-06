@@ -13,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 
 import com.dawn.backend.config.MinioConfig;
 import com.dawn.backend.domain.user.dto.CustomOAuth2User;
+import com.dawn.backend.domain.user.entity.User;
 import com.dawn.backend.domain.user.repository.UserProjectRepository;
 import com.dawn.backend.global.util.uploader.dto.request.BlueprintUploadRequestDto;
 import com.dawn.backend.global.util.uploader.dto.request.FileUploadDetail;
@@ -36,11 +37,11 @@ public class UploadService {
 
 	public BlueprintUploadResponseDto  generateBlueprintPresignedUrl(
 		BlueprintUploadRequestDto dto,
-		CustomOAuth2User loginUser
+		User user
 	) {
-		validatePermission(loginUser.getUser().getUserId(), dto.projectId());
+		validatePermission(user.getUserId(), dto.projectId());
 		validateFileTypeForBlueprint(dto.fileType());
-		String objectName = generateUploadPath(dto.userId(), dto.projectId(), dto.fileName());
+		String objectName = generateUploadPath(user.getUserId(), dto.projectId(), dto.fileName());
 		String presignedUrl = generatePresignedUrl(objectName);
 		String publicUrl = generatePublicUrl(objectName);
 		return BlueprintUploadResponseDto.from(presignedUrl, publicUrl);
@@ -48,13 +49,13 @@ public class UploadService {
 
 	public NoteUploadResponseDto generateNotePresignedUrls(
 		NoteUploadRequestDto dto,
-		CustomOAuth2User loginUser
+		User user
 	) {
-		validatePermission(loginUser.getUser().getUserId(), dto.projectId());
+		validatePermission(user.getUserId(), dto.projectId());
 		List<NoteFileUploadResponseDto> fileResponses = new ArrayList<>();
 		for (FileUploadDetail file : dto.files()) {
 			validateFileTypeForNote(file.fileType());
-			String objectName = generateUploadPath(dto.userId(), dto.projectId(), file.fileName());
+			String objectName = generateUploadPath(user.getUserId(), dto.projectId(), file.fileName());
 			String presignedUrl = generatePresignedUrl(objectName);
 			String publicUrl = generatePublicUrl(objectName);
 			fileResponses.add(NoteFileUploadResponseDto.from(presignedUrl, publicUrl));
