@@ -22,6 +22,8 @@ import PinIcon from '../assets/icons/PinButton.svg';
 import NoteIcon from '../assets/icons/NoteButton.svg';
 import ImageIcon from '../assets/icons/ImageButton.svg';
 
+import Icon from '../components/common/Icon';
+
 const Blueprint = () => {
   // params 로 변경
   const blueprint_id = 1;
@@ -227,17 +229,18 @@ const Blueprint = () => {
             isSidebarOpen={isSidebarOpen}
           />
           {/* toolbar */}
-          <div className="border border-black absolute left-[50%] bottom-4">
+          <div className="flex justify-content border border-black absolute left-[50%] bottom-4">
             <button className="border border-black" onClick={onClickPinButton}>
-              핀
+              <Icon name="IconTbPinStroke" />
             </button>
             <button className="border border-black" onClick={onClickMouseButon}>
-              마우스
+              <Icon name="IconBsCursor" width={26} height={26} />
             </button>
           </div>
         </div>
+        {/* sidebar */}
         <div
-          className={`absolute top-0 right-0 transition-transform duration-300 ease-in-out ${
+          className={`absolute top-0 right-0 transition-transform duration-500 ease-in-out ${
             isSidebarOpen ? 'translate-x-0 w-[20rem]' : 'translate-x-full'
           } h-screen border border-black z-[4] bg-white flex flex-col`}
         >
@@ -247,6 +250,7 @@ const Blueprint = () => {
             <NoteHistory />
             <PinNotes />
           </div>
+          ``
         </div>
       </div>
       {isVersionOpen && (
