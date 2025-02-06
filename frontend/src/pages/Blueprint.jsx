@@ -6,18 +6,14 @@ import BlueprintCanvas from '../components/blueprint/BlueprintCanvas';
 import ImportantNoteSection from '../components/blueprint/ImportantNoteSection';
 import NoteHistory from '../components/blueprint/NoteHistory';
 import PinNotes from '../components/blueprint/PinNotes';
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+import { SelectItem } from '@/components/ui/select';
 import { Slider } from '@/components/ui/slider';
 import Blueprintversions from '../components/blueprint/BlueprintVersions';
 
 import Icon from '../components/common/Icon';
+
+import DropDown from '../components/common/DropDown';
+import SelectBox from '../components/common/SelectBox';
 
 const Blueprint = () => {
   const blueprint_id = 1;
@@ -142,31 +138,19 @@ const Blueprint = () => {
               </button>
               <div className="flex">
                 <button className="border border-black">{'<'}</button>
-                <Select>
-                  <SelectTrigger className="w-[125px] h-[32px] bg-white border-zinc-400 text-zinc-800 focus:ring-zinc-300">
-                    <SelectValue
-                      placeholder={
-                        '[' +
-                        blueprints[0]?.blueprint_version_seq +
-                        '] ' +
-                        blueprints[0]?.blueprint_version_name
-                      }
-                    />
-                  </SelectTrigger>
-                  <SelectContent className="w-[120px] bg-white border-zinc-400 text-zinc-800 break-all">
-                    <SelectGroup>
-                      {blueprints.map((item) => (
-                        <SelectItem
-                          key={item.blueprint_version_id}
-                          value={item.blueprint_version_id}
-                        >
-                          [{item.blueprint_version_seq}]{' '}
-                          {item.blueprint_version_name}
-                        </SelectItem>
-                      ))}
-                    </SelectGroup>
-                  </SelectContent>
-                </Select>
+                {/* todo : 현재 블루프린트와 일치하는 버전 노출 */}
+                <SelectBox>
+                  {blueprints.map((item, index) => (
+                    <SelectItem
+                      key={item.blueprint_version_id}
+                      value={item.blueprint_version_id}
+                    >
+                      [{item.blueprint_version_seq}]{' '}
+                      {item.blueprint_version_name}
+                    </SelectItem>
+                  ))}
+                </SelectBox>
+
                 <button className="border border-black">{'>'}</button>
               </div>
             </div>
@@ -214,8 +198,29 @@ const Blueprint = () => {
         >
           <div className="pt-[48px]" />
           <div className="mt-[60px] flex-1 overflow-y-auto">
-            <ImportantNoteSection />
+            <p>blueprintTitle</p>
+            {/* <ImportantNoteSection /> */}
             <NoteHistory />
+            {/* <PinNotes /> */}
+          </div>
+        </div>
+        <div
+          className={`absolute top-0 right-0 transition-transform duration-500 ease-in-out ${true ? 'w-[20rem]' : 'w-0'} h-screen border border-black z-[4] bg-white flex flex-col`}
+        >
+          <div className="pt-[40px]" />
+          <div className="mt-[60px] flex-1 overflow-y-auto">
+            <div className="flex justify-between items-center">
+              <div className="flex items-center">
+                <button className="w-[2.4rem] h-[2.4rem] flex justify-center items-center border border-black cursor-pointer hover:bg-[#F1F1F1]">
+                  <Icon name="IconGoChevronPrev" />
+                </button>
+                <p className=" break-words">{blueprintTitle}</p>
+              </div>
+              <div>
+                <DropDown />
+              </div>
+            </div>
+            <ImportantNoteSection />
             <PinNotes />
           </div>
         </div>
