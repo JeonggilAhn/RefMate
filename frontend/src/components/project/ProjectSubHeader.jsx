@@ -41,7 +41,10 @@ const SubHeader = ({ userId, projectId }) => {
   return (
     <SubHeaderWrapper>
       <LeftSection>
-        <h3>{isBlueprintListPage ? projectName : `${userName}님의 공간`}</h3>
+        <div className="text-xl font-semibold">
+          {isBlueprintListPage ? projectName : `${userName} 님의 공간`}
+        </div>
+
         {isBlueprintListPage && <EditButton />}
       </LeftSection>
       <TextButton onClick={handleCreateProject}>

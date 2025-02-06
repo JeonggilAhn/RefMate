@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import Header from '../components/common/Header';
 import BackButton from '../components/common/BackButton';
-import Tabs from '../components/common/Tabs';
+import ProjectTabs from '../components/project/ProjectTabs';
 import Thumbnail from '../components/project/Thumbnail';
 import ProjectSubHeader from '../components/project/ProjectSubHeader';
 
@@ -16,9 +16,12 @@ function ProjectList() {
       <Header />
       <ContentWrapper>
         <ProjectSubHeader userId={userId} />
-        <Tabs
-          tabs={['모든 프로젝트', '내 프로젝트', '공유 프로젝트']}
-          iconType="search"
+        <ProjectTabs
+          actions={[
+            { name: '모든 프로젝트', type: 'all' },
+            { name: '내 프로젝트', type: 'mine' },
+            { name: '공유 프로젝트', type: 'shared' },
+          ]}
           setFilterType={setFilterType}
         />
         <Thumbnail userId={userId} filterType={filterType} />

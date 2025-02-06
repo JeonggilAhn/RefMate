@@ -1,20 +1,19 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 
-const Tabs = ({ actions }) => {
-  // 첫 번째 탭을 기본값으로 설정
+const Tabs = ({ actions, setFilterType }) => {
   const [activeTab, setActiveTab] = useState(actions[0]?.name || '');
 
   return (
     <TabContainer>
       <TabGroup>
-        {actions.map(({ name, handler }) => (
+        {actions.map(({ name, type }) => (
           <Tab
             key={name}
             active={activeTab === name}
             onClick={() => {
               setActiveTab(name);
-              handler();
+              setFilterType(type); // 선택한 필터 적용
             }}
           >
             {name}
