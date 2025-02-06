@@ -21,6 +21,7 @@ import com.dawn.backend.domain.user.repository.TokenBlackListRepository;
 import com.dawn.backend.domain.user.repository.UserRepository;
 import com.dawn.backend.domain.user.service.CustomOAuth2UserService;
 import com.dawn.backend.global.filter.CustomLogoutFilter;
+import com.dawn.backend.global.filter.ExceptionHandlingFilter;
 import com.dawn.backend.global.filter.JwtFilter;
 import com.dawn.backend.global.util.jwt.JwtUtil;
 
@@ -104,6 +105,10 @@ public class SecurityConfig {
 		// logout
 		CustomLogoutFilter customLogoutFilter = new CustomLogoutFilter(tokenBlackListRepository);
 		http.addFilterBefore(customLogoutFilter, LogoutFilter.class);
+
+		// exception handling filter
+		ExceptionHandlingFilter exceptionHandlingFilter = new ExceptionHandlingFilter();
+		http.addFilterBefore(exceptionHandlingFilter, JwtFilter.class);
 
 		return http.build();
 	}
