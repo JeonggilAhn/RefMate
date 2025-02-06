@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import lombok.RequiredArgsConstructor;
 
-import com.dawn.backend.domain.user.dto.CustomOAuth2User;
 import com.dawn.backend.domain.user.entity.User;
 import com.dawn.backend.domain.user.repository.UserRepository;
 import com.dawn.backend.global.util.uploader.dto.request.BlueprintUploadRequestDto;

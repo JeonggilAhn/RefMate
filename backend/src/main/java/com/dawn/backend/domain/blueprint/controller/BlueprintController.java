@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -35,6 +36,7 @@ public class BlueprintController {
 	}
 
 	@GetMapping("/projects/{projectId}/blueprints")
+	@PreAuthorize("@authExpression.hasProjectPermission(#projectId)")
 	public ResponseEntity<ResponseWrapper<List<BlueprintDto>>> getBlueprints(
 		@PathVariable("projectId") Long projectId
 	) {
@@ -46,6 +48,7 @@ public class BlueprintController {
 	}
 
 	@GetMapping("/blueprints/{blueprintId}")
+	@PreAuthorize("@authExpression.hasBlueprintPermission(#blueprintId)")
 	public ResponseEntity<ResponseWrapper<List<BlueprintVersionItem>>> getBlueprint(
 		@PathVariable("blueprintId") Long blueprintId
 	) {
@@ -57,6 +60,7 @@ public class BlueprintController {
 	}
 
 	@GetMapping("/blueprints/{blueprintId}/{versionId}")
+	@PreAuthorize("@authExpression.hasBlueprintPermission(#blueprintId)")
 	public ResponseEntity<ResponseWrapper<BlueprintVersionDto>> getBlueprintSpec(
 		@PathVariable("blueprintId") Long blueprintId,
 		@PathVariable("versionId") Long versionId
@@ -69,6 +73,7 @@ public class BlueprintController {
 	}
 
 	@PostMapping("/projects/{projectId}/blueprints")
+	@PreAuthorize("@authExpression.hasProjectPermission(#projectId)")
 	public ResponseEntity<ResponseWrapper<CreateBlueprintResponseDto>> addBlueprint(
 		@PathVariable("projectId") Long projectId,
 		@RequestBody CreateBlueprintRequestDto createBlueprintRequestDto
@@ -81,6 +86,7 @@ public class BlueprintController {
 	}
 
 	@PostMapping("/blueprints/{blueprintId}")
+	@PreAuthorize("@authExpression.hasBlueprintPermission(#blueprintId)")
 	public ResponseEntity<ResponseWrapper<CreateBlueprintVersionResponseDto>> addBlueprintVersion(
 		@PathVariable("blueprintId") Long blueprintId,
 		@RequestBody CreateBlueprintVersionRequestDto createBlueprintVersionRequestDto
@@ -93,6 +99,7 @@ public class BlueprintController {
 	}
 
 	@PatchMapping("/blueprints/{blueprintId}")
+	@PreAuthorize("@authExpression.hasBlueprintPermission(#blueprintId)")
 	public ResponseEntity<ResponseWrapper<UpdateBlueprintResponseDto>> updateBlueprint(
 		@PathVariable("blueprintId") Long blueprintId,
 		@RequestBody UpdateBlueprintRequestDto updateBlueprintRequestDto
