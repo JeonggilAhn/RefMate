@@ -11,7 +11,7 @@ export default defineConfig({
     svgr({
       svgrOptions: {
         icon: true, // ✅ 아이콘 최적화
-        dimensions: false, // ✅ 기본 width/height 제거
+        // dimensions: false, // ✅ 기본 width/height 제거
       },
     }),
   ],

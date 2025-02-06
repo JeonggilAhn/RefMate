@@ -23,6 +23,9 @@ const Blueprint = () => {
   const blueprint_id = 1;
   const blueprint_version_id = 1987029227680993;
 
+  const [isFirstRender, setIsFirstRender] = useState(true);
+
+  // current blueprint
   const [blueprintTitle, setBlueprintTitle] = useState('');
   const [blueprintUrl, setBlueprintUrl] = useState('');
   const [draftUrl, setDraftUrl] = useState('');
@@ -61,6 +64,7 @@ const Blueprint = () => {
   const closeBlueprintVersion = () => setIsVersionOpen(false);
 
   useEffect(() => {
+    setIsFirstRender(false);
     get(`blueprints/${blueprint_id}/${blueprint_version_id}`).then((res) => {
       const {
         status,
@@ -123,7 +127,11 @@ const Blueprint = () => {
           </div>
         </div>
 
-        <div className="w-full h-screen pt-[48px] border border-black">
+        {/* todo : canvas 크기 변경시 아직 문제 많음 */}
+        <div
+          className={`h-screen pt-[48px] border border-black transition-all duration-300 ${isSidebarOpen ? 'w-[calc(100%-20rem)]' : 'w-full'}`}
+        >
+          {/* <div className="w-full h-screen pt-[48px] border border-black"> */}
           <div className="border border-black absolute left-2 top-[58px] z-1">
             <div className="flex justify-between items-center">
               <button
@@ -185,20 +193,24 @@ const Blueprint = () => {
             isSidebarOpen={isSidebarOpen}
           />
           {/* toolbar */}
-          <div className="flex justify-content border border-black absolute left-[50%] bottom-4">
-            <button className="border border-black" onClick={onClickPinButton}>
-              <Icon name="IconTbPinStroke" />
+          <div className="flex justify-between border w-[5.5rem] border-black absolute left-[50%] bottom-4 p-[0.2rem]">
+            <button
+              className="w-[2.4rem] h-[2.4rem] flex justify-center items-center border border-black cursor-pointer hover:bg-[#F1F1F1]"
+              onClick={onClickPinButton}
+            >
+              <Icon name="IconTbPinStroke" width={30} height={30} />
             </button>
-            <button className="border border-black" onClick={onClickMouseButon}>
-              <Icon name="IconBsCursor" width={26} height={26} />
+            <button
+              className="w-[2.4rem] h-[2.4rem] flex justify-center items-center border border-black cursor-pointer hover:bg-[#F1F1F1]"
+              onClick={onClickMouseButon}
+            >
+              <Icon name="IconBsCursor" width={25} height={25} />
             </button>
           </div>
         </div>
         {/* sidebar */}
         <div
-          className={`absolute top-0 right-0 transition-transform duration-500 ease-in-out ${
-            isSidebarOpen ? 'translate-x-0 w-[20rem]' : 'translate-x-full'
-          } h-screen border border-black z-[4] bg-white flex flex-col`}
+          className={`absolute top-0 right-0 transition-transform duration-500 ease-in-out ${isSidebarOpen ? 'w-[20rem]' : 'w-0'} h-screen border border-black z-[4] bg-white flex flex-col`}
         >
           <div className="pt-[48px]" />
           <div className="mt-[60px] flex-1 overflow-y-auto">

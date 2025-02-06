@@ -27,22 +27,37 @@ const BlueprintCanvas = ({
   const blueprint_id = 1;
   const blueprint_version_id = 1987029227680993;
 
+  const adjustImagePosition = () => {
+    const canvas = canvasRef.current;
+    const canvasWidth = canvas.parentElement.clientWidth;
+    const canvasHeight = canvas.parentElement.clientHeight;
+
+    // const scaleX = canvasWidth / A3_WIDTH;
+    // const scaleY = canvasHeight / A3_HEIGHT;
+    // const newScale = Math.min(scaleX, scaleY);
+
+    // setScale(newScale);
+    setPosition({ x: canvasWidth / 2, y: canvasHeight / 2 });
+  };
+
   useEffect(() => {
     const canvas = canvasRef.current;
     const resizeCanvas = () => {
-      const prevWidth = canvas.width;
-      const prevHeight = canvas.height;
-
       canvas.width = canvas.parentElement.parentElement.clientWidth;
       canvas.height = canvas.parentElement.parentElement.clientHeight;
 
-      const deltaX = (canvas.width - prevWidth) / 2;
-      const deltaY = (canvas.height - prevHeight) / 2;
+      // const prevWidth = canvas.width;
+      // const prevHeight = canvas.height;
 
-      setPosition((prevPos) => ({
-        x: prevPos.x + deltaX,
-        y: prevPos.y + deltaY,
-      }));
+      // const deltaX = (canvas.width - prevWidth) / 2;
+      // const deltaY = (canvas.height - prevHeight) / 2;
+
+      adjustImagePosition();
+
+      // setPosition((prevPos) => ({
+      //   x: prevPos.x + deltaX,
+      //   y: prevPos.y + deltaY,
+      // }));
 
       const ctx = canvas.getContext('2d');
       drawImage(ctx);
@@ -56,12 +71,12 @@ const BlueprintCanvas = ({
       const scaleX = A3_WIDTH / imgRef.current.width;
       const scaleY = A3_HEIGHT / imgRef.current.height;
       const initialScale = Math.min(1, Math.min(scaleX, scaleY) * 0.9); // 90% 크기로 제한
-      setScale(initialScale);
 
+      setScale(initialScale);
       setPosition({ x: canvas.width / 2, y: canvas.height / 2 });
 
       const ctx = canvas.getContext('2d');
-      drawImage(ctx, canvas.width / 2, canvas.height / 2, initialScale);
+      drawImage(ctx);
     };
 
     return () => window.removeEventListener('resize', resizeCanvas);
@@ -69,16 +84,16 @@ const BlueprintCanvas = ({
 
   const drawImage = (
     ctx,
-    x = position.x,
-    y = position.y,
-    customScale = scale,
+    // x = position.x,
+    // y = position.y,
+    // customScale = scale,
   ) => {
     const canvas = canvasRef.current;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.save();
-    ctx.translate(x, y);
+    ctx.translate(position.x, position.y);
 
-    ctx.scale(customScale, customScale);
+    ctx.scale(scale, scale);
     ctx.drawImage(
       imgRef.current,
       -A3_WIDTH / 2,
@@ -183,10 +198,11 @@ const BlueprintCanvas = ({
           style={{
             position: 'absolute',
             left: `${position.x + item.pin_x * scale}px`,
-            top: `${position.y + item.pin_y * scale - 40}px`,
+            top: `${position.y + item.pin_y * scale}px`,
             zIndex: 3,
             pointerEvents: 'auto',
             visibility: isAllPinVisible ? 'visible' : 'hidden',
+            transform: 'translate(-50%, -50%)',
           }}
         >
           <PinComponent
@@ -213,6 +229,7 @@ const BlueprintCanvas = ({
             : 'default',
           width: '100%',
           height: '100%',
+          objectFit: 'cover',
         }}
       />
       {isPopupOpen && (
