@@ -1,9 +1,7 @@
 package com.dawn.backend.domain.blueprint.entity;
 
-import jakarta.persistence.ConstraintMode;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
-import jakarta.persistence.ForeignKey;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -34,14 +32,6 @@ public class BlueprintVersion extends BaseTimeEntity {
 
 	private String blueprintImg;
 
-	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "pre_blueprint_version_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
-	private BlueprintVersion preBlueprintVersion;
-
-	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "post_blueprint_version_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
-	private BlueprintVersion postBlueprintVersion;
-
 	private String previewImg;
 
 	private int blueprintVersionSeq;
@@ -53,8 +43,6 @@ public class BlueprintVersion extends BaseTimeEntity {
 		String blueprintVersionName,
 		String originFile,
 		String blueprintImg,
-		BlueprintVersion preBlueprintVersion,
-		BlueprintVersion postBlueprintVersion,
 		String previewImg,
 		int blueprintVersionSeq
 	) {
@@ -62,8 +50,6 @@ public class BlueprintVersion extends BaseTimeEntity {
 		this.blueprintVersionName = blueprintVersionName;
 		this.originFile = originFile;
 		this.blueprintImg = blueprintImg;
-		this.preBlueprintVersion = preBlueprintVersion;
-		this.postBlueprintVersion = postBlueprintVersion;
 		this.previewImg = previewImg;
 		this.blueprintVersionSeq = blueprintVersionSeq;
 	}

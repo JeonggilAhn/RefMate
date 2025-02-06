@@ -34,7 +34,7 @@ public class User extends BaseTimeEntity {
 	private String oauthProvider;
 
 	//탈퇴 여부
-	private Boolean resign;
+	private Boolean resign = false;
 
 	// 탈퇴일
 	private LocalDateTime resignDate;

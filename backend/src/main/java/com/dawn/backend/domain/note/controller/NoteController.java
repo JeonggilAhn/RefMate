@@ -2,6 +2,8 @@ package com.dawn.backend.domain.note.controller;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -19,7 +21,6 @@ import com.dawn.backend.domain.note.dto.request.CreateNoteRequestDto;
 import com.dawn.backend.domain.note.dto.request.GetBookmarkNotesRequestDto;
 import com.dawn.backend.domain.note.dto.request.GetNotesByBlueprintRequestDto;
 import com.dawn.backend.domain.note.dto.request.GetNotesByPinRequestDto;
-import com.dawn.backend.domain.note.dto.request.NoteDetailRequestDto;
 import com.dawn.backend.domain.note.dto.request.UpdateNoteRequestDto;
 import com.dawn.backend.domain.note.dto.response.BookmarkImageResponseDto;
 import com.dawn.backend.domain.note.dto.response.BookmarkNoteResponseDto;
@@ -32,6 +33,7 @@ import com.dawn.backend.domain.note.dto.response.NoteDetailResponseDto;
 import com.dawn.backend.domain.note.dto.response.RecentNoteResponseDto;
 import com.dawn.backend.domain.note.dto.response.UpdateNoteResponseDto;
 import com.dawn.backend.domain.note.service.NoteService;
+import com.dawn.backend.domain.user.entity.User;
 import com.dawn.backend.global.response.ResponseWrapper;
 import com.dawn.backend.global.response.ResponseWrapperFactory;
 
@@ -42,22 +44,25 @@ public class NoteController {
 	private final NoteService noteService;
 
 	@DeleteMapping("/notes/{noteId}")
+	@PreAuthorize("@authExpression.isNoteWriter(#noteId)")
 	public ResponseEntity<DeleteNoteResponseDto> deleteNote(@PathVariable Long noteId) {
 		DeleteNoteResponseDto response = noteService.deleteNote(noteId);
 		return ResponseEntity.ok(response);
 	}
 
-	@PostMapping("/pins/{pinId}/notes/{userId}")
+	@PostMapping("/pins/{pinId}/notes")
+	@PreAuthorize("@authExpression.hasProjectPermissionByPinId(#pinId)")
 	public ResponseEntity<ResponseWrapper<CreateNoteResponseDto>> createNote(
-		@PathVariable("userId") Long userId,
 		@PathVariable("pinId") Long pinId,
-		@RequestBody CreateNoteRequestDto createNoteRequestDto
+		@RequestBody CreateNoteRequestDto createNoteRequestDto,
+		@AuthenticationPrincipal User user
 	) {
-		CreateNoteResponseDto createNoteResponseDto = noteService.createNote(userId, pinId, createNoteRequestDto);
+		CreateNoteResponseDto createNoteResponseDto = noteService.createNote(user, pinId, createNoteRequestDto);
 		return ResponseWrapperFactory.setResponse(HttpStatus.CREATED, null, createNoteResponseDto);
 	}
 
 	@PutMapping("/notes/{noteId}")
+	@PreAuthorize("@authExpression.isNoteWriter(#noteId)")
 	public ResponseEntity<ResponseWrapper<UpdateNoteResponseDto>> updateNote(
 		@PathVariable Long noteId,
 		@RequestBody UpdateNoteRequestDto requestDto
@@ -67,6 +72,7 @@ public class NoteController {
 	}
 
 	@PatchMapping("/notes/{noteId}/bookmark")
+	@PreAuthorize("@authExpression.hasProjectPermissionByNoteId(#noteId)")
 	public ResponseEntity<ResponseWrapper<BookmarkNoteResponseDto>> updateNoteBookmark(
 		@PathVariable Long noteId,
 		@RequestBody BookmarkNoteRequestDto requestDto
@@ -76,6 +82,7 @@ public class NoteController {
 	}
 
 	@GetMapping("/pins/{pinId}/notes")
+	@PreAuthorize("@authExpression.hasProjectPermissionByPinId(#pinId)")
 	public ResponseEntity<ResponseWrapper<GetNotesByPinResponseDto>> getNotesByPin(
 		@PathVariable Long pinId,
 		@RequestBody GetNotesByPinRequestDto getNotesByPinRequestDto
@@ -85,6 +92,7 @@ public class NoteController {
 	}
 
 	@PatchMapping("/images/{imageId}/bookmark")
+	@PreAuthorize("@authExpression.hasProjectPermissionByImageId(#imageId)")
 	public ResponseEntity<ResponseWrapper<BookmarkImageResponseDto>> updateNoteImageBookmark(
 		@PathVariable Long imageId,
 		@RequestBody BookmarkImageRequestDto requestDto
@@ -94,6 +102,7 @@ public class NoteController {
 	}
 
 	@GetMapping("/pins/{pinId}/notes/bookmark")
+	@PreAuthorize("@authExpression.hasProjectPermissionByPinId(#pinId)")
 	public ResponseEntity<ResponseWrapper<GetBookmarkNotesResponseDto>> getNotesBookmark(
 		@PathVariable Long pinId,
 		@RequestBody GetBookmarkNotesRequestDto request
@@ -103,6 +112,7 @@ public class NoteController {
 	}
 
 	@GetMapping("/blueprints/{blueprintId}/{blueprintVersion}/notes")
+	@PreAuthorize("@authExpression.hasProjectPermissionByBlueprintId(#blueprintId)")
 	public ResponseEntity<ResponseWrapper<GetNotesByBlueprintResponseDto>> getNotesByBlueprint(
 		@PathVariable Long blueprintId,
 		@PathVariable Long blueprintVersion,
@@ -115,17 +125,20 @@ public class NoteController {
 
 	// 토큰 로직 -> 추후 NoteDetailRequestDto 삭제
 	@GetMapping("/notes/{noteId}")
+	@PreAuthorize("@authExpression.hasProjectPermissionByNoteId(#noteId)")
 	public ResponseEntity<ResponseWrapper<NoteDetailResponseDto>> findDetailNote(
 		@PathVariable Long noteId,
-		@RequestBody NoteDetailRequestDto requestDto
+		@AuthenticationPrincipal User user
 	) {
-		NoteDetailResponseDto responseDto = noteService.findDetailNote(noteId, requestDto);
+		NoteDetailResponseDto responseDto = noteService.findDetailNote(noteId, user);
 		return ResponseWrapperFactory.setResponse(HttpStatus.OK, null, responseDto);
 	}
 
 	@GetMapping("/pins/{pinId}/notes/recent")
+	@PreAuthorize("@authExpression.hasProjectPermissionByPinId(#pinId)")
 	public ResponseEntity<ResponseWrapper<RecentNoteResponseDto>> getRecentNote(
-		@PathVariable Long pinId) {
+		@PathVariable Long pinId
+	) {
 		RecentNoteResponseDto responseDto = noteService.getRecentNoteByPin(pinId);
 		return ResponseWrapperFactory.setResponse(HttpStatus.OK, null, responseDto);
 	}

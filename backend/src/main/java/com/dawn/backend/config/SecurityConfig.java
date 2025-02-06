@@ -3,13 +3,19 @@ package com.dawn.backend.config;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler;
+import org.springframework.security.access.expression.method.MethodSecurityExpressionHandler;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 
@@ -22,24 +28,32 @@ import com.dawn.backend.global.filter.JwtFilter;
 import com.dawn.backend.global.util.jwt.JwtUtil;
 
 @Configuration
+@EnableWebSecurity
+@EnableMethodSecurity
 public class SecurityConfig {
 
 	private final CustomOAuth2UserService customOAuth2UserService;
 	private final CustomOAuth2SuccessHandler customOAuth2SuccessHandler;
 	private final JwtUtil jwtUtil;
 	private final UserRepository userRepository;
+	private final AuthenticationEntryPoint authenticationEntryPoint;
+	private final AccessDeniedHandler accessDeniedHandler;
 
 	@Autowired
 	SecurityConfig(
 		CustomOAuth2UserService customOAuth2UserService,
 		CustomOAuth2SuccessHandler customOAuth2SuccessHandler,
 		JwtUtil jwtUtil,
-		UserRepository userRepository
+		UserRepository userRepository,
+		AuthenticationEntryPoint authenticationEntryPoint,
+		AccessDeniedHandler accessDeniedHandler
 	) {
 		this.customOAuth2UserService = customOAuth2UserService;
 		this.customOAuth2SuccessHandler = customOAuth2SuccessHandler;
 		this.jwtUtil = jwtUtil;
 		this.userRepository = userRepository;
+		this.authenticationEntryPoint = authenticationEntryPoint;
+		this.accessDeniedHandler = accessDeniedHandler;
 	}
 
 	// secret encoder
@@ -94,6 +108,12 @@ public class SecurityConfig {
 		// jwt filter
 		JwtFilter jwtFilter = new JwtFilter(jwtUtil, userRepository);
 		http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
+
+		// handling Exception
+		http.exceptionHandling((exception) -> exception
+			.authenticationEntryPoint(authenticationEntryPoint)
+			.accessDeniedHandler(accessDeniedHandler)
+		);
 
 		return http.build();
 	}

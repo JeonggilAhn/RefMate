@@ -12,12 +12,19 @@ import io.minio.http.Method;
 import lombok.RequiredArgsConstructor;
 
 import com.dawn.backend.config.MinioConfig;
+import com.dawn.backend.domain.user.dto.CustomOAuth2User;
+import com.dawn.backend.domain.user.entity.User;
+import com.dawn.backend.domain.user.repository.UserProjectRepository;
 import com.dawn.backend.global.util.uploader.dto.request.BlueprintUploadRequestDto;
 import com.dawn.backend.global.util.uploader.dto.request.FileUploadDetail;
 import com.dawn.backend.global.util.uploader.dto.request.NoteUploadRequestDto;
 import com.dawn.backend.global.util.uploader.dto.response.BlueprintUploadResponseDto;
 import com.dawn.backend.global.util.uploader.dto.response.NoteFileUploadResponseDto;
 import com.dawn.backend.global.util.uploader.dto.response.NoteUploadResponseDto;
+import com.dawn.backend.global.util.uploader.exception.InvalidBlueprintFileTypeException;
+import com.dawn.backend.global.util.uploader.exception.InvalidNoteFileTypeException;
+import com.dawn.backend.global.util.uploader.exception.PresignedUrlGenerationFailException;
+import com.dawn.backend.global.util.uploader.exception.UploadPermissionDeniedException;
 import com.dawn.backend.global.util.uploader.type.FileType;
 
 @Service
@@ -26,22 +33,29 @@ public class UploadService {
 
 	private final MinioClient minioClient;
 	private final MinioConfig minioConfig;
+	private final UserProjectRepository userProjectRepository;
 
-	public BlueprintUploadResponseDto  generateBlueprintPresignedUrl(BlueprintUploadRequestDto dto) {
-//		validatePermission(dto.userId(), dto.projectId());
+	public BlueprintUploadResponseDto  generateBlueprintPresignedUrl(
+		BlueprintUploadRequestDto dto,
+		User user
+	) {
+		validatePermission(user.getUserId(), dto.projectId());
 		validateFileTypeForBlueprint(dto.fileType());
-		String objectName = generateUploadPath(dto.userId(), dto.projectId(), dto.fileName());
+		String objectName = generateUploadPath(user.getUserId(), dto.projectId(), dto.fileName());
 		String presignedUrl = generatePresignedUrl(objectName);
 		String publicUrl = generatePublicUrl(objectName);
 		return BlueprintUploadResponseDto.from(presignedUrl, publicUrl);
 	}
 
-	public NoteUploadResponseDto generateNotePresignedUrls(NoteUploadRequestDto dto) {
-//		validatePermission(dto.userId(), dto.projectId());
+	public NoteUploadResponseDto generateNotePresignedUrls(
+		NoteUploadRequestDto dto,
+		User user
+	) {
+		validatePermission(user.getUserId(), dto.projectId());
 		List<NoteFileUploadResponseDto> fileResponses = new ArrayList<>();
 		for (FileUploadDetail file : dto.files()) {
 			validateFileTypeForNote(file.fileType());
-			String objectName = generateUploadPath(dto.userId(), dto.projectId(), file.fileName());
+			String objectName = generateUploadPath(user.getUserId(), dto.projectId(), file.fileName());
 			String presignedUrl = generatePresignedUrl(objectName);
 			String publicUrl = generatePublicUrl(objectName);
 			fileResponses.add(NoteFileUploadResponseDto.from(presignedUrl, publicUrl));
@@ -51,19 +65,23 @@ public class UploadService {
 
 	private void validateFileTypeForBlueprint(FileType fileType) {
 		if (!List.of(FileType.PNG, FileType.JPG, FileType.PDF, FileType.DWG).contains(fileType)) {
-			throw new IllegalArgumentException("Invalid file type for Blueprint");
+			throw new InvalidBlueprintFileTypeException();
 		}
 	}
 
 	private void validateFileTypeForNote(FileType fileType) {
 		if (!List.of(FileType.PNG, FileType.JPG).contains(fileType)) {
-			throw new IllegalArgumentException("Only PNG/JPG allowed for Notes");
+			throw new InvalidNoteFileTypeException();
 		}
 	}
 
-//	private void validatePermission(Long userId, Long projectId) {
-//		// 추후 projectId와 userId로 user_project테이블에서 해당 프로젝트에 사진을 올릴 권한이 있는제 체크하는 로직 추가
-//	}
+	private void validatePermission(Long userId, Long projectId) {
+		boolean hasPermission = userProjectRepository.findByUserIdAndProjectId(userId, projectId).isPresent();
+
+		if (!hasPermission) {
+			throw new UploadPermissionDeniedException();
+		}
+	}
 
 	private String generateUploadPath(Long userId, Long projectId, String fileName) {
 		return String.format("%d/%d/%s_%s",
@@ -83,7 +101,7 @@ public class UploadService {
 					.expiry(60 * 10)
 					.build());
 		} catch (Exception e) {
-			throw new RuntimeException("Presigned URL 생성 실패", e);
+			throw new PresignedUrlGenerationFailException();
 		}
 	}
 

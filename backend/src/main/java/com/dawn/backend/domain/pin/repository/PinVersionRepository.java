@@ -21,4 +21,6 @@ public interface PinVersionRepository extends JpaRepository<PinVersion, Long> {
 		Pin pin,
 		Boolean isActive
 	);
+
+	PinVersion findFirstByPinPinId(Long pinId);
 }
