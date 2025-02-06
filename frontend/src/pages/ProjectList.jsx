@@ -6,27 +6,6 @@ import Tabs from '../components/common/Tabs';
 import Thumbnail from '../components/project/Thumbnail';
 import ProjectSubHeader from '../components/project/ProjectSubHeader';
 
-const Wrapper = styled.div`
-  box-sizing: border-box;
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-start;
-  padding-top: 48px; // 헤더자리
-  height: calc(100vh - 48px);
-  overflow: hidden; /* Wrapper에는 스크롤을 적용하지 않음 */
-`;
-
-const ContentWrapper = styled.div`
-  padding: 25px;
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  box-sizing: border-box;
-`;
-
 function ProjectList() {
   const userId = 96168794; // 예시 userId
 
@@ -50,3 +29,26 @@ function ProjectList() {
 }
 
 export default ProjectList;
+
+const Wrapper = styled.div`
+  box-sizing: border-box;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding-top: 48px; // 헤더자리
+  height: calc(100vh - 48px);
+  overflow: hidden; /* Wrapper에는 스크롤을 적용하지 않음 */
+`;
+
+const ContentWrapper = styled.div`
+  padding: 25px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-sizing: border-box;
+  height: 100%;
+  flex-grow: 1;
+`;

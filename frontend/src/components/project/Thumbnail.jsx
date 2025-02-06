@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
-import { get } from '../../api';
+import { get, del } from '../../api';
 import { useNavigate } from 'react-router-dom';
 import EditButton from '../common/EditButton';
 import UpdateProjectName from './UpdateProjectName';
@@ -67,6 +67,36 @@ const Thumbnail = ({ userId, filterType }) => {
     });
   };
 
+  const handleRemoveProject = async (projectId) => {
+    setModal({
+      type: 'confirm',
+      message: '정말 삭제하시겠습니까?',
+      onConfirm: async () => {
+        try {
+          // 삭제 요청을 보내는 API
+          const response = await del(`projects/${projectId}`);
+
+          if (response.status === 200) {
+            alert('삭제 완료');
+
+            // 프로젝트 목록에서 해당 프로젝트 제거
+            setProjects((prevProjects) =>
+              prevProjects.filter(
+                (project) => project.project_id !== projectId,
+              ),
+            );
+            setModal(null);
+          } else {
+            alert('삭제 실패');
+          }
+        } catch (error) {
+          alert('삭제 중 오류가 발생했습니다.');
+          console.error('삭제 오류:', error);
+        }
+      },
+    });
+  };
+
   return (
     <Components>
       {Array.isArray(projects) &&
@@ -112,6 +142,10 @@ const Thumbnail = ({ userId, filterType }) => {
                           project.project_title,
                         ),
                     },
+                    {
+                      name: '삭제',
+                      handler: () => handleRemoveProject(project.project_id),
+                    },
                   ]}
                 />
               </ProjectFooter>
@@ -129,7 +163,6 @@ const Thumbnail = ({ userId, filterType }) => {
 export default Thumbnail;
 
 const Components = styled.div`
-  flex-grow: 1;
   width: 100%;
   overflow-y: auto;
   max-height: calc(100vh - 200px);

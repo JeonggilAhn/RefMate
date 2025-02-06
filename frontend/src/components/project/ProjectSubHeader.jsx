@@ -4,14 +4,21 @@ import { get } from '../../api';
 import { useLocation } from 'react-router-dom';
 import EditButton from '../common/EditButton';
 import CreateProject from './CreateProject';
+import TextButton from '../common/TextButton';
+import { useSetRecoilState } from 'recoil';
+import { modalState } from '../../recoil/common/modal';
 
 const SubHeader = ({ userId, projectId }) => {
   const [userName, setUserName] = useState('');
-  const [isCreate, setIsCreate] = useState(false);
   const location = useLocation();
+  const setModal = useSetRecoilState(modalState);
 
-  const handleOpenCreate = () => {
-    setIsCreate(true);
+  const handleCreateProject = () => {
+    setModal({
+      type: 'modal',
+      title: '새 프로젝트',
+      content: <CreateProject setModal={setModal} />,
+    });
   };
 
   useEffect(() => {
@@ -37,10 +44,9 @@ const SubHeader = ({ userId, projectId }) => {
         <h3>{isBlueprintListPage ? projectName : `${userName}님의 공간`}</h3>
         {isBlueprintListPage && <EditButton />}
       </LeftSection>
-      <div className="border border-black flex">
-        <button onClick={handleOpenCreate}>새 프로젝트 만들기 +</button>
-      </div>
-      {isCreate && <CreateProject />}
+      <TextButton onClick={handleCreateProject}>
+        새 프로젝트 만들기 +
+      </TextButton>
     </SubHeaderWrapper>
   );
 };
