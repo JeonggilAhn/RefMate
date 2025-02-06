@@ -1,7 +1,8 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 
 import React, { useRef, useEffect, useState } from 'react';
-import PinComponent from './PinComponent ';
+import PinComponent from './PinComponent';
+import PinPopup from './PinPopup';
 
 const A3_WIDTH = 1587; // A3 크기 (픽셀 단위)
 const A3_HEIGHT = 1123; // A3 크기 (픽셀 단위)
@@ -19,9 +20,10 @@ const BlueprintCanvas = ({
   const [dragging, setDragging] = useState(false);
   const [startPos, setStartPos] = useState({ x: 0, y: 0 });
   const [pins, setPins] = useState([]);
+  const [pendingPin, setPendingPin] = useState(null);
+  const [isPopupOpen, setIsPopupOpen] = useState(false);
   const imgRef = useRef(new Image());
 
-  // params 로 변경
   const blueprint_id = 1;
   const blueprint_version_id = 1987029227680993;
 
@@ -50,7 +52,6 @@ const BlueprintCanvas = ({
     resizeCanvas();
 
     imgRef.current.src = imageUrl;
-
     imgRef.current.onload = () => {
       const scaleX = A3_WIDTH / imgRef.current.width;
       const scaleY = A3_HEIGHT / imgRef.current.height;
@@ -90,39 +91,29 @@ const BlueprintCanvas = ({
   };
 
   const handleWheel = (e) => {
-    if (isPinButtonEnaled) {
-      return;
+    e.preventDefault();
+    if (!isPinButtonEnaled) {
+      const zoomSpeed = 0.1;
+      setScale((prev) =>
+        Math.max(0.5, prev + (e.deltaY > 0 ? -zoomSpeed : zoomSpeed)),
+      );
     }
-
-    const zoomSpeed = 0.1;
-    setScale((prev) =>
-      Math.max(0.5, prev + (e.deltaY > 0 ? -zoomSpeed : zoomSpeed)),
-    );
   };
 
   const handleMouseDown = (e) => {
-    if (isPinButtonEnaled) {
-      return;
+    if (!isPinButtonEnaled) {
+      setDragging(true);
+      setStartPos({ x: e.clientX - position.x, y: e.clientY - position.y });
     }
-
-    setDragging(true);
-    setStartPos({ x: e.clientX - position.x, y: e.clientY - position.y });
   };
 
   const handleMouseMove = (e) => {
-    if (isPinButtonEnaled || !dragging) {
-      return;
+    if (!isPinButtonEnaled && dragging) {
+      setPosition({ x: e.clientX - startPos.x, y: e.clientY - startPos.y });
     }
-
-    const newPos = { x: e.clientX - startPos.x, y: e.clientY - startPos.y };
-    setPosition(newPos);
   };
 
   const handleMouseUp = () => {
-    if (isPinButtonEnaled) {
-      return;
-    }
-
     setDragging(false);
   };
 
@@ -136,24 +127,42 @@ const BlueprintCanvas = ({
     const x = (e.clientX - rect.left - position.x) / scale;
     const y = (e.clientY - rect.top - position.y) / scale;
 
-    // 새로운 핀 추가 (임시)
-    const newPin = {
+    setPendingPin({
       has_unread_note: false,
       is_active: false,
       pin_group: {
         pin_group_color: 'violet',
         pin_group_id: '1',
-        pingroup_name: 'rr',
+        pingroup_name: '새 핀',
       },
       pin_id: null,
-      pin_name: 'test',
+      pin_name: '',
       pin_x: x,
       pin_y: y,
       preview_image_count: 0,
       preview_image_list: [],
+    });
+
+    setIsPopupOpen(true);
+  };
+
+  const handleConfirmPin = (name, groupId, groupColor) => {
+    if (!pendingPin) return;
+
+    const newPin = {
+      ...pendingPin,
+      pin_name: name,
+      pin_group: { pin_group_id: groupId, pin_group_color: groupColor },
     };
-    console.log(x, y);
+
     setPins((prevPins) => [...prevPins, newPin]);
+    setPendingPin(null);
+    setIsPopupOpen(false);
+  };
+
+  const handleCancelPin = () => {
+    setPendingPin(null);
+    setIsPopupOpen(false);
   };
 
   useEffect(() => {
@@ -168,7 +177,6 @@ const BlueprintCanvas = ({
 
   return (
     <div className="relative w-full h-full">
-      {/* 핀 렌더링 */}
       {pins.map((item, index) => (
         <div
           key={index}
@@ -205,9 +213,19 @@ const BlueprintCanvas = ({
             : 'default',
           width: '100%',
           height: '100%',
-          // objectFit: 'contain',
         }}
       />
+      {isPopupOpen && (
+        <div style={{ zIndex: 50 }}>
+          <PinPopup
+            blueprintId={blueprint_id}
+            blueprintVersion={blueprint_version_id}
+            initialPin={pendingPin}
+            onConfirm={handleConfirmPin}
+            onCancel={handleCancelPin}
+          />
+        </div>
+      )}
     </div>
   );
 };

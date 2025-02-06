@@ -1,21 +1,30 @@
 import React, { useState, useEffect } from 'react';
 import { get, post, patch } from '../../api';
+import styled from 'styled-components';
 
-const PinPopup = ({ blueprintId, blueprintVersion }) => {
-  const [isPopupOpen, setIsPopupOpen] = useState(false);
+const PinPopup = ({
+  blueprintId,
+  blueprintVersion,
+  initialPin,
+  onConfirm,
+  onCancel,
+}) => {
   const [isEditing, setIsEditing] = useState(false);
-  const [pinId, setPinId] = useState(null); // 수정할 핀 ID
+  const [pinId, setPinId] = useState(null);
   const [pinName, setPinName] = useState('');
   const [pinGroup, setPinGroup] = useState('');
   const [groupOptions, setGroupOptions] = useState([]);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
-  // 블루프린트 ID와 버전 확인
   useEffect(() => {
-    console.log('📍 blueprintId:', blueprintId);
-    console.log('📍 blueprintVersion:', blueprintVersion);
-  }, [blueprintId, blueprintVersion]);
+    if (initialPin) {
+      setIsEditing(initialPin.pin_id !== null);
+      setPinId(initialPin.pin_id);
+      setPinName(initialPin.pin_name || '');
+      setPinGroup(initialPin.pin_group?.pin_group_id || '');
+    }
+  }, [initialPin]);
 
-  // 핀 그룹 조회 (API 호출)
   useEffect(() => {
     const fetchGroups = async () => {
       if (!blueprintId) return;
@@ -24,31 +33,14 @@ const PinPopup = ({ blueprintId, blueprintVersion }) => {
         if (response.data?.content && Array.isArray(response.data.content)) {
           setGroupOptions(response.data.content);
         }
-      } catch (error) {}
+      } catch (error) {
+        console.error('핀 그룹 로딩 오류:', error);
+      }
     };
 
     fetchGroups();
   }, [blueprintId]);
 
-  // 팝업 열기 (생성)
-  const openCreatePopup = () => {
-    setIsEditing(false);
-    setPinId(null);
-    setPinName('');
-    setPinGroup('');
-    setIsPopupOpen(true);
-  };
-
-  // 팝업 열기 (수정)
-  const openEditPopup = () => {
-    setIsEditing(true);
-    setPinId('123'); // 임시 값 (테스트용)
-    setPinName('기존 핀 이름'); // 기존 데이터 불러오기 (테스트)
-    setPinGroup('기존 그룹'); // 기존 데이터 불러오기 (테스트)
-    setIsPopupOpen(true);
-  };
-
-  // 핀 생성 API
   const handleCreatePin = async () => {
     if (!pinName.trim() || !pinGroup) return;
     try {
@@ -56,13 +48,19 @@ const PinPopup = ({ blueprintId, blueprintVersion }) => {
         name: pinName,
         group: pinGroup,
       });
+
       console.log('핀 생성 완료:', { name: pinName, group: pinGroup });
 
-      closePopup();
-    } catch (error) {}
+      onConfirm(
+        pinName,
+        pinGroup,
+        groupOptions.find((g) => g.pin_group_id === pinGroup)?.pin_group_color,
+      );
+    } catch (error) {
+      console.error('핀 생성 실패:', error);
+    }
   };
 
-  // 핀 수정 API
   const handleEditPin = async () => {
     if (!pinId || !pinName.trim() || !pinGroup) return;
     try {
@@ -73,90 +71,183 @@ const PinPopup = ({ blueprintId, blueprintVersion }) => {
 
       console.log('핀 수정 완료:', { name: pinName, group: pinGroup });
 
-      closePopup();
-    } catch (error) {}
-  };
-
-  //  팝업 닫기 & 입력 필드 초기화
-  const closePopup = () => {
-    setPinName('');
-    setPinGroup('');
-    setIsPopupOpen(false);
+      onConfirm(
+        pinName,
+        pinGroup,
+        groupOptions.find((g) => g.pin_group_id === pinGroup)?.pin_group_color,
+      );
+    } catch (error) {
+      console.error('핀 수정 실패:', error);
+    }
   };
 
   return (
-    <div>
-      {/* 버튼 (생성 / 수정) */}
-      <button onClick={openCreatePopup}>핀 생성</button>
-      <button onClick={openEditPopup}>핀 수정</button>
+    <Overlay>
+      <Popup>
+        <h2>{isEditing ? '핀 수정' : '핀 생성'}</h2>
 
-      {/* 팝업창 */}
-      {isPopupOpen && (
-        <div style={overlayStyle}>
-          <div style={popupStyle}>
-            <h2>{isEditing ? '핀 수정' : '핀 생성'}</h2>
+        <Label>
+          이름:
+          <Input
+            type="text"
+            value={pinName}
+            onChange={(e) => setPinName(e.target.value)}
+            placeholder="핀 이름 입력"
+          />
+        </Label>
 
-            <label>
-              이름:
-              <input
-                type="text"
-                value={pinName}
-                onChange={(e) => setPinName(e.target.value)}
-                placeholder="핀 이름 입력"
-              />
-            </label>
+        <Label>
+          그룹:
+          <DropdownWrapper>
+            <DropdownHeader onClick={() => setIsDropdownOpen(!isDropdownOpen)}>
+              {pinGroup ? (
+                <>
+                  <ColorCircle
+                    color={
+                      groupOptions.find((g) => g.pin_group_id === pinGroup)
+                        ?.pin_group_color || 'transparent'
+                    }
+                  />
+                  {groupOptions.find((g) => g.pin_group_id === pinGroup)
+                    ?.pin_group_name || '그룹 선택'}
+                </>
+              ) : (
+                '그룹 선택'
+              )}
+            </DropdownHeader>
 
-            <label>
-              그룹:
-              <select
-                value={pinGroup}
-                onChange={(e) => setPinGroup(e.target.value)}
-              >
-                <option value="" disabled>
-                  그룹 선택
-                </option>
-                {groupOptions.map((option, index) => (
-                  <option key={index} value={option.pin_group_id}>
+            {isDropdownOpen && (
+              <DropdownList>
+                {groupOptions.map((option) => (
+                  <DropdownItem
+                    key={option.pin_group_id}
+                    onClick={() => {
+                      setPinGroup(option.pin_group_id);
+                      setIsDropdownOpen(false);
+                    }}
+                  >
+                    <ColorCircle color={option.pin_group_color} />
                     {option.pin_group_name}
-                  </option>
+                  </DropdownItem>
                 ))}
-              </select>
-            </label>
+              </DropdownList>
+            )}
+          </DropdownWrapper>
+        </Label>
 
-            {/* 버튼 (생성 / 수정) */}
-            <button
-              onClick={isEditing ? handleEditPin : handleCreatePin}
-              disabled={!pinName.trim() || !pinGroup}
-            >
-              완료
-            </button>
-            <button onClick={closePopup}>닫기</button>
-          </div>
-        </div>
-      )}
-    </div>
+        <Button
+          disabled={
+            !pinName.trim() ||
+            !pinGroup || // 그룹 선택이 안 된 경우
+            groupOptions.find((g) => g.pin_group_id === pinGroup)
+              ?.pin_group_name === '그룹 선택' // 그룹이 "그룹 선택"인 경우
+          }
+          onClick={isEditing ? handleEditPin : handleCreatePin}
+        >
+          완료
+        </Button>
+
+        <Button onClick={onCancel}>닫기</Button>
+      </Popup>
+    </Overlay>
   );
 };
 
 export default PinPopup;
 
-const overlayStyle = {
-  position: 'fixed',
-  top: 0,
-  left: 0,
-  width: '100%',
-  height: '100%',
-  backgroundColor: 'rgba(0, 0, 0, 0.5)',
-  display: 'flex',
-  justifyContent: 'center',
-  alignItems: 'center',
-};
+// Styled Components
+const Overlay = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 100;
+`;
 
-const popupStyle = {
-  background: '#fff',
-  padding: '16px',
-  borderRadius: '8px',
-  display: 'flex',
-  flexDirection: 'column',
-  gap: '8px',
-};
+const Popup = styled.div`
+  background: #fff;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  z-index: 100;
+`;
+
+const Label = styled.label`
+  display: flex;
+  flex-direction: column;
+  font-weight: bold;
+`;
+
+const Input = styled.input`
+  padding: 0.5rem;
+  margin-top: 0.25rem;
+  border: 1px solid #ccc;
+  border-radius: 0.25rem;
+`;
+
+const DropdownWrapper = styled.div`
+  position: relative;
+  width: 100%;
+`;
+
+const DropdownHeader = styled.div`
+  padding: 0.5rem;
+  background: #fff;
+  border: 1px solid #ccc;
+  border-radius: 0.25rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+`;
+
+const DropdownList = styled.ul`
+  position: absolute;
+  width: 100%;
+  background: #fff;
+  border: 1px solid #ccc;
+  border-radius: 0.25rem;
+  margin-top: 0.25rem;
+  list-style: none;
+  padding: 0;
+  max-height: 10rem;
+  overflow-y: auto;
+  z-index: 30;
+`;
+
+const DropdownItem = styled.li`
+  padding: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  &:hover {
+    background: #f0f0f0;
+  }
+`;
+
+const ColorCircle = styled.span`
+  width: 1rem;
+  height: 1rem;
+  border-radius: 50%;
+  background-color: ${(props) => props.color || 'gray'};
+`;
+
+const Button = styled.button`
+  padding: 0.5rem;
+  background: #007bff;
+  color: white;
+  border: none;
+  border-radius: 0.25rem;
+  cursor: pointer;
+  &:disabled {
+    background: #ccc;
+  }
+`;
