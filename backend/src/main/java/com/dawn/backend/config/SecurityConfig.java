@@ -3,41 +3,35 @@ package com.dawn.backend.config;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler;
-import org.springframework.security.access.expression.method.MethodSecurityExpressionHandler;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
-import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.authentication.logout.LogoutFilter;
 import org.springframework.web.cors.CorsConfiguration;
 
 import jakarta.servlet.http.HttpServletRequest;
 
 import com.dawn.backend.domain.user.handler.CustomOAuth2SuccessHandler;
+import com.dawn.backend.domain.user.repository.TokenBlackListRepository;
 import com.dawn.backend.domain.user.repository.UserRepository;
 import com.dawn.backend.domain.user.service.CustomOAuth2UserService;
+import com.dawn.backend.global.filter.CustomLogoutFilter;
 import com.dawn.backend.global.filter.JwtFilter;
 import com.dawn.backend.global.util.jwt.JwtUtil;
 
 @Configuration
-@EnableWebSecurity
-@EnableMethodSecurity
 public class SecurityConfig {
 
 	private final CustomOAuth2UserService customOAuth2UserService;
 	private final CustomOAuth2SuccessHandler customOAuth2SuccessHandler;
 	private final JwtUtil jwtUtil;
 	private final UserRepository userRepository;
-	private final AuthenticationEntryPoint authenticationEntryPoint;
-	private final AccessDeniedHandler accessDeniedHandler;
+	private final TokenBlackListRepository tokenBlackListRepository;
 
 	@Autowired
 	SecurityConfig(
@@ -45,15 +39,13 @@ public class SecurityConfig {
 		CustomOAuth2SuccessHandler customOAuth2SuccessHandler,
 		JwtUtil jwtUtil,
 		UserRepository userRepository,
-		AuthenticationEntryPoint authenticationEntryPoint,
-		AccessDeniedHandler accessDeniedHandler
+		TokenBlackListRepository tokenBlackListRepository
 	) {
 		this.customOAuth2UserService = customOAuth2UserService;
 		this.customOAuth2SuccessHandler = customOAuth2SuccessHandler;
 		this.jwtUtil = jwtUtil;
 		this.userRepository = userRepository;
-		this.authenticationEntryPoint = authenticationEntryPoint;
-		this.accessDeniedHandler = accessDeniedHandler;
+		this.tokenBlackListRepository = tokenBlackListRepository;
 	}
 
 	// secret encoder
@@ -106,14 +98,12 @@ public class SecurityConfig {
 		);
 
 		// jwt filter
-		JwtFilter jwtFilter = new JwtFilter(jwtUtil, userRepository);
+		JwtFilter jwtFilter = new JwtFilter(jwtUtil, userRepository, tokenBlackListRepository);
 		http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
-		// handling Exception
-		http.exceptionHandling((exception) -> exception
-			.authenticationEntryPoint(authenticationEntryPoint)
-			.accessDeniedHandler(accessDeniedHandler)
-		);
+		// logout
+		CustomLogoutFilter customLogoutFilter = new CustomLogoutFilter(tokenBlackListRepository);
+		http.addFilterBefore(customLogoutFilter, LogoutFilter.class);
 
 		return http.build();
 	}
