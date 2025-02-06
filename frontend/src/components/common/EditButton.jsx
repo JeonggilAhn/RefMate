@@ -2,13 +2,12 @@ import React, { useState, useRef, useEffect } from 'react';
 import { MdMoreHoriz } from 'react-icons/md';
 import styled from 'styled-components';
 
-const EditButton = ({ showDelete = false }) => {
+const EditButton = ({ actions = [] }) => {
   const [isOpen, setIsOpen] = useState(false);
   const modalRef = useRef(null);
 
-  const toggleModal = () => setIsOpen(!isOpen);
+  const toggleModal = () => setIsOpen((prev) => !prev);
 
-  // 모달 바깥 클릭 시 닫기
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (modalRef.current && !modalRef.current.contains(event.target)) {
@@ -24,14 +23,17 @@ const EditButton = ({ showDelete = false }) => {
       <EditIcon onClick={toggleModal} />
       {isOpen && (
         <Modal ref={modalRef}>
-          <ModalButton onClick={() => alert('추후에 수정하기 팝업')}>
-            수정하기
-          </ModalButton>
-          {showDelete && (
-            <ModalButton onClick={() => alert('추후에 삭제하기 팝업')}>
-              삭제하기
+          {actions.map((action, index) => (
+            <ModalButton
+              key={index}
+              onClick={() => {
+                action.handler();
+                setIsOpen(false);
+              }}
+            >
+              {action.name}
             </ModalButton>
-          )}
+          ))}
         </Modal>
       )}
     </Container>
@@ -58,17 +60,19 @@ const Modal = styled.div`
   border: 1px solid black;
   display: flex;
   flex-direction: column;
-  width: 5rem;
+  width: 6rem;
   z-index: 10;
 `;
 
 const ModalButton = styled.button`
   cursor: pointer;
   width: 100%;
-  border-bottom: 1px solid black;
-
-  &:last-child {
-    border-bottom: none;
+  border: none;
+  background: none;
+  padding: 5px;
+  text-align: left;
+  &:hover {
+    background: #f0f0f0;
   }
 `;
 

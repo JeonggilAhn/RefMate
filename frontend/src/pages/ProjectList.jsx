@@ -4,7 +4,7 @@ import Header from '../components/common/Header';
 import BackButton from '../components/common/BackButton';
 import Tabs from '../components/common/Tabs';
 import Thumbnail from '../components/project/Thumbnail';
-import SubHeader from '../components/project/SubHeader';
+import ProjectSubHeader from '../components/project/ProjectSubHeader';
 
 const Wrapper = styled.div`
   box-sizing: border-box;
@@ -36,7 +36,7 @@ function ProjectList() {
     <Wrapper>
       <Header />
       <ContentWrapper>
-        <SubHeader userId={userId} />
+        <ProjectSubHeader userId={userId} />
         <Tabs
           tabs={['모든 프로젝트', '내 프로젝트', '공유 프로젝트']}
           iconType="search"

@@ -3,17 +3,22 @@ import styled from 'styled-components';
 import { get } from '../../api';
 import { useNavigate } from 'react-router-dom';
 import EditButton from '../common/EditButton';
+import UpdateProjectName from './UpdateProjectName';
+import { useSetRecoilState } from 'recoil';
+import { modalState } from '../../recoil/common/modal';
 
-// 날짜 포맷 함수
 const formatDate = (dateString) => {
   const date = new Date(dateString);
-  return date.toLocaleDateString(); // 기본 날짜 형식 (yyyy/mm/dd)
+  return date.toLocaleDateString();
 };
 
 const Thumbnail = ({ userId, filterType }) => {
-  const [projects, setProjects] = useState([]); // 프로젝트 상태 추가
-  const [imageLoaded, setImageLoaded] = useState(true); // 이미지 로딩 상태 추가
+  const [projects, setProjects] = useState([]);
+  const [imageLoaded, setImageLoaded] = useState(true);
+
   const navigate = useNavigate();
+
+  const setModal = useSetRecoilState(modalState);
 
   useEffect(() => {
     const fetchProjects = async () => {
@@ -21,10 +26,8 @@ const Thumbnail = ({ userId, filterType }) => {
         const response = await get(`projects?user_id=${userId}`);
         const filteredProjects = response.data.content.filter((project) => {
           if (filterType === 'mine') return project.is_mine;
-
           if (filterType === 'shared') return !project.is_mine;
-
-          return true; // 전체 프로젝트
+          return true;
         });
         setProjects(filteredProjects);
         setImageLoaded(new Array(filteredProjects.length).fill(false));
@@ -36,9 +39,8 @@ const Thumbnail = ({ userId, filterType }) => {
     if (userId) {
       fetchProjects();
     }
-  }, [userId, filterType]); // filterType이 변경될 때마다 다시 호출
+  }, [userId, filterType]);
 
-  // 이미지 로딩 완료 처리
   const handleImageLoad = (index) => {
     setImageLoaded((prevState) => {
       const updated = [...prevState];
@@ -51,9 +53,22 @@ const Thumbnail = ({ userId, filterType }) => {
     navigate(`/projects/${projectId}/blueprints`);
   };
 
+  const handleUpdateProjectName = (projectId, projectTitle) => {
+    setModal({
+      type: 'modal',
+      title: '프로젝트 수정',
+      content: (
+        <UpdateProjectName
+          projectId={projectId}
+          projectTitle={projectTitle}
+          setModal={setModal}
+        />
+      ),
+    });
+  };
+
   return (
     <Components>
-      {/* projects가 배열일 때만 map 호출 */}
       {Array.isArray(projects) &&
         projects.map((project) => (
           <ProjectCard key={project.project_id}>
@@ -63,10 +78,9 @@ const Thumbnail = ({ userId, filterType }) => {
                   <PreviewImage
                     src={image.preview_image}
                     alt={image.blueprint_title}
-                    onLoad={() => handleImageLoad(index)} // 이미지 로딩 시 처리
+                    onLoad={() => handleImageLoad(index)}
                   />
                   <BlueprintTitle>{image.blueprint_title}</BlueprintTitle>
-                  {/* 4번째 이미지 위에 + 표시 */}
                   {index === 3 && project.preview_images.length > 4 && (
                     <MoreImages>
                       +{project.preview_images.length - 4}
@@ -74,7 +88,6 @@ const Thumbnail = ({ userId, filterType }) => {
                   )}
                 </ImageWrapper>
               ))}
-              {/* 기본 이미지 채우기 (회색 상자) */}
               {project.preview_images.length < 4 &&
                 Array.from({ length: 4 - project.preview_images.length }).map(
                   (_, idx) => (
@@ -89,7 +102,18 @@ const Thumbnail = ({ userId, filterType }) => {
                 <Title onClick={() => handleProjectClick(project.project_id)}>
                   {project.project_title}
                 </Title>
-                <EditButton showDelete={true} />
+                <EditButton
+                  actions={[
+                    {
+                      name: '수정',
+                      handler: () =>
+                        handleUpdateProjectName(
+                          project.project_id,
+                          project.project_title,
+                        ),
+                    },
+                  ]}
+                />
               </ProjectFooter>
               <FileInfoWrapper>
                 <FileCount>{project.blueprints_count} blueprints ·</FileCount>
@@ -107,10 +131,10 @@ export default Thumbnail;
 const Components = styled.div`
   flex-grow: 1;
   width: 100%;
-  overflow-y: auto; /* 스크롤 가능 */
-  max-height: calc(100vh - 200px); /* Header, SubHeader, Tab을 제외한 영역 */
+  overflow-y: auto;
+  max-height: calc(100vh - 200px);
   display: grid;
-  grid-template-columns: repeat(3, 1fr); /* 한 줄에 3개 */
+  grid-template-columns: repeat(3, 1fr);
   gap: 1rem;
   padding: 1.5rem;
   box-sizing: border-box;
@@ -128,10 +152,7 @@ const ProjectCard = styled.div`
 const ImageContainer = styled.div`
   width: 100%;
   display: grid;
-  grid-template-columns: repeat(
-    2,
-    1fr
-  ); /* 2개씩 배치, 총 4개의 칸에 배치할 예정 */
+  grid-template-columns: repeat(2, 1fr);
   gap: 0.5rem;
   margin-bottom: 0.8rem;
 `;
@@ -139,13 +160,13 @@ const ImageContainer = styled.div`
 const BlueprintTitle = styled.div`
   position: absolute;
   font-size: 0.8rem;
-  top: 0; /* 상단에 고정 */
-  left: 0; /* 좌측에 고정 */
-  width: 100%; /* 이미지 영역과 크기 맞추기 */
-  height: 100%; /* 이미지 영역과 크기 맞추기 */
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
   display: flex;
-  align-items: center; /* 수직 중앙 정렬 */
-  justify-content: center; /* 수평 중앙 정렬 */
+  align-items: center;
+  justify-content: center;
   color: white;
   background-color: rgba(0, 0, 0, 0.5);
   padding: 10px;
@@ -159,13 +180,13 @@ const ImageWrapper = styled.div`
   position: relative;
   width: 100%;
   aspect-ratio: 4 / 3;
-  transition: background-color 0.3s ease; /* 배경색 전환에 부드러운 효과 추가 */
+  transition: background-color 0.3s ease;
 
   &:hover {
-    background-color: rgba(0, 0, 0, 0.5); /* 이미지 호버 시 색을 어둡게 */
+    background-color: rgba(0, 0, 0, 0.5);
     border-radius: 4px;
     ${BlueprintTitle} {
-      opacity: 1; /* 호버 시 제목 표시 */
+      opacity: 1;
     }
   }
 `;
@@ -191,8 +212,7 @@ const PlaceholderImage = styled.div`
   color: white;
   font-size: 1.2rem;
   text-align: center;
-  visibility: ${(props) =>
-    props.$isImageLoaded ? 'hidden' : 'visible'}; /* 이 부분을 수정 */
+  visibility: ${(props) => (props.$isImageLoaded ? 'hidden' : 'visible')};
 `;
 
 const MoreImages = styled.div`
@@ -205,9 +225,9 @@ const MoreImages = styled.div`
   font-size: 0.8rem;
   padding: 5px;
   position: absolute;
-  top: 50%; /* 4번째 이미지의 중앙에 위치시킬 수 있도록 */
+  top: 50%;
   left: 50%;
-  transform: translate(-50%, -50%); /* 정확한 중앙 정렬 */
+  transform: translate(-50%, -50%);
   width: 100%;
   height: 100%;
 `;
@@ -241,7 +261,7 @@ const CreatedAt = styled.div`
 
 const FileInfoWrapper = styled.div`
   display: flex;
-  align-items: center; /* 세로 정렬 */
-  justify-content: flex-start; /* 왼쪽 정렬 */
-  gap: 2px; /* 두 요소 간 간격 */
+  align-items: center;
+  justify-content: flex-start;
+  gap: 2px;
 `;
