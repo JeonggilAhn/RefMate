@@ -17,6 +17,7 @@ import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.authentication.logout.LogoutFilter;
 import org.springframework.web.cors.CorsConfiguration;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -24,6 +25,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import com.dawn.backend.domain.user.handler.CustomOAuth2SuccessHandler;
 import com.dawn.backend.domain.user.repository.UserRepository;
 import com.dawn.backend.domain.user.service.CustomOAuth2UserService;
+import com.dawn.backend.global.filter.CustomLogoutFilter;
 import com.dawn.backend.global.filter.JwtFilter;
 import com.dawn.backend.global.util.jwt.JwtUtil;
 
@@ -114,6 +116,10 @@ public class SecurityConfig {
 			.authenticationEntryPoint(authenticationEntryPoint)
 			.accessDeniedHandler(accessDeniedHandler)
 		);
+
+		// logout
+		CustomLogoutFilter customLogoutFilter = new CustomLogoutFilter();
+		http.addFilterBefore(customLogoutFilter, LogoutFilter.class);
 
 		return http.build();
 	}
