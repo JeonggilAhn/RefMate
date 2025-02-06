@@ -14,6 +14,10 @@ const SelectBox = ({ width = 30, placeholder = '', children }) => {
       </SelectTrigger>
       <SelectContent
         className={`w-${width} bg-white border-zinc-400 text-zinc-800 break-all`}
+        style={{
+          position: 'absolute',
+          zIndex: 100,
+        }}
       >
         {children}
       </SelectContent>

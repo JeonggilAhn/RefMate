@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import styled from 'styled-components';
 import ButtonList from './ButtonList';
-import { get, post } from '../../api';
+import { get } from '../../api';
 import Icon from '../common/Icon';
 import PinNotes from './PinNotes';
-import Draggable from 'react-draggable';
+
+const TEST_USER_ID = 6569173793051701; // 테스트용 user_id 고정
 
 const PinComponent = ({ blueprintId, blueprintVersion, pin }) => {
   const [pinInfo, setPinInfo] = useState(pin);
@@ -19,28 +20,41 @@ const PinComponent = ({ blueprintId, blueprintVersion, pin }) => {
     setShowPinNotes((prevState) => !prevState);
   };
 
+  // 읽음 여부 판단
+  const fetchUnreadStatus = useCallback(async () => {
+    try {
+      const response = await get(`pins/${pinInfo.pin_id}/notes`);
+      const notes = response.data?.content?.note_list || [];
+
+      // 내 user_id(TEST_USER_ID)가 read_users에 없으면 unreadNotes = true
+      const isUnread = notes.some((note) =>
+        note.read_users.every((user) => user.user_id !== TEST_USER_ID),
+      );
+
+      setUnreadNotes(isUnread);
+    } catch (error) {
+      console.error(`핀 ${pinInfo.pin_id}의 읽음 여부 조회 실패:`, error);
+    }
+  }, [pinInfo]);
+
+  // 노트 데이터를 가져오기
   const fetchRecentNote = useCallback(async () => {
     try {
       const response = await get(`pins/${pinInfo.pin_id}/notes/recent`);
-      setRecentNotes(response.data?.content || null);
-      setUnreadNotes(pinInfo.has_unread_note || false);
+      const note = response.data?.content;
+
+      if (note) {
+        setRecentNotes({
+          title: note.note_title,
+          content: note.note_content,
+        });
+      } else {
+        setRecentNotes(null);
+      }
     } catch (error) {
       console.error(`핀 ${pinInfo.pin_id}의 최근 노트 조회 실패:`, error);
     }
   }, [pinInfo]);
-
-  const markNotesAsRead = async () => {
-    if (!pinInfo || !unreadNotes) return;
-
-    try {
-      await post(`blueprints/${blueprintId}/${blueprintVersion}/task/read`, {
-        pin_id: pinInfo.pin_id,
-      });
-      setUnreadNotes(false);
-    } catch (error) {
-      console.error('노트 읽음 처리 실패:', error);
-    }
-  };
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -59,74 +73,66 @@ const PinComponent = ({ blueprintId, blueprintVersion, pin }) => {
     }
 
     setPinInfo(pin);
-    console.log('pin', pin);
+    fetchUnreadStatus();
     fetchRecentNote();
-  }, [pin, fetchRecentNote]);
+  }, [pin, fetchUnreadStatus, fetchRecentNote]);
 
   if (!pin) return null;
 
   return (
-    <PinContainer>
-      <Pin
+    <div className="relative inline-block">
+      {/* 핀 아이콘 */}
+      <div
         ref={pinRef}
+        className="absolute w-8 h-8"
         onMouseEnter={() => {
           if (!isClicked) {
             setHoveredPin(pinInfo);
-            markNotesAsRead();
           }
         }}
         onMouseLeave={() => setHoveredPin(null)}
         onClick={() => setIsClicked((prev) => !prev)}
       >
-        <Icon name="IconTbPinFill" width={24} height={24} />
-        {unreadNotes && <UnreadDot />}
-      </Pin>
+        {/* `group_color`을 받아 아이콘 색상 변경 */}
+        <Icon
+          name="IconTbPinFill"
+          width={24}
+          height={24}
+          style={{ color: pinInfo.pin_group?.pin_group_color || 'gray' }}
+        />
+        {/* 읽지 않은 경우 빨간 점 표시 */}
+        {unreadNotes && (
+          <div className="absolute top-[-4px] right-[-4px] w-2 h-2 bg-red-500 rounded-full" />
+        )}
+      </div>
 
-      {!isClicked && hoveredPin && (
+      {/* 호버 시 최근 노트 표시 */}
+      {!isClicked && hoveredPin && recentNotes && (
         <Popup>
-          <PopupTitle>{recentNotes?.note_title || ''}</PopupTitle>
+          <PopupTitle>{recentNotes.title || '제목 없음'}</PopupTitle>
           <PopupDivider />
-          <PopupContent>{recentNotes?.note_content || ''}</PopupContent>
+          <PopupContent>{recentNotes.content || '내용 없음'}</PopupContent>
         </Popup>
       )}
 
+      {/* 클릭 시 버튼 목록 표시 */}
       {isClicked && (
-        <ButtonGroupContainer>
+        <div className="absolute top-4 left-6 z-10">
           <ButtonList onNoteClick={handleNoteClick} />
-        </ButtonGroupContainer>
+        </div>
       )}
 
+      {/* 노트 상세 보기 */}
       {showPinNotes && (
-        <div className="absolute left-full top-0 z-10 w-[15rem]">
+        <div className="absolute left-full top-0 z-10 w-60">
           <PinNotes onClose={() => setShowPinNotes(false)} />
         </div>
       )}
-    </PinContainer>
+    </div>
   );
 };
 
 export default PinComponent;
-
-const PinContainer = styled.div`
-  position: relative;
-  display: inline-block;
-`;
-
-const Pin = styled.div`
-  position: absolute;
-  width: 2rem;
-  height: 2rem;
-`;
-
-const UnreadDot = styled.div`
-  position: absolute;
-  top: -0.25rem;
-  right: -0.25rem;
-  width: 0.5rem;
-  height: 0.5rem;
-  background-color: red;
-  border-radius: 50%;
-`;
 
 const Popup = styled.div`
   position: absolute;
@@ -154,11 +160,4 @@ const PopupDivider = styled.div`
 
 const PopupContent = styled.div`
   font-size: 0.8rem;
-`;
-
-const ButtonGroupContainer = styled.div`
-  position: absolute;
-  top: 1rem;
-  left: 1.5rem;
-  z-index: 2;
 `;

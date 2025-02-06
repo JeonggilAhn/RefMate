@@ -171,7 +171,6 @@ const PinNameWrapper = styled.div`
   font-size: 0.625rem;
   font-weight: 500; /* 글씨 두께 */
   text-align: center; /* 텍스트 정렬 */
-  margin-bottom: 0.5rem; /* 하단 간격 */
   margin-left: 55px; /* 좌측 여백 */
   white-space: nowrap; /* 한 줄로 유지 */
   overflow: hidden; /* 넘치는 텍스트 숨김 */
