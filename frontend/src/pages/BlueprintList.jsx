@@ -7,7 +7,7 @@ import BlueprintListSubHeader from '../components/project/BlueprintListSubHeader
 import BlueprintThumbnail from '../components/project/BlueprintThumbnail';
 import BlueprintListTabs from '../components/project/BlueprintListTabs';
 
-function BlueprintList({}) {
+function BlueprintList() {
   const userId = 96168794; // 예시 userId
   const { projectId } = useParams(); // projectId 가져오기
 
@@ -24,7 +24,11 @@ function BlueprintList({}) {
           setFilterType={setFilterType}
           setSearchQuery={setSearchQuery}
         ></BlueprintListTabs>
-        <BlueprintThumbnail></BlueprintThumbnail>
+        <BlueprintThumbnail
+          projectId={projectId}
+          filterType={filterType}
+          searchQuery={searchQuery}
+        />
       </ContentWrapper>
       <BackButton />
     </Wrapper>

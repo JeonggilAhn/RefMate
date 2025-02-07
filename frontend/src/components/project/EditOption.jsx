@@ -37,7 +37,7 @@ export function EditOption({ actions = [] }) {
         </Button>
       </DropdownMenuTrigger>
       {isOpen && (
-        <DropdownMenuContent className="w-30" ref={modalRef}>
+        <DropdownMenuContent className="min-w-[5rem]" ref={modalRef}>
           <DropdownMenuGroup>
             {actions.map((action, index) => (
               <DropdownMenuItem
@@ -46,6 +46,7 @@ export function EditOption({ actions = [] }) {
                   action.handler();
                   setIsOpen(false);
                 }}
+                className="flex justify-center"
               >
                 {action.name}
                 <DropdownMenuSeparator />
