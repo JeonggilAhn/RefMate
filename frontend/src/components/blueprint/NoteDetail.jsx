@@ -5,11 +5,13 @@ import { useRecoilState } from 'recoil';
 import { modalState } from '../../recoil/common/modal';
 import Confirm from '../../components/common/Confirm';
 import Icon from '../common/Icon';
+import EditNote from './EditNote'; // 수정 컴포넌트 추가
 
 const NoteDetail = ({ noteId, onBack }) => {
   const [noteData, setNoteData] = useState(null);
   const [modal, setModal] = useRecoilState(modalState);
   const [isBookmark, setIsBookmark] = useState(false); // 북마크 상태
+  const [editModal, setEditModal] = useState(false); // 수정 모달 상태 추가
 
   useEffect(() => {
     const fetchNote = async () => {
@@ -26,6 +28,9 @@ const NoteDetail = ({ noteId, onBack }) => {
     fetchNote();
   }, [noteId]);
 
+  /**
+   * 노트를 삭제하는 함수
+   */
   const handleDelete = () => {
     setModal({
       type: 'confirm',
@@ -48,6 +53,9 @@ const NoteDetail = ({ noteId, onBack }) => {
     });
   };
 
+  /**
+   * 북마크 상태를 토글하는 함수
+   */
   const toggleBookmark = async () => {
     try {
       const response = await patch(`notes/${noteId}/bookmark`, {
@@ -71,18 +79,35 @@ const NoteDetail = ({ noteId, onBack }) => {
     }
   };
 
+  // 데이터 로딩 전이면 아무것도 렌더링하지 않음
   if (!noteData) {
     return null;
   }
 
-  const { note_writer, note_title, note_content, created_at, image_list } =
-    noteData;
+  const {
+    note_writer,
+    note_title,
+    note_content,
+    created_at,
+    image_list,
+    is_editable,
+  } = noteData;
 
   const truncatedTitle =
     note_title.length > 10 ? `${note_title.slice(0, 10)}...` : note_title;
 
   return (
-    <>
+    <div className="relative">
+      {/* 수정 모달 */}
+      {editModal && (
+        <EditNote
+          noteId={noteId}
+          initialTitle={note_title}
+          initialContent={note_content}
+          closeModal={() => setEditModal(false)}
+        />
+      )}
+
       <NoteDetailWrapper>
         <Header>
           <BackButton onClick={onBack}>
@@ -90,13 +115,14 @@ const NoteDetail = ({ noteId, onBack }) => {
           </BackButton>
           <TitleWrapper>
             <Title>{truncatedTitle}</Title>
-            {image_list.length > 0 && (
+            {image_list?.length > 0 && ( // image_list가 undefined일 경우 방지
               <IconButton>
                 <Icon name="IconTbPhoto" width={16} height={16} />
               </IconButton>
             )}
           </TitleWrapper>
           <HeaderButtons>
+            {/* 북마크 토글 버튼 */}
             <IconButton onClick={toggleBookmark}>
               <Icon
                 name={isBookmark ? 'IconTbFlag3Fill' : 'IconTbFlag3Stroke'}
@@ -104,9 +130,17 @@ const NoteDetail = ({ noteId, onBack }) => {
                 height={16}
               />
             </IconButton>
-            <IconButton onClick={handleDelete}>
-              <Icon name="IconFiTrash" width={16} height={16} />
-            </IconButton>
+            {/* 수정 및 삭제 버튼: is_editable이 true일 때만 표시 */}
+            {is_editable && (
+              <>
+                <IconButton onClick={() => setEditModal(true)}>
+                  <Icon name="IconTbEdit" width={16} height={16} />
+                </IconButton>
+                <IconButton onClick={handleDelete}>
+                  <Icon name="IconFiTrash" width={16} height={16} />
+                </IconButton>
+              </>
+            )}
           </HeaderButtons>
         </Header>
         <MainSection>
@@ -122,17 +156,19 @@ const NoteDetail = ({ noteId, onBack }) => {
           <NoteContent>
             <NoteText>{note_content}</NoteText>
           </NoteContent>
-          <ImageGrid>{/* 이미지 리스트 렌더링 공간 */}</ImageGrid>
         </MainSection>
       </NoteDetailWrapper>
+
       <Confirm />
-    </>
+    </div>
   );
 };
 
 export default NoteDetail;
 
-// 스타일은 기존 코드 유지
+/**
+ * 스타일 정의
+ */
 const NoteDetailWrapper = styled.div`
   display: flex;
   flex-direction: column;
@@ -235,10 +271,4 @@ const NoteContent = styled.div`
 const NoteText = styled.p`
   font-size: 1rem;
   line-height: 1.5;
-`;
-
-const ImageGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 0.5rem;
 `;
