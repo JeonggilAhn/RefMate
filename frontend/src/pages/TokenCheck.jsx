@@ -1,25 +1,38 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
+import { get } from '../api';
 
 const TokenCheck = () => {
   const navigate = useNavigate();
   const [token, setToken] = useState('');
 
   useEffect(() => {
-    // 현재 URL에서 토큰 추출
-    const urlParams = new URLSearchParams(window.location.search);
-    const accessToken = urlParams.get('token'); // 백엔드에서 'token' 쿼리로 보내는 경우
+    // API 호출하여 토큰 가져오기
+    const fetchToken = async () => {
+      try {
+        const response = await get('auth/issue');
 
-    if (accessToken) {
-      setToken(accessToken);
-      localStorage.setItem('access_token', accessToken); // 로컬 스토리지 저장
+        const accessToken = response.headers; // 백엔드에서 받은 토큰
+        console.log(response);
+        console.log(accessToken);
+        if (accessToken) {
+          setToken(accessToken);
+          localStorage.setItem('access_token', accessToken); // 로컬 스토리지 저장
 
-      // 5초 후 자동으로 프로젝트 페이지로 이동
-      setTimeout(() => {
-        navigate('/projects');
-      }, 5000);
-    }
+          // 5초 후 자동 이동
+          setTimeout(() => {
+            navigate('/projects');
+          }, 5000000);
+        } else {
+          console.error('서버에서 받은 토큰이 없습니다.');
+        }
+      } catch (error) {
+        console.error('토큰 요청 실패:', error);
+      }
+    };
+
+    fetchToken();
   }, [navigate]);
 
   return (

@@ -7,7 +7,7 @@ const Login = ({ isVisible, onClose }) => {
   if (!isVisible) return null;
 
   const handleLogin = (provider) => {
-    window.location.href = `http://i12a807.p.ssafy.io:8000/oauth2/authorization/${provider}?redirect_uri=${window.location.origin}/auth-redirect`;
+    window.location.href = `http://i12a807.p.ssafy.io:8000/oauth2/authorization/${provider}`;
   };
 
   /* 로그인 경로 변경
