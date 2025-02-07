@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import lombok.RequiredArgsConstructor;
 
@@ -33,6 +34,7 @@ import com.dawn.backend.domain.note.dto.response.NoteDetailResponseDto;
 import com.dawn.backend.domain.note.dto.response.RecentNoteResponseDto;
 import com.dawn.backend.domain.note.dto.response.UpdateNoteResponseDto;
 import com.dawn.backend.domain.note.service.NoteService;
+import com.dawn.backend.domain.note.service.ReadCheckService;
 import com.dawn.backend.domain.user.entity.User;
 import com.dawn.backend.global.response.ResponseWrapper;
 import com.dawn.backend.global.response.ResponseWrapperFactory;
@@ -42,6 +44,7 @@ import com.dawn.backend.global.response.ResponseWrapperFactory;
 public class NoteController {
 
 	private final NoteService noteService;
+	private final ReadCheckService readCheckService;
 
 	@DeleteMapping("/notes/{noteId}")
 	@PreAuthorize("@authExpression.isNoteWriter(#noteId)")
@@ -129,8 +132,9 @@ public class NoteController {
 	public ResponseEntity<ResponseWrapper<NoteDetailResponseDto>> findDetailNote(
 		@PathVariable Long noteId,
 		@AuthenticationPrincipal User user
-	) {
+	) throws Exception {
 		NoteDetailResponseDto responseDto = noteService.findDetailNote(noteId, user);
+		readCheckService.sendEvent(noteId, user);
 		return ResponseWrapperFactory.setResponse(HttpStatus.OK, null, responseDto);
 	}
 
@@ -141,5 +145,11 @@ public class NoteController {
 	) {
 		RecentNoteResponseDto responseDto = noteService.getRecentNoteByPin(pinId);
 		return ResponseWrapperFactory.setResponse(HttpStatus.OK, null, responseDto);
+	}
+
+	@GetMapping("/blueprints/{blueprintId}/task/read")
+	@PreAuthorize("@authExpression.hasBlueprintPermission(#blueprintId)")
+	public SseEmitter readNoteTasks(@PathVariable Long blueprintId) {
+		return readCheckService.getSseEmitter(blueprintId);
 	}
 }
