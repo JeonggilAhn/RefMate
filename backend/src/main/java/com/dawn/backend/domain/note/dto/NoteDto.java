@@ -15,9 +15,10 @@ public record NoteDto(
 	String noteContent,
 	boolean isBookmark,
 	List<ImageItem> imageList,
-	String createdAt
+	String createdAt,
+	boolean isEditable
 ) {
-	public static NoteDto from(Note note, ProjectUserDto noteWriter, List<NoteImage> noteImages) {
+	public static NoteDto from(Note note, ProjectUserDto noteWriter, List<NoteImage> noteImages, boolean isEditable) {
 		List<ImageItem> imageList = noteImages.stream()
 			.map(ImageItem::from)
 			.collect(Collectors.toList());
@@ -29,7 +30,8 @@ public record NoteDto(
 			note.getNoteContent(),
 			note.getBookmark(),
 			imageList,
-			note.getCreatedAt().toString()
+			note.getCreatedAt().toString(),
+			isEditable
 		);
 	}
 }

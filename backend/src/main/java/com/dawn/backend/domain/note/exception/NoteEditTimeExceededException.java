@@ -5,5 +5,5 @@ import com.dawn.backend.global.exception.CustomException;
 import com.dawn.backend.global.exception.ExceptionCode;
 
 @CustomException(ExceptionCode.NOTE_EDIT_TIME_EXCEEDED)
-public class NoteEditTimeExceedeException extends BaseRuntimeException {
+public class NoteEditTimeExceededException extends BaseRuntimeException {
 }

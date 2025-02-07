@@ -32,14 +32,16 @@ import com.dawn.backend.domain.note.dto.response.GetNotesByPinResponseDto;
 import com.dawn.backend.domain.note.dto.response.NoteDetailResponseDto;
 import com.dawn.backend.domain.note.dto.response.RecentNoteResponseDto;
 import com.dawn.backend.domain.note.dto.response.UpdateNoteResponseDto;
+import com.dawn.backend.domain.note.entity.EditableNote;
 import com.dawn.backend.domain.note.entity.Note;
 import com.dawn.backend.domain.note.entity.NoteImage;
 import com.dawn.backend.domain.note.entity.UserNoteCheck;
 import com.dawn.backend.domain.note.exception.DeletedNoteException;
 import com.dawn.backend.domain.note.exception.ImageNotFoundException;
 import com.dawn.backend.domain.note.exception.NoteByBlueprintVersionNotFound;
-import com.dawn.backend.domain.note.exception.NoteEditTimeExceedeException;
+import com.dawn.backend.domain.note.exception.NoteEditTimeExceededException;
 import com.dawn.backend.domain.note.exception.NoteNotFoundException;
+import com.dawn.backend.domain.note.repository.EditableRepository;
 import com.dawn.backend.domain.note.repository.ImageRepository;
 import com.dawn.backend.domain.note.repository.NoteCheckRepository;
 import com.dawn.backend.domain.note.repository.NoteRepository;
@@ -74,12 +76,17 @@ public class NoteService {
 	private final PinVersionRepository pinVersionRepository;
 	private final ProjectRepository projectRepository;
 	private final UploadService uploadService;
+	private final EditableRepository editableRepository;
 
 	/**
 	 * 일정 시간마다 note.isDeleted = true 인 노트 삭제 로직 필요
 	 */
 	@Transactional
 	public DeleteNoteResponseDto deleteNote(Long noteId) {
+		if (!editableRepository.existsById(noteId)) {
+			throw new NoteEditTimeExceededException();
+		}
+
 		Note note = getNoteById(noteId);
 		note.deleteNote();
 
@@ -88,9 +95,11 @@ public class NoteService {
 
 	@Transactional
 	public UpdateNoteResponseDto updateNote(Long noteId, UpdateNoteRequestDto dto) {
-		Note note = getNoteById(noteId);
+		if (!editableRepository.existsById(noteId)) {
+			throw new NoteEditTimeExceededException();
+		}
 
-		validateNoteCreateTime(note);
+		Note note = getNoteById(noteId);
 		validateIsNoteDeleted(note.getIsDeleted());
 
 		note.updateNoteTitle(dto.noteTitle());
@@ -146,12 +155,6 @@ public class NoteService {
 		}
 	}
 
-	private void validateNoteCreateTime(Note note) {
-		if (note.getCreatedAt().plusMinutes(5).isBefore(LocalDateTime.now())) {
-			throw new NoteEditTimeExceedeException();
-		}
-	}
-
 	private Note getNoteById(Long noteId) {
 		return noteRepository.findById(noteId)
 			.orElseThrow(NoteNotFoundException::new);
@@ -167,6 +170,12 @@ public class NoteService {
 		Pin pin = pinRepository.findById(pinId)
 			.orElseThrow(PinNotFoundException::new);
 
+		List<User> projectUsers =
+			userProjectRepository.findUserByProjectProjectId(createNoteRequestDto.projectId())
+				.stream()
+				.map(UserProject::getUser)
+				.toList();
+
 		Note note = Note.builder()
 			.noteTitle(createNoteRequestDto.noteTitle())
 			.user(user)
@@ -175,7 +184,11 @@ public class NoteService {
 			.pin(pin)
 			.build();
 
-		noteRepository.save(note);
+		Note savedNote = noteRepository.save(note);
+		editableRepository.save(new EditableNote(
+			savedNote.getNoteId(),
+			savedNote.getCreatedAt()
+		));
 
 		if (createNoteRequestDto.imageUrlList() != null) {
 			for (String imageUrl : createNoteRequestDto.imageUrlList()) {
@@ -184,7 +197,7 @@ public class NoteService {
 				NoteImage noteImage = NoteImage.builder()
 					.imageOrigin(imageUrl)
 					.imagePreview(imagePathDto.previewPath())
-					.note(note)
+					.note(savedNote)
 					.build();
 				imageRepository.save(noteImage);
 			}
@@ -197,21 +210,15 @@ public class NoteService {
 		creatorNoteCheck.updateNoteCheck(true);
 		noteCheckRepository.save(creatorNoteCheck);
 
-		List<User> projectUsers =
-			userProjectRepository.findUserByProjectProjectId(createNoteRequestDto.projectId())
-				.stream()
-				.map(UserProject::getUser)
-				.toList();
-
 		projectUsers.stream()
 			.filter(projectUser -> !projectUser.equals(user))
 			.map(projectUser -> UserNoteCheck.builder()
-				.note(note)
+				.note(savedNote)
 				.user(projectUser)
 				.build())
 			.forEach(noteCheckRepository::save);
 
-		return new CreateNoteResponseDto(note.getNoteId());
+		return new CreateNoteResponseDto(savedNote.getNoteId());
 	}
 
 	public GetNotesByPinResponseDto getNotesByPin(Long pinId, GetNotesByPinRequestDto getNotesByPinRequestDto) {
@@ -323,7 +330,11 @@ public class NoteService {
 		ProjectUserDto noteWriter = getNoteWriter(note, project.getProjectId());
 
 		List<NoteImage> noteImages = getNoteImages(noteId);
-		NoteDto noteDto = NoteDto.from(note, noteWriter, noteImages);
+
+		boolean isEditable =
+			editableRepository.existsById(note.getNoteId());
+
+		NoteDto noteDto = NoteDto.from(note, noteWriter, noteImages, isEditable);
 
 		PinGroupDto pinGroupDto = getPinGroupDto(note, noteId);
 
@@ -390,7 +401,10 @@ public class NoteService {
 
 		ProjectUserDto writerDto = ProjectUserDto.from(recentNote.getUser(), "USER");
 
-		NoteDto noteDto = NoteDto.from(recentNote, writerDto, noteImages);
+		boolean isEditable =
+			editableRepository.existsById(recentNote.getNoteId());
+
+		NoteDto noteDto = NoteDto.from(recentNote, writerDto, noteImages, isEditable);
 
 		return new RecentNoteResponseDto(noteDto);
 	}
