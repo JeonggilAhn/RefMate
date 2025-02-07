@@ -13,6 +13,8 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar'; // Avatar 컴포넌트 추가
+
 function Header() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isLoginVisible, setIsLoginVisible] = useState(false);
@@ -27,33 +29,22 @@ function Header() {
       get(`users/${userId}`)
         .then((response) => {
           const data = response.data?.content;
-          setProfileUrl(data?.profile_url || 'https://via.placeholder.com/24');
-          setUserEmail(data?.user_email || 'N/A');
+          setProfileUrl(data?.profile_url || 'https://via.placeholder.com/24'); // 프로필 URL
+          setUserEmail(data?.user_email || 'N/A'); // 이메일
           setSignupDate(
             new Date(data?.signup_date).toLocaleDateString() || 'N/A',
-          );
+          ); // 가입 날짜
         })
         .catch((error) => console.error('Failed to fetch user data:', error));
     }
   }, [isLoggedIn, userId]);
 
-  const handleOpenLogin = () => setIsLoginVisible(true);
-  const handleCloseLogin = () => setIsLoginVisible(false);
-  const handleLoginSuccess = (id) => {
-    setIsLoggedIn(true);
-    setUserId(id);
-  };
-
   const handleLogout = () => {
-    post('auth/logout')
-      .then(() => {
-        setIsLoggedIn(false);
-        setUserId(null);
-        setProfileUrl('');
-        setUserEmail('');
-        setSignupDate('');
-      })
-      .catch((error) => console.error('Logout failed:', error));
+    setIsLoggedIn(false);
+    setUserId(null);
+    setProfileUrl('');
+    setUserEmail('');
+    setSignupDate('');
   };
 
   return (
@@ -76,11 +67,13 @@ function Header() {
             <div className="cursor-pointer">
               <DropdownMenu>
                 <DropdownMenuTrigger>
-                  <img
-                    src={profileUrl}
-                    alt="프로필"
-                    className="w-6 h-6 rounded-full border border-gray-300"
-                  />
+                  {/* Avatar 적용 */}
+                  <Avatar className="w-6 h-6 border border-gray-300">
+                    <AvatarImage src={profileUrl} alt="프로필" />
+                    <AvatarFallback>
+                      {userEmail.slice(0, 2).toUpperCase() || 'NA'}
+                    </AvatarFallback>
+                  </Avatar>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent>
                   <DropdownMenuItem
@@ -102,7 +95,7 @@ function Header() {
             </div>
           </div>
         ) : (
-          <TextButton type="start" onClick={handleOpenLogin}>
+          <TextButton type="start" onClick={() => setIsLoginVisible(true)}>
             시작하기
           </TextButton>
         )}
@@ -121,8 +114,11 @@ function Header() {
       {/* 로그인 모달 */}
       <Login
         isVisible={isLoginVisible}
-        onClose={handleCloseLogin}
-        onSuccess={handleLoginSuccess}
+        onClose={() => setIsLoginVisible(false)}
+        onSuccess={(id) => {
+          setIsLoggedIn(true);
+          setUserId(id);
+        }}
       />
     </>
   );
