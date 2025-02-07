@@ -6,40 +6,30 @@ import BlueprintCanvas from '../components/blueprint/BlueprintCanvas';
 import ImportantNoteSection from '../components/blueprint/ImportantNoteSection';
 import NoteHistory from '../components/blueprint/NoteHistory';
 import PinNotes from '../components/blueprint/PinNotes';
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+import { SelectItem } from '@/components/ui/select';
 import { Slider } from '@/components/ui/slider';
 import Blueprintversions from '../components/blueprint/BlueprintVersions';
 
+import Icon from '../components/common/Icon';
+
+import DropDown from '../components/common/DropDown';
+import SelectBox from '../components/common/SelectBox';
+
 const Blueprint = () => {
-  // params 로 변경
   const blueprint_id = 1;
   const blueprint_version_id = 1987029227680993;
+
+  const [isFirstRender, setIsFirstRender] = useState(true);
 
   // current blueprint
   const [blueprintTitle, setBlueprintTitle] = useState('');
   const [blueprintUrl, setBlueprintUrl] = useState('');
-
-  // draft blueprint
   const [draftUrl, setDraftUrl] = useState('');
-
-  // versionbar
   const [blueprints, setBlueprints] = useState([]);
-
-  // sidebar
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [isAllPinVisible, setIsAllPinVisible] = useState(true);
-
-  // toolbar
   const [isPinButtonEnaled, setIsPinButtonEnaled] = useState(true);
   const [isDraftVisible, setIsDraftVisible] = useState(false);
-
   const [initialPins, setInitialPins] = useState([]);
   const [isVersionOpen, setIsVersionOpen] = useState(false);
 
@@ -69,9 +59,8 @@ const Blueprint = () => {
   const openBlueprintVersion = () => setIsVersionOpen(true);
   const closeBlueprintVersion = () => setIsVersionOpen(false);
 
-  // init
   useEffect(() => {
-    // 개별 blueprint 요청
+    setIsFirstRender(false);
     get(`blueprints/${blueprint_id}/${blueprint_version_id}`).then((res) => {
       const {
         status,
@@ -80,8 +69,6 @@ const Blueprint = () => {
 
       if (status === 200) {
         setBlueprintTitle(content.blueprint_version_title);
-        // setBlueprintUrl(content.blueprint_image);
-        // 임시 도면
         setBlueprintUrl(
           'https://magazine.brique.co/wp-content/uploads/2022/08/3_%EB%8F%84%EB%A9%B4_3%EC%B8%B5%ED%8F%89%EB%A9%B4%EB%8F%84.jpeg',
         );
@@ -89,7 +76,6 @@ const Blueprint = () => {
     });
   }, []);
 
-  // 모든 pin 정보 요청
   useEffect(() => {
     get(`blueprints/${blueprint_id}/${blueprint_version_id}/pins`).then(
       (res) => {
@@ -99,9 +85,6 @@ const Blueprint = () => {
         } = res;
 
         if (status === 200) {
-          console.log(
-            'GET blueprints/${blueprint_id}/${blueprint_version_id}/pins',
-          );
           setInitialPins(content);
         }
       },
@@ -114,9 +97,7 @@ const Blueprint = () => {
       } = res;
 
       if (status === 200) {
-        console.log('GET blueprints/${blueprint_id}');
         setBlueprints(content);
-        console.log(content);
       }
     });
   }, []);
@@ -124,11 +105,29 @@ const Blueprint = () => {
   return (
     <BlueprintLayout>
       <div className="relative overflow-hidden">
+        {/* 사이드바 컨트롤 버튼 */}
+        <div className="fixed top-[48px] w-[20rem] right-0 z-10 p-2 flex justify-between">
+          <button onClick={toggleSidebar} className="p-2">
+            <Icon name="IconLuPanelRight" width={24} height={24} />
+          </button>
+          <div className="flex gap-2">
+            <button onClick={togglePinVisible} className="p-2">
+              <Icon name="IconTbPinStroke" width={24} height={24} />
+            </button>
+            <button onClick={closeAllNotePopup} className="p-2">
+              <Icon name="IconTbNotes" width={24} height={24} />
+            </button>
+            <button onClick={closeAllImagePopup} className="p-2">
+              <Icon name="IconTbPhoto" width={24} height={24} />
+            </button>
+          </div>
+        </div>
+
         {/* todo : canvas 크기 변경시 아직 문제 많음 */}
-        {/* <div
+        <div
           className={`h-screen pt-[48px] border border-black transition-all duration-300 ${isSidebarOpen ? 'w-[calc(100%-20rem)]' : 'w-full'}`}
-        > */}
-        <div className="w-full h-screen pt-[48px] border border-black">
+        >
+          {/* <div className="w-full h-screen pt-[48px] border border-black"> */}
           <div className="border border-black absolute left-2 top-[58px] z-1">
             <div className="flex justify-between items-center">
               <button
@@ -139,32 +138,19 @@ const Blueprint = () => {
               </button>
               <div className="flex">
                 <button className="border border-black">{'<'}</button>
-                <Select>
-                  <SelectTrigger className="w-[125px] h-[32px] bg-white border-zinc-400 text-zinc-800 focus:ring-zinc-300">
-                    {/* todo : 현재 블루프린트와 일치하는 버전 노출 시키기 */}
-                    <SelectValue
-                      placeholder={
-                        '[' +
-                        blueprints[0]?.blueprint_version_seq +
-                        '] ' +
-                        blueprints[0]?.blueprint_version_name
-                      }
-                    />
-                  </SelectTrigger>
-                  <SelectContent className="w-[120px] bg-white border-zinc-400 text-zinc-800 break-all">
-                    <SelectGroup>
-                      {blueprints.map((item, index) => (
-                        <SelectItem
-                          key={item.blueprint_version_id}
-                          value={item.blueprint_version_id}
-                        >
-                          [{item.blueprint_version_seq}]{' '}
-                          {item.blueprint_version_name}
-                        </SelectItem>
-                      ))}
-                    </SelectGroup>
-                  </SelectContent>
-                </Select>
+                {/* todo : 현재 블루프린트와 일치하는 버전 노출 */}
+                <SelectBox>
+                  {blueprints.map((item, index) => (
+                    <SelectItem
+                      key={item.blueprint_version_id}
+                      value={item.blueprint_version_id}
+                    >
+                      [{item.blueprint_version_seq}]{' '}
+                      {item.blueprint_version_name}
+                    </SelectItem>
+                  ))}
+                </SelectBox>
+
                 <button className="border border-black">{'>'}</button>
               </div>
             </div>
@@ -191,36 +177,52 @@ const Blueprint = () => {
             isSidebarOpen={isSidebarOpen}
           />
           {/* toolbar */}
-          <div className="border border-black absolute left-[50%] bottom-4">
-            <button className="border border-black" onClick={onClickPinButton}>
-              핀
+          <div className="flex justify-between border w-[5.5rem] border-black absolute left-[50%] bottom-4 p-[0.2rem]">
+            <button
+              className="w-[2.4rem] h-[2.4rem] flex justify-center items-center border border-black cursor-pointer hover:bg-[#F1F1F1]"
+              onClick={onClickPinButton}
+            >
+              <Icon name="IconTbPinStroke" width={30} height={30} />
             </button>
-            <button className="border border-black" onClick={onClickMouseButon}>
-              마우스
+            <button
+              className="w-[2.4rem] h-[2.4rem] flex justify-center items-center border border-black cursor-pointer hover:bg-[#F1F1F1]"
+              onClick={onClickMouseButon}
+            >
+              <Icon name="IconBsCursor" width={25} height={25} />
             </button>
           </div>
         </div>
+        {/* sidebar */}
         <div
-          className={`absolute top-0 right-0 transition-transform duration-300 ease-in-out ${
-            isSidebarOpen ? 'translate-x-0 w-[20rem]' : 'translate-x-full'
-          } h-screen pt-[48px] border border-black z-[4] bg-white`}
+          className={`absolute top-0 right-0 transition-transform duration-500 ease-in-out ${isSidebarOpen ? 'w-[20rem]' : 'w-0'} h-screen border border-black z-[4] bg-white flex flex-col`}
         >
-          <div>sidebar</div>
-          <ImportantNoteSection />
-          <NoteHistory />
-          <PinNotes />
+          <div className="pt-[48px]" />
+          <div className="mt-[60px] flex-1 overflow-y-auto">
+            <p>blueprintTitle</p>
+            {/* <ImportantNoteSection /> */}
+            <NoteHistory />
+            {/* <PinNotes /> */}
+          </div>
         </div>
-        {/* sidebar open & close */}
-        <div className="fixed top-[48px] right-0 bg-gray-200 p-2 z-10">
-          {/* todo : icon 대체 필요 */}
-          <button onClick={toggleSidebar}>
-            {isSidebarOpen ? '사이드바 닫기' : '사이드바 열기'}/
-          </button>
-          <button onClick={togglePinVisible}>
-            {isAllPinVisible ? '전체 핀 끄기' : '전체 핀 켜기'}/
-          </button>
-          <button onClick={closeAllNotePopup}>전체 노트 끄기/</button>
-          <button onClick={closeAllImagePopup}>전체 이미지 끄기</button>
+        <div
+          className={`absolute top-0 right-0 transition-transform duration-500 ease-in-out ${true ? 'w-[20rem]' : 'w-0'} h-screen border border-black z-[4] bg-white flex flex-col`}
+        >
+          <div className="pt-[40px]" />
+          <div className="mt-[60px] flex-1 overflow-y-auto">
+            <div className="flex justify-between items-center">
+              <div className="flex items-center">
+                <button className="w-[2.4rem] h-[2.4rem] flex justify-center items-center border border-black cursor-pointer hover:bg-[#F1F1F1]">
+                  <Icon name="IconGoChevronPrev" />
+                </button>
+                <p className=" break-words">{blueprintTitle}</p>
+              </div>
+              <div>
+                <DropDown />
+              </div>
+            </div>
+            <ImportantNoteSection />
+            <PinNotes />
+          </div>
         </div>
       </div>
       {isVersionOpen && (

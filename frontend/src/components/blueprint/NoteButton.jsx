@@ -1,30 +1,33 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import ImageIconSrc from '../../assets/icons/ImageButton.svg';
+import Icon from '../common/Icon';
 import NoteReaders from './NoteReaders';
 
 const NoteButton = ({ note, onClick }) => {
-  // ✅ onClick을 props로 받음
+  // 읽은 사용자 목록 표시 여부 상태
   const [showReaders, setShowReaders] = useState(false);
 
+  // 읽은 사용자 목록 토글 함수
   const handleShowReaders = () => {
     setShowReaders((prevState) => !prevState);
   };
 
+  // 작성 시간 포맷팅 함수
   const formatCreatedAt = (time) => {
     const now = new Date();
     const created = new Date(time);
     const diffMs = now - created;
 
     if (diffMs < 3600000) {
-      return `${Math.floor(diffMs / 60000)}분 전`;
+      return `${Math.floor(diffMs / 60000)}분 전`; // 1시간 미만
     } else if (diffMs < 86400000) {
-      return `${Math.floor(diffMs / 3600000)}시간 전`;
+      return `${Math.floor(diffMs / 3600000)}시간 전`; // 1일 미만
     } else {
-      return `${Math.floor(diffMs / 86400000)}일 전`;
+      return `${Math.floor(diffMs / 86400000)}일 전`; // 1일 이상
     }
   };
 
+  // note
   const {
     note_writer,
     note_title,
@@ -35,113 +38,78 @@ const NoteButton = ({ note, onClick }) => {
   } = note;
 
   return (
-    <NoteWrapper>
-      <ProfileImage src={note_writer.profile_url} alt="프로필" />
-      <ContentWrapper>
-        <TitleWrapper onClick={onClick}>
-          {' '}
-          {/* ✅ 클릭하면 NoteDetail을 열도록 설정 */}
-          <Title>{note_title}</Title>
-          <IconsWrapper>
-            {is_bookmark && <BookmarkIcon />}
+    <div className="flex items-center gap-4 p-2 bg-white">
+      {/* 작성자 프로필 이미지 */}
+      <img
+        src={note_writer.profile_url}
+        alt="프로필"
+        className="w-8 h-8 rounded-full shrink-0"
+      />
+      <div className="flex flex-col justify-center flex-1">
+        {/* 제목과 아이콘 */}
+        <TitleWrapper
+          onClick={onClick} // 클릭 시 Note 상세 정보를 열기 위한 함수 실행
+          className="relative flex items-center justify-between w-full p-2 gap-2 bg-transparent border rounded-lg border-gray-300"
+        >
+          {/* 제목 표시 (최대 20글자로 제한) */}
+          <span className="text-sm font-bold truncate max-w-[10rem]">
+            {note_title.length > 20
+              ? `${note_title.slice(0, 20)}...`
+              : note_title}
+          </span>
+          {/* 이미지 아이콘 표시 (첨부된 이미지가 있는 경우) */}
+          <div className="flex items-center gap-2">
             {is_present_image && (
-              <ImageIcon src={ImageIconSrc} alt="이미지 아이콘" />
+              <Icon name="IconTbPhoto" width={18} height={18} />
             )}
-          </IconsWrapper>
+          </div>
+          {/* 북마크 표시 (있을 경우 삼각형 표시) */}
+          {is_bookmark && <StyledBookmark />}
         </TitleWrapper>
-        <MetaData>
-          <UserInfo>{note_writer.user_email.split('@')[0]}</UserInfo>
-          <Separator>·</Separator>
-          <CreatedAt>{formatCreatedAt(created_at)}</CreatedAt>
-          <button onClick={handleShowReaders}>
-            <div>😶</div>
+        {/* 작성자, 작성 시간, 읽은 사용자 표시 */}
+        <div className="flex items-center text-xs text-gray-500">
+          {/* 작성자 이메일 */}
+          <span>{note_writer.user_email.split('@')[0]}</span>
+          <span className="mx-1">·</span>
+          {/* 작성 시간 (포맷팅된 시간 표시) */}
+          <span>{formatCreatedAt(created_at)}</span>
+          {/* 읽은 사용자 목록 버튼 */}
+          <button onClick={handleShowReaders} className="ml-2">
+            😶
           </button>
-        </MetaData>
-      </ContentWrapper>
+        </div>
+      </div>
+      {/* 읽은 사용자 목록 표시 (showReaders가 true일 경우) */}
       {showReaders && <NoteReaders read_users={read_users} />}
-    </NoteWrapper>
+    </div>
   );
 };
 
 export default NoteButton;
 
-const NoteWrapper = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  padding: 0.5rem 0;
-  background-color: #fff;
-`;
-
-const ProfileImage = styled.img`
-  width: 2rem;
-  height: 2rem;
-  border-radius: 50%;
-  flex-shrink: 0;
-`;
-
-const ContentWrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  flex: 1;
-`;
-
-const TitleWrapper = styled.button`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  border: 0.0625rem solid #ccc;
-  border-radius: 0.5rem;
-  padding: 0.5rem;
-  gap: 0.5rem;
-  position: relative;
-  cursor: pointer;
-  background: none;
-  width: 100%;
-`;
-
-const Title = styled.div`
-  font-size: 0.875rem;
-  font-weight: bold;
-`;
-
-const IconsWrapper = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-`;
-
-const ImageIcon = styled.img`
-  width: 1.5rem;
-  height: 1.5rem;
-`;
-
-const BookmarkIcon = styled.div`
-  width: 0;
-  height: 0;
-  border-top: 1rem solid #87b5fa;
-  border-left: 1rem solid transparent;
+// 북마크 삼각형 스타일
+const StyledBookmark = styled.div`
   position: absolute;
   top: 0;
   right: 0;
+  width: 0;
+  height: 0;
+  border-style: solid;
+  border-width: 0 15px 15px 0;
+  border-color: #ccc #87b5fa transparent transparent;
+  border-radius: 0 0.3rem 0 0;
 `;
 
-const MetaData = styled.div`
+const TitleWrapper = styled.button`
+  position: relative;
+  border-radius: 0.5rem;
+  padding: 0.5rem;
+  border: 0.0625rem solid #ccc;
+  background-color: transparent;
+  width: 100%;
   display: flex;
+  justify-content: space-between;
   align-items: center;
-  font-size: 0.75rem;
-`;
-
-const UserInfo = styled.div`
-  font-size: 0.75rem;
-`;
-
-const Separator = styled.div`
-  margin: 0 0.25rem;
-`;
-
-const CreatedAt = styled.div`
-  font-size: 0.75rem;
-  color: #888;
+  cursor: pointer;
+  gap: 0.5rem;
 `;

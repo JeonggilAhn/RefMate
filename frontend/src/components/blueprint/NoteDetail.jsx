@@ -1,25 +1,25 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { get, del } from '../../api';
+import { get, del, patch } from '../../api'; // PATCH 추가
 import { useRecoilState } from 'recoil';
 import { modalState } from '../../recoil/common/modal';
 import Confirm from '../../components/common/Confirm';
-
-import BackButtonIcon from '../../assets/icons/BackButton.svg';
-import FlagButtonIcon from '../../assets/icons/FlagButton.svg';
-import DeleteButtonIcon from '../../assets/icons/DeleteButton.svg';
-import ImageButtonIcon from '../../assets/icons/ImageButton.svg';
+import Icon from '../common/Icon';
+import EditNote from './EditNote'; // 수정 컴포넌트 추가
 
 const NoteDetail = ({ noteId, onBack }) => {
-  // ✅ noteId, onBack props 추가
   const [noteData, setNoteData] = useState(null);
-  const [modal, setModal] = useRecoilState(modalState); // 모달 상태 관리
+  const [modal, setModal] = useRecoilState(modalState);
+  const [isBookmark, setIsBookmark] = useState(false); // 북마크 상태
+  const [editModal, setEditModal] = useState(false); // 수정 모달 상태 추가
 
   useEffect(() => {
     const fetchNote = async () => {
       try {
         const response = await get(`notes/${noteId}`);
-        setNoteData(response.data.content.note);
+        const note = response.data.content.note;
+        setNoteData(note);
+        setIsBookmark(note.is_bookmark); // 초기 북마크 상태 설정
       } catch (error) {
         console.error('Failed to fetch note:', error);
       }
@@ -28,6 +28,9 @@ const NoteDetail = ({ noteId, onBack }) => {
     fetchNote();
   }, [noteId]);
 
+  /**
+   * 노트를 삭제하는 함수
+   */
   const handleDelete = () => {
     setModal({
       type: 'confirm',
@@ -37,8 +40,8 @@ const NoteDetail = ({ noteId, onBack }) => {
           const response = await del(`notes/${noteId}`);
           if (response.status === 200) {
             alert('노트가 삭제되었습니다.');
-            setNoteData(null); // 노트 데이터 제거
-            onBack(); // 삭제 후 NoteHistory로 돌아가도록 설정
+            setNoteData(null);
+            onBack();
           } else {
             alert('노트 삭제에 실패했습니다.');
           }
@@ -50,40 +53,94 @@ const NoteDetail = ({ noteId, onBack }) => {
     });
   };
 
+  /**
+   * 북마크 상태를 토글하는 함수
+   */
+  const toggleBookmark = async () => {
+    try {
+      const response = await patch(`notes/${noteId}/bookmark`, {
+        is_bookmark: !isBookmark, // 상태를 반대로 전송
+      });
+
+      if (response.status === 200) {
+        setIsBookmark((prev) => !prev); // 상태 업데이트
+        setModal({
+          type: 'alert',
+          message: !isBookmark
+            ? '중요 노트로 등록했습니다!'
+            : '중요 노트를 해제했습니다!',
+        }); // 알림 모달 표시
+      } else {
+        alert('북마크 상태 변경에 실패했습니다.');
+      }
+    } catch (error) {
+      console.error('북마크 상태 변경 중 에러 발생:', error);
+      alert('북마크 상태 변경 중 문제가 발생했습니다.');
+    }
+  };
+
+  // 데이터 로딩 전이면 아무것도 렌더링하지 않음
   if (!noteData) {
     return null;
   }
 
-  const { note_writer, note_title, note_content, created_at, image_list } =
-    noteData;
+  const {
+    note_writer,
+    note_title,
+    note_content,
+    created_at,
+    image_list,
+    is_editable,
+  } = noteData;
 
-  // 제목 10글자로 제한
   const truncatedTitle =
     note_title.length > 10 ? `${note_title.slice(0, 10)}...` : note_title;
 
   return (
-    <>
+    <div className="relative">
+      {/* 수정 모달 */}
+      {editModal && (
+        <EditNote
+          noteId={noteId}
+          initialTitle={note_title}
+          initialContent={note_content}
+          closeModal={() => setEditModal(false)}
+        />
+      )}
+
       <NoteDetailWrapper>
         <Header>
-          {/* 백 버튼 추가 */}
           <BackButton onClick={onBack}>
-            <img src={BackButtonIcon} alt="Back" />
+            <Icon name="IconGoChevronPrev" width={16} height={16} />
           </BackButton>
           <TitleWrapper>
             <Title>{truncatedTitle}</Title>
-            {image_list.length > 0 && (
+            {image_list?.length > 0 && ( // image_list가 undefined일 경우 방지
               <IconButton>
-                <img src={ImageButtonIcon} alt="Images" />
+                <Icon name="IconTbPhoto" width={16} height={16} />
               </IconButton>
             )}
           </TitleWrapper>
           <HeaderButtons>
-            <IconButton>
-              <img src={FlagButtonIcon} alt="Bookmark" />
+            {/* 북마크 토글 버튼 */}
+            <IconButton onClick={toggleBookmark}>
+              <Icon
+                name={isBookmark ? 'IconTbFlag3Fill' : 'IconTbFlag3Stroke'}
+                width={16}
+                height={16}
+              />
             </IconButton>
-            <IconButton onClick={handleDelete}>
-              <img src={DeleteButtonIcon} alt="Delete" />
-            </IconButton>
+            {/* 수정 및 삭제 버튼: is_editable이 true일 때만 표시 */}
+            {is_editable && (
+              <>
+                <IconButton onClick={() => setEditModal(true)}>
+                  <Icon name="IconTbEdit" width={16} height={16} />
+                </IconButton>
+                <IconButton onClick={handleDelete}>
+                  <Icon name="IconFiTrash" width={16} height={16} />
+                </IconButton>
+              </>
+            )}
           </HeaderButtons>
         </Header>
         <MainSection>
@@ -99,17 +156,19 @@ const NoteDetail = ({ noteId, onBack }) => {
           <NoteContent>
             <NoteText>{note_content}</NoteText>
           </NoteContent>
-          <ImageGrid>{/* 이미지 리스트 넣을 곳 */}</ImageGrid>
         </MainSection>
       </NoteDetailWrapper>
+
       <Confirm />
-    </>
+    </div>
   );
 };
 
 export default NoteDetail;
 
-// 기존 스타일 유지
+/**
+ * 스타일 정의
+ */
 const NoteDetailWrapper = styled.div`
   display: flex;
   flex-direction: column;
@@ -118,7 +177,7 @@ const NoteDetailWrapper = styled.div`
   background-color: #cbcbcb;
   width: 100%;
   max-width: 37.5rem;
-  height: 20rem; /* 높이 고정 */
+  height: 20rem;
   margin: 0 auto;
 `;
 
@@ -127,7 +186,7 @@ const Header = styled.div`
   justify-content: space-between;
   align-items: center;
   border: 0.0625rem solid #cbcbcb;
-  height: 2.4rem; /* 헤더 높이 고정 */
+  height: 2.4rem;
   border-radius: 0.3rem;
   background-color: #cbcbcb;
   padding: 0 0.5rem;
@@ -166,11 +225,6 @@ const IconButton = styled.button`
   background: none;
   border: none;
   cursor: pointer;
-
-  img {
-    width: 1rem;
-    height: 1rem;
-  }
 `;
 
 const MainSection = styled.div`
@@ -217,10 +271,4 @@ const NoteContent = styled.div`
 const NoteText = styled.p`
   font-size: 1rem;
   line-height: 1.5;
-`;
-
-const ImageGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 0.5rem;
 `;

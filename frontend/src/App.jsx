@@ -4,9 +4,10 @@ import Form from './components/common/Form';
 import Confirm from './components/common/Confirm';
 import Alert from './components/common/Alert';
 
-import ProjectLayout from './layouts/ProjectLayout';
 import MainLayout from './layouts/MainLayout';
 import Blueprint from './pages/Blueprint';
+import ProjectList from './pages/ProjectList';
+import BlueprintList from './pages/BlueprintList';
 
 function App() {
   return (
@@ -14,10 +15,10 @@ function App() {
       <Router>
         <Routes>
           <Route path="/" element={<MainLayout />} />
-          <Route path="/projects" element={<ProjectLayout />} />
+          <Route path="/projects" element={<ProjectList />} />
           <Route
             path="/projects/:projectId/blueprints"
-            element={<ProjectLayout />}
+            element={<BlueprintList />}
           ></Route>
           <Route path="/blueprint" element={<Blueprint />} />
         </Routes>

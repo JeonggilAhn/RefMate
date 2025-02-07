@@ -1,39 +1,40 @@
 import React, { useState } from 'react';
 import { useSetRecoilState } from 'recoil';
 import { modalState } from '../recoil/common/modal';
-
-import styled from 'styled-components';
-import Login from '../components/main/Login';
 import { Link } from 'react-router-dom';
 import Header from '../components/common/Header';
 import BackButton from '../components/common/BackButton';
+import Login from '../components/main/Login';
+import TextButton from '../components/common/TextButton';
 
 const MainPage = () => {
   const [isLoginVisible, setIsLoginVisible] = useState(false);
+  const setModal = useSetRecoilState(modalState);
 
   const handleOpenLogin = () => setIsLoginVisible(true);
   const handleCloseLogin = () => setIsLoginVisible(false);
 
-  // modal test
-  const setModal = useSetRecoilState(modalState);
-
   return (
     <>
       <Header />
-      <Container>
-        <Explain>
-          <LeftSection>
-            <Title>서비스 소개</Title>
-            <Description>서비스설명</Description>
-            <StartButton onClick={handleOpenLogin}>시작하기</StartButton>
-            {/* modal test 나중에 지울 부분*/}
-            <div>
+      <div className="flex flex-col h-screen p-4 box-border">
+        <div className="flex items-center h-full gap-4">
+          {/* 왼쪽 섹션 */}
+          <div className="flex-1">
+            <h1 className="text-2xl mb-2">서비스 소개</h1>
+            <p className="text-lg mb-4">서비스설명</p>
+            <TextButton type="start" onClick={handleOpenLogin}>
+              시작하기
+            </TextButton>
+
+            {/* 모달 테스트 */}
+            <div className="mt-4">
               <button
                 onClick={() =>
                   setModal({
                     type: 'modal',
                     title: '모달 제목',
-                    content: <div>여기에 컨텐츠</div>, // 여기에 react component 넣으면 돼요
+                    content: <div>여기에 컨텐츠</div>,
                   })
                 }
                 className="px-4 py-2 bg-green-500 text-white rounded"
@@ -61,103 +62,35 @@ const MainPage = () => {
                 알림 모달
               </button>
             </div>
-            {/* modal test */}
-          </LeftSection>
+          </div>
+
+          {/* 이미지 영역 */}
           <Link to="/projects">프로젝트 페이지</Link>
-          <ImageBox>이미지 표시 영역</ImageBox>
-        </Explain>
-        <ButtonSection>
+          <div className="w-[830px] h-[520px] flex items-center justify-center mr-[65px] border border-gray-300 rounded-md">
+            이미지 표시 영역
+          </div>
+        </div>
+
+        {/* 버튼 섹션 */}
+        <div className="flex gap-4 mt-4 mx-auto w-4/5 max-w-[800px]">
           {['버튼 1', '버튼 2', '버튼 3', '버튼 4', '버튼 5'].map(
             (text, index) => (
-              <ContentButton key={index}>{text}</ContentButton>
+              <TextButton
+                key={index}
+                type="content"
+                onClick={() => console.log(text)}
+              >
+                {text}
+              </TextButton>
             ),
           )}
-        </ButtonSection>
+        </div>
+
         <BackButton />
-      </Container>
+      </div>
       <Login isVisible={isLoginVisible} onClose={handleCloseLogin} />
     </>
   );
 };
 
 export default MainPage;
-
-// 기존 스타일 코드 (생략)
-
-const Container = styled.div`
-  display: flex;
-  flex-direction: column;
-  height: 100vh;
-  padding: 16px;
-  box-sizing: border-box;
-`;
-
-const Explain = styled.div`
-  display: flex;
-  align-items: center;
-  height: 100%;
-  gap: 16px;
-`;
-
-const LeftSection = styled.div`
-  flex: 1;
-`;
-
-const ImageBox = styled.div`
-  width: 830px;
-  height: 520px;
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-right: 65px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-`;
-
-const Title = styled.h1`
-  font-size: 24px;
-  margin-bottom: 8px;
-`;
-
-const Description = styled.p`
-  font-size: 16px;
-  margin-bottom: 16px;
-`;
-
-const StartButton = styled.button`
-  height: 32px;
-  padding: 8px 33px;
-  font-size: 16px;
-  background-color: #7ba8ec;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-
-  &:hover {
-    background-color: #6589bf;
-  }
-`;
-
-const ButtonSection = styled.div`
-  display: flex;
-  gap: 16px;
-  margin: 16px auto 0;
-  width: 80%;
-  max-width: 800px;
-`;
-
-const ContentButton = styled.button`
-  flex: 1;
-  width: 154px;
-  height: 34px;
-  padding: 7px 16px;
-  border: 1px solid #ccc;
-  background-color: white;
-  cursor: pointer;
-
-  &:hover {
-    background-color: #d9d9d9;
-  }
-`;

@@ -2,18 +2,16 @@ import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import NoteButton from './NoteButton';
 import { get } from '../../api';
-import NoteCreation from '../../assets/icons/NoteCreation.svg';
-import Search from '../../assets/icons/Search.svg';
 import CreateNote from './CreateNote';
 import NoteSearch from './NoteSearch';
-import NoteDetail from './NoteDetail'; // ✅ 추가
+import NoteDetail from './NoteDetail';
+import Icon from '../common/Icon';
 
 const processNotes = (noteList) => {
   if (!Array.isArray(noteList)) {
     throw new Error('note_list 데이터가 배열 형식이 아닙니다.');
   }
 
-  // 날짜별로 최신순 정렬 (날짜가 최신일수록 먼저 나오도록 정렬)
   const groupedByDate = noteList.reduce((acc, note) => {
     const date = new Date(note.created_at).toLocaleDateString('ko-KR', {
       year: 'numeric',
@@ -30,12 +28,12 @@ const processNotes = (noteList) => {
   }, {});
 
   return Object.entries(groupedByDate)
-    .sort(([dateA], [dateB]) => new Date(dateB) - new Date(dateA)) // 날짜별 최신순 정렬
+    .sort(([dateA], [dateB]) => new Date(dateB) - new Date(dateA))
     .map(([date, notes]) => ({
       date,
       notes: notes.sort(
         (a, b) => new Date(a.created_at) - new Date(b.created_at),
-      ), // 같은 날짜 내에서는 오래된 노트가 위, 최신 노트가 아래
+      ),
     }));
 };
 
@@ -43,7 +41,7 @@ const PinNotes = ({ pinId, onClose }) => {
   const [notesByDate, setNotesByDate] = useState([]);
   const [showCreateNote, setShowCreateNote] = useState(false);
   const [isSearching, setIsSearching] = useState(false);
-  const [selectedNote, setSelectedNote] = useState(null); // ✅ 추가된 상태 (선택한 노트)
+  const [selectedNote, setSelectedNote] = useState(null);
 
   useEffect(() => {
     const fetchNotesWithPins = async () => {
@@ -70,27 +68,27 @@ const PinNotes = ({ pinId, onClose }) => {
   };
 
   const handleNoteClick = (note) => {
-    setSelectedNote(note); // ✅ NoteDetail로 이동
+    setSelectedNote(note);
   };
 
   const handleBack = () => {
-    setSelectedNote(null); // ✅ PinNotes 목록으로 돌아가기
+    setSelectedNote(null);
   };
 
   return (
     <Container>
       {selectedNote ? (
-        <NoteDetail note={selectedNote} onBack={handleBack} /> // ✅ NoteDetail 표시
+        <NoteDetail note={selectedNote} onBack={handleBack} />
       ) : (
         <>
           <Header>
             <button onClick={handleCreateNote}>
-              <img src={NoteCreation} alt="create note" />
+              <Icon name="IconIoIosAddCircleOutline" width={20} height={20} />
             </button>
             <h3>🔵 핀 이름</h3>
             {!onClose && (
               <button onClick={handleIconClick}>
-                <img src={Search} alt="search" />
+                <Icon name="IconTbSearch" width={20} height={20} />
               </button>
             )}
             {onClose && (

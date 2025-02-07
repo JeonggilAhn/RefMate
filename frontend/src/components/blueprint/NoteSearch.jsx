@@ -1,8 +1,6 @@
 import React, { useState } from 'react';
 import { get } from '../../api';
-import Search from '../../assets/icons/Search.svg';
-import ArrowPrev from '../../assets/icons/ArrowPrev.svg';
-import ArrowNext from '../../assets/icons/ArrowNext.svg';
+import Icon from '../common/Icon';
 
 function NoteSearch() {
   const [keyword, setKeyword] = useState('');
@@ -55,19 +53,29 @@ function NoteSearch() {
           {notes.length > 0 && (
             <>
               <button onClick={goToPreviousNote} disabled={currentIndex === 0}>
-                <img src={ArrowPrev} alt="이전" />
+                <Icon
+                  name="IconGoChevronPrev"
+                  width={20}
+                  height={20}
+                  color={currentIndex === 0 ? '#ccc' : '#000'}
+                />
               </button>
               <button
                 onClick={goToNextNote}
                 disabled={currentIndex === notes.length - 1}
               >
-                <img src={ArrowNext} alt="다음" />
+                <Icon
+                  name="IconGoChevronNext"
+                  width={20}
+                  height={20}
+                  color={currentIndex === notes.length - 1 ? '#ccc' : '#000'}
+                />
               </button>
             </>
           )}
 
           <button onClick={searchNotes}>
-            <img src={Search} alt="검색" />
+            <Icon name="IconTbSearch" width={20} height={20} />
           </button>
         </div>
       </div>

@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import styled from 'styled-components';
 import { Link } from 'react-router-dom';
 import Login from '../main/Login';
-import alarmIcon from '../../assets/icons/alarm.svg';
-import logoutIcon from '../../assets/icons/Logout.svg';
 import { get, post } from '../../api';
 import Profile from './Profile';
+import TextButton from '../common/TextButton';
+import Icon from '../common/Icon';
 
 import {
   DropdownMenu,
@@ -15,7 +14,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 
 function Header() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false); // 기본 비로그인 상태
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isLoginVisible, setIsLoginVisible] = useState(false);
   const [userId, setUserId] = useState(null);
   const [profileUrl, setProfileUrl] = useState('');
@@ -38,14 +37,8 @@ function Header() {
     }
   }, [isLoggedIn, userId]);
 
-  const handleOpenLogin = () => {
-    setIsLoginVisible(true);
-  };
-
-  const handleCloseLogin = () => {
-    setIsLoginVisible(false);
-  };
-
+  const handleOpenLogin = () => setIsLoginVisible(true);
+  const handleCloseLogin = () => setIsLoginVisible(false);
   const handleLoginSuccess = (id) => {
     setIsLoggedIn(true);
     setUserId(id);
@@ -65,22 +58,29 @@ function Header() {
 
   return (
     <>
-      <HeaderContainer>
-        <StyledLink to="/">
-          <Icon>
-            <Logo>@</Logo>
-            <Name>DAWN</Name>
-          </Icon>
-        </StyledLink>
+      <header className="flex justify-between items-center w-full h-12 px-5 bg-white border-b border-gray-300 fixed top-0 left-0 z-10">
+        {/* 로고 */}
+        <Link to="/" className="flex items-center text-gray-800">
+          <span className="text-xl font-bold text-blue-400 mr-2">RM</span>
+          <span className="text-lg font-bold">Ref Mate</span>
+        </Link>
+
         {isLoggedIn ? (
-          <LoggedInSection>
-            <NotificationIcon>
-              <img src={alarmIcon} alt="알림" />
-            </NotificationIcon>
-            <ProfileIcon>
+          <div className="flex items-center gap-4">
+            {/* 알림 아이콘 */}
+            <div className="relative cursor-pointer">
+              <Icon name="IconTbBell" width={24} height={24} />
+            </div>
+
+            {/* 프로필 드롭다운 */}
+            <div className="cursor-pointer">
               <DropdownMenu>
                 <DropdownMenuTrigger>
-                  <ProfileImage src={profileUrl} alt="프로필" />
+                  <img
+                    src={profileUrl}
+                    alt="프로필"
+                    className="w-6 h-6 rounded-full border border-gray-300"
+                  />
                 </DropdownMenuTrigger>
                 <DropdownMenuContent>
                   <DropdownMenuItem
@@ -89,17 +89,26 @@ function Header() {
                     프로필
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={handleLogout}>
-                    <LogoutIcon src={logoutIcon} alt="로그아웃 아이콘" />{' '}
+                    <Icon
+                      name="IconTbLogout2"
+                      width={16}
+                      height={16}
+                      className="mr-2"
+                    />
                     로그아웃
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
-            </ProfileIcon>
-          </LoggedInSection>
+            </div>
+          </div>
         ) : (
-          <StartButton onClick={handleOpenLogin}>시작하기</StartButton>
+          <TextButton type="start" onClick={handleOpenLogin}>
+            시작하기
+          </TextButton>
         )}
-      </HeaderContainer>
+      </header>
+
+      {/* 프로필 모달 */}
       {isProfileOpen && isLoggedIn && (
         <Profile
           profileUrl={profileUrl}
@@ -108,6 +117,8 @@ function Header() {
           onClose={() => setIsProfileOpen(false)}
         />
       )}
+
+      {/* 로그인 모달 */}
       <Login
         isVisible={isLoginVisible}
         onClose={handleCloseLogin}
@@ -118,90 +129,3 @@ function Header() {
 }
 
 export default Header;
-
-// 스타일 정의
-const HeaderContainer = styled.div`
-  display: flex;
-  width: 100%;
-  height: 48px;
-  justify-content: space-between;
-  align-items: center;
-  padding: 10px 20px;
-  background-color: white;
-  border-bottom: 1px solid #ddd;
-  position: fixed;
-  top: 0;
-  left: 0;
-  z-index: 5;
-`;
-
-const StyledLink = styled(Link)`
-  text-decoration: none;
-  color: inherit;
-`;
-
-const Icon = styled.div`
-  display: flex;
-  align-items: center;
-`;
-
-const Logo = styled.div`
-  font-size: 1.25rem;
-  font-weight: bold;
-  color: #87b5fa;
-  margin-right: 0.5rem;
-`;
-
-const Name = styled.div`
-  font-size: 1.125rem;
-  font-weight: bold;
-  color: #333;
-`;
-
-const LoggedInSection = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-`;
-
-const NotificationIcon = styled.div`
-  position: relative;
-  cursor: pointer;
-
-  img {
-    width: 2rem;
-    height: 2rem;
-  }
-`;
-
-const ProfileIcon = styled.div`
-  cursor: pointer;
-`;
-
-const ProfileImage = styled.img`
-  width: 1.5rem;
-  height: 1.5rem;
-  border-radius: 50%;
-  border: 0.0625rem solid #ddd;
-`;
-
-const LogoutIcon = styled.img`
-  width: 1rem;
-  height: 1rem;
-  margin-right: 0.5rem;
-`;
-
-const StartButton = styled.button`
-  height: 2rem;
-  padding: 0.5rem 1.25rem;
-  font-size: 0.875rem;
-  background-color: #7ba8ec;
-  color: white;
-  border: none;
-  border-radius: 0.3125rem;
-  cursor: pointer;
-
-  &:hover {
-    background-color: #6589bf;
-  }
-`;

@@ -3,11 +3,36 @@ import styled from 'styled-components';
 import { get } from '../../api';
 import { useLocation } from 'react-router-dom';
 import EditButton from '../common/EditButton';
+import CreateProject from './CreateProject';
+import InviteUsers from './InviteUsers';
 
 const SubHeader = ({ userId, projectId }) => {
   const [userName, setUserName] = useState('');
   const [projectName, setProjectName] = useState('');
+  const [validEmails, setValidEmails] = useState([]); // 이메일 목록 상태 추가
+  const [isCreate, setIsCreate] = useState(false);
+  const [isInviteOpen, setIsInviteOpen] = useState(false); // 이메일 초대 입력 상태 추가
   const location = useLocation();
+
+  const handleOpenCreate = () => {
+    setIsCreate(true);
+  };
+
+  const handleToggleInvite = () => {
+    setIsInviteOpen((prev) => !prev); // 초대 아이콘 클릭 시 이메일 입력창 토글
+  };
+
+  // 페이지 분리 후 재작업 구간
+  const handleAddEmail = (email, isValid) => {
+    setValidEmails((prevEmails) => [...prevEmails, { email, isValid }]);
+  };
+
+  const handleRemoveEmail = (emailToRemove) => {
+    setValidEmails((prevEmails) =>
+      prevEmails.filter((emailObj) => emailObj.email !== emailToRemove),
+    );
+  };
+  // 페이지 분리 후 재작업 구간
 
   useEffect(() => {
     const fetchUserName = async () => {
@@ -26,7 +51,6 @@ const SubHeader = ({ userId, projectId }) => {
         try {
           const response = await get(`projects/${projectId}`);
           setProjectName(response.data.content.project_title);
-          console.log(response.data.content.project_title);
         } catch (error) {
           console.error('프로젝트 이름을 가져오는데 실패했습니다.', error);
         }
@@ -37,7 +61,6 @@ const SubHeader = ({ userId, projectId }) => {
     fetchProjectName();
   }, [userId, projectId]);
 
-  // 'blueprints'가 URL에 포함되면 블루프린트 페이지로 간주
   const isBlueprintListPage = location.pathname.includes('blueprints');
 
   return (
@@ -46,13 +69,29 @@ const SubHeader = ({ userId, projectId }) => {
         <h3>{isBlueprintListPage ? projectName : `${userName}님의 공간`}</h3>
         {isBlueprintListPage && <EditButton />}
       </LeftSection>
-      <div className="border border-black">
-        <button>
+      <div className="border border-black flex">
+        {isBlueprintListPage && (
+          <div className="border">
+            <button onClick={handleToggleInvite}>초대 아이콘</button>
+          </div>
+        )}
+        <button onClick={handleOpenCreate}>
           {isBlueprintListPage
             ? '새 블루프린트 만들기 +'
             : '새 프로젝트 만들기 +'}
         </button>
       </div>
+      {isCreate && <CreateProject />}
+
+      {/* 페이지 분리 후 재작업 구간 */}
+      {isInviteOpen && (
+        <InviteUsers
+          validEmails={validEmails}
+          handleRemoveEmail={handleRemoveEmail}
+          handleAddEmail={handleAddEmail}
+        />
+      )}
+      {/* 페이지 분리 후 재작업 구간 */}
     </SubHeaderWrapper>
   );
 };
