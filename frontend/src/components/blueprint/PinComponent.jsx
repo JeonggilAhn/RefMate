@@ -7,7 +7,12 @@ import PinNotes from './PinNotes';
 
 const TEST_USER_ID = 6569173793051701; // 테스트용 user_id 고정
 
-const PinComponent = ({ blueprintId, blueprintVersion, pin }) => {
+const PinComponent = ({
+  blueprintId,
+  blueprintVersion,
+  pin,
+  onClickInfoButton,
+}) => {
   const [pinInfo, setPinInfo] = useState(pin);
   const [hoveredPin, setHoveredPin] = useState(null);
   const [recentNotes, setRecentNotes] = useState(null);
@@ -117,9 +122,12 @@ const PinComponent = ({ blueprintId, blueprintVersion, pin }) => {
 
       {/* 클릭 시 버튼 목록 표시 */}
       {isClicked && (
-        <div className="absolute top-4 left-6 z-10">
-          <ButtonList onNoteClick={handleNoteClick} />
-        </div>
+        <ButtonGroupContainer>
+          <ButtonList
+            onNoteClick={handleNoteClick}
+            onClickInfoButton={onClickInfoButton}
+          />
+        </ButtonGroupContainer>
       )}
 
       {/* 노트 상세 보기 */}
