@@ -8,6 +8,7 @@ import MainLayout from './layouts/MainLayout';
 import Blueprint from './pages/Blueprint';
 import ProjectList from './pages/ProjectList';
 import BlueprintList from './pages/BlueprintList';
+import TokenCheck from './pages/TokenCheck'; // 추가
 
 function App() {
   return (
@@ -21,6 +22,7 @@ function App() {
             element={<BlueprintList />}
           ></Route>
           <Route path="/blueprint" element={<Blueprint />} />
+          <Route path="/auth-redirect" element={<TokenCheck />} /> {/* 추가 */}
         </Routes>
       </Router>
       <Form />
