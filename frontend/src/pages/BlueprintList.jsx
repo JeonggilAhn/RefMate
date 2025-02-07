@@ -1,23 +1,29 @@
 import React, { useState } from 'react';
+import { useParams } from 'react-router-dom';
 import styled from 'styled-components';
 import Header from '../components/common/Header';
 import BackButton from '../components/common/BackButton';
-import SubHeader from '../components/project/SubHeader';
-import { useLocation } from 'react-router-dom';
+import BlueprintListSubHeader from '../components/project/BlueprintListSubHeader';
 import BlueprintThumbnail from '../components/project/BlueprintThumbnail';
+import BlueprintListTabs from '../components/project/BlueprintListTabs';
 
-function BlueprintList() {
+function BlueprintList({}) {
   const userId = 96168794; // 예시 userId
-  const location = useLocation();
+  const { projectId } = useParams(); // projectId 가져오기
 
-  const isBlueprintListPage = location.pathname.includes('blueprints');
   const [filterType, setFilterType] = useState('all');
+  const [searchQuery, setSearchQuery] = useState('');
 
   return (
     <Wrapper>
       <Header />
       <ContentWrapper>
-        <SubHeader userId={userId} projectId={isBlueprintListPage ? 1 : null} />{' '}
+        <BlueprintListSubHeader userId={userId} projectId={projectId} />
+        <BlueprintListTabs
+          actions={[{ name: '모든 블루프린트', type: 'all' }]}
+          setFilterType={setFilterType}
+          setSearchQuery={setSearchQuery}
+        ></BlueprintListTabs>
         <BlueprintThumbnail></BlueprintThumbnail>
       </ContentWrapper>
       <BackButton />

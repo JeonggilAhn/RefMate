@@ -6,6 +6,7 @@ import EditButton from '../common/EditButton';
 import UpdateProjectName from './UpdateProjectName';
 import { useSetRecoilState } from 'recoil';
 import { modalState } from '../../recoil/common/modal';
+import EditOption from './EditOption';
 
 const formatDate = (dateString) => {
   const date = new Date(dateString);
@@ -14,6 +15,7 @@ const formatDate = (dateString) => {
 
 const Thumbnail = ({ userId, filterType, searchQuery }) => {
   const [projects, setProjects] = useState([]);
+
   const [imageLoaded, setImageLoaded] = useState(true);
 
   const navigate = useNavigate();
@@ -76,6 +78,15 @@ const Thumbnail = ({ userId, filterType, searchQuery }) => {
         <UpdateProjectName
           projectId={projectId}
           projectTitle={projectTitle}
+          setProjectName={(updatedTitle) => {
+            setProjects((prevProjects) =>
+              prevProjects.map((project) =>
+                project.project_id === projectId
+                  ? { ...project, project_title: updatedTitle }
+                  : project,
+              ),
+            );
+          }}
           setModal={setModal}
         />
       ),
@@ -147,7 +158,7 @@ const Thumbnail = ({ userId, filterType, searchQuery }) => {
                 <Title onClick={() => handleProjectClick(project.project_id)}>
                   {project.project_title}
                 </Title>
-                <EditButton
+                <EditOption
                   actions={[
                     {
                       name: '수정',

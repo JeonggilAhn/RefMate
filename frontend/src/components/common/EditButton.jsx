@@ -20,7 +20,12 @@ const EditButton = ({ actions = [] }) => {
 
   return (
     <Container>
-      <Icon onClick={toggleModal} name="IconPiDotsThree"></Icon>
+      <Icon
+        onClick={toggleModal}
+        name="IconPiDotsThree"
+        width={25}
+        height={25}
+      ></Icon>
       {isOpen && (
         <Modal ref={modalRef}>
           {actions.map((action, index) => (

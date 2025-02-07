@@ -36,36 +36,16 @@ const SubHeader = ({ userId, projectId }) => {
     fetchUserName();
   }, [userId, projectId]);
 
-  const isBlueprintListPage = location.pathname.includes('blueprints');
-
   return (
-    <SubHeaderWrapper>
-      <LeftSection>
-        <div className="text-xl font-semibold">
-          {isBlueprintListPage ? projectName : `${userName} 님의 공간`}
-        </div>
-
-        {isBlueprintListPage && <EditButton />}
-      </LeftSection>
+    <div className="flex justify-between items-center w-full px-5 py-2.5">
+      <div className="flex gap-4">
+        <div className="text-xl font-semibold">{`${userName} 님의 공간`}</div>
+      </div>
       <TextButton onClick={handleCreateProject}>
         새 프로젝트 만들기 +
       </TextButton>
-    </SubHeaderWrapper>
+    </div>
   );
 };
-
-const SubHeaderWrapper = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  width: 100%;
-  padding: 10px 20px;
-`;
-
-const LeftSection = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 10px;
-`;
 
 export default SubHeader;

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { patch } from '../../api';
 
-const UpdateName = ({ projectId, projectTitle, setModal }) => {
+const UpdateName = ({ projectId, projectTitle, setProjectName, setModal }) => {
   const [newTitle, setNewTitle] = useState('');
 
   useEffect(() => {
@@ -17,6 +17,7 @@ const UpdateName = ({ projectId, projectTitle, setModal }) => {
 
       console.log(response);
       alert('수정 완료');
+      setProjectName(newTitle);
       setModal(null);
     } catch (error) {
       alert(error.message);

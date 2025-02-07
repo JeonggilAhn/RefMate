@@ -47,7 +47,18 @@ const BlueprintThumbnail = ({ projectId }) => {
           />
           <Footer>
             <Title>{blueprint.blueprint_title}</Title>
-            <EditButton showDelete={false} />
+            <EditButton
+              actions={[
+                {
+                  name: '수정',
+                  handler: () =>
+                    handleUpdateProjectName(
+                      project.project_id,
+                      project.project_title,
+                    ),
+                },
+              ]}
+            />
           </Footer>
 
           <CreatedAt>
