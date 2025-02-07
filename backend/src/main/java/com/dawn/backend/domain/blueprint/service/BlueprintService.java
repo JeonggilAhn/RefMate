@@ -19,11 +19,16 @@ import com.dawn.backend.domain.blueprint.dto.response.CreateBlueprintVersionResp
 import com.dawn.backend.domain.blueprint.dto.response.UpdateBlueprintResponseDto;
 import com.dawn.backend.domain.blueprint.entity.Blueprint;
 import com.dawn.backend.domain.blueprint.entity.BlueprintVersion;
+import com.dawn.backend.domain.blueprint.exception.BlueprintNotFoundException;
+import com.dawn.backend.domain.blueprint.exception.BlueprintVersionNotFoundException;
 import com.dawn.backend.domain.blueprint.repository.BlueprintRepository;
 import com.dawn.backend.domain.blueprint.repository.BlueprintVersionRepository;
 import com.dawn.backend.domain.pin.service.PinService;
 import com.dawn.backend.domain.project.entity.Project;
+import com.dawn.backend.domain.project.exception.ProjectNotFoundException;
 import com.dawn.backend.domain.project.repository.ProjectRepository;
+import com.dawn.backend.global.util.uploader.dto.ImagePathDto;
+import com.dawn.backend.global.util.uploader.service.UploadService;
 
 @Service
 public class BlueprintService {
@@ -31,18 +36,21 @@ public class BlueprintService {
 	private final BlueprintVersionRepository blueprintVersionRepository;
 	private final ProjectRepository projectRepository;
 	private final PinService pinService;
+	private final UploadService uploadService;
 
 	@Autowired
 	public BlueprintService(
 		BlueprintRepository blueprintRepository,
 		BlueprintVersionRepository blueprintVersionRepository,
 		ProjectRepository projectRepository,
-		PinService pinService
+		PinService pinService,
+		UploadService uploadService
 	) {
 		this.blueprintRepository = blueprintRepository;
 		this.blueprintVersionRepository = blueprintVersionRepository;
 		this.projectRepository = projectRepository;
 		this.pinService = pinService;
+		this.uploadService = uploadService;
 	}
 
 	public List<BlueprintDto> blueprints(Long projectId) {
@@ -55,7 +63,6 @@ public class BlueprintService {
 
 				BlueprintVersion latestVersion =
 					blueprintVersionRepository.findLatestVersion(blueprint.getBlueprintId());
-
 				return new BlueprintDto(
 					blueprint.getBlueprintId(),
 					blueprint.getBlueprintTitle(),
@@ -68,6 +75,7 @@ public class BlueprintService {
 	}
 
 	public List<BlueprintVersionItem> blueprintVersions(Long blueprintId) {
+
 
 		List<BlueprintVersion> blueprintVersionList =
 			blueprintVersionRepository.findAllByBlueprintBlueprintIdOrderByBlueprintVersionSeq(blueprintId);
@@ -86,7 +94,7 @@ public class BlueprintService {
 	public BlueprintVersionDto blueprintSpec(Long blueprintId, Long versionId) {
 
 		BlueprintVersion blueprintVersion =
-			blueprintVersionRepository.findById(versionId).orElse(null);
+			blueprintVersionRepository.findById(versionId).orElseThrow(BlueprintVersionNotFoundException::new);
 
 		return new BlueprintVersionDto(
 			blueprintVersion.getBlueprintVersionId(),
@@ -101,7 +109,7 @@ public class BlueprintService {
 		CreateBlueprintRequestDto createBlueprintRequestDto
 	) {
 		Project targetProject =
-			projectRepository.findById(projectId).orElse(null);
+			projectRepository.findById(projectId).orElseThrow(ProjectNotFoundException::new);
 
 		Blueprint blueprint = Blueprint.builder()
 			.project(targetProject)
@@ -128,7 +136,7 @@ public class BlueprintService {
 		CreateBlueprintVersionRequestDto createBlueprintVersionRequestDto
 	) {
 		Blueprint targetBlueprint =
-			blueprintRepository.findById(blueprintId).orElse(null);
+			blueprintRepository.findById(blueprintId).orElseThrow(BlueprintNotFoundException::new);
 
 		return new CreateBlueprintVersionResponseDto(
 			createBlueprintVersion(
@@ -154,13 +162,14 @@ public class BlueprintService {
 			newSeq += latestVersion.getBlueprintVersionSeq();
 		}
 
+		ImagePathDto imagePathDto = uploadService.getImagePath(originFile);
+
 		BlueprintVersion blueprintVersion = BlueprintVersion.builder()
 			.blueprint(targetBlueprint)
 			.blueprintVersionName(blueprintVersionName)
 			.originFile(originFile)
-			.blueprintImg(null)
-			.previewImg(null)
-			.preBlueprintVersion(latestVersion)
+			.blueprintImg(imagePathDto.imagePath())
+			.previewImg(imagePathDto.previewPath())
 			.blueprintVersionSeq(newSeq)
 			.build();
 
@@ -171,8 +180,6 @@ public class BlueprintService {
 			pinService.copyPreVersionPins(latestVersion, savedBlueprintVersion);
 		}
 
-		blueprintVersionRepository.updatePostVersion(latestVersion, savedBlueprintVersion);
-
 		return savedBlueprintVersion.getBlueprintVersionId();
 	}
 
@@ -181,7 +188,7 @@ public class BlueprintService {
 		UpdateBlueprintRequestDto updateBlueprintRequestDto
 	) {
 		Blueprint blueprint =
-			blueprintRepository.findById(blueprintId).orElse(null);
+			blueprintRepository.findById(blueprintId).orElseThrow(BlueprintNotFoundException::new);
 
 		blueprint.setBlueprintTitle(updateBlueprintRequestDto.blueprintTitle());
 

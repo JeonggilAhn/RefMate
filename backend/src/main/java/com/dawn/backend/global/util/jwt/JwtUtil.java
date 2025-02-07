@@ -43,11 +43,11 @@ public class JwtUtil {
 		return expiration.before(new Date());
 	}
 
-	public String generateToken(User user) {
+	public String generateToken(User user, Long expireTime) {
 		return Jwts.builder()
-			.claim("id", user.getUserId())
+			.claim("id", user.getUserName())
 			.issuedAt(new Date(System.currentTimeMillis()))
-			.expiration(new Date(System.currentTimeMillis() + 24 * 60 * 60 * 1000))
+			.expiration(new Date(System.currentTimeMillis() + expireTime))
 			.signWith(secretKey)
 			.compact();
 	}

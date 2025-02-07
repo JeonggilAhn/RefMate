@@ -7,7 +7,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,10 +25,13 @@ import com.dawn.backend.domain.project.dto.request.UpdateProjectRequestDto;
 import com.dawn.backend.domain.project.dto.response.CreateProjectResponseDto;
 import com.dawn.backend.domain.project.dto.response.InviteUserResponseDto;
 import com.dawn.backend.domain.project.entity.Project;
+import com.dawn.backend.domain.project.exception.ProjectNotFoundException;
 import com.dawn.backend.domain.project.repository.ProjectRepository;
 import com.dawn.backend.domain.user.dto.ProjectUserDto;
 import com.dawn.backend.domain.user.entity.User;
 import com.dawn.backend.domain.user.entity.UserProject;
+import com.dawn.backend.domain.user.exception.UserNotFoundException;
+import com.dawn.backend.domain.user.exception.UserProjectNotFound;
 import com.dawn.backend.domain.user.repository.UserProjectRepository;
 import com.dawn.backend.domain.user.repository.UserRepository;
 
@@ -45,97 +47,11 @@ public class ProjectServiceImpl implements ProjectService {
 	private final BlueprintRepository blueprintRepository;
 	private final BlueprintVersionRepository blueprintVersionRepository;
 
+	// 리팩토링 해야함
 	@Override
-	public ProjectDto getProjectDetail(Long projectId) {
-		Project project = projectRepository.findById(projectId)
-			.orElseThrow(() -> new RuntimeException(HttpStatus.INTERNAL_SERVER_ERROR.toString()));
-		return new ProjectDto(project.getProjectId(),
-			project.getProjectTitle(),
-			project.getCreatedAt());
-	}
+	public List<ProjectItemDto> getProjectList(User user) {
 
-	@Transactional
-	@Override
-	public void updateProject(Long projectId, UpdateProjectRequestDto request) {
-		Project project = projectRepository.findById(projectId)
-			.orElseThrow(() -> new IllegalArgumentException(HttpStatus.INTERNAL_SERVER_ERROR.toString()));
-		project.updateProjectTitle(request.projectTitle());
-	}
-
-	@Transactional
-	@Override
-	public void deleteProject(Long projectId) {
-		Project project = projectRepository.findById(projectId)
-			.orElseThrow(() -> new IllegalArgumentException(HttpStatus.INTERNAL_SERVER_ERROR.toString()));
-		project.deleteProject();
-	}
-
-	@Transactional
-	@Override
-	public CreateProjectResponseDto createProject(Long userId, CreateProjectRequestDto createProjectRequestDto) {
-		Project project = Project.builder()
-			.projectTitle(createProjectRequestDto.projectTitle())
-			.previewImg(null)
-			.build();
-
-		Project savedProject = projectRepository.save(project);
-
-		User user = userRepository.findById(userId)
-			.orElseThrow(() -> new IllegalArgumentException(HttpStatus.INTERNAL_SERVER_ERROR.toString()));
-
-		UserProject userProject = UserProject.builder()
-			.userRole("CREATOR")
-			.user(user)
-			.project(project)
-			.build();
-
-		userProjectRepository.save(userProject);
-
-		return new CreateProjectResponseDto(savedProject.getProjectId());
-
-	}
-
-	@Override
-	public List<ProjectUserDto> getProjectUsers(Long projectId) {
-		return userProjectRepository.findProjectUsers(projectId);
-	}
-
-	@Transactional
-	@Override
-	public InviteUserResponseDto inviteUser(Long projectId, InviteUserRequestDto request) {
-		Project project = projectRepository.findById(projectId)
-			.orElseThrow(() -> new IllegalArgumentException("존재하지 않는 프로젝트입니다."));
-
-		System.out.println("request.inviteUserList() : " + request.inviteUserList());
-
-		List<Long> invitedUserIds = new ArrayList<>();
-
-		for (String userEmail : request.inviteUserList()) {
-			User user = userRepository.findByUserEmail(userEmail)
-				.orElseThrow(() -> new IllegalArgumentException("존재하지 않는 유저입니다."));
-
-			if (userProjectRepository.existsByUserAndProject(user, project)) {
-				log.info("이미 해당 프로젝트에 속해있는 유저입니다. userId : {}", user.getUserId());
-				continue;
-			}
-
-			UserProject userProject = UserProject.builder()
-				.userRole("MEMBER")
-				.user(user)
-				.project(project)
-				.build();
-
-			userProjectRepository.save(userProject);
-			invitedUserIds.add(user.getUserId());
-		}
-
-		return new InviteUserResponseDto(invitedUserIds);
-	}
-
-	@Override
-	public List<ProjectItemDto> getProjectList(Long userId) {
-
-		List<UserProject> userProjects = userProjectRepository.findByUserId(userId);
+		List<UserProject> userProjects = userProjectRepository.findByUserId(user.getUserId());
 		List<Long> projectIds = userProjects.stream()
 			.map(up -> up.getProject().getProjectId())
 			.collect(Collectors.toList());
@@ -159,20 +75,16 @@ public class ProjectServiceImpl implements ProjectService {
 			.map(Blueprint::getBlueprintId)
 			.collect(Collectors.toList());
 
-		// 4. 블루프린트 최신 버전 조회 (최신순)
 		List<BlueprintVersion> blueprintVersions =
 			blueprintVersionRepository.findLatestBlueprintVersionsByBlueprintIds(blueprintIds);
 
-		// 5. 블루프린트 ID 기준으로 최신 버전 매핑
 		Map<Long, List<BlueprintVersion>> latestBlueprintsMap = blueprintVersions.stream()
 			.collect(Collectors.groupingBy(bv -> bv.getBlueprint().getBlueprintId()));
 
-		// 6. 프로젝트 데이터 조합하여 DTO 생성
 		return projects.stream().map(project -> {
 			List<Blueprint> projectBlueprints =
 				blueprintMap.getOrDefault(project.getProjectId(), Collections.emptyList());
 
-			// 최신 블루프린트 버전 4개만 선택
 			List<ProjectItemDto.PreviewImage> previewImages =
 				projectBlueprints.stream()
 					.map(bp -> {
@@ -197,9 +109,112 @@ public class ProjectServiceImpl implements ProjectService {
 				project.getCreatedAt(),
 				previewImages,
 				isMineMap.getOrDefault(project.getProjectId(), false),
-				userId,
+				user.getUserId(),
 				projectBlueprints.size()
 			);
 		}).collect(Collectors.toList());
 	}
+
+	@Override
+	public List<ProjectUserDto> getProjectUsers(Long projectId) {
+		validateProjectExists(projectId);
+		List<ProjectUserDto> projectUserDtos = userProjectRepository.findProjectUsers(projectId)
+			.stream()
+			.map(ProjectUserDto::from)
+			.toList();
+		validateUserProjectExists(projectUserDtos, projectId);
+		return projectUserDtos;
+	}
+
+	@Transactional
+	@Override
+	public CreateProjectResponseDto createProject(User user, CreateProjectRequestDto createProjectRequestDto) {
+		Project project = createProjectRequestDto.toEntity();
+
+		Project savedProject = projectRepository.save(project);
+
+		saveUserProject(user, project, "CREATOR");
+
+		return new CreateProjectResponseDto(savedProject.getProjectId());
+
+	}
+
+	@Transactional
+	@Override
+	public InviteUserResponseDto inviteUser(Long projectId, InviteUserRequestDto request) {
+		Project project = getProject(projectId);
+
+		List<Long> invitedUserIds = new ArrayList<>();
+
+		for (String userEmail : request.inviteUserList()) {
+			User user = getUserByUserEmail(userEmail);
+
+			if (userProjectRepository.existsByUserAndProject(user, project)) {
+				log.info("이미 해당 프로젝트에 속해있는 유저입니다. userId : {}", user.getUserId());
+				continue;
+			}
+
+			saveUserProject(user, project, "MEMBER");
+			invitedUserIds.add(user.getUserId());
+		}
+
+		return new InviteUserResponseDto(invitedUserIds);
+	}
+
+	@Transactional
+	@Override
+	public void updateProject(Long projectId, UpdateProjectRequestDto request) {
+		Project project = getProject(projectId);
+		project.updateProjectTitle(request.projectTitle());
+	}
+
+	@Transactional
+	@Override
+	public void deleteProject(Long projectId) {
+		Project project = getProject(projectId);
+		userProjectRepository.findUserByProjectProjectId(projectId);
+		project.deleteProject();
+	}
+
+	@Override
+	public ProjectDto getProjectDetail(Long projectId) {
+		Project project = getProject(projectId);
+		return new ProjectDto(project.getProjectId(),
+			project.getProjectTitle(),
+			project.getCreatedAt());
+	}
+
+	private Project getProject(Long projectId) {
+		return projectRepository.findById(projectId)
+			.orElseThrow(ProjectNotFoundException::new);
+	}
+
+	private void saveUserProject(User user, Project project, String userRole) {
+		UserProject userProject = UserProject.builder()
+			.userRole(userRole)
+			.user(user)
+			.project(project)
+			.build();
+		UserProject savedUserProject = userProjectRepository.save(userProject);
+	}
+
+	private void validateProjectExists(Long projectId) {
+		if (!projectRepository.existsById(projectId)) {
+			throw new ProjectNotFoundException();
+		}
+	}
+
+	private void validateUserProjectExists(List<ProjectUserDto> projectUserDtos, Long projectId) {
+		if (projectUserDtos.isEmpty()) {
+			log.info("해당 프로젝트에 속한 유저가 없습니다. projectId : {}", projectId);
+			throw new UserProjectNotFound();
+		}
+	}
+
+	private User getUserByUserEmail(String userEmail) {
+		return userRepository.findByUserEmail(userEmail)
+			.orElseThrow(UserNotFoundException::new);
+	}
+
+
 }

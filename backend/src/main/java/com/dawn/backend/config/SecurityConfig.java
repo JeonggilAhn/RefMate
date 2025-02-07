@@ -11,13 +11,17 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.authentication.logout.LogoutFilter;
 import org.springframework.web.cors.CorsConfiguration;
 
 import jakarta.servlet.http.HttpServletRequest;
 
 import com.dawn.backend.domain.user.handler.CustomOAuth2SuccessHandler;
+import com.dawn.backend.domain.user.repository.TokenBlackListRepository;
 import com.dawn.backend.domain.user.repository.UserRepository;
 import com.dawn.backend.domain.user.service.CustomOAuth2UserService;
+import com.dawn.backend.global.filter.CustomLogoutFilter;
+import com.dawn.backend.global.filter.ExceptionHandlingFilter;
 import com.dawn.backend.global.filter.JwtFilter;
 import com.dawn.backend.global.util.jwt.JwtUtil;
 
@@ -28,18 +32,21 @@ public class SecurityConfig {
 	private final CustomOAuth2SuccessHandler customOAuth2SuccessHandler;
 	private final JwtUtil jwtUtil;
 	private final UserRepository userRepository;
+	private final TokenBlackListRepository tokenBlackListRepository;
 
 	@Autowired
 	SecurityConfig(
 		CustomOAuth2UserService customOAuth2UserService,
 		CustomOAuth2SuccessHandler customOAuth2SuccessHandler,
 		JwtUtil jwtUtil,
-		UserRepository userRepository
+		UserRepository userRepository,
+		TokenBlackListRepository tokenBlackListRepository
 	) {
 		this.customOAuth2UserService = customOAuth2UserService;
 		this.customOAuth2SuccessHandler = customOAuth2SuccessHandler;
 		this.jwtUtil = jwtUtil;
 		this.userRepository = userRepository;
+		this.tokenBlackListRepository = tokenBlackListRepository;
 	}
 
 	// secret encoder
@@ -92,8 +99,16 @@ public class SecurityConfig {
 		);
 
 		// jwt filter
-		JwtFilter jwtFilter = new JwtFilter(jwtUtil, userRepository);
+		JwtFilter jwtFilter = new JwtFilter(jwtUtil, userRepository, tokenBlackListRepository);
 		http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
+
+		// logout
+		CustomLogoutFilter customLogoutFilter = new CustomLogoutFilter(tokenBlackListRepository);
+		http.addFilterBefore(customLogoutFilter, LogoutFilter.class);
+
+		// exception handling filter
+		ExceptionHandlingFilter exceptionHandlingFilter = new ExceptionHandlingFilter();
+		http.addFilterBefore(exceptionHandlingFilter, JwtFilter.class);
 
 		return http.build();
 	}

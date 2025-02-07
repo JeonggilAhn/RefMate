@@ -4,7 +4,6 @@ public record UserDto(
 	Long userId,
 	String userEmail,
 	String profileUrl,
-	String signupDate,
-	String resignDate
+	String signupDate
 ) {
 }
