@@ -1,38 +1,34 @@
 import React, { useState, useEffect } from 'react';
 import { get, del } from '../../api';
-import EditButton from '../common/EditButton';
 import Icon from '../common/Icon';
 import TextButton from '../common/TextButton';
-import InviteUsers from './InviteUsers';
 import UpdateProjectName from './UpdateProjectName';
 import { useSetRecoilState } from 'recoil';
 import { modalState } from '../../recoil/common/modal';
 import { useNavigate } from 'react-router-dom';
 import EditOption from './EditOption';
+import CreateBlueprint from './CreateBlueprint';
+import InviteUsersModal from './InviteUsersModal';
 
 const BlueprintListSubHeader = ({ userId, projectId }) => {
   const navigate = useNavigate();
   const [projectName, setProjectName] = useState('');
-  const [validEmails, setValidEmails] = useState([]); // 이메일 목록 상태 추가
-  const [isInviteOpen, setIsInviteOpen] = useState(false); // 이메일 초대 입력 상태 추가
   const setModal = useSetRecoilState(modalState);
 
-  const handleOpenCreate = () => {
-    setIsCreate(true);
+  const handleCreateBlueprint = () => {
+    setModal({
+      type: 'modal',
+      title: '새 블루프린트',
+      content: <CreateBlueprint setModal={setModal} />,
+    });
   };
 
   const handleToggleInvite = () => {
-    setIsInviteOpen((prev) => !prev); // 초대 아이콘 클릭 시 이메일 입력창, 수정 해야 함
-  };
-
-  const handleAddEmail = (email, isValid) => {
-    setValidEmails((prevEmails) => [...prevEmails, { email, isValid }]);
-  };
-
-  const handleRemoveEmail = (emailToRemove) => {
-    setValidEmails((prevEmails) =>
-      prevEmails.filter((emailObj) => emailObj.email !== emailToRemove),
-    );
+    setModal({
+      type: 'modal',
+      title: '프로젝트 초대하기',
+      content: <InviteUsersModal setModal={setModal} />,
+    });
   };
 
   useEffect(() => {
@@ -112,20 +108,10 @@ const BlueprintListSubHeader = ({ userId, projectId }) => {
         <button onClick={handleToggleInvite}>
           <Icon name="IconTbShare" width={25} height={25}></Icon>
         </button>
-        <TextButton onClick={handleOpenCreate}>
+        <TextButton onClick={handleCreateBlueprint}>
           새 블루프린트 만들기 +
         </TextButton>
       </div>
-
-      {/* 페이지 분리 후 재작업 구간 */}
-      {isInviteOpen && (
-        <InviteUsers
-          validEmails={validEmails}
-          handleRemoveEmail={handleRemoveEmail}
-          handleAddEmail={handleAddEmail}
-        />
-      )}
-      {/* 페이지 분리 후 재작업 구간 */}
     </div>
   );
 };

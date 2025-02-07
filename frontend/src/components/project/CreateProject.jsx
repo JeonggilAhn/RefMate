@@ -28,13 +28,35 @@ const CreateProject = ({ setModal }) => {
     try {
       const response = await post('projects', {
         project_title: projectTitle,
-        // 이메일 전달?
       });
-      console.log('프로젝트 생성 성공:', response.data);
-      alert('생성 완료');
+
+      const projectId = response.data.content.project_id;
+
+      if (!projectId) {
+        throw new Error('프로젝트 ID를 가져오지 못했습니다.');
+      }
+      console.log('프로젝트 생성 성공:', projectId);
+
+      if (validEmails.length > 0) {
+        const inviteEmailList = validEmails.map((emailObj) => emailObj.email);
+
+        try {
+          await post(`projects/${projectId}/users`, {
+            invite_user_list: inviteEmailList,
+          });
+
+          console.log('초대한 이메일:', inviteEmailList);
+          alert('사용자 초대 성공');
+        } catch (inviteError) {
+          console.error('사용자 초대 실패:', inviteError);
+          alert('사용자 초대 중 오류 발생');
+        }
+      }
+
       setModal(null);
     } catch (error) {
       console.error('프로젝트 생성 실패:', error);
+      alert('프로젝트 생성 중 오류 발생');
     }
   };
 
