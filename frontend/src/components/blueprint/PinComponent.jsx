@@ -122,12 +122,9 @@ const PinComponent = ({
 
       {/* 클릭 시 버튼 목록 표시 */}
       {isClicked && (
-        <ButtonGroupContainer>
-          <ButtonList
-            onNoteClick={handleNoteClick}
-            onClickInfoButton={onClickInfoButton}
-          />
-        </ButtonGroupContainer>
+        <div className="absolute top-4 left-6 z-10" onClick={onClickInfoButton}>
+          <ButtonList onNoteClick={handleNoteClick} />
+        </div>
       )}
 
       {/* 노트 상세 보기 */}

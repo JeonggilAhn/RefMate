@@ -6,7 +6,8 @@ import { modalState } from '../../recoil/common/modal';
 import Confirm from '../../components/common/Confirm';
 import Icon from '../common/Icon';
 import EditNote from './EditNote'; // 수정 컴포넌트 추가
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'; // Avatar 컴포넌트 추가
+
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar'; // Avatar 컴포넌트 추가
 
 const NoteDetail = ({ noteId, onBack }) => {
   const [noteData, setNoteData] = useState(null);
@@ -28,6 +29,57 @@ const NoteDetail = ({ noteId, onBack }) => {
 
     fetchNote();
   }, [noteId]);
+
+  /**
+   * 노트를 삭제하는 함수
+   */
+  const handleDelete = () => {
+    setModal({
+      type: 'confirm',
+      message: '정말 삭제하시겠습니까?',
+      onConfirm: async () => {
+        try {
+          const response = await del(`notes/${noteId}`);
+          if (response.status === 200) {
+            alert('노트가 삭제되었습니다.');
+            setNoteData(null);
+            onBack();
+          } else {
+            alert('노트 삭제에 실패했습니다.');
+          }
+        } catch (error) {
+          console.error('노트 삭제 중 에러 발생:', error);
+          alert('노트 삭제 중 문제가 발생했습니다.');
+        }
+      },
+    });
+  };
+
+  /**
+   * 북마크 상태를 토글하는 함수
+   */
+  const toggleBookmark = async () => {
+    try {
+      const response = await patch(`notes/${noteId}/bookmark`, {
+        is_bookmark: !isBookmark, // 상태를 반대로 전송
+      });
+
+      if (response.status === 200) {
+        setIsBookmark((prev) => !prev); // 상태 업데이트
+        setModal({
+          type: 'alert',
+          message: !isBookmark
+            ? '중요 노트로 등록했습니다!'
+            : '중요 노트를 해제했습니다!',
+        }); // 알림 모달 표시
+      } else {
+        alert('북마크 상태 변경에 실패했습니다.');
+      }
+    } catch (error) {
+      console.error('북마크 상태 변경 중 에러 발생:', error);
+      alert('북마크 상태 변경 중 문제가 발생했습니다.');
+    }
+  };
 
   // 데이터 로딩 전이면 아무것도 렌더링하지 않음
   if (!noteData) {
@@ -65,13 +117,14 @@ const NoteDetail = ({ noteId, onBack }) => {
           </BackButton>
           <TitleWrapper>
             <Title>{truncatedTitle}</Title>
-            {image_list?.length > 0 && (
+            {image_list?.length > 0 && ( // image_list가 undefined일 경우 방지
               <IconButton>
                 <Icon name="IconTbPhoto" width={16} height={16} />
               </IconButton>
             )}
           </TitleWrapper>
           <HeaderButtons>
+            {/* 북마크 토글 버튼 */}
             <IconButton onClick={toggleBookmark}>
               <Icon
                 name={isBookmark ? 'IconTbFlag3Fill' : 'IconTbFlag3Stroke'}
@@ -79,6 +132,7 @@ const NoteDetail = ({ noteId, onBack }) => {
                 height={16}
               />
             </IconButton>
+            {/* 수정 및 삭제 버튼: is_editable이 true일 때만 표시 */}
             {is_editable && (
               <>
                 <IconButton onClick={() => setEditModal(true)}>
@@ -93,12 +147,14 @@ const NoteDetail = ({ noteId, onBack }) => {
         </Header>
         <MainSection>
           <ProfileSection>
-            <Avatar>
-              <AvatarImage src={note_writer.profile_url} alt="User Profile" />
+            {/* Avatar 적용 */}
+            <Avatar className="w-7 h-7 border border-gray-300 rounded-full">
+              <AvatarImage src={note_writer.profile_url} alt="프로필" />
               <AvatarFallback>
-                {note_writer.user_email.split('@')[0].slice(0, 2).toUpperCase()}
+                {note_writer.user_email.slice(0, 2).toUpperCase() || 'NA'}
               </AvatarFallback>
             </Avatar>
+
             <ProfileInfo>
               <UserName>{note_writer.user_email.split('@')[0]}</UserName>
             </ProfileInfo>
