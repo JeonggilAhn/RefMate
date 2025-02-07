@@ -12,7 +12,7 @@ const BlueprintCanvas = ({
   isPinButtonEnaled,
   initialPins,
   isAllPinVisible,
-  isSidebarOpen,
+  onClickInfoButton,
 }) => {
   const canvasRef = useRef(null);
   const [scale, setScale] = useState(1);
@@ -106,7 +106,6 @@ const BlueprintCanvas = ({
   };
 
   const handleWheel = (e) => {
-    e.preventDefault();
     if (!isPinButtonEnaled) {
       const zoomSpeed = 0.1;
       setScale((prev) =>
@@ -209,6 +208,7 @@ const BlueprintCanvas = ({
             blueprintId={blueprint_id}
             blueprintVersion={blueprint_version_id}
             pin={item}
+            onClickInfoButton={onClickInfoButton}
           />
         </div>
       ))}
