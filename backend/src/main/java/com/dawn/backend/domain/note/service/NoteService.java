@@ -1,9 +1,12 @@
 package com.dawn.backend.domain.note.service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import jakarta.transaction.Transactional;
@@ -13,8 +16,11 @@ import com.dawn.backend.domain.blueprint.entity.BlueprintVersion;
 import com.dawn.backend.domain.blueprint.exception.BlueprintNotFoundException;
 import com.dawn.backend.domain.blueprint.repository.BlueprintVersionRepository;
 import com.dawn.backend.domain.note.dto.BookmarkNoteItem;
+import com.dawn.backend.domain.note.dto.ChatItemDto;
+import com.dawn.backend.domain.note.dto.DateSeparatorDto;
 import com.dawn.backend.domain.note.dto.NoteDto;
 import com.dawn.backend.domain.note.dto.NoteItem;
+import com.dawn.backend.domain.note.dto.NoteItemWithTypeDto;
 import com.dawn.backend.domain.note.dto.request.BookmarkImageRequestDto;
 import com.dawn.backend.domain.note.dto.request.BookmarkNoteRequestDto;
 import com.dawn.backend.domain.note.dto.request.CreateNoteRequestDto;
@@ -281,39 +287,63 @@ public class NoteService {
 		return new GetBookmarkNotesResponseDto(noteItems);
 	}
 
+	private void validatePinExist(Long pinId) {
+		if (!pinRepository.existsById(pinId)) {
+			throw new PinNotFoundException();
+		}
+	}
+
 	public GetNotesByBlueprintResponseDto getNotesByBlueprint(
-		Long blueprintId, Long blueprintVersion, GetNotesByBlueprintRequestDto request
+		Long blueprintId, Long blueprintVersion, GetNotesByBlueprintRequestDto request, Long cursorId, int size
 	) {
 		if (!blueprintVersionRepository.existsById(blueprintVersion)) {
 			throw new NoteByBlueprintVersionNotFound();
 		}
 
-		List<Note> notes = noteRepository.findAllByBlueprintVersion_BlueprintVersionId(blueprintVersion);
+		PageRequest pageRequest = PageRequest.of(0, size + 1);
 
-		List<NoteItem> noteItems = notes.stream()
-			.map(note -> {
-				ProjectUserDto noteWriter =
-					userRepository.findUserWithRoleByUserIdAndProjectId(
-						note.getUser().getUserId(),
-						request.projectId());
-				boolean isPresentImage = imageRepository.existsByNoteNoteId(note.getNoteId());
+		List<Note> notes = noteRepository.findNotesByBlueprintVersionAfterCursor(
+			blueprintVersion,
+			cursorId,
+			pageRequest
+		);
 
-				List<ProjectUserDto> readUsers =
-					userRepository.findCheckedUsersWithRolesByNoteId(note.getNoteId(),
-						request.projectId());
+		boolean hasMore = notes.size() == size + 1;
+		if (hasMore) {
+			notes = notes.subList(0, size);
+		}
 
-				return new NoteItem(
-					note.getNoteId(),
-					noteWriter,
-					note.getNoteTitle(),
-					note.getBookmark(),
-					note.getCreatedAt(),
-					isPresentImage,
-					readUsers
-				);
-			}).collect(Collectors.toList());
+		Collections.reverse(notes);
 
-		return new GetNotesByBlueprintResponseDto(noteItems);
+		List<ChatItemDto> resultList = convertNotesToChatItemsForBlueprint(notes, request.projectId());
+
+
+		return new GetNotesByBlueprintResponseDto(resultList, hasMore);
+	}
+
+	private List<ChatItemDto> convertNotesToChatItemsForBlueprint(List<Note> notes, Long projectId) {
+		List<ChatItemDto> items = new ArrayList<>();
+		LocalDateTime prevDate = null;
+
+		for (Note note : notes) {
+			LocalDateTime currentDate = note.getCreatedAt().toLocalDate().atStartOfDay();
+			if (prevDate == null || !currentDate.equals(prevDate)) {
+				items.add(DateSeparatorDto.from(note.getCreatedAt()));
+				prevDate = currentDate;
+			}
+
+			ProjectUserDto noteWriter = userRepository.findUserWithRoleByUserIdAndProjectId(
+				note.getUser().getUserId(), projectId
+			);
+			boolean isPresentImage = imageRepository.existsByNoteNoteId(note.getNoteId());
+			List<ProjectUserDto> readUsers = userRepository.findCheckedUsersWithRolesByNoteId(
+				note.getNoteId(), projectId
+			);
+
+			ChatItemDto noteItemDto = NoteItemWithTypeDto.fromForBlueprint(note, noteWriter, isPresentImage, readUsers);
+			items.add(noteItemDto);
+		}
+		return items;
 	}
 
 	@Transactional
