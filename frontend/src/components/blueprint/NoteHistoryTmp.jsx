@@ -303,18 +303,9 @@ const NoteHistory = () => {
     fetchPins(); // 핀 데이터를 가져오는 함수 실행
   }, []); // 컴포넌트 마운트 시 핀 데이터를 불러옴
 
+  // 검색된 노트가 변경될 때 스크롤 및 하이라이팅 처리
   useEffect(() => {
-    console.log('searchTargetId 변경:', searchTargetId);
     if (searchTargetId && noteRefs.current[searchTargetId]) {
-      console.log('노트 찾음:', noteRefs.current[searchTargetId]);
-
-      // 이전 하이라이트 제거
-      Object.keys(noteRefs.current).forEach((noteId) => {
-        noteRefs.current[noteId].classList.remove('bg-yellow-200');
-      });
-
-      // 현재 노트 하이라이트 및 스크롤
-      noteRefs.current[searchTargetId].classList.add('bg-yellow-200');
       noteRefs.current[searchTargetId].scrollIntoView({
         behavior: 'smooth',
         block: 'center',
@@ -338,9 +329,8 @@ const NoteHistory = () => {
   };
 
   // 검색된 노트 목록 업데이트
-  const handleSearchSelect = (note_id) => {
-    console.log(note_id);
-    setSearchTargetId(note_id);
+  const handleSearchSelect = (note) => {
+    setSearchTargetId(note.note_id);
   };
 
   if (loading) {
@@ -385,10 +375,7 @@ const NoteHistory = () => {
             <div className="absolute h-auto w-full top-42 bg-white z-20 flex flex-col">
               <NoteSearch
                 onSelect={handleSearchSelect}
-                onClose={() => {
-                  setIsSearching(false); // 검색 상태를 false로 설정
-                  setSearchTargetId(null); // 하이라이트를 제거하기 위해 searchTargetId를 null로 설정
-                }}
+                onClose={() => setIsSearching(false)}
               />
             </div>
           )}
@@ -406,8 +393,7 @@ const NoteHistory = () => {
                   {notes.map((note) => (
                     <div
                       key={note.note_id}
-                      ref={(el) => (noteRefs.current[note.note_id] = el)} // ref 설정
-                      id={note.note_id} // id 추가 (하이라이트를 위해 필요)
+                      ref={(el) => (noteRefs.current[note.note_id] = el)}
                       className={`p-2 ${searchTargetId === note.note_id ? 'bg-yellow-200' : ''}`}
                     >
                       {note.pin_name && (

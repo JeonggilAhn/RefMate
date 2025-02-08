@@ -6,16 +6,12 @@ function NoteSearch({ onSelect, onClose }) {
   const [keyword, setKeyword] = useState('');
   const [notes, setNotes] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [isSearched, setIsSearched] = useState(false);
 
   // 노트 검색 함수
   const searchNotes = async () => {
     try {
       const response = await get(`notes/search?keyword=${keyword}`);
-      const noteList = response.data.content[0].note_list || [];
-      setNotes(noteList);
-      setCurrentIndex(0);
-      setIsSearched(true);
+      setNotes(response.data.content[0].note_list); // 응답에서 노트 리스트 가져오기
 
       // 목업 테스트
       const mockNotes = [
@@ -225,58 +221,63 @@ function NoteSearch({ onSelect, onClose }) {
       ];
 
       setNotes(mockNotes); // 응답에서 노트 리스트 가져오기
-      // 목업 테스트
+      setCurrentIndex(0); // 검색 후 첫 번째 노트로 초기화
+
+      onSelect(notes); // 검색된 노트를 부모로 전달
     } catch (error) {
       console.error('API 호출 오류:', error);
     }
   };
 
-  useEffect(() => {
-    // notes가 변경될 때마다 실행
-    if (notes.length > 0) {
-      console.log('노트가 변경됨:', notes);
-      onSelect(notes[0].note_id); // 상태가 변경되면 onSelect 호출
-    }
-  }, [notes]);
-
   // 이전 노트로 이동
   const goToPreviousNote = () => {
     if (currentIndex > 0) {
-      const newIndex = currentIndex - 1;
-      setCurrentIndex(newIndex);
-      console.log(notes[newIndex].note_id);
-      onSelect(notes[newIndex].note_id); // 부모로 노트 ID 전달
+      setCurrentIndex(currentIndex - 1);
     }
   };
 
   // 다음 노트로 이동
   const goToNextNote = () => {
     if (currentIndex < notes.length - 1) {
-      const newIndex = currentIndex + 1;
-      setCurrentIndex(newIndex);
-      console.log(notes[newIndex].note_id);
-      onSelect(notes[newIndex].note_id); // 부모로 노트 ID 전달
+      setCurrentIndex(currentIndex + 1);
     }
   };
 
+  // 검색된 노트로 이동 및 하이라이팅
+  useEffect(() => {
+    if (notes.length > 0) {
+      // 이전에 하이라이팅된 노트 제거
+      const previousNoteElement = document.getElementById(
+        notes[currentIndex - 1]?.note_id,
+      );
+      if (previousNoteElement) {
+        previousNoteElement.classList.remove('bg-yellow-200');
+      }
+
+      // 현재 선택된 노트 하이라이팅
+      const targetNote = notes[currentIndex];
+      const noteElement = document.getElementById(targetNote.note_id);
+      if (noteElement) {
+        noteElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        noteElement.classList.add('bg-yellow-200');
+      }
+    }
+  }, [currentIndex, notes]);
+
   return (
-    <div className="p-4 border border-gray-300 rounded w-85">
+    <div className="p-4 border">
       <div className="flex items-center space-x-4 justify-between">
         <input
           type="text"
           value={keyword}
           onChange={(e) => setKeyword(e.target.value)}
-          placeholder="search"
-          className="w-35 focus:outline-none focus:ring-0 border-none"
+          placeholder="키워드"
+          className="border w-30"
         />
 
         <div className="flex gap-2">
-          {isSearched && notes.length == 0 && (
-            <div className="text-center text-gray-500">결과 없음</div>
-          )}
-
           {notes.length > 0 && (
-            <div className="text-center text-gray-500">
+            <div className="text-center">
               {currentIndex + 1} / {notes.length}
             </div>
           )}
@@ -312,6 +313,13 @@ function NoteSearch({ onSelect, onClose }) {
           </button>
         </div>
       </div>
+      {/* {notes.length > 0 && (
+        <div className="border p-4">
+          <h3>{notes[currentIndex].note_title}</h3>
+          <p>{notes[currentIndex].note_writer.user_email}</p>
+          <p>{new Date(notes[currentIndex].created_at).toLocaleDateString()}</p>
+        </div>
+      )} */}
     </div>
   );
 }

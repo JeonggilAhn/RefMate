@@ -21,23 +21,24 @@ const VersionHistorySidebar = ({ blueprintId, blueprintTitle, onClose }) => {
   return (
     <SidebarContainer>
       <div className="flex items-center justify-between">
-        <h1 className="text-left">모든 시안</h1>
+        <div className="text-left text-lg pl-2 font-bold">모든 시안</div>
         <CloseButton onClick={onClose} className="text-xl cursor-pointer">
           ×
         </CloseButton>
       </div>
-      <hr className="my-4" />
-      <h2 className="text-left">{blueprintTitle}</h2>
+      <hr className="my-4 border-t border-gray-300" />
+      <h2 className="text-left p-2 text-lg font-bold">{blueprintTitle}</h2>
 
-      <VersionList>
+      <div className="flex flex-col gap-5">
         {versions.map((version) => (
           <VersionItem key={version.blueprint_version_id}>
             <div className="flex flex-col">
-              <PreviewImage
-                src={version.preview_image}
-                alt={version.blueprint_version_name}
-                className="mb-2"
-              />
+              <div className="rounded-lg">
+                <PreviewImage
+                  src={version.preview_image}
+                  alt={version.blueprint_version_name}
+                />
+              </div>
               <div className="flex justify-between p-2">
                 <VersionName>{version.blueprint_version_name}</VersionName>
                 <CreatedAt>
@@ -47,13 +48,13 @@ const VersionHistorySidebar = ({ blueprintId, blueprintTitle, onClose }) => {
             </div>
           </VersionItem>
         ))}
-      </VersionList>
+      </div>
     </SidebarContainer>
   );
 };
 
 const SidebarContainer = styled.div`
-  width: 20rem;
+  width: 25rem;
   height: 100%;
   background: #f8f9fa;
   border-left: 1px solid #ddd;
@@ -65,18 +66,14 @@ const SidebarContainer = styled.div`
   z-index: 10;
 `;
 
-const VersionList = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-`;
-
 const VersionItem = styled.div`
   align-items: center;
   border: 1px solid #ddd;
   background: white;
   cursor: pointer;
   transition: background 0.2s;
+  border-radius: 8px;
+  overflow: hidden;
 
   &:hover {
     background: #e9ecef;
@@ -88,7 +85,8 @@ const PreviewImage = styled.img`
   height: 100%;
   display: flex;
   object-fit: cover;
-  padding: 0.5rem;
+  // padding: 10px;
+  // border-radius: 8px;
 `;
 
 const VersionName = styled.div`

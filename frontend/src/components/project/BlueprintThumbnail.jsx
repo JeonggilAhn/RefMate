@@ -203,6 +203,7 @@ const BlueprintItem = styled.div`
   padding: 0.8rem;
   display: flex;
   flex-direction: column;
+  border-radius: 8px;
   position: relative; /* 자식 요소인 HoverButtons가 절대 위치를 가질 수 있도록 */
 `;
 
@@ -210,6 +211,7 @@ const ImageWrapper = styled.div`
   position: relative;
   width: 100%;
   overflow: hidden; /* 이미지 크기 유지 */
+  border-radius: 8px;
 
   /* 검은 배경 오버레이 */
   &::after {
