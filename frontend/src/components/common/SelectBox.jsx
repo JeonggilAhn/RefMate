@@ -5,11 +5,19 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 
-const SelectBox = ({ width = 30, placeholder = '', children }) => {
+const SelectBox = ({
+  width = 30,
+  placeholder = '',
+  value,
+  onValueChange,
+  children,
+}) => {
   return (
-    <Select>
+    <Select value={value} onValueChange={onValueChange}>
       {/* todo : 고장나는 이 친구 [&_svg]:w-15 [&_svg]:h-10 */}
-      <SelectTrigger className={`w-${width} pr-2`}>
+      <SelectTrigger
+        className={`w-${width} pr-2 border-[#CBCBCB] ring-2 ring-[#F1F1F1]`}
+      >
         <SelectValue placeholder={placeholder} />
       </SelectTrigger>
       <SelectContent
