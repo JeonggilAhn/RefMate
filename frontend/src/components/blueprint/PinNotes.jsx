@@ -6,6 +6,7 @@ import CreateNote from './CreateNote';
 import NoteSearch from './NoteSearch';
 import NoteDetail from './NoteDetail';
 import Icon from '../common/Icon';
+import Draggable from 'react-draggable';
 
 const processNotes = (noteList) => {
   if (!Array.isArray(noteList)) {
@@ -37,7 +38,7 @@ const processNotes = (noteList) => {
     }));
 };
 
-const PinNotes = ({ pinId, onClose }) => {
+const PinNotes = ({ pinId, onClose, isSidebar }) => {
   const [notesByDate, setNotesByDate] = useState([]);
   const [showCreateNote, setShowCreateNote] = useState(false);
   const [isSearching, setIsSearching] = useState(false);
@@ -76,53 +77,55 @@ const PinNotes = ({ pinId, onClose }) => {
   };
 
   return (
-    <Container>
-      {selectedNote ? (
-        <NoteDetail note={selectedNote} onBack={handleBack} />
-      ) : (
-        <>
-          <Header>
-            <button onClick={handleCreateNote}>
-              <Icon name="IconIoIosAddCircleOutline" width={20} height={20} />
-            </button>
-            <h3>🔵 핀 이름</h3>
-            {!onClose && (
-              <button onClick={handleIconClick}>
-                <Icon name="IconTbSearch" width={20} height={20} />
+    <Draggable disabled={isSidebar}>
+      <Container>
+        {selectedNote ? (
+          <NoteDetail note={selectedNote} onBack={handleBack} />
+        ) : (
+          <>
+            <Header>
+              <button onClick={handleCreateNote}>
+                <Icon name="IconIoIosAddCircleOutline" width={20} height={20} />
               </button>
+              <h3>🔵 핀 이름</h3>
+              {!onClose && (
+                <button onClick={handleIconClick}>
+                  <Icon name="IconTbSearch" width={20} height={20} />
+                </button>
+              )}
+              {onClose && (
+                <button onClick={onClose} className="text-gray-500">
+                  닫기
+                </button>
+              )}
+            </Header>
+            <NotesContainer>
+              {notesByDate.length === 0 ? (
+                <NoData>등록된 노트가 없습니다.</NoData>
+              ) : (
+                notesByDate.map(({ date, notes }) => (
+                  <React.Fragment key={date}>
+                    <DateSeparator>{date}</DateSeparator>
+                    {notes.map((note) => (
+                      <NoteWithPinWrapper key={note.note_id}>
+                        <NoteButton
+                          note={note}
+                          onClick={() => handleNoteClick(note)}
+                        />
+                      </NoteWithPinWrapper>
+                    ))}
+                  </React.Fragment>
+                ))
+              )}
+            </NotesContainer>
+            {showCreateNote && (
+              <CreateNote closeModal={() => setShowCreateNote(false)} />
             )}
-            {onClose && (
-              <button onClick={onClose} className="text-gray-500">
-                닫기
-              </button>
-            )}
-          </Header>
-          <NotesContainer>
-            {notesByDate.length === 0 ? (
-              <NoData>등록된 노트가 없습니다.</NoData>
-            ) : (
-              notesByDate.map(({ date, notes }) => (
-                <React.Fragment key={date}>
-                  <DateSeparator>{date}</DateSeparator>
-                  {notes.map((note) => (
-                    <NoteWithPinWrapper key={note.note_id}>
-                      <NoteButton
-                        note={note}
-                        onClick={() => handleNoteClick(note)}
-                      />
-                    </NoteWithPinWrapper>
-                  ))}
-                </React.Fragment>
-              ))
-            )}
-          </NotesContainer>
-          {showCreateNote && (
-            <CreateNote closeModal={() => setShowCreateNote(false)} />
-          )}
-          {isSearching && <NoteSearch />}
-        </>
-      )}
-    </Container>
+            {isSearching && <NoteSearch />}
+          </>
+        )}
+      </Container>
+    </Draggable>
   );
 };
 

@@ -129,7 +129,7 @@ const PinComponent = ({
 
       {/* 노트 상세 보기 */}
       {showPinNotes && (
-        <div className="absolute left-full top-0 z-10 w-60">
+        <div className="absolute left-full top-10 z-10 w-80">
           <PinNotes onClose={() => setShowPinNotes(false)} />
         </div>
       )}

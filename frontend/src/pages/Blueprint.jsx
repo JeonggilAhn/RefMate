@@ -399,7 +399,7 @@ const Blueprint = () => {
               </div>
             </div>
             <ImportantNoteSection />
-            <PinNotes />
+            <PinNotes isSidebar={true} />
           </div>
         </div>
       </div>

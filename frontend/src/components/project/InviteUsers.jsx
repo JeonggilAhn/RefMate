@@ -1,37 +1,34 @@
 import React from 'react';
-import EmailInput from './EmailInput'; // EmailInput import
+import EmailInput from './EmailInput';
 
 const InviteUsers = ({ validEmails, handleRemoveEmail, handleAddEmail }) => {
   return (
     <div>
-      <EmailInput
-        onAddEmail={handleAddEmail} // 이메일 추가 핸들러 전달
-        onRemoveEmail={handleRemoveEmail} // 이메일 삭제 핸들러 전달
-      />
-      <ul>
+      <div className="mt-2 mb-4 text-md text-gray-700">초대 이메일</div>
+
+      {/* 이메일 태그 영역 */}
+      <div className="border border-gray-200 mb-4 rounded-md p-2 flex flex-wrap gap-2 min-h-[40px] items-center">
         {validEmails.map(({ email, isValid }, index) => (
-          <li
+          <span
             key={index}
-            className="border"
-            style={{ borderColor: isValid ? 'blue' : 'red' }}
+            className={`px-2 py-1 rounded-lg flex items-center gap-1 text-sm ${
+              isValid ? 'bg-blue-200 text-blue-800' : 'bg-red-200 text-red-800'
+            }`}
           >
             {email}
             <button
               type="button"
-              onClick={() => handleRemoveEmail(email)} // X 버튼 클릭 시 이메일 삭제
-              style={{
-                backgroundColor: 'transparent',
-                border: 'none',
-                color: 'red',
-                marginLeft: '10px',
-                cursor: 'pointer',
-              }}
+              onClick={() => handleRemoveEmail(email)}
+              className="text-red-600 font-bold text-xs"
             >
-              X
+              ✖
             </button>
-          </li>
+          </span>
         ))}
-      </ul>
+
+        {/* 이메일 입력창 */}
+        <EmailInput onAddEmail={handleAddEmail} />
+      </div>
     </div>
   );
 };
