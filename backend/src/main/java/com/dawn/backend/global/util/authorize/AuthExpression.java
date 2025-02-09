@@ -1,5 +1,7 @@
 package com.dawn.backend.global.util.authorize;
 
+import java.util.Objects;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
@@ -17,6 +19,7 @@ import com.dawn.backend.domain.pin.repository.PinVersionRepository;
 import com.dawn.backend.domain.project.entity.Project;
 import com.dawn.backend.domain.project.exception.ProjectNotFoundException;
 import com.dawn.backend.domain.project.repository.ProjectRepository;
+import com.dawn.backend.domain.user.entity.UnauthorizeUser;
 import com.dawn.backend.domain.user.entity.User;
 import com.dawn.backend.domain.user.repository.UserProjectRepository;
 
@@ -53,7 +56,11 @@ public class AuthExpression {
 
 	public boolean hasProjectPermissionByProjectId(Long projectId) {
 		User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-		return userProjectRepository.findByUserIdAndProjectId(user.getUserId(), projectId).isPresent();
+		if (user instanceof UnauthorizeUser) {
+			return Objects.equals(projectId, ((UnauthorizeUser) user).getPermissionProjectId());
+		} else {
+			return userProjectRepository.findByUserIdAndProjectId(user.getUserId(), projectId).isPresent();
+		}
 	}
 
 	public boolean isNoteWriter(Long noteId) {
@@ -63,31 +70,27 @@ public class AuthExpression {
 	}
 
 	public boolean hasProjectPermissionByNoteId(Long noteId) {
-		User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		Project project = projectRepository.findByNoteId(noteId)
 			.orElseThrow(ProjectNotFoundException::new);
-		return userProjectRepository.findByUserIdAndProjectId(user.getUserId(), project.getProjectId()).isPresent();
+		return hasProjectPermissionByProjectId(project.getProjectId());
 	}
 
 	public boolean hasProjectPermissionByImageId(Long imageId) {
-		User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		Project project = projectRepository.findByImageId(imageId)
 			.orElseThrow(ProjectNotFoundException::new);
-		return userProjectRepository.findByUserIdAndProjectId(user.getUserId(), project.getProjectId()).isPresent();
+		return hasProjectPermissionByProjectId(project.getProjectId());
 	}
 
 	public boolean hasProjectPermissionByPinId(Long pinId) {
-		User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		Project project = projectRepository.findByPinId(pinId)
 			.orElseThrow(ProjectNotFoundException::new);
-		return userProjectRepository.findByUserIdAndProjectId(user.getUserId(), project.getProjectId()).isPresent();
+		return hasProjectPermissionByProjectId(project.getProjectId());
 	}
 
 	public boolean hasProjectPermissionByBlueprintId(Long blueprintId) {
-		User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		Project project = projectRepository.findByBlueprintId(blueprintId)
 			.orElseThrow(ProjectNotFoundException::new);
-		return userProjectRepository.findByUserIdAndProjectId(user.getUserId(), project.getProjectId()).isPresent();
+		return hasProjectPermissionByProjectId(project.getProjectId());
 	}
 
 	public boolean hasBlueprintPermission(Long blueprintId) {
