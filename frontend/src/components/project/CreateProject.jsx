@@ -4,19 +4,17 @@ import InviteUsers from './InviteUsers';
 
 const CreateProject = ({ setModal }) => {
   const [projectTitle, setProjectTitle] = useState('');
-  const [validEmails, setValidEmails] = useState([]); // 유효한 이메일을 저장하는 배열
+  const [validEmails, setValidEmails] = useState([]);
 
   const handleInputChange = (event) => {
     setProjectTitle(event.target.value);
   };
 
   const handleAddEmail = (email, isValid) => {
-    // 이메일을 배열에 추가 (유효성 검사와 관계없이)
     setValidEmails((prevEmails) => [...prevEmails, { email, isValid }]);
   };
 
   const handleRemoveEmail = (emailToRemove) => {
-    // 이메일 삭제
     setValidEmails((prevEmails) =>
       prevEmails.filter((emailObj) => emailObj.email !== emailToRemove),
     );
@@ -53,6 +51,7 @@ const CreateProject = ({ setModal }) => {
         }
       }
 
+      alert('생성 완료');
       setModal(null);
     } catch (error) {
       console.error('프로젝트 생성 실패:', error);
@@ -61,16 +60,20 @@ const CreateProject = ({ setModal }) => {
   };
 
   return (
-    <div className="p-4">
+    <div className="p-4 w-150">
       <form onSubmit={handleSubmit}>
         <div>
-          <label htmlFor="projectTitle">이름</label>
-          <div className="border">
+          <div className="mb-2">
+            <label htmlFor="projectTitle">이름</label>
+          </div>
+          <div className="border border-gray-200 mb-8 rounded-md p-2 flex flex-wrap gap-2 min-h-[40px] items-center">
             <input
               type="text"
               id="projectTitle"
               value={projectTitle}
               onChange={handleInputChange}
+              placeholder="프로젝트 이름을 입력하세요."
+              className="w-auto flex-grow border-none focus:ring-0 outline-none text-sm p-1"
             />
           </div>
           <InviteUsers
@@ -82,7 +85,12 @@ const CreateProject = ({ setModal }) => {
         <div className="flex justify-end">
           <button
             type="submit"
-            className="px-4 py-2 mt-2 bg-blue-500 text-white rounded"
+            className={`px-4 py-2 mt-2 text-white rounded ${
+              projectTitle.trim()
+                ? 'bg-blue-500 hover:bg-blue-600'
+                : 'bg-gray-300 cursor-not-allowed opacity-50'
+            }`}
+            disabled={!projectTitle.trim()}
           >
             완료
           </button>
