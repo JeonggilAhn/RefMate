@@ -59,7 +59,7 @@ public class ProjectController {
 	}
 
 	@PostMapping("/projects/{projectId}/users")
-	@PreAuthorize("@authExpression.hasCreatorRoleInProject(#projectId)")
+	@PreAuthorize("@authExpression.hasRoleOwnerInProject(#projectId)")
 	public ResponseEntity<ResponseWrapper<Void>> inviteUser(
 		@PathVariable("projectId") Long projectId,
 		@RequestBody InviteUserRequestDto request
@@ -69,7 +69,7 @@ public class ProjectController {
 	}
 
 	@PatchMapping("/projects/{projectId}")
-	@PreAuthorize("@authExpression.hasCreatorRoleInProject(#projectId)")
+	@PreAuthorize("@authExpression.hasRoleOwnerInProject(#projectId)")
 	public ResponseEntity<ResponseWrapper<Void>> updateProject(
 		@PathVariable("projectId") Long projectId,
 		@RequestBody UpdateProjectRequestDto request
@@ -79,7 +79,7 @@ public class ProjectController {
 	}
 
 	@DeleteMapping("/projects/{projectId}")
-	@PreAuthorize("@authExpression.hasCreatorRoleInProject(#projectId)")
+	@PreAuthorize("@authExpression.hasRoleOwnerInProject(#projectId)")
 	public ResponseEntity<ResponseWrapper<Void>> deleteProject(
 		@PathVariable("projectId") Long projectId
 	) {
