@@ -67,7 +67,7 @@ public class ProjectServiceImpl implements ProjectService {
 		Map<Long, Boolean> isMineMap = userProjects.stream()
 			.collect(Collectors.toMap(
 				up -> up.getProject().getProjectId(),
-				up -> "CREATOR".equals(up.getUserRole())
+				up -> "ROLE_OWNER".equals(up.getUserRole())
 			));
 
 		List<Blueprint> blueprints = blueprintRepository.findByProjectIdIn(projectIds);
@@ -133,11 +133,8 @@ public class ProjectServiceImpl implements ProjectService {
 	@Override
 	public CreateProjectResponseDto createProject(User user, CreateProjectRequestDto createProjectRequestDto) {
 		Project project = createProjectRequestDto.toEntity();
-
 		Project savedProject = projectRepository.save(project);
-
-		saveUserProject(user, project, "CREATOR");
-
+		saveUserProject(user, project, "ROLE_OWNER");
 		return new CreateProjectResponseDto(savedProject.getProjectId());
 
 	}
