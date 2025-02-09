@@ -17,4 +17,14 @@ public interface BlueprintRepository extends JpaRepository<Blueprint, Long> {
 		SELECT bp FROM Blueprint bp WHERE bp.project.projectId IN :projectIds
 		""")
 	List<Blueprint> findByProjectIdIn(@Param("projectIds") List<Long> projectIds);
+
+	@Query("""
+		SELECT bv.blueprint.blueprintId FROM BlueprintVersion bv
+		WHERE bv.blueprintVersionId =
+		(
+			SELECT nt.blueprintVersion.blueprintVersionId FROM Note nt
+			WHERE nt.noteId = :noteId
+		)
+		""")
+	Long findBlueprintIdByNoteId(Long noteId);
 }
