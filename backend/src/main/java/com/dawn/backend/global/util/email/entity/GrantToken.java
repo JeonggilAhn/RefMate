@@ -7,7 +7,8 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 @RedisHash(
-	value = "grant-token"
+	value = "grant-token",
+	timeToLive = 7 * 24 * 60 * 60
 )
 @Getter
 @AllArgsConstructor

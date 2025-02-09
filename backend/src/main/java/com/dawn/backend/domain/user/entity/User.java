@@ -51,4 +51,11 @@ public class User extends BaseTimeEntity {
 		this.profileImage = profileImage;
 		this.oauthProvider = oauthProvider;
 	}
+
+	public User(
+		String userName
+	) {
+		this.userName = String.format("PreSigned %s", userName);
+		this.userEmail = "PreSigned User";
+	}
 }
