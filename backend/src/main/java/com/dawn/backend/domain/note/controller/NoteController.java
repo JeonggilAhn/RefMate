@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
@@ -94,6 +95,7 @@ public class NoteController {
 		return ResponseWrapperFactory.setResponse(HttpStatus.OK, null, getNotesByPinResponseDto);
 	}
 
+
 	@PatchMapping("/images/{imageId}/bookmark")
 	@PreAuthorize("@authExpression.hasProjectPermissionByImageId(#imageId)")
 	public ResponseEntity<ResponseWrapper<BookmarkImageResponseDto>> updateNoteImageBookmark(
@@ -119,14 +121,15 @@ public class NoteController {
 	public ResponseEntity<ResponseWrapper<GetNotesByBlueprintResponseDto>> getNotesByBlueprint(
 		@PathVariable Long blueprintId,
 		@PathVariable Long blueprintVersion,
-		@RequestBody GetNotesByBlueprintRequestDto request
+		@RequestBody GetNotesByBlueprintRequestDto requestDto,
+		@RequestParam(value = "cursor_id", required = false, defaultValue = Long.MAX_VALUE + "") Long cursorId,
+		@RequestParam(value = "size", required = false, defaultValue = "10") int size
 	) {
-		GetNotesByBlueprintResponseDto response =
-			noteService.getNotesByBlueprint(blueprintId, blueprintVersion, request);
-		return ResponseWrapperFactory.setResponse(HttpStatus.OK, null, response);
+		GetNotesByBlueprintResponseDto responseDto =
+			noteService.getNotesByBlueprint(blueprintId, blueprintVersion, requestDto, cursorId, size);
+		return ResponseWrapperFactory.setResponse(HttpStatus.OK, null, responseDto);
 	}
 
-	// 토큰 로직 -> 추후 NoteDetailRequestDto 삭제
 	@GetMapping("/notes/{noteId}")
 	@PreAuthorize("@authExpression.hasProjectPermissionByNoteId(#noteId)")
 	public ResponseEntity<ResponseWrapper<NoteDetailResponseDto>> findDetailNote(
