@@ -7,8 +7,6 @@ import Thumbnail from '../components/project/Thumbnail';
 import ProjectSubHeader from '../components/project/ProjectSubHeader';
 
 function ProjectList() {
-  const userId = 96168794; // 예시 userId
-
   const [filterType, setFilterType] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -16,7 +14,7 @@ function ProjectList() {
     <Wrapper>
       <Header />
       <ContentWrapper>
-        <ProjectSubHeader userId={userId} />
+        <ProjectSubHeader />
         <ProjectTabs
           actions={[
             { name: '모든 프로젝트', type: 'all' },
@@ -26,11 +24,7 @@ function ProjectList() {
           setFilterType={setFilterType}
           setSearchQuery={setSearchQuery}
         />
-        <Thumbnail
-          userId={userId}
-          filterType={filterType}
-          searchQuery={searchQuery}
-        />
+        <Thumbnail filterType={filterType} searchQuery={searchQuery} />
       </ContentWrapper>
       <BackButton />
     </Wrapper>
