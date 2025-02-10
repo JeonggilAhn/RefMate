@@ -19,7 +19,7 @@ const BlueprintListSubHeader = ({ userId, projectId }) => {
     setModal({
       type: 'modal',
       title: '새 블루프린트',
-      content: <CreateBlueprint setModal={setModal} />,
+      content: <CreateBlueprint setModal={setModal} projectId={projectId} />,
     });
   };
 
