@@ -13,7 +13,6 @@ import Button1 from '../components/main/Button1';
 import Button2 from '../components/main/Button2';
 import Button3 from '../components/main/Button3';
 import Button4 from '../components/main/Button4';
-import Button5 from '../components/main/Button5';
 
 const MainPage = () => {
   const [isLoginVisible, setIsLoginVisible] = useState(false);
@@ -25,13 +24,13 @@ const MainPage = () => {
   // 버튼 데이터 배열
   const buttons = [
     {
-      text: '공동 작업자 초대',
-      iconName: 'IconGoProjectSymlink',
+      text: '핀 단위 관리',
+      iconName: 'IconTbPinStroke',
       component: <Button1 />,
     },
     {
-      text: '프로젝트 단위 관리',
-      iconName: 'IconLuGalleryVerticalEnd',
+      text: '노트 히스토리 기록',
+      iconName: 'IconTbNotes',
       component: <Button2 />,
     },
     {
@@ -40,14 +39,9 @@ const MainPage = () => {
       component: <Button3 />,
     },
     {
-      text: '핀 단위 관리',
-      iconName: 'IconTbPinStroke',
+      text: '프로젝트 단위 관리',
+      iconName: 'IconLuGalleryVerticalEnd',
       component: <Button4 />,
-    },
-    {
-      text: '노트 히스토리 기록',
-      iconName: 'IconTbNotes',
-      component: <Button5 />,
     },
   ];
 
