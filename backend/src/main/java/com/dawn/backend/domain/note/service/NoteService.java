@@ -355,9 +355,6 @@ public class NoteService {
 
 		validateNoteIsDeleted(note);
 
-		// 노트를 읽음 여부 처리
-		updateUserNoteCheck(note, user);
-
 		//해당 노트를 작성한 유저의 정보 가져오기
 		Project project = getProjectByNoteId(note);
 		ProjectUserDto noteWriter = getNoteWriter(note, project.getProjectId());
@@ -407,18 +404,6 @@ public class NoteService {
 	private void validateNoteIsDeleted(Note note) {
 		if (note.getIsDeleted()) {
 			throw new DeletedNoteException();
-		}
-	}
-
-	private void updateUserNoteCheck(Note note, User user) {
-		boolean exists = noteCheckRepository.existsByUserAndNote(user, note);
-		if (!exists) {
-			UserNoteCheck userNoteCheck = UserNoteCheck.builder()
-				.user(user)
-				.note(note)
-				.build();
-			userNoteCheck.updateNoteCheck(true);
-			noteCheckRepository.save(userNoteCheck);
 		}
 	}
 
