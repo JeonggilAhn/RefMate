@@ -42,9 +42,23 @@ public interface NoteRepository extends JpaRepository<Note, Long> {
 
 	List<Note> findAllByPinPinId(Long pinId);
 
-	List<Note> findAllByPinPinIdAndBookmark(Long pinId, boolean bookmark);
-
-	List<Note> findAllByBlueprintVersion_BlueprintVersionId(Long blueprintVersionId);
-
 	Optional<Note> findFirstByPinPinIdAndIsDeletedFalseOrderByCreatedAtDesc(Long pinId);
+
+	@Query("""
+		SELECT n FROM Note n
+		WHERE n.pin.pinId = :pinId
+				AND n.isDeleted = false
+		""")
+	List<Note> findAllByPinPinIdAndIsDeletedFalse(@Param("pinId") Long pinId);
+
+	@Query("""
+		SELECT n FROM Note n
+		WHERE n.pin.pinId = :pinId
+			AND n.bookmark = :bookmark
+			AND n.isDeleted = false
+		""")
+	List<Note> findAllByPinPinIdAndBookmarkAndIsDeletedFalse(
+		@Param("pinId") Long pinId,
+		@Param("bookmark") boolean bookmark
+	);
 }
