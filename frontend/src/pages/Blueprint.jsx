@@ -48,6 +48,7 @@ const Blueprint = () => {
   // sidebar detail
   const [detailPinImages, setDetailPinImages] = useState([]);
   const bottomRef = useRef(null);
+  const [detailPin, setDetailPin] = useState({});
 
   const onClickPinButton = () => {
     setIsPinButtonEnaled(true);
@@ -118,8 +119,10 @@ const Blueprint = () => {
   const openBlueprintVersion = () => setIsVersionOpen(true);
   const closeBlueprintVersion = () => setIsVersionOpen(false);
 
-  const onClickInfoButton = () => {
+  const onClickInfoButton = (pin) => {
     console.log('pin info button');
+    setDetailPin(pin);
+    console.log('핀 정보: ', pin);
 
     // 01 핀 상세 이미지 조회
     // 02 핀 상세 중요 노트 조회
@@ -589,7 +592,7 @@ const Blueprint = () => {
               </div>
             </div>
             <ImportantNoteSection />
-            <PinNotes />
+            <PinNotes pinInfo={detailPin} isSidebar={true} />
           </div>
         </div>
       </div>

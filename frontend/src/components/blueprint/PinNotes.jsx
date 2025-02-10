@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import NoteButton from './NoteButton';
 import { get } from '../../api';
@@ -8,57 +8,53 @@ import NoteDetail from './NoteDetail';
 import Icon from '../common/Icon';
 import Draggable from 'react-draggable';
 
-const processNotes = (noteList) => {
-  if (!Array.isArray(noteList)) {
-    throw new Error('note_list 데이터가 배열 형식이 아닙니다.');
-  }
-
-  const groupedByDate = noteList.reduce((acc, note) => {
-    const date = new Date(note.created_at).toLocaleDateString('ko-KR', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      weekday: 'short',
-    });
-
-    if (!acc[date]) {
-      acc[date] = [];
-    }
-    acc[date].push(note);
-    return acc;
-  }, {});
-
-  return Object.entries(groupedByDate)
-    .sort(([dateA], [dateB]) => new Date(dateB) - new Date(dateA))
-    .map(([date, notes]) => ({
-      date,
-      notes: notes.sort(
-        (a, b) => new Date(a.created_at) - new Date(b.created_at),
-      ),
-    }));
-};
-
-const PinNotes = ({ pinId, onClose, isSidebar }) => {
+const PinNotes = ({ pinInfo, onClose, isSidebar }) => {
   const [notesByDate, setNotesByDate] = useState([]);
   const [showCreateNote, setShowCreateNote] = useState(false);
   const [isSearching, setIsSearching] = useState(false);
   const [selectedNote, setSelectedNote] = useState(null);
 
-  useEffect(() => {
-    const fetchNotesWithPins = async () => {
-      try {
-        const response = await get(`pins/${pinId}/notes`);
-        const fetchedNotes = response.data.content?.note_list || [];
-        const notesGroupedByDate = processNotes(fetchedNotes);
-        setNotesByDate(notesGroupedByDate);
-      } catch (error) {
-        console.error('핀 및 노트 데이터 로드 실패:', error);
-        setNotesByDate([]);
-      }
-    };
+  const processNotes = (noteList) => {
+    if (!Array.isArray(noteList)) {
+      throw new Error('note_list 데이터가 배열 형식이 아닙니다.');
+    }
 
-    fetchNotesWithPins();
-  }, [pinId]);
+    const groupedByDate = noteList.reduce((acc, note) => {
+      const date = new Date(note.created_at).toLocaleDateString('ko-KR', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        weekday: 'short',
+      });
+
+      if (!acc[date]) {
+        acc[date] = [];
+      }
+      acc[date].push(note);
+      return acc;
+    }, {});
+
+    return Object.entries(groupedByDate)
+      .sort(([dateA], [dateB]) => new Date(dateB) - new Date(dateA))
+      .map(([date, notes]) => ({
+        date,
+        notes: notes.sort(
+          (a, b) => new Date(a.created_at) - new Date(b.created_at),
+        ),
+      }));
+  };
+
+  const fetchNotesWithPins = async () => {
+    try {
+      const response = await get(`pins/${pinInfo.pin_id}/notes`);
+      const fetchedNotes = response.data.content?.note_list || [];
+      const notesGroupedByDate = processNotes(fetchedNotes);
+      setNotesByDate(notesGroupedByDate);
+    } catch (error) {
+      console.error('핀 및 노트 데이터 로드 실패:', error);
+      setNotesByDate([]);
+    }
+  };
 
   const handleCreateNote = () => {
     setShowCreateNote(true);
@@ -76,6 +72,15 @@ const PinNotes = ({ pinId, onClose, isSidebar }) => {
     setSelectedNote(null);
   };
 
+  useEffect(() => {
+    fetchNotesWithPins();
+  }, [pinInfo.pin_id]);
+
+  // pin_id가 현재 null
+  if (!pinInfo.pin_id) {
+    return null;
+  }
+
   return (
     <Draggable disabled={isSidebar}>
       <Container>
@@ -87,7 +92,14 @@ const PinNotes = ({ pinId, onClose, isSidebar }) => {
               <button onClick={handleCreateNote}>
                 <Icon name="IconIoIosAddCircleOutline" width={20} height={20} />
               </button>
-              <h3>🔵 핀 이름</h3>
+              <div className="flex items-center justify-center flex-grow gap-2">
+                <div
+                  className="w-4 h-4 rounded-full"
+                  style={{ backgroundColor: pinInfo.pin_group.pin_group_color }}
+                ></div>
+                <div>{pinInfo.pin_name}</div>
+              </div>
+
               {!onClose && (
                 <button onClick={handleIconClick}>
                   <Icon name="IconTbSearch" width={20} height={20} />
@@ -95,7 +107,7 @@ const PinNotes = ({ pinId, onClose, isSidebar }) => {
               )}
               {onClose && (
                 <button onClick={onClose} className="text-gray-500">
-                  닫기
+                  <Icon name="IconCgClose" width={24} height={24} />
                 </button>
               )}
             </Header>

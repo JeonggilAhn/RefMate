@@ -175,16 +175,23 @@ const BlueprintCanvas = ({
     setIsPopupOpen(true);
   };
 
-  const handleConfirmPin = (name, groupId, groupColor) => {
+  const handleConfirmPin = (name, groupId, groupColor, pinId) => {
     if (!pendingPin) return;
 
     const newPin = {
       ...pendingPin,
       pin_name: name,
-      pin_group: { pin_group_id: groupId, pin_group_color: groupColor },
+      pin_group: {
+        pin_group_id: groupId,
+        pin_group_color: groupColor,
+      },
+      pin_id: pinId,
     };
 
-    setPins((prevPins) => [...prevPins, newPin]);
+    setPins((prevPins) => {
+      console.log('잘봐라', [...prevPins, newPin]);
+      return [...prevPins, newPin];
+    });
     setPendingPin(null);
     setIsPopupOpen(false);
   };
@@ -218,7 +225,7 @@ const BlueprintCanvas = ({
             blueprintId={blueprint_id}
             blueprintVersion={blueprint_version_id}
             pin={item}
-            onClickInfoButton={onClickInfoButton}
+            onClickInfoButton={() => onClickInfoButton(item)}
           />
         </div>
       ))}
