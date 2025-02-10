@@ -1,6 +1,7 @@
 package com.dawn.backend.config;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
@@ -35,6 +36,9 @@ public class SecurityConfig {
 	private final UserRepository userRepository;
 	private final TokenBlackListRepository tokenBlackListRepository;
 	private final GrantTokenRepository grantTokenRepository;
+
+	@Value("${front-url}")
+	String frontUrl;
 
 	@Autowired
 	SecurityConfig(
@@ -72,7 +76,7 @@ public class SecurityConfig {
 		corsConfiguration.setAllowCredentials(true);
 		corsConfiguration.addAllowedHeader("*");
 		corsConfiguration.addAllowedMethod("*");
-		corsConfiguration.addAllowedOrigin("*");
+		corsConfiguration.addAllowedOrigin(frontUrl);
 
 		return corsConfiguration;
 	}
