@@ -45,9 +45,9 @@ const CreateProject = ({ setProjects, setModal }) => {
 
       setProjects((prevProjects) => [
         ...prevProjects,
-        { ...newProject, project_id: Number(response.data) },
+        { ...newProject, project_id: Number(response.data.content.project_id) },
       ]);
-      console.log('프로젝트 생성 성공:', response.data.content);
+      console.log('프로젝트 생성 성공:', response.data.content.project_id);
 
       if (validEmails.length > 0) {
         const inviteEmailList = validEmails.map((emailObj) => emailObj.email);

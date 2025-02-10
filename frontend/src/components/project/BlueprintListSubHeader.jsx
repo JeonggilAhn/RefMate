@@ -10,16 +10,26 @@ import EditOption from './EditOption';
 import CreateBlueprint from './CreateBlueprint';
 import InviteUsersModal from './InviteUsersModal';
 
-const BlueprintListSubHeader = ({ userId, projectId }) => {
+const BlueprintListSubHeader = ({
+  projectTitle,
+  projectId,
+  setBlueprints,
+  setProjectTitle,
+}) => {
   const navigate = useNavigate();
-  const [projectName, setProjectName] = useState('');
   const setModal = useSetRecoilState(modalState);
 
   const handleCreateBlueprint = () => {
     setModal({
       type: 'modal',
       title: '새 블루프린트',
-      content: <CreateBlueprint setModal={setModal} projectId={projectId} />,
+      content: (
+        <CreateBlueprint
+          setModal={setModal}
+          projectId={projectId}
+          setBlueprints={setBlueprints}
+        />
+      ),
     });
   };
 
@@ -31,22 +41,6 @@ const BlueprintListSubHeader = ({ userId, projectId }) => {
     });
   };
 
-  useEffect(() => {
-    const fetchProjectName = async () => {
-      if (projectId) {
-        try {
-          const response = await get(`projects/${projectId}`);
-          setProjectName(response.data.content.project_title);
-          console.log(projectName);
-        } catch (error) {
-          console.error('프로젝트 이름을 가져오는데 실패했습니다.', error);
-        }
-      }
-    };
-
-    fetchProjectName();
-  }, [userId, projectId]);
-
   const handleUpdateProjectName = (projectId, projectTitle) => {
     setModal({
       type: 'modal',
@@ -55,7 +49,7 @@ const BlueprintListSubHeader = ({ userId, projectId }) => {
         <UpdateProjectName
           projectId={projectId}
           projectTitle={projectTitle}
-          setProjectName={setProjectName}
+          setProjectName={setProjectTitle}
           setModal={setModal}
         />
       ),
@@ -90,12 +84,12 @@ const BlueprintListSubHeader = ({ userId, projectId }) => {
   return (
     <div className="flex justify-between items-center w-full px-5 py-2.5">
       <div className="flex items-center gap-4">
-        <div className="text-xl font-semibold">{projectName}</div>
+        <div className="text-xl font-semibold">{projectTitle}</div>
         <EditOption
           actions={[
             {
               name: '수정',
-              handler: () => handleUpdateProjectName(projectId, projectName),
+              handler: () => handleUpdateProjectName(projectId, projectTitle),
             },
             {
               name: '삭제',

@@ -9,40 +9,12 @@ import TextButton from '../common/TextButton';
 import EditOption from './EditOption';
 import UpdateBlueprintName from './UpdateBlueprintName';
 
-const BlueprintThumbnail = ({ projectId, filterType, searchQuery }) => {
-  const [blueprints, setBlueprints] = useState([]);
+const BlueprintThumbnail = ({ blueprints, setBlueprints }) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [selectedBlueprintId, setSelectedBlueprintId] = useState(null);
   const [selectedBlueprintTitle, setSelectedBlueprintTitle] = useState(null);
   const navigate = useNavigate();
   const setModal = useSetRecoilState(modalState);
-
-  useEffect(() => {
-    const fetchBlueprints = async () => {
-      try {
-        const response = await get(`projects/${projectId}/blueprints`);
-        const filteredProjects = response.data.content;
-        console.log(filteredProjects);
-        console.log(searchQuery);
-        const searchedBlueprints = searchQuery
-          ? filteredProjects.filter((blueprint) =>
-              blueprint.blueprint_title
-                ? blueprint.blueprint_title
-                    .toLowerCase()
-                    .includes(searchQuery.toLowerCase())
-                : false,
-            )
-          : filteredProjects;
-
-        console.log(searchedBlueprints === filteredProjects);
-        setBlueprints(searchedBlueprints);
-      } catch (error) {
-        console.error('API 호출 오류:', error);
-      }
-    };
-
-    fetchBlueprints();
-  }, [projectId, filterType, searchQuery]);
 
   const handleViewLatest = (blueprintId) => {
     navigate(`/blueprint`);
@@ -58,7 +30,7 @@ const BlueprintThumbnail = ({ projectId, filterType, searchQuery }) => {
   const handleUpdateBlueprintName = (blueprintId, blueprintTitle) => {
     setModal({
       type: 'modal',
-      title: '프로젝트 수정',
+      title: '블루프린트 수정',
       content: (
         <UpdateBlueprintName
           blueprintId={blueprintId}
