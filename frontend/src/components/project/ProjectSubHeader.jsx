@@ -5,7 +5,7 @@ import TextButton from '../common/TextButton';
 import { useSetRecoilState } from 'recoil';
 import { modalState } from '../../recoil/common/modal';
 
-const SubHeader = ({ userId, projectId }) => {
+const SubHeader = ({ projectId }) => {
   const [userName, setUserName] = useState('');
   const setModal = useSetRecoilState(modalState);
 
@@ -20,7 +20,7 @@ const SubHeader = ({ userId, projectId }) => {
   useEffect(() => {
     const fetchUserName = async () => {
       try {
-        const response = await get(`users/${userId}`);
+        const response = await get(`users/me`);
         const email = response.data.content.user_email;
         const name = email.split('@')[0]; // '@' 전까지의 문자열을 추출
         setUserName(name);
@@ -30,7 +30,7 @@ const SubHeader = ({ userId, projectId }) => {
     };
 
     fetchUserName();
-  }, [userId, projectId]);
+  }, [projectId]);
 
   return (
     <div className="flex justify-between items-center w-full px-5 py-2.5">

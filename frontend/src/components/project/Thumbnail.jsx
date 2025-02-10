@@ -7,7 +7,7 @@ import { useSetRecoilState } from 'recoil';
 import { modalState } from '../../recoil/common/modal';
 import EditOption from './EditOption';
 
-const Thumbnail = ({ userId, filterType, searchQuery }) => {
+const Thumbnail = ({ filterType, searchQuery }) => {
   const [projects, setProjects] = useState([]);
   const [imageLoaded, setImageLoaded] = useState(true);
 
@@ -17,7 +17,7 @@ const Thumbnail = ({ userId, filterType, searchQuery }) => {
   useEffect(() => {
     const fetchProjects = async () => {
       try {
-        const response = await get(`projects?user_id=${userId}`);
+        const response = await get(`projects`);
         const filteredProjects = response.data.content.filter((project) => {
           if (filterType === 'mine') return project.is_mine;
           if (filterType === 'shared') return !project.is_mine;
@@ -45,10 +45,8 @@ const Thumbnail = ({ userId, filterType, searchQuery }) => {
       }
     };
 
-    if (userId) {
-      fetchProjects();
-    }
-  }, [userId, filterType, searchQuery]);
+    fetchProjects();
+  }, [filterType, searchQuery]);
 
   const handleImageLoad = (index) => {
     setImageLoaded((prevState) => {
