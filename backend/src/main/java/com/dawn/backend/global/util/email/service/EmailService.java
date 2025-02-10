@@ -1,6 +1,13 @@
 package com.dawn.backend.global.util.email.service;
 
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
+import java.util.stream.Collectors;
+
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
@@ -12,6 +19,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import com.dawn.backend.global.util.email.dto.EmailMessageRequestDto;
 import com.dawn.backend.global.util.email.exception.EmailSendFailedException;
+import com.dawn.backend.global.util.email.exception.EmailTemplateReadFailedException;
 
 @Slf4j
 @Service
@@ -20,15 +28,24 @@ public class EmailService {
 
 	private final JavaMailSender javaMailSender;
 
-	public void sendMail(EmailMessageRequestDto emailMessageRequestDto) {
+	public void sendMail(EmailMessageRequestDto emailMessageRequestDto, String grantToken, String projectTitle) {
 
 		MimeMessage mimeMessage = javaMailSender.createMimeMessage();
 
 		try {
+			String content = readHtmlTemplate("mail/mailForm.html");
+
+			// 초대수락 후 로그인 페이지 url + grantToken
+			String inviteLink = "/invite?grant_token=" + grantToken;
+
+			content = content
+				.replace("{projectTitle}", projectTitle)
+				.replace("{inviteLink}", inviteLink);
 			MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage, false, "UTF-8");
 			mimeMessageHelper.setTo(emailMessageRequestDto.to());
 			mimeMessageHelper.setSubject(emailMessageRequestDto.subject());
-			mimeMessageHelper.setText(emailMessageRequestDto.message(), true);
+			mimeMessageHelper.setText(content, true);
+
 			javaMailSender.send(mimeMessage);
 
 			log.info("Success");
@@ -37,4 +54,14 @@ public class EmailService {
 			throw new EmailSendFailedException();
 		}
 	}
+
+	private String readHtmlTemplate(String filePath) {
+		try (BufferedReader reader = new BufferedReader(
+			new InputStreamReader(new ClassPathResource(filePath).getInputStream(), StandardCharsets.UTF_8))) {
+			return reader.lines().collect(Collectors.joining("\n"));
+		} catch (IOException e) {
+			throw new EmailTemplateReadFailedException();
+		}
+	}
+
 }

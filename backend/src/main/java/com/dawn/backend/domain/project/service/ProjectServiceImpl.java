@@ -150,7 +150,7 @@ public class ProjectServiceImpl implements ProjectService {
 				"프로젝트 초대 테스트 메일 내용입니다.");
 		String grantToken = grantService.createGrantToken(project.getProjectId(), "CLIENT");
 		log.info("grantToken UUID : {}", grantToken);
-		emailService.sendMail(emailMessageRequestDto);
+		emailService.sendMail(emailMessageRequestDto, grantToken, project.getProjectTitle());
 	}
 
 	@Transactional
