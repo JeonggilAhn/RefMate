@@ -232,7 +232,7 @@ public class NoteService {
 			throw new PinNotFoundException();
 		}
 
-		List<Note> notes = noteRepository.findAllByPinPinId(pinId);
+		List<Note> notes = noteRepository.findAllByPinPinIdAndIsDeletedFalse(pinId);
 
 		List<NoteItem> noteItems = notes.stream()
 			.map(note -> {
@@ -265,7 +265,7 @@ public class NoteService {
 			throw new PinNotFoundException();
 		}
 
-		List<Note> bookmarkedNotes = noteRepository.findAllByPinPinIdAndBookmark(pinId, true);
+		List<Note> bookmarkedNotes = noteRepository.findAllByPinPinIdAndBookmarkAndIsDeletedFalse(pinId, true);
 
 		List<BookmarkNoteItem> noteItems = bookmarkedNotes.stream()
 			.map(note -> {

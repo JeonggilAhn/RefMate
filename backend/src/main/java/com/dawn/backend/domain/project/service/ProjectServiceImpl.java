@@ -63,7 +63,7 @@ public class ProjectServiceImpl implements ProjectService {
 			return Collections.emptyList();
 		}
 
-		List<Project> projects = projectRepository.findByIdIn(projectIds);
+		List<Project> projects = projectRepository.findByIdInAndIsDeletedFalse(projectIds);
 		Map<Long, Boolean> isMineMap = userProjects.stream()
 			.collect(Collectors.toMap(
 				up -> up.getProject().getProjectId(),
