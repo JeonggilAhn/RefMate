@@ -10,6 +10,7 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.extern.slf4j.Slf4j;
 
 import com.dawn.backend.domain.user.entity.UnauthorizeUser;
 import com.dawn.backend.domain.user.entity.User;
@@ -21,6 +22,7 @@ import com.dawn.backend.global.util.email.entity.GrantToken;
 import com.dawn.backend.global.util.email.repository.GrantTokenRepository;
 import com.dawn.backend.global.util.jwt.JwtUtil;
 
+@Slf4j
 public class JwtFilter extends OncePerRequestFilter {
 	private final JwtUtil jwtUtil;
 	private final UserRepository userRepository;
@@ -52,24 +54,29 @@ public class JwtFilter extends OncePerRequestFilter {
 			return;
 		}
 		if (!authorizationHeader.startsWith("Bearer ")) {
+			log.error("Authorization header is incorrect");
 			throw new InvalidAccessTokenException();
 		}
 		String token = authorizationHeader.substring(7);
 		if (tokenBlackListRepository.existsById(token)) {
+			log.error("Token already been blacklisted");
 			throw new InvalidAccessTokenException();
 		}
 		String username;
 		try {
 			username = jwtUtil.getKey(token, "id");
 		} catch (Exception e) {
+			log.error("Invalid token");
 			throw new InvalidAccessTokenException();
 		}
 		if (username == null) {
+			log.error("Username is null");
 			throw new InvalidAccessTokenException();
 		}
 		try {
 			jwtUtil.isExpired(token);
 		} catch (Exception e) {
+			log.error("Invalid token");
 			throw new ExpiredAccessTokenException();
 		}
 		User user;
@@ -81,6 +88,7 @@ public class JwtFilter extends OncePerRequestFilter {
 		} else {
 			user = userRepository.getUserByUserName(username);
 			if (user == null) {
+				log.error("User not found");
 				throw new InvalidAccessTokenException();
 			}
 		}
