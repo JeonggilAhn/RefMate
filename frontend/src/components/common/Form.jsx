@@ -1,4 +1,11 @@
 import React from 'react';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import { useRecoilState } from 'recoil';
 import { modalState } from '../../recoil/common/modal';
 
@@ -10,17 +17,17 @@ const Form = () => {
   }
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white p-4 rounded shadow-lg min-w-[300px]">
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-bold">{modal.title}</h2>
-          <button onClick={() => setModal(null)} className="text-red-500">
-            X
-          </button>
-        </div>
-        <div>{modal.content}</div>
-      </div>
-    </div>
+    <Dialog
+      open={modal.type === 'modal' ? true : false}
+      onOpenChange={() => setModal(null)}
+    >
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>{modal.title}</DialogTitle>
+          <DialogDescription>{modal.content}</DialogDescription>
+        </DialogHeader>
+      </DialogContent>
+    </Dialog>
   );
 };
 
