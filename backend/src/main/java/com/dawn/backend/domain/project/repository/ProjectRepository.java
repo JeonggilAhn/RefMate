@@ -15,6 +15,12 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
 		""")
 	List<Project> findByIdIn(@Param("projectIds") List<Long> projectIds);
 
+
+	@Query("""
+		SELECT p FROM Project p WHERE p.projectId IN :projectIds AND p.isDeleted = false
+		""")
+	List<Project> findByIdInAndIsDeletedFalse(@Param("projectIds") List<Long> projectIds);
+
 	@Query("""
 		SELECT p FROM Note n
 		JOIN n.blueprintVersion bv
