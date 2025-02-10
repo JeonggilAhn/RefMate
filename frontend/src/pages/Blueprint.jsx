@@ -18,6 +18,8 @@ import { pinState } from '../recoil/blueprint';
 import EditOption from '../components/project/EditOption';
 import Tabs from '../components/common/Tabs';
 import Slider from '../components/common/Slider';
+import { modalState } from '../recoil/common/modal';
+import ImageCarouselPopup from '../components/blueprint/ImageCarouselPopup';
 
 const Blueprint = () => {
   const blueprint_id = 1;
@@ -48,6 +50,12 @@ const Blueprint = () => {
   // sidebar detail
   const [detailPinImages, setDetailPinImages] = useState([]);
   const bottomRef = useRef(null);
+  const [detailPin, setDetailPin] = useState({});
+
+  const [modal, setModal] = useRecoilState(modalState);
+  const [isDetailPopupOpen, setIsDetailPopupOpen] = useState(false);
+  const [detailPopupImages, setDetailPopupImages] = useState([]);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
   const onClickPinButton = () => {
     setIsPinButtonEnaled(true);
@@ -118,8 +126,10 @@ const Blueprint = () => {
   const openBlueprintVersion = () => setIsVersionOpen(true);
   const closeBlueprintVersion = () => setIsVersionOpen(false);
 
-  const onClickInfoButton = () => {
+  const onClickInfoButton = (pin) => {
     console.log('pin info button');
+    setDetailPin(pin);
+    console.log('핀 정보: ', pin);
 
     // 01 핀 상세 이미지 조회
     // 02 핀 상세 중요 노트 조회
@@ -132,6 +142,15 @@ const Blueprint = () => {
       } = res;
 
       if (status === 200) {
+        console.log('이미지다', content);
+        // 배열
+        // image_list
+        // image_id
+        // image_origin
+        // image_preview
+        // is_bookmark
+        // note_id
+        // note_title
         setDetailPinImages(content);
         setIsDetailSidebarOpen(true);
       }
@@ -196,18 +215,6 @@ const Blueprint = () => {
         });
         console.log(newContent);
         setBlueprints(newContent);
-      }
-    });
-
-    // test
-    get('pins/{pin_id}/images').then((res) => {
-      const {
-        status,
-        data: { content },
-      } = res;
-
-      if (status === 200) {
-        setDetailPinImages(content);
       }
     });
   }, []);
@@ -285,6 +292,15 @@ const Blueprint = () => {
       },
     );
   };
+
+  const onClickImage = (imageList, imageIndex) => {
+    // imageIndex 아직 사용하진 않음
+    setDetailPopupImages(imageList);
+    setCurrentImageIndex(imageIndex);
+    setIsDetailPopupOpen(true);
+  };
+
+  const onClickPinImage = (pinId) => {};
 
   return (
     <BlueprintLayout>
@@ -473,7 +489,10 @@ const Blueprint = () => {
                           ) : (
                             <div className="grid grid-cols-2 grid-row-2 gap-1 place-items-center mt-2">
                               {pin.preview_image_list.map((item, idx) => (
-                                <div key={item.image_id}>
+                                <div
+                                  key={item.image_id}
+                                  onClick={() => onClickPinImage('haha')}
+                                >
                                   <img
                                     src={item.image_preview}
                                     alt="reference"
@@ -566,6 +585,7 @@ const Blueprint = () => {
                           <div
                             key={item.image_id}
                             className="relative w-[6.1rem] h-[6.1rem]"
+                            onClick={() => onClickImage(pin.image_list, idx)}
                           >
                             <img
                               src={item.image_preview}
@@ -589,7 +609,7 @@ const Blueprint = () => {
               </div>
             </div>
             <ImportantNoteSection />
-            <PinNotes />
+            <PinNotes pinInfo={detailPin} isSidebar={true} />
           </div>
         </div>
       </div>
@@ -600,6 +620,12 @@ const Blueprint = () => {
           closeModal={closeBlueprintVersion}
         />
       )}
+      <ImageCarouselPopup
+        images={detailPopupImages}
+        initialIndex={currentImageIndex}
+        isOpen={isDetailPopupOpen}
+        onClickCloseButton={() => setIsDetailPopupOpen(false)}
+      />
     </BlueprintLayout>
   );
 };

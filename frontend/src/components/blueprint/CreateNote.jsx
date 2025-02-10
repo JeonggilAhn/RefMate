@@ -1,22 +1,27 @@
 import React, { useState } from 'react';
 import { post } from '../../api';
 import Icon from '../common/Icon';
+import ImageUploader from '../common/ImageUploader';
 
-const CreateNote = ({ pinId, closeModal }) => {
+const CreateNote = ({ pinId, closeModal, projectId }) => {
   const [noteTitle, setNoteTitle] = useState('');
   const [noteContent, setNoteContent] = useState('');
   const [imageUrls, setImageUrls] = useState([]);
 
+  const handleImageSelect = (urls) => {
+    setImageUrls(urls);
+  };
+
   const handleSubmit = async () => {
-    if (!noteTitle.trim() || !noteContent.trim()) return; // 제목이 없으면 실행 안 함
+    if (!noteTitle.trim() || !noteContent.trim()) return;
 
     try {
       const response = await post(`pins/${pinId}/notes`, {
-        blueprint_version_id: 0, // 예시
-        project_id: 0, // 예시
+        blueprint_version_id: 0,
+        project_id: projectId,
         note_title: noteTitle,
         note_content: noteContent,
-        image_url_list: imageUrls, // 이미지 URL 목록
+        image_url_list: imageUrls,
       });
 
       if (response.status === 201) {
@@ -61,37 +66,25 @@ const CreateNote = ({ pinId, closeModal }) => {
         className="w-full h-24 border border-gray-300 rounded-md p-2 text-sm focus:ring-0 outline-none resize-none mb-3"
       />
 
-      {/* 이미지 업로드 & 저장 버튼 */}
-      <div className="flex justify-between items-center">
-        {/* 이미지 업로드 버튼 */}
-        <label className="cursor-pointer">
-          <span className="w-10 h-10 flex items-center justify-center border border-gray-300 rounded-md text-gray-500">
-            <Icon name="IconTbPhoto" width={24} height={24} />
-          </span>
-          <input
-            type="file"
-            accept="image/*"
-            className="hidden"
-            onChange={(e) => {
-              const files = Array.from(e.target.files);
-              const urls = files.map((file) => URL.createObjectURL(file));
-              setImageUrls(urls);
-            }}
-          />
-        </label>
-
-        {/* 저장 버튼 */}
-        <button
-          onClick={handleSubmit}
-          className={`px-4 py-2 text-white rounded-md ${
-            noteTitle.trim() && noteContent.trim()
-              ? 'bg-blue-500 hover:bg-blue-600'
-              : 'bg-gray-300 cursor-not-allowed opacity-50'
-          }`}
-          disabled={!noteTitle.trim()}
-        >
-          저장
-        </button>
+      <div className="relative">
+        <ImageUploader
+          onImageSelect={handleImageSelect}
+          projectId={projectId}
+          type="note"
+        />
+        <div className="absolute bottom-0 right-0">
+          <button
+            onClick={handleSubmit}
+            className={`px-4 py-2 text-white rounded-md ${
+              noteTitle.trim() && noteContent.trim()
+                ? 'bg-blue-500 hover:bg-blue-600'
+                : 'bg-gray-300 cursor-not-allowed opacity-50'
+            }`}
+            disabled={!noteTitle.trim() || !noteContent.trim()}
+          >
+            저장
+          </button>
+        </div>
       </div>
     </div>
   );

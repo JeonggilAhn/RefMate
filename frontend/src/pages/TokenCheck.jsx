@@ -18,7 +18,8 @@ const TokenCheck = () => {
         console.log(accessToken);
         if (accessToken) {
           setToken(accessToken);
-          localStorage.setItem('access_token', accessToken); // 로컬 스토리지 저장
+          localStorage.setItem('access_token', accessToken);
+
           navigate('/projects');
         } else {
           console.error('서버에서 받은 토큰이 없습니다.');
