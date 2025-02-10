@@ -3,11 +3,11 @@ import ImgB3BluePrintNow from '../../assets/images/ImgB3BluePrintNow.svg';
 import ImgB3BluePrintPrev from '../../assets/images/ImgB3BluePrintPrev.svg';
 
 const Button3 = () => {
-  const [showPrev, setShowPrev] = useState(false); // Prev 이미지 표시 여부
+  const [showNow, setShowNow] = useState(true); // Now와 Prev 토글 상태
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setShowPrev((prev) => !prev); // Prev 표시/숨김 상태 토글
+      setShowNow((prev) => !prev); // Now와 Prev 상태 토글
     }, 2000); // 2초 간격
 
     return () => clearInterval(interval); // 컴포넌트 언마운트 시 인터벌 클리어
@@ -15,18 +15,20 @@ const Button3 = () => {
 
   return (
     <div className="relative w-full h-full bg-white border border-gray-300 rounded-md overflow-hidden">
-      {/* Now 이미지 (항상 표시) */}
-      <div className="absolute inset-0 z-10">
-        <img
-          src={ImgB3BluePrintNow}
-          alt="Blueprint Now"
-          className="w-full h-full object-contain"
-        />
-      </div>
+      {/* Now 이미지 (조건부 표시) */}
+      {showNow && (
+        <div className="absolute inset-0 z-10">
+          <img
+            src={ImgB3BluePrintNow}
+            alt="Blueprint Now"
+            className="w-full h-full object-contain"
+          />
+        </div>
+      )}
 
       {/* Prev 이미지 (조건부 표시) */}
-      {showPrev && (
-        <div className="absolute inset-0 z-20">
+      {!showNow && (
+        <div className="absolute inset-0 z-10">
           <img
             src={ImgB3BluePrintPrev}
             alt="Blueprint Prev"
