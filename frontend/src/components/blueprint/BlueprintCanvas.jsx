@@ -6,8 +6,8 @@ import PinPopup from './PinPopup';
 import { useRecoilState } from 'recoil';
 import { pinState } from '../../recoil/blueprint';
 
-const A3_WIDTH = 1587; // A3 크기 (픽셀 단위)
-const A3_HEIGHT = 1123; // A3 크기 (픽셀 단위)
+const A3_WIDTH = 1587;
+const A3_HEIGHT = 1123;
 
 const BlueprintCanvas = ({
   imageUrl,
@@ -40,14 +40,14 @@ const BlueprintCanvas = ({
 
     setScale(minScale);
     setPosition({ x: canvas.width / 2, y: canvas.height / 2 });
+
+    console.log(
+      `Center Position: x=${canvas.width / 2}, y=${canvas.height / 2}`,
+    );
   };
 
   useEffect(() => {
-    if (!imageUrl) {
-      return;
-    }
-
-    if (!overlayImageUrl) {
+    if (!imageUrl || !overlayImageUrl) {
       return;
     }
 
@@ -70,14 +70,12 @@ const BlueprintCanvas = ({
 
     imgRef.current.onload = () => {
       const ctx = canvas.getContext('2d');
-
       adjustImagePosition();
       drawImage(ctx);
     };
 
     overlayImgRef.current.onload = () => {
       const ctx = canvas.getContext('2d');
-
       adjustImagePosition();
       drawImage(ctx);
     };
@@ -102,7 +100,6 @@ const BlueprintCanvas = ({
 
     if (isOverlayVisible) {
       ctx.globalAlpha = overlayOpacity;
-
       ctx.drawImage(
         overlayImgRef.current,
         -A3_WIDTH / 2,
@@ -110,7 +107,6 @@ const BlueprintCanvas = ({
         A3_WIDTH,
         A3_HEIGHT,
       );
-
       ctx.globalAlpha = 1;
     }
 
@@ -120,9 +116,15 @@ const BlueprintCanvas = ({
   const handleWheel = (e) => {
     if (!isPinButtonEnaled) {
       const zoomSpeed = 0.1;
-      setScale((prev) =>
-        Math.max(0.5, prev + (e.deltaY > 0 ? -zoomSpeed : zoomSpeed)),
-      );
+      setScale((prev) => {
+        const newScale = Math.max(
+          0.5,
+          prev + (e.deltaY > 0 ? -zoomSpeed : zoomSpeed),
+        );
+
+        console.log(`\n🔍 Zoom Applied: scale=${newScale}`);
+        return newScale;
+      });
     }
   };
 
@@ -145,13 +147,14 @@ const BlueprintCanvas = ({
 
   const handleCanvasClick = (e) => {
     if (!isPinButtonEnaled) {
-      return; // 확대/축소 모드에서는 핀 추가 비활성화
+      return;
     }
 
-    const canvas = canvasRef.current;
-    const rect = canvas.getBoundingClientRect();
+    const rect = canvasRef.current.getBoundingClientRect();
     const x = (e.clientX - rect.left - position.x) / scale;
     const y = (e.clientY - rect.top - position.y) / scale;
+
+    console.log(`📍 Pin Clicked: x=${x.toFixed(2)}, y=${y.toFixed(2)}`);
 
     setPendingPin({
       has_unread_note: false,
@@ -218,7 +221,8 @@ const BlueprintCanvas = ({
             zIndex: 3,
             pointerEvents: 'auto',
             visibility: item.is_visible ? 'visible' : 'hidden',
-            transform: 'translate(-50%, -50%)',
+            transform: `translate(-50%, -50%) scale(${scale})`, // 핀 크기 자동 확대/축소
+            transformOrigin: 'center center', // 중심을 기준으로 크기 변경
           }}
         >
           <PinComponent
@@ -229,6 +233,7 @@ const BlueprintCanvas = ({
           />
         </div>
       ))}
+
       <canvas
         ref={canvasRef}
         onWheel={handleWheel}
