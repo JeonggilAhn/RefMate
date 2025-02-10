@@ -4,6 +4,7 @@ import ButtonList from './ButtonList';
 import { get } from '../../api';
 import Icon from '../common/Icon';
 import PinNotes from './PinNotes';
+import NoteImageDetail from './NoteImageDetail';
 
 const TEST_USER_ID = 6569173793051701; // 테스트용 user_id 고정
 
@@ -20,9 +21,14 @@ const PinComponent = ({
   const [isClicked, setIsClicked] = useState(false);
   const pinRef = useRef(null);
   const [showPinNotes, setShowPinNotes] = useState(false);
+  const [showImages, setShowImages] = useState(false);
 
   const handleNoteClick = () => {
     setShowPinNotes((prevState) => !prevState);
+  };
+
+  const handleImgClick = () => {
+    setShowImages((prevState) => !prevState);
   };
 
   // 읽음 여부 판단
@@ -123,14 +129,27 @@ const PinComponent = ({
       {/* 클릭 시 버튼 목록 표시 */}
       {isClicked && (
         <div className="absolute top-4 left-6 z-10" onClick={onClickInfoButton}>
-          <ButtonList onNoteClick={handleNoteClick} />
+          <ButtonList
+            onNoteClick={handleNoteClick}
+            onImgClick={handleImgClick}
+          />
         </div>
       )}
 
       {/* 노트 상세 보기 */}
       {showPinNotes && (
         <div className="absolute left-full top-10 z-10 w-80">
-          <PinNotes onClose={() => setShowPinNotes(false)} />
+          <PinNotes onClose={() => setShowPinNotes(false)} pinInfo={pinInfo} />
+        </div>
+      )}
+
+      {/* 이미지들 상세 보기 */}
+      {showImages && (
+        <div className="absolute left-full top-10 z-10 w-80">
+          <NoteImageDetail
+            onClose={() => setShowImages(false)}
+            pinInfo={pinInfo}
+          />
         </div>
       )}
     </div>

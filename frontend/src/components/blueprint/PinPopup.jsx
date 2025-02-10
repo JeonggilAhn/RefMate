@@ -56,11 +56,15 @@ const PinPopup = ({
       const groupColor =
         groupOptions.find((g) => g.pin_group_id === pinGroup)
           ?.pin_group_color || 'gray';
-      await post(`blueprints/${blueprintId}/${blueprintVersion}/pins`, {
+      post(`blueprints/${blueprintId}/${blueprintVersion}/pins`, {
         name: pinName,
         group: pinGroup,
+      }).then((res) => {
+        const {
+          data: { content },
+        } = res;
+        onConfirm(pinName, pinGroup, groupColor, content.pin_id);
       });
-      onConfirm(pinName, pinGroup, groupColor);
     } catch (error) {
       console.error('핀 생성 실패:', error);
     }
