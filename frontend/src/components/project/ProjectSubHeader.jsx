@@ -5,7 +5,7 @@ import TextButton from '../common/TextButton';
 import { useSetRecoilState } from 'recoil';
 import { modalState } from '../../recoil/common/modal';
 
-const SubHeader = ({ projectId }) => {
+const SubHeader = ({ setProjects }) => {
   const [userName, setUserName] = useState('');
   const setModal = useSetRecoilState(modalState);
 
@@ -13,7 +13,7 @@ const SubHeader = ({ projectId }) => {
     setModal({
       type: 'modal',
       title: '새 프로젝트',
-      content: <CreateProject setModal={setModal} />,
+      content: <CreateProject setProjects={setProjects} setModal={setModal} />,
     });
   };
 
@@ -30,7 +30,7 @@ const SubHeader = ({ projectId }) => {
     };
 
     fetchUserName();
-  }, [projectId]);
+  }, []);
 
   return (
     <div className="flex justify-between items-center w-full px-5 py-2.5">
