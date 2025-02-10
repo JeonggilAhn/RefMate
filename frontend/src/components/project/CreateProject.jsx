@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { post } from '../../api';
 import InviteUsers from './InviteUsers';
 
-const CreateProject = ({ setModal }) => {
+const CreateProject = ({ setProjects, setModal }) => {
   const [projectTitle, setProjectTitle] = useState('');
   const [validEmails, setValidEmails] = useState([]);
 
@@ -33,7 +33,21 @@ const CreateProject = ({ setModal }) => {
       if (!projectId) {
         throw new Error('프로젝트 ID를 가져오지 못했습니다.');
       }
-      console.log('프로젝트 생성 성공:', projectId);
+
+      const newProject = {
+        project_id: null,
+        project_title: projectTitle,
+        created_at: new Date(),
+        preview_images: [],
+        is_mine: true,
+        blueprints_count: 0,
+      };
+
+      setProjects((prevProjects) => [
+        ...prevProjects,
+        { ...newProject, project_id: Number(response.data) },
+      ]);
+      console.log('프로젝트 생성 성공:', response.data.content);
 
       if (validEmails.length > 0) {
         const inviteEmailList = validEmails.map((emailObj) => emailObj.email);
@@ -44,7 +58,6 @@ const CreateProject = ({ setModal }) => {
           });
 
           console.log('초대한 이메일:', inviteEmailList);
-          alert('사용자 초대 성공');
         } catch (inviteError) {
           console.error('사용자 초대 실패:', inviteError);
           alert('사용자 초대 중 오류 발생');

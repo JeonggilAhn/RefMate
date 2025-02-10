@@ -14,7 +14,6 @@ const ProjectTabs = ({ actions, setFilterType, setSearchQuery }) => {
   const handleSearchBarClear = () => {
     setSearchVisible(false); // X 아이콘 클릭 시 SearchBar 숨기기
     setSearchQuery(''); // 검색어 초기화
-    setFilterType({ type: 'all', query: '' }); // 검색어 초기화 및 'all' 필터로 설정
   };
 
   const handleSearch = (query) => {
@@ -30,7 +29,7 @@ const ProjectTabs = ({ actions, setFilterType, setSearchQuery }) => {
             active={activeTab === name}
             onClick={() => {
               setActiveTab(name);
-              setFilterType({ type, query: '' }); // 탭 클릭 시 필터 초기화
+              setFilterType(type); // 탭 클릭 시 필터 초기화
             }}
           >
             {name}

@@ -174,8 +174,14 @@ const ImageUploader = ({ onImageSelect, projectId, type = 'blueprint' }) => {
         onImageSelect([...previewUrls, ...successUrls]);
       } else {
         setPreviewUrls(newPreviewUrls);
-        const publicUrls = uploadedFiles.map((file) => file.public_url);
-        onImageSelect(publicUrls[0]);
+        await fetch(uploadedFiles[0].presigned_url, {
+          method: 'PUT',
+          body: validFiles[0],
+          headers: {
+            'Content-Type': filesInfo[0].file_type,
+          },
+        });
+        onImageSelect(uploadedFiles[0].public_url);
       }
     } catch (error) {
       setError('파일 업로드에 실패했습니다.');
