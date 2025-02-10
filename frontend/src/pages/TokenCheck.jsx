@@ -13,7 +13,7 @@ const TokenCheck = () => {
       try {
         const response = await get('auth/issue');
 
-        const accessToken = response.headers.authorization; // 백엔드에서 받은 토큰
+        const accessToken = response.headers.authorization.split(' ')[1]; // 백엔드에서 받은 토큰
         console.log(response);
         console.log(accessToken);
         if (accessToken) {
