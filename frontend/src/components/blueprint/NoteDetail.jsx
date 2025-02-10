@@ -7,6 +7,8 @@ import Confirm from '../../components/common/Confirm';
 import Icon from '../common/Icon';
 import EditNote from './EditNote'; // 수정 컴포넌트 추가
 
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar'; // Avatar 컴포넌트 추가
+
 const NoteDetail = ({ noteId, onBack }) => {
   const [noteData, setNoteData] = useState(null);
   const [modal, setModal] = useRecoilState(modalState);
@@ -145,7 +147,14 @@ const NoteDetail = ({ noteId, onBack }) => {
         </Header>
         <MainSection>
           <ProfileSection>
-            <ProfileImage src={note_writer.profile_url} alt="User Profile" />
+            {/* Avatar 적용 */}
+            <Avatar className="w-7 h-7 border border-gray-300 rounded-full">
+              <AvatarImage src={note_writer.profile_url} alt="프로필" />
+              <AvatarFallback>
+                {note_writer.user_email.slice(0, 2).toUpperCase() || 'NA'}
+              </AvatarFallback>
+            </Avatar>
+
             <ProfileInfo>
               <UserName>{note_writer.user_email.split('@')[0]}</UserName>
             </ProfileInfo>
@@ -240,13 +249,6 @@ const ProfileSection = styled.div`
   justify-content: space-between;
   align-items: center;
   margin-bottom: 0.5rem;
-`;
-
-const ProfileImage = styled.img`
-  width: 1.75rem;
-  height: 1.75rem;
-  border-radius: 50%;
-  margin-right: 0.5rem;
 `;
 
 const ProfileInfo = styled.div`

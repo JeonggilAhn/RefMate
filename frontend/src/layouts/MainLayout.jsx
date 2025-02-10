@@ -6,89 +6,94 @@ import Header from '../components/common/Header';
 import BackButton from '../components/common/BackButton';
 import Login from '../components/main/Login';
 import TextButton from '../components/common/TextButton';
+import Icon from '../components/common/Icon';
+
+// 버튼별 컴포넌트 import
+import Button1 from '../components/main/Button1';
+import Button2 from '../components/main/Button2';
+import Button3 from '../components/main/Button3';
+import Button4 from '../components/main/Button4';
+import Button5 from '../components/main/Button5';
 
 const MainPage = () => {
   const [isLoginVisible, setIsLoginVisible] = useState(false);
   const setModal = useSetRecoilState(modalState);
 
-  const handleOpenLogin = () => setIsLoginVisible(true);
-  const handleCloseLogin = () => setIsLoginVisible(false);
+  // 현재 선택된 버튼 (기본값: 첫 번째 버튼)
+  const [selectedButtonIndex, setSelectedButtonIndex] = useState(0);
+
+  // 버튼 데이터 배열
+  const buttons = [
+    {
+      text: '공동 작업자 초대',
+      iconName: 'IconGoProjectSymlink',
+      component: <Button1 />,
+    },
+    {
+      text: '프로젝트 단위 관리',
+      iconName: 'IconLuGalleryVerticalEnd',
+      component: <Button2 />,
+    },
+    {
+      text: '도면 업로드 및 비교',
+      iconName: 'IconTbFileImport',
+      component: <Button3 />,
+    },
+    {
+      text: '핀 단위 관리',
+      iconName: 'IconTbPinStroke',
+      component: <Button4 />,
+    },
+    {
+      text: '노트 히스토리 기록',
+      iconName: 'IconTbNotes',
+      component: <Button5 />,
+    },
+  ];
 
   return (
     <>
       <Header />
       <div className="flex flex-col h-screen p-4 box-border">
-        <div className="flex items-center h-full gap-4">
+        <div className="flex justify-center items-center h-full gap-4">
           {/* 왼쪽 섹션 */}
-          <div className="flex-1">
-            <h1 className="text-2xl mb-2">서비스 소개</h1>
-            <p className="text-lg mb-4">서비스설명</p>
-            <TextButton type="start" onClick={handleOpenLogin}>
+          <div className="flex flex-col items-center text-center">
+            <h1 className="text-2xl mb-2">Ref Mate</h1>
+            <p className="text-lg mb-4">서비스 설명</p>
+            <TextButton type="start" onClick={() => setIsLoginVisible(true)}>
               시작하기
             </TextButton>
-
-            {/* 모달 테스트 */}
-            <div className="mt-4">
-              <button
-                onClick={() =>
-                  setModal({
-                    type: 'modal',
-                    title: '모달 제목',
-                    content: <div>여기에 컨텐츠</div>,
-                  })
-                }
-                className="px-4 py-2 bg-green-500 text-white rounded"
-              >
-                폼 모달
-              </button>
-              <button
-                onClick={() =>
-                  setModal({
-                    type: 'confirm',
-                    message: '정말 진행하시겠습니까?',
-                    onConfirm: () => alert('확인됨'),
-                  })
-                }
-                className="px-4 py-2 bg-yellow-500 text-white rounded ml-2"
-              >
-                컨펌 모달
-              </button>
-              <button
-                onClick={() =>
-                  setModal({ type: 'alert', message: '경고 메시지입니다.' })
-                }
-                className="px-4 py-2 bg-red-500 text-white rounded ml-2"
-              >
-                알림 모달
-              </button>
-            </div>
           </div>
 
-          {/* 이미지 영역 */}
+          {/* 이미지 및 컴포넌트 영역 */}
           <Link to="/projects">프로젝트 페이지</Link>
-          <div className="w-[830px] h-[520px] flex items-center justify-center mr-[65px] border border-gray-300 rounded-md">
-            이미지 표시 영역
+          <div className="w-[830px] h-[520px] flex items-center justify-center border border-gray-300 rounded-md">
+            {buttons[selectedButtonIndex].component}
           </div>
         </div>
 
         {/* 버튼 섹션 */}
         <div className="flex gap-4 mt-4 mx-auto w-4/5 max-w-[800px]">
-          {['버튼 1', '버튼 2', '버튼 3', '버튼 4', '버튼 5'].map(
-            (text, index) => (
-              <TextButton
-                key={index}
-                type="content"
-                onClick={() => console.log(text)}
-              >
-                {text}
-              </TextButton>
-            ),
-          )}
+          {buttons.map(({ text, iconName }, index) => (
+            <TextButton
+              key={index}
+              type="content"
+              isSelected={selectedButtonIndex === index}
+              onClick={() => setSelectedButtonIndex(index)}
+              className="w-full text-sm font-medium h-16 flex items-center justify-center gap-2"
+            >
+              <Icon name={iconName} width={24} height={24} />
+              {text}
+            </TextButton>
+          ))}
         </div>
 
         <BackButton />
       </div>
-      <Login isVisible={isLoginVisible} onClose={handleCloseLogin} />
+      <Login
+        isVisible={isLoginVisible}
+        onClose={() => setIsLoginVisible(false)}
+      />
     </>
   );
 };

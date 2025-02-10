@@ -10,6 +10,13 @@ const Login = ({ isVisible, onClose }) => {
     window.location.href = `http://i12a807.p.ssafy.io:8000/oauth2/authorization/${provider}`;
   };
 
+  /* 로그인 경로 변경
+const handleLogin = (provider) => {
+  const baseUrl = import.meta.env.VITE_APP_API_BASE_URL; // 환경 변수 불러오기
+  window.location.href = `${baseUrl}/oauth2/authorization/${provider}?redirect_uri=${window.location.origin}/#/auth-redirect`;
+};
+
+*/
   return (
     <Overlay>
       <Popup>

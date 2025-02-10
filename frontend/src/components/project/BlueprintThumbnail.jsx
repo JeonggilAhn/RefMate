@@ -2,28 +2,47 @@ import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { get } from '../../api';
 import { useNavigate } from 'react-router-dom';
-import EditButton from '../common/EditButton';
 import VersionHistorySidebar from './VersionHistorySidebar';
+import { useSetRecoilState } from 'recoil';
+import { modalState } from '../../recoil/common/modal';
+import TextButton from '../common/TextButton';
+import EditOption from './EditOption';
+import UpdateBlueprintName from './UpdateBlueprintName';
 
-const BlueprintThumbnail = ({ projectId }) => {
+const BlueprintThumbnail = ({ projectId, filterType, searchQuery }) => {
   const [blueprints, setBlueprints] = useState([]);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [selectedBlueprintId, setSelectedBlueprintId] = useState(null);
   const [selectedBlueprintTitle, setSelectedBlueprintTitle] = useState(null);
   const navigate = useNavigate();
+  const setModal = useSetRecoilState(modalState);
 
   useEffect(() => {
     const fetchBlueprints = async () => {
       try {
         const response = await get(`projects/${projectId}/blueprints`);
-        setBlueprints(response.data.content);
+        const filteredProjects = response.data.content;
+        console.log(filteredProjects);
+        console.log(searchQuery);
+        const searchedBlueprints = searchQuery
+          ? filteredProjects.filter((blueprint) =>
+              blueprint.blueprint_title
+                ? blueprint.blueprint_title
+                    .toLowerCase()
+                    .includes(searchQuery.toLowerCase())
+                : false,
+            )
+          : filteredProjects;
+
+        console.log(searchedBlueprints === filteredProjects);
+        setBlueprints(searchedBlueprints);
       } catch (error) {
         console.error('API 호출 오류:', error);
       }
     };
 
     fetchBlueprints();
-  }, [projectId]);
+  }, [projectId, filterType, searchQuery]);
 
   const handleViewLatest = (blueprintId) => {
     navigate(`/blueprint`);
@@ -36,25 +55,67 @@ const BlueprintThumbnail = ({ projectId }) => {
     setIsSidebarOpen(true);
   };
 
+  const handleUpdateBlueprintName = (blueprintId, blueprintTitle) => {
+    setModal({
+      type: 'modal',
+      title: '프로젝트 수정',
+      content: (
+        <UpdateBlueprintName
+          blueprintId={blueprintId}
+          blueprintTitle={blueprintTitle}
+          setBlueprintName={(updatedTitle) => {
+            setBlueprints((prevBlueprints) =>
+              prevBlueprints.map((blueprint) =>
+                blueprint.blueprint_id === blueprintId
+                  ? { ...blueprint, blueprint_title: updatedTitle }
+                  : blueprint,
+              ),
+            );
+          }}
+          setModal={setModal}
+        />
+      ),
+    });
+  };
+
   return (
     // <Container>
     <BlueprintWrapper>
       {blueprints.map((blueprint) => (
         <BlueprintItem key={blueprint.blueprint_id}>
-          <Image
-            src={blueprint.preview_image}
-            alt={blueprint.blueprint_title}
-          />
+          <ImageWrapperHover>
+            <Image
+              src={blueprint.preview_image}
+              alt={blueprint.blueprint_title}
+            />
+            <HoverButtons>
+              <TextButton
+                onClick={() => handleViewLatest(blueprint.blueprint_id)}
+              >
+                최신 시안 보기
+              </TextButton>
+              <TextButton
+                onClick={() =>
+                  handleViewAll(
+                    blueprint.blueprint_id,
+                    blueprint.blueprint_title,
+                  )
+                }
+              >
+                전체 시안 보기
+              </TextButton>
+            </HoverButtons>
+          </ImageWrapperHover>
           <Footer>
             <Title>{blueprint.blueprint_title}</Title>
-            <EditButton
+            <EditOption
               actions={[
                 {
                   name: '수정',
                   handler: () =>
-                    handleUpdateProjectName(
-                      project.project_id,
-                      project.project_title,
+                    handleUpdateBlueprintName(
+                      blueprint.blueprint_id,
+                      blueprint.blueprint_title,
                     ),
                 },
               ]}
@@ -64,19 +125,6 @@ const BlueprintThumbnail = ({ projectId }) => {
           <CreatedAt>
             {new Date(blueprint.created_at).toLocaleDateString()}
           </CreatedAt>
-
-          <HoverButtons>
-            <button onClick={() => handleViewLatest(blueprint.blueprint_id)}>
-              최신 시안 보기
-            </button>
-            <button
-              onClick={() =>
-                handleViewAll(blueprint.blueprint_id, blueprint.blueprint_title)
-              }
-            >
-              전체 시안 보기
-            </button>
-          </HoverButtons>
         </BlueprintItem>
       ))}
       {isSidebarOpen && (
@@ -106,12 +154,14 @@ const Image = styled.img`
   width: 100%;
   height: 100%;
   aspect-ratio: 4 / 3;
+  display: block;
 `;
 
 const CreatedAt = styled.div`
   font-size: 0.5rem;
   color: #888;
   text-align: left;
+  padding: 5px;
 `;
 
 const Footer = styled.div`
@@ -121,8 +171,14 @@ const Footer = styled.div`
 `;
 
 const Title = styled.h3`
-  font-size: 0.5rem;
+  font-size: 0.8rem;
   margin-bottom: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 5px;
+  top: 0;
+  left: 0;
 `;
 
 const HoverButtons = styled.div`
@@ -134,12 +190,10 @@ const HoverButtons = styled.div`
   gap: 0.5rem;
   visibility: hidden;
   flex-direction: column;
+  z-index: 2;
 
   button {
     flex: 1; /* 버튼을 네모로 늘리기 */
-    padding: 0.5rem;
-    font-size: 0.8rem;
-    background-color: rgba(215, 215, 215);
     cursor: pointer;
   }
 `;
@@ -149,10 +203,42 @@ const BlueprintItem = styled.div`
   padding: 0.8rem;
   display: flex;
   flex-direction: column;
+  border-radius: 8px;
   position: relative; /* 자식 요소인 HoverButtons가 절대 위치를 가질 수 있도록 */
+`;
 
+const ImageWrapper = styled.div`
+  position: relative;
+  width: 100%;
+  overflow: hidden; /* 이미지 크기 유지 */
+  border-radius: 8px;
+
+  /* 검은 배경 오버레이 */
+  &::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0); /* 기본적으로 투명 */
+    transition: background-color 0.3s ease;
+    z-index: 1;
+  }
+
+  /* hover 시 검은 배경 표시 */
+  &:hover::after {
+    background-color: rgba(0, 0, 0, 0.5);
+  }
+
+  /* hover 시 HoverButtons 표시 */
   &:hover ${HoverButtons} {
-    opacity: 1; /* 호버 시 버튼들이 보이도록 설정 */
+    visibility: visible;
+  }
+`;
+
+const ImageWrapperHover = styled(ImageWrapper)`
+  &:hover ${HoverButtons} {
     visibility: visible;
   }
 `;

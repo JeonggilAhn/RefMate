@@ -1,8 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import styled from 'styled-components';
 import { get } from '../../api';
-import { useLocation } from 'react-router-dom';
-import EditButton from '../common/EditButton';
 import CreateProject from './CreateProject';
 import TextButton from '../common/TextButton';
 import { useSetRecoilState } from 'recoil';
@@ -10,7 +7,6 @@ import { modalState } from '../../recoil/common/modal';
 
 const SubHeader = ({ userId, projectId }) => {
   const [userName, setUserName] = useState('');
-  const location = useLocation();
   const setModal = useSetRecoilState(modalState);
 
   const handleCreateProject = () => {

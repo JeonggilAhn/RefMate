@@ -2,24 +2,16 @@ import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { get, del } from '../../api';
 import { useNavigate } from 'react-router-dom';
-import EditButton from '../common/EditButton';
 import UpdateProjectName from './UpdateProjectName';
 import { useSetRecoilState } from 'recoil';
 import { modalState } from '../../recoil/common/modal';
 import EditOption from './EditOption';
 
-const formatDate = (dateString) => {
-  const date = new Date(dateString);
-  return date.toLocaleDateString();
-};
-
 const Thumbnail = ({ userId, filterType, searchQuery }) => {
   const [projects, setProjects] = useState([]);
-
   const [imageLoaded, setImageLoaded] = useState(true);
 
   const navigate = useNavigate();
-
   const setModal = useSetRecoilState(modalState);
 
   useEffect(() => {
@@ -45,7 +37,7 @@ const Thumbnail = ({ userId, filterType, searchQuery }) => {
           : filteredProjects;
 
         console.log(filteredProjects === searchedProjects);
-
+        console.log(projects);
         setProjects(searchedProjects);
         setImageLoaded(new Array(searchedProjects.length).fill(false));
       } catch (error) {
@@ -177,7 +169,9 @@ const Thumbnail = ({ userId, filterType, searchQuery }) => {
               </ProjectFooter>
               <FileInfoWrapper>
                 <FileCount>{project.blueprints_count} blueprints ·</FileCount>
-                <CreatedAt>{formatDate(project.created_at)}</CreatedAt>
+                <CreatedAt>
+                  {new Date(project.created_at).toLocaleDateString()}
+                </CreatedAt>
               </FileInfoWrapper>
             </ProjectDetails>
           </ProjectCard>
