@@ -51,7 +51,6 @@ public class ReadCheckService {
 			return;
 		} else {
 			userNoteCheck.setIsChecked(true);
-			noteCheckRepository.save(userNoteCheck);
 		}
 
 		SseEmitter sseEmitter = getSseEmitter(blueprintId);

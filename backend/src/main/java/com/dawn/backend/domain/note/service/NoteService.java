@@ -4,9 +4,11 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import jakarta.transaction.Transactional;
@@ -34,6 +36,7 @@ import com.dawn.backend.domain.note.dto.response.CreateNoteResponseDto;
 import com.dawn.backend.domain.note.dto.response.DeleteNoteResponseDto;
 import com.dawn.backend.domain.note.dto.response.GetBookmarkNotesResponseDto;
 import com.dawn.backend.domain.note.dto.response.GetNotesByBlueprintResponseDto;
+import com.dawn.backend.domain.note.dto.response.GetNotesByKeywordResponseDto;
 import com.dawn.backend.domain.note.dto.response.GetNotesByPinResponseDto;
 import com.dawn.backend.domain.note.dto.response.NoteDetailResponseDto;
 import com.dawn.backend.domain.note.dto.response.RecentNoteResponseDto;
@@ -352,9 +355,6 @@ public class NoteService {
 
 		validateNoteIsDeleted(note);
 
-		// 노트를 읽음 여부 처리
-		updateUserNoteCheck(note, user);
-
 		//해당 노트를 작성한 유저의 정보 가져오기
 		Project project = getProjectByNoteId(note);
 		ProjectUserDto noteWriter = getNoteWriter(note, project.getProjectId());
@@ -407,18 +407,6 @@ public class NoteService {
 		}
 	}
 
-	private void updateUserNoteCheck(Note note, User user) {
-		boolean exists = noteCheckRepository.existsByUserAndNote(user, note);
-		if (!exists) {
-			UserNoteCheck userNoteCheck = UserNoteCheck.builder()
-				.user(user)
-				.note(note)
-				.build();
-			userNoteCheck.updateNoteCheck(true);
-			noteCheckRepository.save(userNoteCheck);
-		}
-	}
-
 	@Transactional
 	public RecentNoteResponseDto getRecentNoteByPin(Long pinId) {
 		Pin pin = pinRepository.findById(pinId)
@@ -437,5 +425,55 @@ public class NoteService {
 		NoteDto noteDto = NoteDto.from(recentNote, writerDto, noteImages, isEditable);
 
 		return new RecentNoteResponseDto(noteDto);
+	}
+
+	@Transactional
+	public GetNotesByKeywordResponseDto getNotesByKeyword(
+		Long projectId, Long blueprintId, Long blueprintVersionId, String keyword, Long centerNoteId, int size
+	) {
+		// 조건에 맞는 노트 찾기 (center note)
+		Optional<Note> centerNote = noteRepository.findNoteByKeyword(blueprintVersionId, keyword, centerNoteId);
+
+		if (centerNote.isEmpty()) {
+			return GetNotesByKeywordResponseDto.from(null, false, false, List.of());
+		}
+
+		// 중심 노트보다 오래된 노트 조회(size+1개)
+		Pageable pageable = PageRequest.of(0, size + 1);
+		List<Note> beforeNotes = noteRepository.findNotesByBlueprintVersionAfterCursor(
+			blueprintVersionId,
+			centerNote.get().getNoteId(),
+			PageRequest.of(0, size + 1)
+		);
+
+		boolean hasMoreBefore = beforeNotes.size() > size;
+		if (hasMoreBefore) {
+			beforeNotes = beforeNotes.subList(0, size);
+		}
+
+		Collections.reverse(beforeNotes);
+
+		// 중심 노트보다 최신 노트 조회(size+1개)
+		List<Note> afterNotes = noteRepository.findNotesByBlueprintVersionBeforeCursor(
+			blueprintVersionId,
+			centerNote.get().getNoteId(),
+			PageRequest.of(0, size + 1)
+		);
+		boolean hasMoreAfter = afterNotes.size() > size;
+		if (hasMoreAfter) {
+			afterNotes = afterNotes.subList(0, size);
+		}
+
+		List<Note> mergedNotes = new ArrayList<>();
+		mergedNotes.addAll(beforeNotes);
+		mergedNotes.add(centerNote.get());
+		mergedNotes.addAll(afterNotes);
+
+		List<ChatItemDto> chatItems = convertNotesToChatItemsForBlueprint(mergedNotes, projectId);
+
+		return GetNotesByKeywordResponseDto.from(
+			centerNote.get().getNoteId(), hasMoreBefore, hasMoreAfter, chatItems
+		);
+
 	}
 }

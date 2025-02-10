@@ -30,6 +30,7 @@ import com.dawn.backend.domain.note.dto.response.CreateNoteResponseDto;
 import com.dawn.backend.domain.note.dto.response.DeleteNoteResponseDto;
 import com.dawn.backend.domain.note.dto.response.GetBookmarkNotesResponseDto;
 import com.dawn.backend.domain.note.dto.response.GetNotesByBlueprintResponseDto;
+import com.dawn.backend.domain.note.dto.response.GetNotesByKeywordResponseDto;
 import com.dawn.backend.domain.note.dto.response.GetNotesByPinResponseDto;
 import com.dawn.backend.domain.note.dto.response.NoteDetailResponseDto;
 import com.dawn.backend.domain.note.dto.response.RecentNoteResponseDto;
@@ -154,5 +155,33 @@ public class NoteController {
 	@PreAuthorize("@authExpression.hasBlueprintPermission(#blueprintId)")
 	public SseEmitter readNoteTasks(@PathVariable Long blueprintId) {
 		return readCheckService.getSseEmitter(blueprintId);
+	}
+
+	/**
+	 * 검색어(keyword)에 해당하는 노트들 중에서
+	 * - centerNoteId가 null이면 "가장 최신 노트"를 센터로 선택하고,
+	 * - 그렇지 않으면 전달받은 노트를 센터로 하여
+	 * 센터 노트의 앞(신규 쪽) 및 뒤(구형 쪽) 각각 최대 surroundCount+1(더보기 판별)을 조회한 후
+	 * 센터 노트를 포함하여 주변 노트들을 DTO로 매핑하여 반환한다.
+	 *
+	 * @param keyword 검색어
+	 * @param centerNoteId (cursor_id) 센터로 사용할 노트의 ID (최초 검색 시 null)
+	 * @param size 각 방향으로 조회할 최대 개수
+	 * @return GetNotesByKeywordResponseDto
+	 */
+	@GetMapping("/{projectId}/blueprints/{blueprintId}/{blueprintVersionId}/notes/search")
+	@PreAuthorize("@authExpression.hasProjectPermissionByBlueprintId(#blueprintId)")
+	public ResponseEntity<ResponseWrapper<GetNotesByKeywordResponseDto>> getNotesByKeyword(
+		@PathVariable Long projectId,
+		@PathVariable Long blueprintId,
+		@PathVariable Long blueprintVersionId,
+		@RequestParam String keyword,
+		@RequestParam(value = "cursor_id", required = false, defaultValue = Long.MAX_VALUE + "") Long centerNoteId,
+		@RequestParam(value = "size", required = false, defaultValue = "5") int size
+	) {
+		GetNotesByKeywordResponseDto responseDto = noteService.getNotesByKeyword(
+			projectId, blueprintId, blueprintVersionId, keyword, centerNoteId, size
+		);
+		return ResponseWrapperFactory.setResponse(HttpStatus.OK, null, responseDto);
 	}
 }

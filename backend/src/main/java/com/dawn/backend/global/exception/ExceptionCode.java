@@ -75,6 +75,7 @@ public enum ExceptionCode implements ResponseCode {
 
 	// Email
 	EMAIL_SEND_FAILED("email-500-1", "이메일 전송에 실패했습니다.", HttpStatus.INTERNAL_SERVER_ERROR),
+	EMAIL_TEMPLATE_READ_FAILED("email-500-2", "이메일 템플릿을 읽는데 실패했습니다.", HttpStatus.INTERNAL_SERVER_ERROR),
 
 	// Grant
 	INVALID_GRANT_TOKEN("grant-400-1", "유효하지 않은 초대 토큰입니다.", HttpStatus.BAD_REQUEST);
