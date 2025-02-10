@@ -99,13 +99,20 @@ const ImageUploader = ({ onImageSelect, projectId, type = 'blueprint' }) => {
       );
 
       // PreSign URL 요청을 위한 파일 정보 준비
-      const filesInfo = filesWithDimensions.map(({ file, width, height }) => ({
-        file_name: file.name,
-        file_type: file.type.toLowerCase(),
-        file_size: file.size,
-        file_x: width,
-        file_y: height,
-      }));
+      const filesInfo = filesWithDimensions.map(({ file, width, height }) => {
+        // DWG 파일인 경우 application/acad MIME 타입 설정
+        const fileType = file.name.toLowerCase().endsWith('.dwg')
+          ? 'application/acad'
+          : file.type.toLowerCase();
+
+        return {
+          file_name: file.name,
+          file_type: fileType,
+          file_size: file.size,
+          file_x: width,
+          file_y: height,
+        };
+      });
 
       console.log(filesInfo);
 
