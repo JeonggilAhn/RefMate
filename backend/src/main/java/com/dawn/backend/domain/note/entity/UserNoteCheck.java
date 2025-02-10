@@ -9,6 +9,8 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -19,6 +21,11 @@ import com.dawn.backend.domain.user.entity.User;
 import com.dawn.backend.global.jpa.base.BaseTimeEntity;
 
 @Entity
+@Table(
+	uniqueConstraints = {
+		@UniqueConstraint(name = "unique_user_note", columnNames = {"user_id", "note_id"})
+	}
+)
 @Getter
 @Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
