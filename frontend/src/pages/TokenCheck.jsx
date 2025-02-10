@@ -19,11 +19,7 @@ const TokenCheck = () => {
         if (accessToken) {
           setToken(accessToken);
           localStorage.setItem('access_token', accessToken); // 로컬 스토리지 저장
-
-          // 5초 후 자동 이동
-          setTimeout(() => {
-            navigate('/projects');
-          }, 5000000);
+          navigate('/projects');
         } else {
           console.error('서버에서 받은 토큰이 없습니다.');
         }
