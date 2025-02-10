@@ -30,13 +30,13 @@ import com.dawn.backend.global.jpa.base.BaseTimeEntity;
 @Table(
 	name = "note",
 	indexes = {
+//		@Index(
+//			name = "idx_note_pinid_isdeleted_createdat_noteid",
+//			columnList = "pin_id, is_deleted,created_at, note_id"
+//			),
 		@Index(
-			name = "idx_note_pinid_isdeleted_createdat_noteid",
-			columnList = "pin_id, created_at, note_id"
-			),
-		@Index(
-			name = "idx_note_blueprintversionid_isdeleted_createdat_noteid",
-			columnList = "blueprint_version_id, is_deleted, created_at, note_id"
+			name = "idx_note_blueprintversionid_isdeleted_noteid",
+			columnList = "blueprint_version_id, is_deleted, note_id"
 			)
 	}
 )
