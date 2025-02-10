@@ -43,7 +43,7 @@ public class UploadService {
 	public PreSignedResponseDto generateImageUrls(PreSignedRequestDto requestBody) {
 		List<ImageUrlDto> fileResponses = new ArrayList<>();
 		for (FileRequestDto file : requestBody.files()) {
-			validateFileType(file.fileType());
+//			validateFileType(file.fileType());
 			String objectName = generateObjectPath(requestBody.projectId(), file.fileType());
 			String preSignedUrl = generatePreSignedUrl(objectName);
 			String publicUrl = generatePublicUrl(objectName);
