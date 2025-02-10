@@ -1,6 +1,5 @@
 package com.dawn.backend.domain.project.service;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -23,7 +22,6 @@ import com.dawn.backend.domain.project.dto.request.CreateProjectRequestDto;
 import com.dawn.backend.domain.project.dto.request.InviteUserRequestDto;
 import com.dawn.backend.domain.project.dto.request.UpdateProjectRequestDto;
 import com.dawn.backend.domain.project.dto.response.CreateProjectResponseDto;
-import com.dawn.backend.domain.project.dto.response.InviteUserResponseDto;
 import com.dawn.backend.domain.project.entity.Project;
 import com.dawn.backend.domain.project.exception.ProjectNotFoundException;
 import com.dawn.backend.domain.project.repository.ProjectRepository;
@@ -34,6 +32,9 @@ import com.dawn.backend.domain.user.exception.UserNotFoundException;
 import com.dawn.backend.domain.user.exception.UserProjectNotFound;
 import com.dawn.backend.domain.user.repository.UserProjectRepository;
 import com.dawn.backend.domain.user.repository.UserRepository;
+import com.dawn.backend.global.util.email.dto.EmailMessageRequestDto;
+import com.dawn.backend.global.util.email.service.EmailService;
+import com.dawn.backend.global.util.email.service.GrantService;
 
 @Slf4j
 @Service
@@ -46,6 +47,8 @@ public class ProjectServiceImpl implements ProjectService {
 	private final UserProjectRepository userProjectRepository;
 	private final BlueprintRepository blueprintRepository;
 	private final BlueprintVersionRepository blueprintVersionRepository;
+	private final EmailService emailService;
+	private final GrantService grantService;
 
 	// 리팩토링 해야함
 	@Override
@@ -64,7 +67,7 @@ public class ProjectServiceImpl implements ProjectService {
 		Map<Long, Boolean> isMineMap = userProjects.stream()
 			.collect(Collectors.toMap(
 				up -> up.getProject().getProjectId(),
-				up -> "CREATOR".equals(up.getUserRole())
+				up -> "ROLE_OWNER".equals(up.getUserRole())
 			));
 
 		List<Blueprint> blueprints = blueprintRepository.findByProjectIdIn(projectIds);
@@ -130,35 +133,24 @@ public class ProjectServiceImpl implements ProjectService {
 	@Override
 	public CreateProjectResponseDto createProject(User user, CreateProjectRequestDto createProjectRequestDto) {
 		Project project = createProjectRequestDto.toEntity();
-
 		Project savedProject = projectRepository.save(project);
-
-		saveUserProject(user, project, "CREATOR");
-
+		saveUserProject(user, project, "ROLE_OWNER");
 		return new CreateProjectResponseDto(savedProject.getProjectId());
 
 	}
 
 	@Transactional
 	@Override
-	public InviteUserResponseDto inviteUser(Long projectId, InviteUserRequestDto request) {
+	public void inviteUser(Long projectId, InviteUserRequestDto request) {
 		Project project = getProject(projectId);
+		String[] inviteUsersArray = request.inviteUserList().toArray(new String[0]);
 
-		List<Long> invitedUserIds = new ArrayList<>();
-
-		for (String userEmail : request.inviteUserList()) {
-			User user = getUserByUserEmail(userEmail);
-
-			if (userProjectRepository.existsByUserAndProject(user, project)) {
-				log.info("이미 해당 프로젝트에 속해있는 유저입니다. userId : {}", user.getUserId());
-				continue;
-			}
-
-			saveUserProject(user, project, "MEMBER");
-			invitedUserIds.add(user.getUserId());
-		}
-
-		return new InviteUserResponseDto(invitedUserIds);
+		EmailMessageRequestDto emailMessageRequestDto =
+			new EmailMessageRequestDto(inviteUsersArray, "프로젝트 초대 테스트 메일입니다.",
+				"프로젝트 초대 테스트 메일 내용입니다.");
+		String grantToken = grantService.createGrantToken(project.getProjectId(), "CLIENT");
+		log.info("grantToken UUID : {}", grantToken);
+		emailService.sendMail(emailMessageRequestDto);
 	}
 
 	@Transactional

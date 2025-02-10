@@ -1,6 +1,7 @@
 package com.dawn.backend.domain.note.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
@@ -21,4 +22,6 @@ public interface NoteCheckRepository extends JpaRepository<UserNoteCheck, Long> 
 
 
 	boolean existsByUserAndNote(User user, Note note);
+
+	UserNoteCheck findByNoteNoteIdAndUser(Long noteId, User user);
 }

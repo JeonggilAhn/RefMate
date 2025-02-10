@@ -23,6 +23,7 @@ import com.dawn.backend.domain.user.service.CustomOAuth2UserService;
 import com.dawn.backend.global.filter.CustomLogoutFilter;
 import com.dawn.backend.global.filter.ExceptionHandlingFilter;
 import com.dawn.backend.global.filter.JwtFilter;
+import com.dawn.backend.global.util.email.repository.GrantTokenRepository;
 import com.dawn.backend.global.util.jwt.JwtUtil;
 
 @Configuration
@@ -33,6 +34,7 @@ public class SecurityConfig {
 	private final JwtUtil jwtUtil;
 	private final UserRepository userRepository;
 	private final TokenBlackListRepository tokenBlackListRepository;
+	private final GrantTokenRepository grantTokenRepository;
 
 	@Autowired
 	SecurityConfig(
@@ -40,13 +42,15 @@ public class SecurityConfig {
 		CustomOAuth2SuccessHandler customOAuth2SuccessHandler,
 		JwtUtil jwtUtil,
 		UserRepository userRepository,
-		TokenBlackListRepository tokenBlackListRepository
+		TokenBlackListRepository tokenBlackListRepository,
+		GrantTokenRepository grantTokenRepository
 	) {
 		this.customOAuth2UserService = customOAuth2UserService;
 		this.customOAuth2SuccessHandler = customOAuth2SuccessHandler;
 		this.jwtUtil = jwtUtil;
 		this.userRepository = userRepository;
 		this.tokenBlackListRepository = tokenBlackListRepository;
+		this.grantTokenRepository = grantTokenRepository;
 	}
 
 	// secret encoder
@@ -99,7 +103,12 @@ public class SecurityConfig {
 		);
 
 		// jwt filter
-		JwtFilter jwtFilter = new JwtFilter(jwtUtil, userRepository, tokenBlackListRepository);
+		JwtFilter jwtFilter = new JwtFilter(
+			jwtUtil,
+			userRepository,
+			tokenBlackListRepository,
+			grantTokenRepository
+		);
 		http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
 		// logout

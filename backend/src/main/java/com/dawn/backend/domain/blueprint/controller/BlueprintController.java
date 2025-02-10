@@ -23,20 +23,23 @@ import com.dawn.backend.domain.blueprint.dto.response.CreateBlueprintResponseDto
 import com.dawn.backend.domain.blueprint.dto.response.CreateBlueprintVersionResponseDto;
 import com.dawn.backend.domain.blueprint.dto.response.UpdateBlueprintResponseDto;
 import com.dawn.backend.domain.blueprint.service.BlueprintService;
+import com.dawn.backend.domain.note.service.ReadCheckService;
 import com.dawn.backend.global.response.ResponseWrapper;
 import com.dawn.backend.global.response.ResponseWrapperFactory;
 
 @RestController
 public class BlueprintController {
 	private final BlueprintService blueprintService;
+	private final ReadCheckService readCheckService;
 
 	@Autowired
-	public BlueprintController(BlueprintService blueprintService) {
+	public BlueprintController(BlueprintService blueprintService, ReadCheckService readCheckService) {
 		this.blueprintService = blueprintService;
+		this.readCheckService = readCheckService;
 	}
 
 	@GetMapping("/projects/{projectId}/blueprints")
-	@PreAuthorize("@authExpression.hasProjectPermission(#projectId)")
+	@PreAuthorize("@authExpression.hasProjectPermissionByProjectId(#projectId)")
 	public ResponseEntity<ResponseWrapper<List<BlueprintDto>>> getBlueprints(
 		@PathVariable("projectId") Long projectId
 	) {
@@ -65,6 +68,7 @@ public class BlueprintController {
 		@PathVariable("blueprintId") Long blueprintId,
 		@PathVariable("versionId") Long versionId
 	) {
+		readCheckService.startSseEmitter(blueprintId);
 		return ResponseWrapperFactory.setResponse(
 			HttpStatus.OK,
 			null,
@@ -73,7 +77,7 @@ public class BlueprintController {
 	}
 
 	@PostMapping("/projects/{projectId}/blueprints")
-	@PreAuthorize("@authExpression.hasProjectPermission(#projectId)")
+	@PreAuthorize("@authExpression.hasProjectPermissionByProjectId(#projectId)")
 	public ResponseEntity<ResponseWrapper<CreateBlueprintResponseDto>> addBlueprint(
 		@PathVariable("projectId") Long projectId,
 		@RequestBody CreateBlueprintRequestDto createBlueprintRequestDto

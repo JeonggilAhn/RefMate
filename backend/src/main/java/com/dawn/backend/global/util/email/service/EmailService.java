@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import com.dawn.backend.global.util.email.dto.EmailMessageRequestDto;
+import com.dawn.backend.global.util.email.exception.EmailSendFailedException;
 
 @Slf4j
 @Service
@@ -33,7 +34,7 @@ public class EmailService {
 			log.info("Success");
 		} catch (MessagingException e) {
 			log.info("fail");
-			throw new RuntimeException("이메일 전송에 실패했습니다.");
+			throw new EmailSendFailedException();
 		}
 	}
 }

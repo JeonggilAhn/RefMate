@@ -22,7 +22,6 @@ import com.dawn.backend.domain.project.dto.request.CreateProjectRequestDto;
 import com.dawn.backend.domain.project.dto.request.InviteUserRequestDto;
 import com.dawn.backend.domain.project.dto.request.UpdateProjectRequestDto;
 import com.dawn.backend.domain.project.dto.response.CreateProjectResponseDto;
-import com.dawn.backend.domain.project.dto.response.InviteUserResponseDto;
 import com.dawn.backend.domain.project.service.ProjectService;
 import com.dawn.backend.domain.user.dto.ProjectUserDto;
 import com.dawn.backend.domain.user.entity.User;
@@ -60,16 +59,17 @@ public class ProjectController {
 	}
 
 	@PostMapping("/projects/{projectId}/users")
-	public ResponseEntity<ResponseWrapper<InviteUserResponseDto>> inviteUser(
+	@PreAuthorize("@authExpression.hasRoleOwnerInProject(#projectId)")
+	public ResponseEntity<ResponseWrapper<Void>> inviteUser(
 		@PathVariable("projectId") Long projectId,
 		@RequestBody InviteUserRequestDto request
 	) {
-		InviteUserResponseDto inviteUserResponseDto = projectService.inviteUser(projectId, request);
-		return ResponseWrapperFactory.setResponse(HttpStatus.CREATED, null, inviteUserResponseDto);
+		projectService.inviteUser(projectId, request);
+		return ResponseWrapperFactory.setResponse(HttpStatus.CREATED, null, null);
 	}
 
 	@PatchMapping("/projects/{projectId}")
-	@PreAuthorize("@authExpression.hasCreatorRoleInProject(#projectId)")
+	@PreAuthorize("@authExpression.hasRoleOwnerInProject(#projectId)")
 	public ResponseEntity<ResponseWrapper<Void>> updateProject(
 		@PathVariable("projectId") Long projectId,
 		@RequestBody UpdateProjectRequestDto request
@@ -79,7 +79,7 @@ public class ProjectController {
 	}
 
 	@DeleteMapping("/projects/{projectId}")
-	@PreAuthorize("@authExpression.hasCreatorRoleInProject(#projectId)")
+	@PreAuthorize("@authExpression.hasRoleOwnerInProject(#projectId)")
 	public ResponseEntity<ResponseWrapper<Void>> deleteProject(
 		@PathVariable("projectId") Long projectId
 	) {

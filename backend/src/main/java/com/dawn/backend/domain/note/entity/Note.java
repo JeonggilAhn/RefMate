@@ -10,8 +10,10 @@ import jakarta.persistence.ForeignKey;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -25,6 +27,19 @@ import com.dawn.backend.global.jpa.base.BaseTimeEntity;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Table(
+	name = "note",
+	indexes = {
+		@Index(
+			name = "idx_note_pinid_isdeleted_createdat_noteid",
+			columnList = "pin_id, created_at, note_id"
+			),
+		@Index(
+			name = "idx_note_blueprintversionid_isdeleted_createdat_noteid",
+			columnList = "blueprint_version_id, is_deleted, created_at, note_id"
+			)
+	}
+)
 public class Note extends BaseTimeEntity {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)

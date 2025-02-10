@@ -8,7 +8,6 @@ import com.dawn.backend.domain.project.dto.request.CreateProjectRequestDto;
 import com.dawn.backend.domain.project.dto.request.InviteUserRequestDto;
 import com.dawn.backend.domain.project.dto.request.UpdateProjectRequestDto;
 import com.dawn.backend.domain.project.dto.response.CreateProjectResponseDto;
-import com.dawn.backend.domain.project.dto.response.InviteUserResponseDto;
 import com.dawn.backend.domain.user.dto.ProjectUserDto;
 import com.dawn.backend.domain.user.entity.User;
 
@@ -20,7 +19,7 @@ public interface ProjectService {
 
 	CreateProjectResponseDto createProject(User user, CreateProjectRequestDto createProjectRequestDto);
 
-	InviteUserResponseDto inviteUser(Long projectId, InviteUserRequestDto request);
+	void inviteUser(Long projectId, InviteUserRequestDto request);
 
 	void updateProject(Long projectId, UpdateProjectRequestDto request);
 
