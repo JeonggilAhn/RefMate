@@ -43,19 +43,12 @@ public class UploadService {
 	public PreSignedResponseDto generateImageUrls(PreSignedRequestDto requestBody) {
 		List<ImageUrlDto> fileResponses = new ArrayList<>();
 		for (FileRequestDto file : requestBody.files()) {
-//			validateFileType(file.fileType());
-			String objectName = generateObjectPath(requestBody.projectId(), file.fileType());
+			String objectName = generateObjectPath(requestBody.projectId(), FileType.getFileType(file.fileType()));
 			String preSignedUrl = generatePreSignedUrl(objectName);
 			String publicUrl = generatePublicUrl(objectName);
 			fileResponses.add(ImageUrlDto.from(preSignedUrl, publicUrl));
 		}
 		return PreSignedResponseDto.from(fileResponses);
-	}
-
-	private void validateFileType(FileType fileType) {
-		if (!List.of(FileType.PNG, FileType.JPG, FileType.PDF, FileType.DWG).contains(fileType)) {
-			throw new InvalidNoteFileTypeException();
-		}
 	}
 
 	private String generateObjectPath(Long projectId, FileType fileType) {
