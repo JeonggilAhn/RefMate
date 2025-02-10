@@ -9,7 +9,7 @@ const TextButton = ({
   children,
 }) => {
   return (
-    <StyledButton type={type} isSelected={isSelected} onClick={onClick}>
+    <StyledButton type={type} $isSelected={isSelected} onClick={onClick}>
       {children}
     </StyledButton>
   );
@@ -41,7 +41,7 @@ const StyledButton = styled.button`
   ${(props) =>
     props.type === 'start' &&
     css`
-      background-color: ${props.isSelected ? '#6589BF' : '#7BA8EC'};
+      background-color: ${props.$isSelected ? '#6589BF' : '#7BA8EC'};
       color: white;
       border: none;
       &:hover {
@@ -52,9 +52,9 @@ const StyledButton = styled.button`
   ${(props) =>
     props.type === 'content' &&
     css`
-      background-color: ${props.isSelected ? '#D9D9D9' : '#FFFFFF'};
-      color: ${props.isSelected ? '#111827' : '#374151'};
-      border: 1px solid ${props.isSelected ? '#A3A3A3' : '#D1D5DB'};
+      background-color: ${props.$isSelected ? '#D9D9D9' : '#FFFFFF'};
+      color: ${props.$isSelected ? '#111827' : '#374151'};
+      border: 1px solid ${props.$isSelected ? '#A3A3A3' : '#D1D5DB'};
       &:hover {
         background-color: #d9d9d9;
       }
