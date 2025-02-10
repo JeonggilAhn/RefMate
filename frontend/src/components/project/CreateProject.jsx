@@ -45,7 +45,7 @@ const CreateProject = ({ setProjects, setModal }) => {
 
       setProjects((prevProjects) => [
         ...prevProjects,
-        { ...newProject, project_id: response.data },
+        { ...newProject, project_id: Number(response.data) },
       ]);
       console.log('프로젝트 생성 성공:', response.data.content);
 
