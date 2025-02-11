@@ -3,6 +3,7 @@ import { RecoilRoot } from 'recoil';
 import Form from './components/common/Form';
 import Confirm from './components/common/Confirm';
 import Alert from './components/common/Alert';
+import { Toaster } from '@/components/ui/toaster';
 
 import MainLayout from './layouts/MainLayout';
 import Blueprint from './pages/Blueprint';
@@ -31,6 +32,7 @@ function App() {
       <Form />
       <Confirm />
       <Alert />
+      <Toaster />
     </RecoilRoot>
   );
 }
