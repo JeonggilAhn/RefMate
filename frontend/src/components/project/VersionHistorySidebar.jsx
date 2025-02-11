@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { get } from '../../api';
+import { Skeleton } from '@/components/ui/skeleton';
 
-const VersionHistorySidebar = ({ blueprintId, blueprintTitle, onClose }) => {
+const VersionHistorySidebar = ({ blueprintId }) => {
   const [versions, setVersions] = useState([]);
 
   useEffect(() => {
@@ -19,52 +20,47 @@ const VersionHistorySidebar = ({ blueprintId, blueprintTitle, onClose }) => {
   }, [blueprintId]);
 
   return (
-    <SidebarContainer>
-      <div className="flex items-center justify-between">
-        <div className="text-left text-lg pl-2 font-bold">모든 시안</div>
-        <CloseButton onClick={onClose} className="text-xl cursor-pointer">
-          ×
-        </CloseButton>
-      </div>
-      <hr className="my-4 border-t border-gray-300" />
-      <h2 className="text-left p-2 text-lg font-bold">{blueprintTitle}</h2>
-
-      <div className="flex flex-col gap-5">
-        {versions.map((version) => (
-          <VersionItem key={version.blueprint_version_id}>
-            <div className="flex flex-col">
-              <div className="rounded-lg">
-                <PreviewImage
-                  src={version.preview_image}
-                  alt={version.blueprint_version_name}
-                />
-              </div>
-              <div className="flex justify-between p-2">
-                <VersionName>{version.blueprint_version_name}</VersionName>
-                <CreatedAt>
-                  {new Date(version.created_at).toLocaleDateString()}
-                </CreatedAt>
-              </div>
-            </div>
-          </VersionItem>
-        ))}
-      </div>
-    </SidebarContainer>
+    <div className="flex flex-col gap-5">
+      {versions.map((version) => (
+        <VersionItemComponent
+          key={version.blueprint_version_id}
+          version={version}
+        />
+      ))}
+    </div>
   );
 };
 
-const SidebarContainer = styled.div`
-  width: 25rem;
-  height: 100%;
-  background: #f8f9fa;
-  border-left: 1px solid #ddd;
-  padding: 16px;
-  overflow-y: auto;
-  position: fixed;
-  right: 0;
-  top: 0;
-  z-index: 10;
-`;
+// VersionItemComponent를 별도의 컴포넌트로 분리
+const VersionItemComponent = ({ version }) => {
+  const [imageLoaded, setImageLoaded] = useState(false);
+
+  return (
+    <VersionItem>
+      {!imageLoaded && (
+        <div className="flex flex-col space-y-3">
+          <Skeleton className="h-55 w-100" />
+        </div>
+      )}
+      <div className="flex flex-col">
+        <PreviewImage
+          src={version.preview_image}
+          alt={version.blueprint_version_name}
+          onLoad={() => setImageLoaded(true)}
+          style={{ display: imageLoaded ? 'block' : 'none' }}
+        />
+        <div className="rounded-lg">
+          <div className="flex justify-between p-2">
+            <VersionName>{version.blueprint_version_name}</VersionName>
+            <CreatedAt>
+              {new Date(version.created_at).toLocaleDateString()}
+            </CreatedAt>
+          </div>
+        </div>
+      </div>
+    </VersionItem>
+  );
+};
 
 const VersionItem = styled.div`
   align-items: center;
@@ -85,8 +81,6 @@ const PreviewImage = styled.img`
   height: 100%;
   display: flex;
   object-fit: cover;
-  // padding: 10px;
-  // border-radius: 8px;
 `;
 
 const VersionName = styled.div`
@@ -96,14 +90,6 @@ const VersionName = styled.div`
 const CreatedAt = styled.div`
   font-size: 0.8rem;
   color: gray;
-`;
-
-const CloseButton = styled.button`
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  font-size: 1.5rem;
-  cursor: pointer;
 `;
 
 export default VersionHistorySidebar;
