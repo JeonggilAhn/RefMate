@@ -5,6 +5,38 @@ import { get } from '../../api';
 import Icon from '../common/Icon';
 import PinNotes from './PinNotes';
 import NoteImageDetail from './NoteImageDetail';
+import { NoteState } from '../../recoil/blueprint/notes';
+import { useRecoilState } from 'recoil';
+
+export const processNotes = (noteList) => {
+  if (!Array.isArray(noteList)) {
+    throw new Error('note_list 데이터가 배열 형식이 아닙니다.');
+  }
+
+  const groupedByDate = noteList.reduce((acc, note) => {
+    const date = new Date(note.created_at).toLocaleDateString('ko-KR', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      weekday: 'short',
+    });
+
+    if (!acc[date]) {
+      acc[date] = [];
+    }
+    acc[date].push(note);
+    return acc;
+  }, {});
+
+  return Object.entries(groupedByDate)
+    .sort(([dateA], [dateB]) => new Date(dateB) - new Date(dateA))
+    .map(([date, notes]) => ({
+      date,
+      notes: notes.sort(
+        (a, b) => new Date(a.created_at) - new Date(b.created_at),
+      ),
+    }));
+};
 
 const TEST_USER_ID = 6569173793051701; // 테스트용 user_id 고정
 
@@ -14,6 +46,8 @@ const PinComponent = ({
   pin,
   onClickInfoButton,
 }) => {
+  const [notes, setNotes] = useRecoilState(NoteState);
+
   const [pinInfo, setPinInfo] = useState(pin);
   const [hoveredPin, setHoveredPin] = useState(null);
   const [recentNotes, setRecentNotes] = useState(null);
@@ -72,6 +106,8 @@ const PinComponent = ({
     try {
       const response = await get(`pins/${pinInfo.pin_id}/notes`);
       const notes = response.data?.content?.note_list || [];
+
+      setNotes(processNotes(notes));
 
       // 내 user_id(TEST_USER_ID)가 read_users에 없으면 unreadNotes = true
       const isUnread = notes.some((note) =>
@@ -174,22 +210,26 @@ const PinComponent = ({
         </div>
       )}
 
-      {/* 노트 상세 보기 유지 */}
-      {showPinNotes && (
-        <div className="absolute left-full top-10 z-10 w-80">
-          <PinNotes onClose={() => setShowPinNotes(false)} pinInfo={pinInfo} />
-        </div>
-      )}
-
-      {/* 이미지들 상세 보기 유지 */}
-      {showImages && (
-        <div className="absolute left-full top-10 z-10 w-80">
-          <NoteImageDetail
-            onClose={() => setShowImages(false)}
-            pinInfo={pinInfo}
-          />
-        </div>
-      )}
+      <div className="absolute min-w-fit top-20 flex justify-center gap-4">
+        {/* 노트 상세 보기 유지 */}
+        {showPinNotes && (
+          <div>
+            <PinNotes
+              onClose={() => setShowPinNotes(false)}
+              pinInfo={pinInfo}
+            />
+          </div>
+        )}
+        {/* 이미지들 상세 보기 유지 */}
+        {showImages && (
+          <div>
+            <NoteImageDetail
+              onClose={() => setShowImages(false)}
+              pinInfo={pinInfo}
+            />
+          </div>
+        )}
+      </div>
     </div>
   );
 };
