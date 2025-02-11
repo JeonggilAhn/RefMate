@@ -23,9 +23,9 @@ public class Pin extends BaseTimeEntity {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long pinId;
 
-	private Integer pinX;
+	private Float pinX;
 
-	private Integer pinY;
+	private Float pinY;
 
 	private String pinName;
 
@@ -35,8 +35,8 @@ public class Pin extends BaseTimeEntity {
 
 	@Builder
 	public Pin(
-		Integer pinX,
-		Integer pinY,
+		Float pinX,
+		Float pinY,
 		String pinName
 	) {
 		this.pinX = pinX;
