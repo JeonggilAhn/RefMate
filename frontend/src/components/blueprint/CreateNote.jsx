@@ -2,8 +2,10 @@ import React, { useState } from 'react';
 import { post } from '../../api';
 import Icon from '../common/Icon';
 import ImageUploader from '../common/ImageUploader';
+import { useParams } from 'react-router-dom';
 
-const CreateNote = ({ pinId, closeModal, projectId }) => {
+const CreateNote = ({ pinId, closeModal }) => {
+  const { project_id, blueprint_version_id } = useParams();
   const [noteTitle, setNoteTitle] = useState('');
   const [noteContent, setNoteContent] = useState('');
   const [imageUrls, setImageUrls] = useState([]);
@@ -17,8 +19,8 @@ const CreateNote = ({ pinId, closeModal, projectId }) => {
 
     try {
       const response = await post(`pins/${pinId}/notes`, {
-        blueprint_version_id: 0,
-        project_id: projectId,
+        blueprint_version_id: blueprint_version_id,
+        project_id: project_id,
         note_title: noteTitle,
         note_content: noteContent,
         image_url_list: imageUrls,
