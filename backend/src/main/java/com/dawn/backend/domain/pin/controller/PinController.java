@@ -83,7 +83,7 @@ public class PinController {
 		return ResponseWrapperFactory.setResponse(
 			HttpStatus.OK,
 			null,
-			pinService.createPin(blueprintId, pinInfo)
+			pinService.createPin(versionId, pinInfo)
 		);
 	}
 

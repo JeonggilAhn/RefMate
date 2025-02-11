@@ -19,7 +19,7 @@ public interface ProjectService {
 
 	CreateProjectResponseDto createProject(User user, CreateProjectRequestDto createProjectRequestDto);
 
-	void inviteUser(Long projectId, InviteUserRequestDto request);
+	void inviteUser(Long projectId, InviteUserRequestDto request, User user);
 
 	void updateProject(Long projectId, UpdateProjectRequestDto request);
 
