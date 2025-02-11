@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import NoteButton from './NoteButton';
 import { get } from '../../api';
@@ -13,6 +13,8 @@ const PinNotes = ({ pinInfo, onClose, isSidebar }) => {
   const [showCreateNote, setShowCreateNote] = useState(false);
   const [isSearching, setIsSearching] = useState(false);
   const [selectedNote, setSelectedNote] = useState(null);
+  const [searchTargetId, setSearchTargetId] = useState(null); // 검색된 노트 ID 저장
+  const noteRefs = useRef({}); // 노트별 ref 저장
 
   const processNotes = (noteList) => {
     if (!Array.isArray(noteList)) {
@@ -72,9 +74,28 @@ const PinNotes = ({ pinInfo, onClose, isSidebar }) => {
     setSelectedNote(null);
   };
 
+  // 검색된 노트 목록 업데이트
+  const handleSearchSelect = (note_id) => {
+    console.log(note_id);
+    setSearchTargetId(note_id);
+  };
+
   useEffect(() => {
     fetchNotesWithPins();
   }, [pinInfo.pin_id]);
+
+  useEffect(() => {
+    console.log('searchTargetId 변경:', searchTargetId);
+    if (searchTargetId && noteRefs.current[searchTargetId]) {
+      console.log('노트 찾음:', noteRefs.current[searchTargetId]);
+
+      // 현재 노트 스크롤
+      noteRefs.current[searchTargetId].scrollIntoView({
+        behavior: 'smooth',
+        block: 'center',
+      });
+    }
+  }, [searchTargetId]);
 
   // pin_id가 현재 null
   if (!pinInfo.pin_id) {
@@ -119,7 +140,12 @@ const PinNotes = ({ pinInfo, onClose, isSidebar }) => {
                   <React.Fragment key={date}>
                     <DateSeparator>{date}</DateSeparator>
                     {notes.map((note) => (
-                      <NoteWithPinWrapper key={note.note_id}>
+                      <NoteWithPinWrapper
+                        key={note.note_id}
+                        ref={(el) => (noteRefs.current[note.note_id] = el)} // ref 설정
+                        id={note.note_id} // id 추가 (하이라이트를 위해 필요)
+                        className={`p-2 ${searchTargetId === note.note_id ? 'bg-yellow-200' : ''}`}
+                      >
                         <NoteButton
                           note={note}
                           onClick={() => handleNoteClick(note)}
@@ -133,7 +159,17 @@ const PinNotes = ({ pinInfo, onClose, isSidebar }) => {
             {showCreateNote && (
               <CreateNote closeModal={() => setShowCreateNote(false)} />
             )}
-            {isSearching && <NoteSearch />}
+            {isSearching && (
+              <div className="absolute h-auto w-full top-14 bg-white z-20 flex flex-col">
+                <NoteSearch
+                  onSelect={handleSearchSelect}
+                  onClose={() => {
+                    setIsSearching(false); // 검색 상태를 false로 설정
+                    setSearchTargetId(null); // 하이라이트를 제거하기 위해 searchTargetId를 null로 설정
+                  }}
+                />
+              </div>
+            )}
           </>
         )}
       </Container>

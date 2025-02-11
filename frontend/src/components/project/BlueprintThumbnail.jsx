@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
-import { get } from '../../api';
 import { useNavigate } from 'react-router-dom';
 import VersionHistorySidebar from './VersionHistorySidebar';
 import { useSetRecoilState } from 'recoil';
@@ -11,7 +10,6 @@ import UpdateBlueprintName from './UpdateBlueprintName';
 import {
   Sheet,
   SheetContent,
-  SheetDescription,
   SheetHeader,
   SheetTitle,
   SheetTrigger,
