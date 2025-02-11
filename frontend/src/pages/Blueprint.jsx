@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from 'react';
-import { get } from '../api/index';
+import { get, patch } from '../api/index';
 import { useRecoilState } from 'recoil';
 
 import BlueprintLayout from '../layouts/BlueprintLayout';
@@ -15,20 +15,29 @@ import Icon from '../components/common/Icon';
 import DropDown from '../components/common/DropDown';
 import SelectBox from '../components/common/SelectBox';
 import { pinState } from '../recoil/blueprint';
-import EditOption from '../components/project/EditOption';
-import Tabs from '../components/common/Tabs';
+import PinTabs from '../components/blueprint/PinTabs';
 import Slider from '../components/common/Slider';
 import { modalState } from '../recoil/common/modal';
 import ImageCarouselPopup from '../components/blueprint/ImageCarouselPopup';
 import ColorInitializer from '../components/common/ColorInitializer';
+import { colorState } from '../recoil/common/color';
 import { useParams } from 'react-router-dom';
+import AllPinFolder from '../components/blueprint/AllPinFolder';
+import AllPinList from '../components/blueprint/AllPinList';
+import { useToast } from '@/hooks/use-toast';
 
 const Blueprint = () => {
   const { blueprint_id, blueprint_version_id } = useParams();
 
+  // common
+  const [colors, setColors] = useRecoilState(colorState);
+  const { toast } = useToast(20);
+
   // pins
   const [pins, setPins] = useRecoilState(pinState);
+  const [donePins, setDonePins] = useState([]);
   const [isViewFolder, setIsViewFolder] = useState(true);
+  const [isActiveTab, setIsActiveTab] = useState(true);
 
   // current blueprint
   const [blueprint, setBlueprint] = useState({});
@@ -111,7 +120,7 @@ const Blueprint = () => {
   const closeAllNotePopup = () => {
     setPins((prev) => {
       return prev.map((pin) => {
-        return { ...pin, is_open_note: !pin.is_open_note };
+        return { ...pin, is_open_note: false };
       });
     });
   };
@@ -119,7 +128,7 @@ const Blueprint = () => {
   const closeAllImagePopup = () => {
     setPins((prev) => {
       return prev.map((pin) => {
-        return { ...pin, is_open_image: !pin.is_open_image };
+        return { ...pin, is_open_image: false };
       });
     });
   };
@@ -143,15 +152,6 @@ const Blueprint = () => {
       } = res;
 
       if (status === 200) {
-        console.log('이미지다', content);
-        // 배열
-        // image_list
-        // image_id
-        // image_origin
-        // image_preview
-        // is_bookmark
-        // note_id
-        // note_title
         setDetailPinImages(content);
         setIsDetailSidebarOpen(true);
       }
@@ -163,34 +163,97 @@ const Blueprint = () => {
   };
 
   useEffect(() => {
-    // 개별 블루프린트 조회
-    // 첫 조회 블루프린트가 곧 첫 오버레이 블루프린트
-    get(`blueprints/${blueprint_id}/${blueprint_version_id}`).then((res) => {
-      const {
-        status,
-        data: { content },
-      } = res;
+    const init = async () => {
+      const bpRes = await get(
+        `blueprints/${blueprint_id}/${blueprint_version_id}`,
+      );
+      const psRes = await get(
+        `blueprints/${blueprint_id}/${blueprint_version_id}/pins`,
+        { is_active: true },
+      );
+      const dpsRes = await get(
+        `blueprints/${blueprint_id}/${blueprint_version_id}/pins`,
+        { is_active: false },
+      );
+      const bpsRes = await get(`blueprints/${blueprint_id}`);
 
-      if (status === 200) {
-        // todo : 추후 제거
-        content.blueprint_image =
-          'https://magazine.brique.co/wp-content/uploads/2022/08/3_%EB%8F%84%EB%A9%B4_3%EC%B8%B5%ED%8F%89%EB%A9%B4%EB%8F%84.jpeg';
-        setBlueprint(content);
-        setOverlayBlueprint(content);
+      // blueprints 상태 업데이트가 느려서 만든 임시 배열
+      let tmpBlueprints = [];
+
+      // (진행중인) 모든 핀 데이터터 조회
+      if (psRes.status === 200) {
+        const data = psRes.data.content.map((item) => {
+          return {
+            is_visible: true,
+            is_open_note: false,
+            is_open_image: false,
+            ...item,
+          };
+        });
+        console.log('진행중인 전체 핀 데이터', data);
+        setPins(data);
       }
-    });
+
+      // (완료된된) 모든 핀 데이터터 조회
+      if (dpsRes.status === 200) {
+        const data = dpsRes.data.content.map((item) => {
+          return {
+            is_visible: true,
+            is_open_note: false,
+            is_open_image: false,
+            ...item,
+          };
+        });
+        console.log('완료된 전체 핀 데이터', data);
+        setDonePins(data);
+      }
+
+      // 모든 블루프린트 버전 리스트 조회
+      if (bpsRes.status === 200) {
+        const newContent = bpsRes.data.content.map((item, index) => {
+          return { ...item, index };
+        });
+        tmpBlueprints = newContent;
+        setBlueprints(newContent);
+      }
+
+      // 개별 블루프린트 조회
+      // 첫 조회 블루프린트가 곧 첫 오버레이 블루프린트
+      if (bpRes.status === 200) {
+        const data = bpRes.data.content;
+        data.blueprint_image =
+          'https://magazine.brique.co/wp-content/uploads/2022/08/3_%EB%8F%84%EB%A9%B4_3%EC%B8%B5%ED%8F%89%EB%A9%B4%EB%8F%84.jpeg';
+        setBlueprint(data);
+        setOverlayBlueprint(data);
+
+        // 현재는 같을리가 없겠구나 ..
+        const print = tmpBlueprints.find(
+          (item) => item.blueprint_version_id === data.blueprint_version_id,
+        );
+        setSelectedBlueprint(print ? print : tmpBlueprints[0]);
+      }
+    };
+
+    init();
   }, []);
 
+  // todo : 상세 이미지 컴포넌트가 렌더링될 때마다 스크롤을 가장 아래로 이동안함
   useEffect(() => {
-    get(`blueprints/${blueprint_id}/${blueprint_version_id}/pins`).then(
-      (res) => {
-        const {
-          status,
-          data: { content },
-        } = res;
+    // bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [detailPinImages]);
 
-        if (status === 200) {
-          const data = content.map((item) => {
+  const tabActions = [
+    {
+      name: '진행중',
+      handler: async () => {
+        const psRes = await get(
+          `blueprints/${blueprint_id}/${blueprint_version_id}/pins`,
+          { is_active: true },
+        );
+
+        // (진행중인) 모든 핀 데이터터 조회
+        if (psRes.status === 200) {
+          const data = psRes.data.content.map((item) => {
             return {
               is_visible: true,
               is_open_note: false,
@@ -200,49 +263,118 @@ const Blueprint = () => {
           });
           setPins(data);
         }
+        setIsActiveTab(true);
       },
-    );
+    },
+    {
+      name: '완료',
+      handler: async () => {
+        const dpsRes = await get(
+          `blueprints/${blueprint_id}/${blueprint_version_id}/pins`,
+          { is_active: false },
+        );
 
-    // 모든 블루프린트 버전 리스트 조회
-    get(`blueprints/${blueprint_id}`).then((res) => {
-      const {
-        status,
-        data: { content },
-      } = res;
-
-      if (status === 200) {
-        const newContent = content.map((item, index) => {
-          return { ...item, index };
-        });
-        console.log(newContent);
-        setBlueprints(newContent);
-      }
-    });
-  }, []);
-
-  // 현재는 같을리가 없겠구나 ..
-  // blue_print_version_id 비교 필요
-  useEffect(() => {
-    const print = blueprints.find((item) => {
-      return item.blueprint_version_name === blueprint.blueprint_version_name;
-    });
-    setSelectedBlueprint(print);
-  }, [blueprints, blueprint]);
-
-  // todo : 상세 이미지 컴포넌트가 렌더링될 때마다 스크롤을 가장 아래로 이동안함
-  useEffect(() => {
-    // bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [detailPinImages]);
-
-  const pinActions = [
-    { name: '수정', handler: () => {} },
-    { name: '완료', handler: () => {} },
+        // (완료된된) 모든 핀 데이터터 조회
+        if (dpsRes.status === 200) {
+          const data = dpsRes.data.content.map((item) => {
+            return {
+              is_visible: true,
+              is_open_note: false,
+              is_open_image: false,
+              ...item,
+            };
+          });
+          setDonePins(data);
+        }
+        setIsActiveTab(false);
+      },
+    },
   ];
 
-  const tabActions = [
-    { name: '진행중', handler: () => {} },
-    { name: '완료', handler: () => {} },
-  ];
+  const pinActiveActions = (id) => {
+    const pinId = id;
+    return [
+      {
+        name: '수정',
+        handler: () => {
+          // todo : 정길님 작업 후 수정 팝업 열기
+        },
+      },
+      {
+        name: '완료',
+        handler: () => {
+          // 완료 요청
+          patch(`pins/${pinId}/${blueprint_version_id}/status`).then((res) => {
+            const {
+              status,
+              data: { content },
+            } = res;
+
+            if (status === 200) {
+              // 해당 pin pins 에서 제거 (is_active : false)
+              setPins((prev) => {
+                return prev.filter((item) => {
+                  if (item.pin_id === pinId) {
+                    return false;
+                  }
+
+                  return true;
+                });
+              });
+
+              toast({
+                title: '해당 핀의 상태가 완료로 변경되었습니다.',
+                description: String(new Date()),
+              });
+            }
+          });
+        },
+      },
+    ];
+  };
+
+  const pinInactiveActions = (id) => {
+    const pinId = id;
+    return [
+      {
+        name: '수정',
+        handler: () => {
+          // todo : 정길님 작업 후 수정 팝업 열기
+        },
+      },
+      {
+        name: '미완료',
+        handler: () => {
+          // 미완료 요청
+          patch(`pins/${pinId}/${blueprint_version_id}/status`).then((res) => {
+            const {
+              status,
+              data: { content },
+            } = res;
+
+            if (status === 200) {
+              // 여기서 처리 따로 해줘야함
+              // 해당 pin donePins 에서 제거 (is_active : true)
+              setDonePins((prev) => {
+                return prev.filter((item) => {
+                  if (item.pin_id === pinId) {
+                    return false;
+                  }
+
+                  return true;
+                });
+              });
+
+              toast({
+                title: '해당 핀의 상태가 진행중으로 변경되었습니다.',
+                description: String(new Date()),
+              });
+            }
+          });
+        },
+      },
+    ];
+  };
 
   const onClickViewOptionButton = () => {
     setIsViewFolder((prev) => !prev);
@@ -254,8 +386,8 @@ const Blueprint = () => {
 
   const onClickPrevBlueprintButton = () => {
     setSelectedBlueprint((prev) => {
-      console.log('prev', prev);
       if (prev.index > 0) {
+        console.log('prev 변경');
         return { ...blueprints[prev.index - 1] };
       }
 
@@ -265,8 +397,8 @@ const Blueprint = () => {
 
   const onClickNextBlueprintButton = () => {
     setSelectedBlueprint((prev) => {
-      console.log('prev', prev);
       if (prev.index < blueprints.length - 1) {
+        console.log('next 변경');
         return { ...blueprints[prev.index + 1] };
       }
 
@@ -301,25 +433,49 @@ const Blueprint = () => {
     setIsDetailPopupOpen(true);
   };
 
-  const onClickPinImage = (pinId) => {};
+  const onClickPinImage = (imageList) => {
+    // 여긴 imageIndex 없어도 됌
+    setDetailPopupImages(imageList);
+    setCurrentImageIndex(0);
+    setIsDetailPopupOpen(true);
+  };
+
+  const onSelectColor = (value) => {
+    console.log(value);
+    // todo : 색상별 전체 핀 리스트 조회
+  };
 
   return (
     <BlueprintLayout>
       <ColorInitializer blueprintId={blueprint_id} />
       <div className="relative overflow-hidden">
         {/* 사이드바 컨트롤 버튼 */}
-        <div className="fixed top-[48px] w-[22rem] right-0 z-10 p-2 flex justify-between">
-          <button onClick={toggleSidebar} className="p-2">
+        <div
+          className={`fixed top-[48px] ${isSidebarOpen ? 'w-[21.2rem]' : 'w-[12.3rem]'} right-0 z-10 p-1 flex justify-between items-center border border-[#CBCBCB] rounded-md m-1.5`}
+        >
+          <button
+            onClick={toggleSidebar}
+            className="w-[2.4rem] h-[2.4rem] flex justify-center items-center rounded-md cursor-pointer hover:bg-[#F1F1F1]"
+          >
             <Icon name="IconLuPanelRight" width={24} height={24} />
           </button>
           <div className="flex gap-2">
-            <button onClick={toggleAllPinVisible} className="p-2">
-              <Icon name="IconTbPinStroke" width={24} height={24} />
+            <button
+              onClick={toggleAllPinVisible}
+              className="w-[2.4rem] h-[2.4rem] flex justify-center items-center rounded-md cursor-pointer hover:bg-[#F1F1F1] pr-1"
+            >
+              <Icon name="IconTbPinStroke" width={28} height={28} />
             </button>
-            <button onClick={closeAllNotePopup} className="p-2">
-              <Icon name="IconTbNotes" width={24} height={24} />
+            <button
+              onClick={closeAllNotePopup}
+              className="w-[2.4rem] h-[2.4rem] flex justify-center items-center rounded-md cursor-pointer hover:bg-[#F1F1F1]"
+            >
+              <Icon name="IconTbNote" width={26} height={26} />
             </button>
-            <button onClick={closeAllImagePopup} className="p-2">
+            <button
+              onClick={closeAllImagePopup}
+              className="w-[2.4rem] h-[2.4rem] flex justify-center items-center rounded-md cursor-pointer hover:bg-[#F1F1F1]"
+            >
               <Icon name="IconTbPhoto" width={24} height={24} />
             </button>
           </div>
@@ -338,7 +494,8 @@ const Blueprint = () => {
               </button>
               <div className="flex items-center gap-1">
                 <button
-                  className="w-[2.4rem] h-[2.4rem] flex justify-center items-center border border-[#CBCBCB] bg-[#F5F5F5] rounded-md cursor-pointer hover:bg-[#F1F1F1]"
+                  disabled={selectedBlueprint.index === 0}
+                  className={`w-[2.4rem] h-[2.4rem] flex justify-center items-center border border-[#CBCBCB] bg-[#F5F5F5] rounded-md ${selectedBlueprint.index === 0 ? 'cursor-not-allowed' : 'cursor-pointer'}`}
                   onClick={onClickPrevBlueprintButton}
                 >
                   <Icon name="IconGoChevronPrev" width={20} height={20} />
@@ -358,7 +515,8 @@ const Blueprint = () => {
                 </SelectBox>
 
                 <button
-                  className="w-[2.4rem] h-[2.4rem] flex justify-center items-center border border-[#CBCBCB] bg-[#F5F5F5] rounded-md cursor-pointer hover:bg-[#F1F1F1]"
+                  disabled={selectedBlueprint.index === blueprints.length - 1}
+                  className={`w-[2.4rem] h-[2.4rem] flex justify-center items-center border border-[#CBCBCB] bg-[#F5F5F5] rounded-md ${selectedBlueprint.index === blueprints.length - 1 ? 'cursor-not-allowed' : 'cursor-pointer'}`}
                   onClick={onClickNextBlueprintButton}
                 >
                   <Icon name="IconGoChevronNext" width={20} height={20} />
@@ -414,134 +572,68 @@ const Blueprint = () => {
           className={`absolute top-0 right-0 transition-transform duration-500 ease-in-out ${isSidebarOpen ? 'w-[22rem]' : 'min-w-0 w-0 overflow-hidden'} h-screen border border-black z-[4] bg-white flex flex-col overflow-hidden`}
         >
           <div className="pt-[48px]" />
-          <div className="mt-[60px] px-[0.3rem] flex-1">
-            <NoteHistory />
-            {/* pin list section */}
-            <div className="h-[32rem] border pb-2 rounded-lg shadow-md bg-white">
-              <div className="text-center font-semibold p-2 border-b">
-                전체 핀
-              </div>
-              {/* todo : 컴포넌트 수정 후 연동 */}
-              {/* <Tabs actions={tabActions} /> */}
-              <div className="p-2">
-                <div className="flex justify-between items-center p-2 border-b">
-                  <div className="flex gap-4">
-                    <button className="font-semibold text-blue-600">
-                      진행중
-                    </button>
-                    <button className="text-gray-500">완료</button>
-                  </div>
-                  <button className="flex justify-center items-center border border-black cursor-pointer hover:bg-[#F1F1F1]">
-                    <Icon
-                      name="IconTbMenu2"
-                      onClick={onClickViewOptionButton}
-                    />
-                  </button>
+          <div className="mt-[60px] px-[0.3rem] grid grid-cols-1 grid-rows-[1fr_2fr] gap-2 h-[calc(100%-115px)]">
+            <div>
+              <NoteHistory />
+            </div>
+            <div>
+              {/* pin list section */}
+              <div className="h-full border border-[#CBCBCB] rounded-lg shadow-md bg-white">
+                <div className="text-center p-2 border-b border-[#CBCBCB] rounded-t-lg bg-[#F5F5F5]">
+                  전체 핀
                 </div>
-
-                <div className="p-2 flex justify-end items-center gap-2">
-                  <SelectBox value={'haha'} onValueChange={() => {}}>
-                    {blueprints.map((item, index) => (
-                      <SelectItem
-                        key={item.blueprint_version_id}
-                        value={item.blueprint_version_id}
-                      >
-                        [{item.blueprint_version_seq}]{' '}
-                        {item.blueprint_version_name}
-                      </SelectItem>
-                    ))}
-                  </SelectBox>
-                </div>
-
-                <div className="relative w-full">
-                  <div
-                    className={`absolute h-[20rem] grid grid-cols-2 grid-rows-[12rem] gap-2 overflow-y-auto overflow-x-hidden ${isViewFolder ? 'visible' : 'invisible'}`}
-                  >
-                    {pins.map((pin, index) => {
-                      return (
-                        <div
-                          key={pin.pin_id}
-                          className="border rounded-md p-2 shadow-sm"
-                        >
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-1">
-                              <button
-                                onClick={() => togglePinVisible(pin.pin_id)}
-                              >
-                                {pin.is_visible ? (
-                                  <Icon name="IconTbEye" width={19} />
-                                ) : (
-                                  <Icon name="IconTbEyeClosed" width={19} />
-                                )}
-                              </button>
-                              <span className="w-2 h-2 bg-blue-500 rounded-full"></span>
-                              <span className="w-18 truncate font-medium">
-                                {pin.pin_name}
-                              </span>
+                <div className="p-2">
+                  <PinTabs
+                    actions={tabActions}
+                    isViewFolder={isViewFolder}
+                    onClickButton={onClickViewOptionButton}
+                  />
+                  <div className="py-2 flex justify-end items-center gap-2">
+                    {/* todo : API 연동 */}
+                    <SelectBox
+                      width={35}
+                      placeholder={'전체'}
+                      onValueChange={onSelectColor}
+                    >
+                      {colors.map((item, index) => {
+                        return (
+                          <SelectItem key={item.id} value={item.name}>
+                            <div className="flex items-center gap-2">
+                              <div
+                                className="w-2.5 h-2.5 rounded-full flex-shrink-0"
+                                style={{ backgroundColor: item.color }}
+                              />
+                              <div>{item.name}</div>
                             </div>
-                            <EditOption actions={pinActions} />
-                          </div>
-
-                          {!pin.preview_image_list.length ? (
-                            <div className="grid grid-cols-1 grid-rows-1 gap-rows-1 place-items-center mt-2">
-                              <div className="w-full h-[8rem] flex items-center justify-center text-gray-400 bg-gray-100 rounded-md">
-                                No image
-                              </div>
-                            </div>
-                          ) : (
-                            <div className="grid grid-cols-2 grid-row-2 gap-1 place-items-center mt-2">
-                              {pin.preview_image_list.map((item, idx) => (
-                                <div
-                                  key={item.image_id}
-                                  onClick={() => onClickPinImage('haha')}
-                                >
-                                  <img
-                                    src={item.image_preview}
-                                    alt="reference"
-                                    className="w-[4rem] h-[4rem] object-cover rounded-md border"
-                                  />
-                                  {item.image_id && item.is_bookmark && (
-                                    <div className="absolute top-0 right-0 w-4 h-4 bg-blue-500 clip-triangle"></div>
-                                  )}
-                                  {idx === 3 && pin.image_list.length > 4 && (
-                                    <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center text-white text-sm font-semibold rounded-md">
-                                      +{pin.image_list.length - 4}
-                                    </div>
-                                  )}
-                                </div>
-                              ))}
-                            </div>
-                          )}
-                        </div>
-                      );
-                    })}
+                          </SelectItem>
+                        );
+                      })}
+                    </SelectBox>
                   </div>
-
-                  <div
-                    className={`absolute h-[20rem] grid grid-cols-1 grid-rows-8 gap-2 overflow-y-auto overflow-x-hidden ${isViewFolder ? 'invisible' : 'visible'}`}
-                  >
-                    {pins.map((pin) => (
-                      <div
-                        key={pin.pin_id}
-                        className="flex items-center justify-between bg-gray-100 rounded-md p-2 shadow-sm"
-                      >
-                        <div className="flex items-center gap-2">
-                          <span className="text-gray-600">{pin.icon}</span>
-                          <button onClick={() => togglePinVisible(pin.pin_id)}>
-                            {pin.is_visible ? (
-                              <Icon name="IconTbEye" width={19} />
-                            ) : (
-                              <Icon name="IconTbEyeClosed" width={19} />
-                            )}
-                          </button>
-                          <span className="w-2 h-2 bg-blue-500 rounded-full"></span>
-                          <span className="w-[13.8rem] text-sm font-medium">
-                            {pin.pin_name}
-                          </span>
-                        </div>
-                        <EditOption actions={pinActions} />
-                      </div>
-                    ))}
+                  <div className="relative w-full h-full">
+                    <div
+                      className={`absolute h-90 grid grid-cols-2 grid-rows-[12rem] gap-2 overflow-y-auto overflow-x-hidden ${isViewFolder ? 'visible' : 'invisible'}`}
+                    >
+                      <AllPinFolder
+                        data={isActiveTab ? pins : donePins}
+                        isActiveTab={isActiveTab}
+                        togglePinVisible={togglePinVisible}
+                        pinActiveActions={pinActiveActions}
+                        pinInactiveActions={pinInactiveActions}
+                        onClickPinImage={onClickPinImage}
+                      />
+                    </div>
+                    <div
+                      className={`absolute h-90 grid grid-cols-1 grid-rows-8 gap-2 overflow-y-auto overflow-x-hidden ${isViewFolder ? 'invisible' : 'visible'}`}
+                    >
+                      <AllPinList
+                        data={isActiveTab ? pins : donePins}
+                        isActiveTab={isActiveTab}
+                        togglePinVisible={togglePinVisible}
+                        pinActiveActions={pinActiveActions}
+                        pinInactiveActions={pinInactiveActions}
+                      />
+                    </div>
                   </div>
                 </div>
               </div>
