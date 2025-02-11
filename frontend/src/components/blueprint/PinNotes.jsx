@@ -157,7 +157,10 @@ const PinNotes = ({ pinInfo, onClose, isSidebar }) => {
               )}
             </NotesContainer>
             {showCreateNote && (
-              <CreateNote closeModal={() => setShowCreateNote(false)} />
+              <CreateNote
+                pinId={pinInfo.pin_id}
+                closeModal={() => setShowCreateNote(false)}
+              />
             )}
             {isSearching && (
               <div className="absolute h-auto w-full top-14 bg-white z-20 flex flex-col">
