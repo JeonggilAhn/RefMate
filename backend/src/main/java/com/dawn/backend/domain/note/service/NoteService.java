@@ -220,7 +220,7 @@ public class NoteService {
 		noteCheckRepository.save(creatorNoteCheck);
 
 		projectUsers.stream()
-			.filter(projectUser -> !projectUser.equals(user))
+			.filter(projectUser -> !projectUser.getUserId().equals(user.getUserId()))
 			.map(projectUser -> UserNoteCheck.builder()
 				.note(savedNote)
 				.user(projectUser)
