@@ -96,11 +96,7 @@ public class BlueprintService {
 		BlueprintVersion blueprintVersion =
 			blueprintVersionRepository.findById(versionId).orElseThrow(BlueprintVersionNotFoundException::new);
 
-		return new BlueprintVersionDto(
-			blueprintVersion.getBlueprintVersionId(),
-			blueprintVersion.getBlueprintVersionName(),
-			blueprintVersion.getBlueprintImg()
-		);
+		return BlueprintVersionDto.from(blueprintVersion);
 	}
 
 	@Transactional
