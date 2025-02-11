@@ -6,11 +6,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.dawn.backend.domain.pin.dto.PinGroupDto;
@@ -24,6 +26,7 @@ import com.dawn.backend.domain.pin.dto.response.UpdatePinGroupResponseDto;
 import com.dawn.backend.domain.pin.dto.response.UpdatePinNameResponseDto;
 import com.dawn.backend.domain.pin.dto.response.UpdatePinStatusResponseDto;
 import com.dawn.backend.domain.pin.service.PinService;
+import com.dawn.backend.domain.user.entity.User;
 import com.dawn.backend.global.response.ResponseWrapper;
 import com.dawn.backend.global.response.ResponseWrapperFactory;
 
@@ -40,12 +43,14 @@ public class PinController {
 	@PreAuthorize("@authExpression.hasBlueprintPermission(blueprintId)")
 	public ResponseEntity<ResponseWrapper<List<PinItem>>> getPinListByBlueprint(
 		@PathVariable("blueprintId") Long blueprintId,
-		@PathVariable("versionId") Long versionId
+		@PathVariable("versionId") Long versionId,
+		@RequestParam(value = "is_active", required = false) Boolean isActive,
+		@AuthenticationPrincipal User user
 	) {
 		return ResponseWrapperFactory.setResponse(
 			HttpStatus.OK,
 			null,
-			pinService.pins(versionId)
+			pinService.pins(versionId, isActive, user)
 		);
 	}
 
