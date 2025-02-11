@@ -67,10 +67,17 @@ public class PinService {
 		this.blueprintVersionRepository = blueprintVersionRepository;
 	}
 
-	public List<PinItem> pins(Long blueprintVersionId) {
+	public List<PinItem> pins(Long blueprintVersionId, Boolean isActive) {
 
-		List<PinVersion> pinlist =
-			pinVersionRepository.findAllByBlueprintVersionBlueprintVersionId(blueprintVersionId);
+		List<PinVersion> pinlist;
+		if (isActive == null) {
+			pinlist = pinVersionRepository.findAllByBlueprintVersionBlueprintVersionId(blueprintVersionId);
+		} else {
+			pinlist = pinVersionRepository.findAllByBlueprintVersionBlueprintVersionIdAndIsActive(
+				blueprintVersionId,
+				isActive
+			);
+		}
 
 		return pinlist.stream()
 			.map(pinVersion -> {
