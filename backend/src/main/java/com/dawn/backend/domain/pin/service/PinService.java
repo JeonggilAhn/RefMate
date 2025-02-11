@@ -67,8 +67,7 @@ public class PinService {
 		this.blueprintVersionRepository = blueprintVersionRepository;
 	}
 
-	public List<PinItem> pins(Long blueprintVersionId, Boolean isActive) {
-
+	public List<PinItem> pins(Long blueprintVersionId, Boolean isActive, User user) {
 		List<PinVersion> pinlist;
 		if (isActive == null) {
 			pinlist = pinVersionRepository.findAllByBlueprintVersionBlueprintVersionId(blueprintVersionId);
@@ -101,8 +100,6 @@ public class PinService {
 						: pinVersion.getPinGroup().getPinGroupName(),
 					pinVersion.getPinGroup().getPinGroupColor()
 				);
-
-				User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
 				boolean hasUnreadNote =
 					noteCheckRepository.hasUnreadNoteByPin(user, pinVersion.getPin());
