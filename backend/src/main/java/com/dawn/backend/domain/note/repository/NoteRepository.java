@@ -89,7 +89,7 @@ public interface NoteRepository extends JpaRepository<Note, Long> {
 
 	List<Note> findAllByPinPinId(Long pinId);
 
-	Optional<Note> findFirstByPinPinIdAndIsDeletedFalseOrderByCreatedAtDesc(Long pinId);
+	Note findFirstByPinPinIdAndIsDeletedFalseOrderByCreatedAtDesc(Long pinId);
 
 	@Query("""
 		SELECT n FROM Note n
