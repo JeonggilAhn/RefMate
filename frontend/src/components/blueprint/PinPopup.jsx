@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { get, post, patch } from '../../api';
+import { post, patch } from '../../api';
+import { useRecoilValue } from 'recoil';
+import { colorState } from '../../recoil/common/color';
 import {
   Select,
   SelectTrigger,
@@ -19,7 +21,18 @@ const PinPopup = ({
   const [pinId, setPinId] = useState(null);
   const [pinName, setPinName] = useState('');
   const [pinGroup, setPinGroup] = useState('');
-  const [groupOptions, setGroupOptions] = useState([]);
+
+  const groupOptions = useRecoilValue(colorState); // Recoil에서 컬러 데이터 가져오기
+
+  // blueprintId가 올바르게 전달되는지 확인
+  useEffect(() => {
+    console.log('현재 blueprintId:', blueprintId);
+  }, [blueprintId]);
+
+  // Recoil에서 가져온 데이터가 올바르게 들어오는지 확인
+  useEffect(() => {
+    console.log('현재 groupOptions:', groupOptions);
+  }, [groupOptions]);
 
   // 초기 핀 데이터 설정
   useEffect(() => {
@@ -28,25 +41,10 @@ const PinPopup = ({
       setPinId(initialPin.pin_id);
       setPinName(initialPin.pin_name || '');
       setPinGroup(initialPin.pin_group?.pin_group_id || '');
+    } else if (groupOptions.length > 0) {
+      setPinGroup(groupOptions[0].id); // 그룹 목록이 있으면 첫 번째 항목을 기본값으로 설정
     }
-  }, [initialPin]);
-
-  // 핀 그룹 데이터 가져오기
-  useEffect(() => {
-    const fetchGroups = async () => {
-      if (!blueprintId) return;
-      try {
-        const response = await get(`blueprints/${blueprintId}/pin-groups`);
-        if (response.data?.content && Array.isArray(response.data.content)) {
-          setGroupOptions(response.data.content);
-        }
-      } catch (error) {
-        console.error('핀 그룹 로딩 오류:', error);
-      }
-    };
-
-    fetchGroups();
-  }, [blueprintId]);
+  }, [initialPin, groupOptions]);
 
   // 핀 생성 핸들러
   const handleCreatePin = async () => {
@@ -54,8 +52,7 @@ const PinPopup = ({
 
     try {
       const groupColor =
-        groupOptions.find((g) => g.pin_group_id === pinGroup)
-          ?.pin_group_color || 'gray';
+        groupOptions.find((g) => g.id === pinGroup)?.color || 'gray';
       post(`blueprints/${blueprintId}/${blueprintVersion}/pins`, {
         name: pinName,
         group: pinGroup,
@@ -76,8 +73,7 @@ const PinPopup = ({
 
     try {
       const groupColor =
-        groupOptions.find((g) => g.pin_group_id === pinGroup)
-          ?.pin_group_color || 'gray';
+        groupOptions.find((g) => g.id === pinGroup)?.color || 'gray';
       await patch(`pins/${pinId}/name`, { name: pinName });
       await patch(`pins/${pinId}/${blueprintVersion}/group`, {
         group: pinGroup,
@@ -90,6 +86,7 @@ const PinPopup = ({
 
   return (
     <div className="fixed top-0 left-0 w-full h-full flex justify-center items-center z-50">
+      {/* ColorInitializer 제거됨 (Blueprint.jsx에서 실행됨) */}
       <div className="bg-white rounded-lg p-6 w-96 border border-black">
         <h2 className="text-xl font-bold mb-4">
           {isEditing ? '핀 수정' : '핀 생성'}
@@ -118,8 +115,8 @@ const PinPopup = ({
                     className="w-4 h-4 rounded-full"
                     style={{
                       backgroundColor:
-                        groupOptions.find((g) => g.pin_group_id === pinGroup)
-                          ?.pin_group_color || 'transparent',
+                        groupOptions.find((g) => g.id === pinGroup)?.color ||
+                        'transparent',
                     }}
                   />
                   <SelectValue placeholder="그룹 선택" />
@@ -129,25 +126,26 @@ const PinPopup = ({
               )}
             </SelectTrigger>
             <SelectContent>
-              {groupOptions.map((option) => (
-                <SelectItem
-                  key={option.pin_group_id}
-                  value={option.pin_group_id}
-                >
-                  <div className="flex items-center gap-2">
-                    <span
-                      className="w-4 h-4 rounded-full"
-                      style={{ backgroundColor: option.pin_group_color }}
-                    />
-                    {option.pin_group_name}
-                  </div>
-                </SelectItem>
-              ))}
+              {groupOptions.length > 0 ? (
+                groupOptions.map((option) => (
+                  <SelectItem key={option.id} value={option.id}>
+                    <div className="flex items-center gap-2">
+                      <span
+                        className="w-4 h-4 rounded-full"
+                        style={{ backgroundColor: option.color }}
+                      />
+                      {option.name}
+                    </div>
+                  </SelectItem>
+                ))
+              ) : (
+                <div className="p-2 text-gray-500">그룹 없음</div>
+              )}
             </SelectContent>
           </Select>
         </div>
 
-        {/* 버튼 영역 */}
+        {/* 기존 버튼 UI 유지 (삭제된 버튼 복구) */}
         <div className="flex justify-end gap-2">
           <button
             className={`px-4 py-2 rounded-md ${

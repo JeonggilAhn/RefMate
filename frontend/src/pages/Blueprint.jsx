@@ -20,6 +20,7 @@ import Tabs from '../components/common/Tabs';
 import Slider from '../components/common/Slider';
 import { modalState } from '../recoil/common/modal';
 import ImageCarouselPopup from '../components/blueprint/ImageCarouselPopup';
+import ColorInitializer from '../components/common/ColorInitializer';
 
 const Blueprint = () => {
   const blueprint_id = 1;
@@ -304,6 +305,7 @@ const Blueprint = () => {
 
   return (
     <BlueprintLayout>
+      <ColorInitializer blueprintId={blueprint_id} />
       <div className="relative overflow-hidden">
         {/* 사이드바 컨트롤 버튼 */}
         <div className="fixed top-[48px] w-[22rem] right-0 z-10 p-2 flex justify-between">

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { post } from '../../api';
 import ImageUploader from '../common/ImageUploader';
 
-const CreateBlueprint = ({ setModal, projectId }) => {
+const CreateBlueprint = ({ setModal, projectId, setBlueprints }) => {
   const [blueprintTitle, setBlueprintTitle] = useState('');
   const [selectedImage, setSelectedImage] = useState(null);
 
@@ -21,15 +21,39 @@ const CreateBlueprint = ({ setModal, projectId }) => {
       }
 
       const response = await post(
-        'projects/{project_id}/blueprints',
-        formData,
+        `projects/${projectId}/blueprints`,
+        {
+          blueprint_title: blueprintTitle,
+          origin_file: selectedImage,
+        },
         {
           headers: {
             'Content-Type': 'multipart/form-data',
           },
         },
       );
+
+      const newBlueprint = {
+        blueprint_id: null,
+        blueprint_title: blueprintTitle,
+        preview_image: selectedImage,
+        created_at: new Date(),
+        latest_version_id: null,
+      };
+
+      setBlueprints((prevBlueprints) => [
+        ...prevBlueprints,
+        {
+          ...newBlueprint,
+          blueprint_id: Number(response.data.content.blueprint_id),
+          latest_version_id: Number(response.data.content.latest_version_id),
+        },
+      ]);
+
       console.log('블루프린트 생성 성공:', response.data);
+      console.log('url : ', selectedImage);
+      console.log('--', selectedImage);
+
       alert('생성 완료');
       setModal(null);
     } catch (error) {

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import styled from 'styled-components';
 import Header from '../components/common/Header';
@@ -6,28 +6,73 @@ import BackButton from '../components/common/BackButton';
 import BlueprintListSubHeader from '../components/project/BlueprintListSubHeader';
 import BlueprintThumbnail from '../components/project/BlueprintThumbnail';
 import BlueprintListTabs from '../components/project/BlueprintListTabs';
+import { get } from '../api/index';
 
 function BlueprintList() {
-  const userId = 96168794; // 예시 userId
   const { projectId } = useParams(); // projectId 가져오기
 
+  const [projectTitle, setProjectTitle] = useState('');
+  const [blueprints, setBlueprints] = useState([]);
   const [filterType, setFilterType] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
+
+  useEffect(() => {
+    const fetchProjectName = async () => {
+      if (projectId) {
+        try {
+          const response = await get(`projects/${projectId}`);
+          setProjectTitle(response.data.content.project_title);
+          console.log(projectTitle);
+        } catch (error) {
+          console.error('프로젝트 이름을 가져오는데 실패했습니다.', error);
+        }
+      }
+    };
+
+    const fetchBlueprints = async () => {
+      try {
+        const response = await get(`projects/${projectId}/blueprints`);
+        setBlueprints(response.data.content);
+      } catch (error) {
+        console.error('API 호출 오류:', error);
+      }
+    };
+
+    fetchProjectName();
+    fetchBlueprints();
+  }, [projectId]);
+
+  // 검색 쿼리
+  const searchedBlueprints = blueprints.filter((blueprint) => {
+    if (
+      searchQuery &&
+      !blueprint.blueprint_title
+        .toLowerCase()
+        .includes(searchQuery.toLowerCase())
+    ) {
+      return false;
+    }
+    return true;
+  });
 
   return (
     <Wrapper>
       <Header />
       <ContentWrapper>
-        <BlueprintListSubHeader userId={userId} projectId={projectId} />
+        <BlueprintListSubHeader
+          projectTitle={projectTitle}
+          projectId={projectId}
+          setBlueprints={setBlueprints}
+          setProjectTitle={setProjectTitle}
+        />
         <BlueprintListTabs
           actions={[{ name: '모든 블루프린트', type: 'all' }]}
           setFilterType={setFilterType}
           setSearchQuery={setSearchQuery}
         ></BlueprintListTabs>
         <BlueprintThumbnail
-          projectId={projectId}
-          filterType={filterType}
-          searchQuery={searchQuery}
+          blueprints={searchedBlueprints}
+          setBlueprints={setBlueprints}
         />
       </ContentWrapper>
       <BackButton />

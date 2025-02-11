@@ -40,10 +40,6 @@ const BlueprintCanvas = ({
 
     setScale(minScale);
     setPosition({ x: canvas.width / 2, y: canvas.height / 2 });
-
-    console.log(
-      `Center Position: x=${canvas.width / 2}, y=${canvas.height / 2}`,
-    );
   };
 
   useEffect(() => {
@@ -121,8 +117,6 @@ const BlueprintCanvas = ({
           0.5,
           prev + (e.deltaY > 0 ? -zoomSpeed : zoomSpeed),
         );
-
-        console.log(`\n🔍 Zoom Applied: scale=${newScale}`);
         return newScale;
       });
     }
@@ -153,8 +147,6 @@ const BlueprintCanvas = ({
     const rect = canvasRef.current.getBoundingClientRect();
     const x = (e.clientX - rect.left - position.x) / scale;
     const y = (e.clientY - rect.top - position.y) / scale;
-
-    console.log(`📍 Pin Clicked: x=${x.toFixed(2)}, y=${y.toFixed(2)}`);
 
     setPendingPin({
       has_unread_note: false,

@@ -215,6 +215,7 @@ const ImageUploader = ({ onImageSelect, projectId, type = 'blueprint' }) => {
     // 부모 컴포넌트에 변경된 URL 목록 전달
     const publicUrls = newPreviewUrls.filter((url) => url); // null 값 제거
     onImageSelect(type === 'blueprint' ? publicUrls[0] : publicUrls);
+    console.log(publicUrls[0]);
   };
 
   // 컨텍스트 메뉴 외부 클릭 시 닫기

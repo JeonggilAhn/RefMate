@@ -8,57 +8,33 @@ import { modalState } from '../../recoil/common/modal';
 import TextButton from '../common/TextButton';
 import EditOption from './EditOption';
 import UpdateBlueprintName from './UpdateBlueprintName';
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from '@/components/ui/sheet';
 
-const BlueprintThumbnail = ({ projectId, filterType, searchQuery }) => {
-  const [blueprints, setBlueprints] = useState([]);
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+const BlueprintThumbnail = ({ blueprints, setBlueprints }) => {
   const [selectedBlueprintId, setSelectedBlueprintId] = useState(null);
-  const [selectedBlueprintTitle, setSelectedBlueprintTitle] = useState(null);
   const navigate = useNavigate();
   const setModal = useSetRecoilState(modalState);
-
-  useEffect(() => {
-    const fetchBlueprints = async () => {
-      try {
-        const response = await get(`projects/${projectId}/blueprints`);
-        const filteredProjects = response.data.content;
-        console.log(filteredProjects);
-        console.log(searchQuery);
-        const searchedBlueprints = searchQuery
-          ? filteredProjects.filter((blueprint) =>
-              blueprint.blueprint_title
-                ? blueprint.blueprint_title
-                    .toLowerCase()
-                    .includes(searchQuery.toLowerCase())
-                : false,
-            )
-          : filteredProjects;
-
-        console.log(searchedBlueprints === filteredProjects);
-        setBlueprints(searchedBlueprints);
-      } catch (error) {
-        console.error('API 호출 오류:', error);
-      }
-    };
-
-    fetchBlueprints();
-  }, [projectId, filterType, searchQuery]);
 
   const handleViewLatest = (blueprintId) => {
     navigate(`/blueprint`);
     // navigate(`/blueprint/${blueprintId}`);
   };
 
-  const handleViewAll = (blueprintId, blueprintTitle) => {
+  const handleViewAll = (blueprintId) => {
     setSelectedBlueprintId(blueprintId);
-    setSelectedBlueprintTitle(blueprintTitle);
-    setIsSidebarOpen(true);
   };
 
   const handleUpdateBlueprintName = (blueprintId, blueprintTitle) => {
     setModal({
       type: 'modal',
-      title: '프로젝트 수정',
+      title: '블루프린트 수정',
       content: (
         <UpdateBlueprintName
           blueprintId={blueprintId}
@@ -79,7 +55,6 @@ const BlueprintThumbnail = ({ projectId, filterType, searchQuery }) => {
   };
 
   return (
-    // <Container>
     <BlueprintWrapper>
       {blueprints.map((blueprint) => (
         <BlueprintItem key={blueprint.blueprint_id}>
@@ -94,16 +69,23 @@ const BlueprintThumbnail = ({ projectId, filterType, searchQuery }) => {
               >
                 최신 시안 보기
               </TextButton>
-              <TextButton
-                onClick={() =>
-                  handleViewAll(
-                    blueprint.blueprint_id,
-                    blueprint.blueprint_title,
-                  )
-                }
-              >
-                전체 시안 보기
-              </TextButton>
+              <Sheet>
+                <SheetTrigger>
+                  <TextButton
+                    onClick={() => handleViewAll(blueprint.blueprint_id)}
+                  >
+                    전체 시안 보기
+                  </TextButton>
+                </SheetTrigger>
+                <AnimatedSheetContent>
+                  <SheetHeader>
+                    <SheetTitle className="text-lg">모든 시안</SheetTitle>
+                    <hr className="text-gray-300" />
+                    <SheetTitle>{blueprint.blueprint_title}</SheetTitle>
+                    <VersionHistorySidebar blueprintId={selectedBlueprintId} />
+                  </SheetHeader>
+                </AnimatedSheetContent>
+              </Sheet>
             </HoverButtons>
           </ImageWrapperHover>
           <Footer>
@@ -127,16 +109,7 @@ const BlueprintThumbnail = ({ projectId, filterType, searchQuery }) => {
           </CreatedAt>
         </BlueprintItem>
       ))}
-      {isSidebarOpen && (
-        <VersionHistorySidebar
-          blueprintId={selectedBlueprintId}
-          blueprintTitle={selectedBlueprintTitle}
-          onClose={() => setIsSidebarOpen(false)}
-        />
-      )}
     </BlueprintWrapper>
-
-    // </Container>
   );
 };
 
@@ -240,6 +213,21 @@ const ImageWrapper = styled.div`
 const ImageWrapperHover = styled(ImageWrapper)`
   &:hover ${HoverButtons} {
     visibility: visible;
+  }
+`;
+
+const AnimatedSheetContent = styled(SheetContent)`
+  animation: slideIn 0.3s ease-in-out;
+
+  @keyframes slideIn {
+    from {
+      transform: translateX(100%);
+      opacity: 0;
+    }
+    to {
+      transform: translateX(0);
+      opacity: 1;
+    }
   }
 `;
 
