@@ -5,8 +5,8 @@ import java.util.List;
 public record PinItem(
 	Long pinId,
 	String pinName,
-	Integer pinX,
-	Integer pinY,
+	Float pinX,
+	Float pinY,
 	List<ImageItem> imageList,
 	Integer imageCount,
 	PinGroupDto pinGroup,

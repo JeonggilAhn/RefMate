@@ -1,8 +1,8 @@
 package com.dawn.backend.domain.pin.dto.request;
 
 public record CreatePinRequestDto(
-	Integer pinX,
-	Integer pinY,
+	Float pinX,
+	Float pinY,
 	String pinName,
 	Long pinGroupId
 ) {
