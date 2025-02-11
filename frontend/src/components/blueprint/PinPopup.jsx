@@ -54,8 +54,10 @@ const PinPopup = ({
       const groupColor =
         groupOptions.find((g) => g.id === pinGroup)?.color || 'gray';
       post(`blueprints/${blueprintId}/${blueprintVersion}/pins`, {
-        name: pinName,
-        group: pinGroup,
+        pin_name: pinName,
+        pin_group_id: pinGroup,
+        pin_x: initialPin.pin_x,
+        pin_y: initialPin.pin_y,
       }).then((res) => {
         const {
           data: { content },
