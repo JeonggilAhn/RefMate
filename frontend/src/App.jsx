@@ -23,7 +23,7 @@ function App() {
             element={<BlueprintList />}
           ></Route>
           <Route
-            path="/projects/:projectId/blueprints/:blueprintId/:blueprintVersionId"
+            path="/projects/:projectId/blueprints/:blueprint_id/:blueprint_version_id"
             element={<Blueprint />}
           />
           <Route path="/auth-redirect" element={<TokenCheck />} /> {/* 추가 */}
