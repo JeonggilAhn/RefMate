@@ -23,6 +23,11 @@ const PinComponent = ({
   const [showPinNotes, setShowPinNotes] = useState(false);
   const [showImages, setShowImages] = useState(false);
 
+  const API_BASE_URL = import.meta.env.VITE_APP_API_BASE_URL;
+
+  // 핀 활성화 여부 (핀 클릭, 노트/이미지 창 열림 시)
+  const isActive = isClicked || showPinNotes || showImages;
+
   const handleNoteClick = () => {
     setShowPinNotes((prevState) => !prevState);
   };
@@ -30,6 +35,37 @@ const PinComponent = ({
   const handleImgClick = () => {
     setShowImages((prevState) => !prevState);
   };
+
+  // SSE를 통한 실시간 읽음 상태 업데이트
+  useEffect(() => {
+    if (!API_BASE_URL || !blueprintId) return; // 백엔드 미연결 방지
+
+    const eventSource = new EventSource(
+      `${API_BASE_URL}/api/blueprints/${blueprintId}/task/read`,
+    );
+
+    eventSource.onmessage = (event) => {
+      try {
+        const data = JSON.parse(event.data);
+
+        // 읽음 이벤트 발생 시 unreadNotes 상태 업데이트
+        if (data.pin_id === pinInfo.pin_id && data.user_id === TEST_USER_ID) {
+          setUnreadNotes(false);
+        }
+      } catch (error) {
+        console.error('SSE 데이터 파싱 오류:', error);
+      }
+    };
+
+    eventSource.onerror = (error) => {
+      console.error('SSE 연결 오류:', error);
+      eventSource.close();
+    };
+
+    return () => {
+      eventSource.close(); // 언마운트 시 SSE 연결 종료
+    };
+  }, [API_BASE_URL, blueprintId, pinInfo.pin_id]);
 
   // 읽음 여부 판단
   const fetchUnreadStatus = useCallback(async () => {
@@ -48,7 +84,7 @@ const PinComponent = ({
     }
   }, [pinInfo]);
 
-  // 노트 데이터를 가져오기
+  // 최근 노트 데이터를 가져오기
   const fetchRecentNote = useCallback(async () => {
     try {
       const response = await get(`pins/${pinInfo.pin_id}/notes/recent`);
@@ -68,20 +104,7 @@ const PinComponent = ({
   }, [pinInfo]);
 
   useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (pinRef.current && !pinRef.current.contains(event.target)) {
-        setIsClicked(false);
-      }
-    };
-
-    document.addEventListener('click', handleClickOutside);
-    return () => document.removeEventListener('click', handleClickOutside);
-  }, []);
-
-  useEffect(() => {
-    if (!pin) {
-      return;
-    }
+    if (!pin) return;
 
     setPinInfo(pin);
     fetchUnreadStatus();
@@ -92,32 +115,47 @@ const PinComponent = ({
 
   return (
     <div className="relative inline-block">
-      {/* 핀 아이콘 */}
+      {/* 핀 아이콘 (활성화 상태일 때 테두리 추가) */}
       <div
         ref={pinRef}
-        className="absolute w-8 h-8"
-        onMouseEnter={() => {
-          if (!isClicked) {
-            setHoveredPin(pinInfo);
-          }
-        }}
+        className="absolute w-8 h-8 flex items-center justify-center"
+        onMouseEnter={() => !isClicked && setHoveredPin(pinInfo)}
         onMouseLeave={() => setHoveredPin(null)}
-        onClick={() => setIsClicked((prev) => !prev)}
+        onClick={() => {
+          setIsClicked((prev) => !prev);
+          onClickInfoButton(pinInfo);
+        }}
+        style={{
+          position: 'relative',
+        }}
       >
-        {/* `group_color`을 받아 아이콘 색상 변경 */}
+        {/* 아이콘 뒤 원형 배경 추가 */}
+        {isActive && (
+          <div
+            className="absolute w-16 h-16 rounded-full"
+            style={{
+              background: 'radial-gradient(circle, #87B5FA  0%, white 70%)',
+              filter: 'blur(10px)', // 흐림 효과 추가
+              zIndex: -1, // 핀보다 아래로 배치
+            }}
+          />
+        )}
+
+        {/* 아이콘 */}
         <Icon
           name="IconTbPinFill"
-          width={24}
-          height={24}
-          style={{ color: pinInfo.pin_group?.pin_group_color || 'gray' }}
+          width={40}
+          height={40}
+          color={pinInfo.pin_group?.pin_group_color || 'gray'}
         />
+
         {/* 읽지 않은 경우 빨간 점 표시 */}
         {unreadNotes && (
           <div className="absolute top-[-4px] right-[-4px] w-2 h-2 bg-red-500 rounded-full" />
         )}
       </div>
 
-      {/* 호버 시 최근 노트 표시 */}
+      {/* 호버 시 최근 노트 표시 (기능 유지) */}
       {!isClicked && hoveredPin && recentNotes && (
         <Popup>
           <PopupTitle>{recentNotes.title || '제목 없음'}</PopupTitle>
@@ -126,9 +164,9 @@ const PinComponent = ({
         </Popup>
       )}
 
-      {/* 클릭 시 버튼 목록 표시 */}
+      {/* 클릭 시 버튼 목록 표시 (버튼 리스트 유지) */}
       {isClicked && (
-        <div className="absolute top-4 left-6 z-10" onClick={onClickInfoButton}>
+        <div className="absolute top-6 left-8 z-10">
           <ButtonList
             onNoteClick={handleNoteClick}
             onImgClick={handleImgClick}
@@ -136,14 +174,14 @@ const PinComponent = ({
         </div>
       )}
 
-      {/* 노트 상세 보기 */}
+      {/* 노트 상세 보기 유지 */}
       {showPinNotes && (
         <div className="absolute left-full top-10 z-10 w-80">
           <PinNotes onClose={() => setShowPinNotes(false)} pinInfo={pinInfo} />
         </div>
       )}
 
-      {/* 이미지들 상세 보기 */}
+      {/* 이미지들 상세 보기 유지 */}
       {showImages && (
         <div className="absolute left-full top-10 z-10 w-80">
           <NoteImageDetail
@@ -158,6 +196,7 @@ const PinComponent = ({
 
 export default PinComponent;
 
+/* 스타일 유지 */
 const Popup = styled.div`
   position: absolute;
   margin-left: 2rem;
