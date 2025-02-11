@@ -71,7 +71,7 @@ const CreateNote = ({ pinId, closeModal }) => {
       <div className="relative">
         <ImageUploader
           onImageSelect={handleImageSelect}
-          projectId={projectId}
+          projectId={project_id}
           type="note"
         />
         <div className="absolute bottom-0 right-0">
