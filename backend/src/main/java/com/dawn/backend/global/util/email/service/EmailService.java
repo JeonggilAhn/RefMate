@@ -28,19 +28,21 @@ public class EmailService {
 
 	private final JavaMailSender javaMailSender;
 
-	public void sendMail(EmailMessageRequestDto emailMessageRequestDto, String grantToken, String projectTitle) {
+	public void sendMail(EmailMessageRequestDto emailMessageRequestDto, String projectTitle,
+						String grantToken, String unauthorizedGrantToken) {
 
 		MimeMessage mimeMessage = javaMailSender.createMimeMessage();
 
 		try {
-			String content = readHtmlTemplate("mail/mailForm.html");
+			String content = readHtmlTemplate("mail/mail.html");
 
-			// 초대수락 후 로그인 페이지 url + grantToken
 			String inviteLink = "/invite?grant_token=" + grantToken;
+			String unauthorizedInviteLink = "/invite?presigned=" + unauthorizedGrantToken;
 
 			content = content
 				.replace("{projectTitle}", projectTitle)
-				.replace("{inviteLink}", inviteLink);
+				.replace("{inviteLink}", inviteLink)
+				.replace("{unauthorizedInviteLink}", unauthorizedInviteLink);
 			MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage, false, "UTF-8");
 			mimeMessageHelper.setTo(emailMessageRequestDto.to());
 			mimeMessageHelper.setSubject(emailMessageRequestDto.subject());

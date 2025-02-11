@@ -141,16 +141,20 @@ public class ProjectServiceImpl implements ProjectService {
 
 	@Transactional
 	@Override
-	public void inviteUser(Long projectId, InviteUserRequestDto request) {
+	public void inviteUser(Long projectId, InviteUserRequestDto request, User user) {
 		Project project = getProject(projectId);
 		String[] inviteUsersArray = request.inviteUserList().toArray(new String[0]);
 
+		String userEmail = user.getUserEmail().split("@")[0];
+		String mailSubject = "[RefMate] @" + userEmail + "님이 나를 " + project.getProjectTitle() + " 프로젝트에 초대했습니다.\n";
+
 		EmailMessageRequestDto emailMessageRequestDto =
-			new EmailMessageRequestDto(inviteUsersArray, "프로젝트 초대 테스트 메일입니다.",
-				"프로젝트 초대 테스트 메일 내용입니다.");
+			new EmailMessageRequestDto(inviteUsersArray, mailSubject);
 		String grantToken = grantService.createGrantToken(project.getProjectId(), "CLIENT");
+		String unauthorizedGrantToken = grantService.createUnauthorizedGrantToken(project.getProjectId());
 		log.info("grantToken UUID : {}", grantToken);
-		emailService.sendMail(emailMessageRequestDto, grantToken, project.getProjectTitle());
+		log.info("unauthorizedGrantToken JWT : {}", unauthorizedGrantToken);
+		emailService.sendMail(emailMessageRequestDto, project.getProjectTitle(), grantToken, unauthorizedGrantToken);
 	}
 
 	@Transactional

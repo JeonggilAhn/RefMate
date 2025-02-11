@@ -8,7 +8,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import com.dawn.backend.domain.user.entity.UnauthorizeUser;
-import com.dawn.backend.domain.user.entity.User;
 import com.dawn.backend.global.util.email.entity.GrantToken;
 import com.dawn.backend.global.util.email.repository.GrantTokenRepository;
 import com.dawn.backend.global.util.jwt.JwtUtil;

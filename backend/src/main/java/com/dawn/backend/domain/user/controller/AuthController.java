@@ -23,7 +23,9 @@ public class AuthController {
 	@GetMapping("/auth/issue")
 	public ResponseEntity<ResponseWrapper<Void>> issue(
 		@CookieValue("authentication_token") String token,
-		@CookieValue(value = "grant_token", required = false) String grantToken) {
-		return ResponseWrapperFactory.setResponse(HttpStatus.OK, authService.setAccessToken(token, grantToken));
+		@CookieValue(value = "grant_token", required = false) String grantToken
+	) {
+		return ResponseWrapperFactory.setResponse(HttpStatus.OK,
+			authService.setAccessToken(token, grantToken));
 	}
 }

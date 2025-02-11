@@ -55,6 +55,7 @@ public class AuthService {
 			if (!userProjectRepository.existsByUserAndProject(user, project)) {
 				UserProject userProject = new UserProject(grantTokenEntry.getRole(), user, project);
 				userProjectRepository.save(userProject);
+				grantTokenRepository.deleteById(grantToken);
 				headers.add("Location", "/api/projects/" + project.getProjectId() + "/blueprints");
 			}
 			log.info("User {} is already invited to the project {}", user.getUserName(), project.getProjectId());

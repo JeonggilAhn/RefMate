@@ -78,7 +78,8 @@ public enum ExceptionCode implements ResponseCode {
 	EMAIL_TEMPLATE_READ_FAILED("email-500-2", "이메일 템플릿을 읽는데 실패했습니다.", HttpStatus.INTERNAL_SERVER_ERROR),
 
 	// Grant
-	INVALID_GRANT_TOKEN("grant-400-1", "유효하지 않은 초대 토큰입니다.", HttpStatus.BAD_REQUEST);
+	INVALID_GRANT_TOKEN("grant-400-1", "유효하지 않은 초대 토큰입니다.", HttpStatus.BAD_REQUEST),
+	INVALID_UNAUTHORIZED_GRANT_TOKEN("grant-400-2", "유효하지 않은 비회원 초대 토큰입니다.", HttpStatus.BAD_REQUEST);
 
 	private String code;
 	private String message;
