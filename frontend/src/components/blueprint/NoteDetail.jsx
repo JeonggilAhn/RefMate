@@ -1,19 +1,24 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { get, del, patch } from '../../api'; // PATCH 추가
+import { get, del, patch } from '../../api';
 import { useRecoilState } from 'recoil';
 import { modalState } from '../../recoil/common/modal';
 import Confirm from '../../components/common/Confirm';
 import Icon from '../common/Icon';
-import EditNote from './EditNote'; // 수정 컴포넌트 추가
-
-import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar'; // Avatar 컴포넌트 추가
+import EditNote from './EditNote';
+import ImageCarouselPopup from '../blueprint/ImageCarouselPopup';
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 
 const NoteDetail = ({ noteId, onBack }) => {
   const [noteData, setNoteData] = useState(null);
   const [modal, setModal] = useRecoilState(modalState);
-  const [isBookmark, setIsBookmark] = useState(false); // 북마크 상태
-  const [editModal, setEditModal] = useState(false); // 수정 모달 상태 추가
+  const [isBookmark, setIsBookmark] = useState(false);
+  const [editModal, setEditModal] = useState(false);
+
+  // 이미지 팝업 상태
+  const [isDetailPopupOpen, setIsDetailPopupOpen] = useState(false);
+  const [detailPopupImages, setDetailPopupImages] = useState([]);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
   useEffect(() => {
     const fetchNote = async () => {
@@ -21,7 +26,7 @@ const NoteDetail = ({ noteId, onBack }) => {
         const response = await get(`notes/${noteId}`);
         const note = response.data.content.note;
         setNoteData(note);
-        setIsBookmark(note.is_bookmark); // 초기 북마크 상태 설정
+        setIsBookmark(note.is_bookmark);
       } catch (error) {
         console.error('Failed to fetch note:', error);
       }
@@ -30,9 +35,17 @@ const NoteDetail = ({ noteId, onBack }) => {
     fetchNote();
   }, [noteId]);
 
-  /**
-   * 노트를 삭제하는 함수
-   */
+  // 수정된 데이터를 반영하는 함수 (EditNote에서 사용)
+
+  const handleUpdateNote = (updatedNote) => {
+    setNoteData((prev) => ({
+      ...prev,
+      ...updatedNote,
+    }));
+  };
+
+  // 노트 삭제 기능
+
   const handleDelete = () => {
     setModal({
       type: 'confirm',
@@ -41,47 +54,61 @@ const NoteDetail = ({ noteId, onBack }) => {
         try {
           const response = await del(`notes/${noteId}`);
           if (response.status === 200) {
-            alert('노트가 삭제되었습니다.');
+            setModal({ type: 'alert', message: '노트가 삭제되었습니다.' });
             setNoteData(null);
             onBack();
           } else {
-            alert('노트 삭제에 실패했습니다.');
+            setModal({ type: 'alert', message: '노트 삭제에 실패했습니다.' });
           }
         } catch (error) {
           console.error('노트 삭제 중 에러 발생:', error);
-          alert('노트 삭제 중 문제가 발생했습니다.');
+          setModal({
+            type: 'alert',
+            message: '노트 삭제 중 문제가 발생했습니다.',
+          });
         }
       },
     });
   };
 
-  /**
-   * 북마크 상태를 토글하는 함수
-   */
+  // 북마크 토글 기능
+
   const toggleBookmark = async () => {
     try {
       const response = await patch(`notes/${noteId}/bookmark`, {
-        is_bookmark: !isBookmark, // 상태를 반대로 전송
+        is_bookmark: !isBookmark,
       });
 
       if (response.status === 200) {
-        setIsBookmark((prev) => !prev); // 상태 업데이트
+        setIsBookmark((prev) => !prev);
         setModal({
           type: 'alert',
           message: !isBookmark
             ? '중요 노트로 등록했습니다!'
             : '중요 노트를 해제했습니다!',
-        }); // 알림 모달 표시
+        });
       } else {
-        alert('북마크 상태 변경에 실패했습니다.');
+        setModal({
+          type: 'alert',
+          message: '북마크 상태 변경에 실패했습니다.',
+        });
       }
     } catch (error) {
-      console.error('북마크 상태 변경 중 에러 발생:', error);
-      alert('북마크 상태 변경 중 문제가 발생했습니다.');
+      setModal({
+        type: 'alert',
+        message: '북마크 상태 변경 중 문제가 발생했습니다.',
+      });
     }
   };
 
-  // 데이터 로딩 전이면 아무것도 렌더링하지 않음
+  // 이미지 클릭 시 팝업 열기
+
+  const onClickImage = (imageList, imageIndex) => {
+    setDetailPopupImages(imageList);
+    setCurrentImageIndex(imageIndex);
+    setIsDetailPopupOpen(true);
+  };
+
   if (!noteData) {
     return null;
   }
@@ -95,9 +122,6 @@ const NoteDetail = ({ noteId, onBack }) => {
     is_editable,
   } = noteData;
 
-  const truncatedTitle =
-    note_title.length > 10 ? `${note_title.slice(0, 10)}...` : note_title;
-
   return (
     <div className="relative">
       {/* 수정 모달 */}
@@ -107,39 +131,43 @@ const NoteDetail = ({ noteId, onBack }) => {
           initialTitle={note_title}
           initialContent={note_content}
           closeModal={() => setEditModal(false)}
+          onUpdate={handleUpdateNote} // 수정 즉시 반영
+        />
+      )}
+
+      {/* 이미지 미리보기 모달 */}
+      {isDetailPopupOpen && (
+        <ImageCarouselPopup
+          images={detailPopupImages}
+          initialIndex={currentImageIndex}
+          isOpen={isDetailPopupOpen}
+          onClickCloseButton={() => setIsDetailPopupOpen(false)}
         />
       )}
 
       <NoteDetailWrapper>
         <Header>
           <BackButton onClick={onBack}>
-            <Icon name="IconGoChevronPrev" width={16} height={16} />
+            <Icon name="IconGoChevronPrev" width={20} height={20} />
           </BackButton>
           <TitleWrapper>
-            <Title>{truncatedTitle}</Title>
-            {image_list?.length > 0 && ( // image_list가 undefined일 경우 방지
-              <IconButton>
-                <Icon name="IconTbPhoto" width={16} height={16} />
-              </IconButton>
-            )}
+            <Title>{note_title}</Title>
           </TitleWrapper>
           <HeaderButtons>
-            {/* 북마크 토글 버튼 */}
             <IconButton onClick={toggleBookmark}>
               <Icon
                 name={isBookmark ? 'IconTbFlag3Fill' : 'IconTbFlag3Stroke'}
-                width={16}
-                height={16}
+                width={20}
+                height={20}
               />
             </IconButton>
-            {/* 수정 및 삭제 버튼: is_editable이 true일 때만 표시 */}
             {is_editable && (
               <>
                 <IconButton onClick={() => setEditModal(true)}>
-                  <Icon name="IconTbEdit" width={16} height={16} />
+                  <Icon name="IconTbEdit" width={20} height={20} />
                 </IconButton>
                 <IconButton onClick={handleDelete}>
-                  <Icon name="IconFiTrash" width={16} height={16} />
+                  <Icon name="IconFiTrash" width={20} height={20} />
                 </IconButton>
               </>
             )}
@@ -147,16 +175,15 @@ const NoteDetail = ({ noteId, onBack }) => {
         </Header>
         <MainSection>
           <ProfileSection>
-            {/* Avatar 적용 */}
             <Avatar className="w-7 h-7 border border-gray-300 rounded-full">
-              <AvatarImage src={note_writer.profile_url} alt="프로필" />
+              <AvatarImage src={note_writer?.profile_url || ''} alt="프로필" />
               <AvatarFallback>
-                {note_writer.user_email.slice(0, 2).toUpperCase() || 'NA'}
+                {note_writer?.user_email?.slice(0, 2).toUpperCase() || 'NA'}
               </AvatarFallback>
             </Avatar>
 
             <ProfileInfo>
-              <UserName>{note_writer.user_email.split('@')[0]}</UserName>
+              <UserName>{note_writer?.user_email?.split('@')[0]}</UserName>
             </ProfileInfo>
             <CreationDate>
               {new Date(created_at).toLocaleDateString()}
@@ -164,6 +191,10 @@ const NoteDetail = ({ noteId, onBack }) => {
           </ProfileSection>
           <NoteContent>
             <NoteText>{note_content}</NoteText>
+            {/* 이미지 목록 */}
+            {image_list?.length > 0 && (
+              <NoteImage imageList={image_list} onClickImage={onClickImage} />
+            )}
           </NoteContent>
         </MainSection>
       </NoteDetailWrapper>
@@ -175,9 +206,31 @@ const NoteDetail = ({ noteId, onBack }) => {
 
 export default NoteDetail;
 
-/**
- * 스타일 정의
- */
+const NoteImage = ({ imageList, onClickImage }) => {
+  return (
+    <div className="grid gap-0.5 mt-2 grid-cols-3 place-items-center">
+      {imageList.slice(0, 3).map((image, idx) => (
+        <div
+          key={image.image_id}
+          className="relative w-[6.1rem] h-[6.1rem]"
+          onClick={() => onClickImage(imageList, idx)}
+        >
+          <img
+            src={image.image_preview}
+            alt="노트 이미지"
+            className="w-full h-full object-cover rounded-md border"
+          />
+          {idx === 2 && imageList.length > 3 && (
+            <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center text-white text-sm font-semibold rounded-md">
+              +{imageList.length - 3}
+            </div>
+          )}
+        </div>
+      ))}
+    </div>
+  );
+};
+
 const NoteDetailWrapper = styled.div`
   display: flex;
   flex-direction: column;

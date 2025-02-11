@@ -60,7 +60,6 @@ const MainPage = () => {
           </div>
 
           {/* 이미지 및 컴포넌트 영역 */}
-          <Link to="/projects">프로젝트 페이지</Link>
           <div className="w-[830px] h-[520px] flex items-center justify-center border border-gray-300 rounded-md">
             {buttons[selectedButtonIndex].component}
           </div>
