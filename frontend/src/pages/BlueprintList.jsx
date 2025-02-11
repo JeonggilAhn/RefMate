@@ -42,7 +42,7 @@ function BlueprintList() {
     fetchBlueprints();
   }, [projectId]);
 
-  // 검색 쿼리리
+  // 검색 쿼리
   const searchedBlueprints = blueprints.filter((blueprint) => {
     if (
       searchQuery &&
