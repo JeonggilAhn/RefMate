@@ -25,10 +25,7 @@ const NoteImageDetail = ({ pinInfo, onClose }) => {
 
   return (
     <Draggable>
-      <div
-        className="border border-gray-300 h-auto w-auto bg-gray-100 shadow-lg
-"
-      >
+      <div className="border border-gray-300 h-auto w-80 bg-gray-100 shadow-lg">
         {/* 헤더 영역 */}
         <div className="flex border border-gray-200 p-4 bg-white">
           <div className="flex items-center justify-center flex-grow gap-2">

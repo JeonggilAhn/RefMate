@@ -10,6 +10,12 @@ function NoteSearch({ onSelect, onClose }) {
 
   // 노트 검색 함수
   const searchNotes = async () => {
+    // 검색어가 비어있는지 확인
+    if (!keyword.trim()) {
+      alert('검색어를 입력하세요!');
+      return;
+    }
+
     try {
       const response = await get(`notes/search?keyword=${keyword}`);
       const noteList = response.data.content.note_list || [];
@@ -50,6 +56,12 @@ function NoteSearch({ onSelect, onClose }) {
     }
   };
 
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter') {
+      searchNotes();
+    }
+  };
+
   return (
     <div className="p-4 border border-gray-300 rounded w-85">
       <div className="flex items-center space-x-4 justify-between">
@@ -57,6 +69,7 @@ function NoteSearch({ onSelect, onClose }) {
           type="text"
           value={keyword}
           onChange={(e) => setKeyword(e.target.value)}
+          onKeyDown={handleKeyDown}
           placeholder="search"
           className="w-35 focus:outline-none focus:ring-0 border-none"
         />
