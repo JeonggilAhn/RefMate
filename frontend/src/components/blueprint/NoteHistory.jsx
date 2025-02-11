@@ -5,9 +5,7 @@ import NoteDetail from './NoteDetail';
 import Icon from '../common/Icon';
 import { Skeleton } from '@/components/ui/skeleton';
 import NoteSearch from './NoteSearch';
-
-const BLUEPRINT_ID = '6430550723600965'; // 블루프린트 ID
-const BLUEPRINT_VERSION = '1287663269766013'; // 블루프린트 버전
+import { useParams } from 'react-router-dom';
 
 // 노트 데이터를 날짜별로 그룹화하고 정렬하는 함수
 const processNotes = (noteList) => {
@@ -47,6 +45,7 @@ const processNotes = (noteList) => {
 };
 
 const NoteHistory = () => {
+  const { blueprint_id, blueprint_version_id } = useParams(); // 컴포넌트 내부로 이동
   const [notesByDate, setNotesByDate] = useState([]); // 날짜별로 그룹화된 노트 상태
   const [errorMessage, setErrorMessage] = useState(''); // 에러 메시지 상태
   const [isSearching, setIsSearching] = useState(false); // 검색 모드 상태
@@ -60,7 +59,7 @@ const NoteHistory = () => {
     const fetchPins = async () => {
       try {
         setLoading(true); // 로딩 시작
-        const apiUrl = `blueprints/${BLUEPRINT_ID}/${BLUEPRINT_VERSION}/pins`; // API 호출 URL
+        const apiUrl = `blueprints/${blueprint_id}/${blueprint_version_id}/pins`; // API 호출 URL
         const response = await get(apiUrl); // API 호출
         const pinData = response.data.content || []; // 핀 데이터 상태 업데이트
         setPins(pinData);
