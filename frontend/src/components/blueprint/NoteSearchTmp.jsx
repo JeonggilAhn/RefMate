@@ -11,7 +11,7 @@ function NoteSearch({ onSelect, onClose }) {
   const searchNotes = async () => {
     try {
       const response = await get(`notes/search?keyword=${keyword}`);
-      setNotes(response.data.content[0].note_list); // 응답에서 노트 리스트 가져오기
+      setNotes(response.data.content.note_list); // 응답에서 노트 리스트 가져오기
 
       // 목업 테스트
       const mockNotes = [
