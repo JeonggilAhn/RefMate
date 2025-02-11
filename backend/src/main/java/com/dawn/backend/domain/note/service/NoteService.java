@@ -412,8 +412,11 @@ public class NoteService {
 		Pin pin = pinRepository.findById(pinId)
 			.orElseThrow(PinNotFoundException::new);
 
-		Note recentNote = noteRepository.findFirstByPinPinIdAndIsDeletedFalseOrderByCreatedAtDesc(pinId)
-			.orElseThrow(NoteNotFoundException::new);
+		Note recentNote = noteRepository.findFirstByPinPinIdAndIsDeletedFalseOrderByCreatedAtDesc(pinId);
+
+		if (recentNote == null) {
+			return new RecentNoteResponseDto(null);
+		}
 
 		List<NoteImage> noteImages = imageRepository.findAllByNoteNoteIdOrderByBookmark(recentNote.getNoteId());
 
