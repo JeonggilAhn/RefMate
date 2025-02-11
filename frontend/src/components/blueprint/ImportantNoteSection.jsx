@@ -4,8 +4,7 @@ import ImportantNoteList from './ImportantNoteList';
 import NoteDetail from './NoteDetail';
 import { Skeleton } from '@/components/ui/skeleton';
 
-const ImportantNoteSection = () => {
-  const pinId = 70281145; // 고정된 핀 ID
+const ImportantNoteSection = (pinId) => {
   const [notes, setNotes] = useState([]); // 노트 목록 상태
   const [selectedNote, setSelectedNote] = useState(null); // 선택된 노트 상태
   const [loading, setLoading] = useState(true);

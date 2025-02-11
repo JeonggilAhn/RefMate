@@ -20,9 +20,8 @@ const BlueprintThumbnail = ({ blueprints, setBlueprints }) => {
   const navigate = useNavigate();
   const setModal = useSetRecoilState(modalState);
 
-  const handleViewLatest = (blueprintId) => {
-    navigate(`/blueprint`);
-    // navigate(`/blueprint/${blueprintId}`);
+  const handleViewLatest = (blueprintId, blueprintVersionId) => {
+    navigate(`/blueprint/${blueprintId}/${blueprintVersionId}`);
   };
 
   const handleViewAll = (blueprintId) => {
@@ -63,7 +62,12 @@ const BlueprintThumbnail = ({ blueprints, setBlueprints }) => {
             />
             <HoverButtons>
               <TextButton
-                onClick={() => handleViewLatest(blueprint.blueprint_id)}
+                onClick={() =>
+                  handleViewLatest(
+                    blueprint.blueprint_id,
+                    blueprint.latest_version_id,
+                  )
+                }
               >
                 최신 시안 보기
               </TextButton>
