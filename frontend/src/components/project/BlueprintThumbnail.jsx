@@ -15,13 +15,15 @@ import {
   SheetTrigger,
 } from '@/components/ui/sheet';
 
-const BlueprintThumbnail = ({ blueprints, setBlueprints }) => {
+const BlueprintThumbnail = ({ projectId, blueprints, setBlueprints }) => {
   const [selectedBlueprintId, setSelectedBlueprintId] = useState(null);
   const navigate = useNavigate();
   const setModal = useSetRecoilState(modalState);
 
   const handleViewLatest = (blueprintId, blueprintVersionId) => {
-    navigate(`/blueprint/${blueprintId}/${blueprintVersionId}`);
+    navigate(
+      `/projects/${projectId}/blueprints/${blueprintId}/${blueprintVersionId}`,
+    );
   };
 
   const handleViewAll = (blueprintId) => {

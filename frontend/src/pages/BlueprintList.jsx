@@ -71,6 +71,7 @@ function BlueprintList() {
           setSearchQuery={setSearchQuery}
         ></BlueprintListTabs>
         <BlueprintThumbnail
+          projectId={projectId}
           blueprints={searchedBlueprints}
           setBlueprints={setBlueprints}
         />

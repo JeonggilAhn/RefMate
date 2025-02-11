@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import Icon from '../common/Icon';
 
-const Tabs = ({ actions }) => {
+const PinTabs = ({ actions, isViewFolder, onClickButton }) => {
   // 첫 번째 탭을 기본값으로 설정
   const [activeTab, setActiveTab] = useState(actions[0]?.name || '');
 
@@ -22,12 +22,21 @@ const Tabs = ({ actions }) => {
           </Tab>
         ))}
       </TabGroup>
-      <Icon name="IconTbSearch" />
+      <button
+        className="flex justify-center items-center rounded-md cursor-pointer hover:bg-[#F1F1F1] p-1"
+        onClick={onClickButton}
+      >
+        {isViewFolder ? (
+          <Icon name="IconTbMenu2" />
+        ) : (
+          <Icon name="IconCgMenuGridO" />
+        )}
+      </button>
     </TabContainer>
   );
 };
 
-export default Tabs;
+export default PinTabs;
 
 const Tab = styled.div.withConfig({
   // active 속성이 DOM에 전달되지 않도록 필터링
@@ -49,7 +58,6 @@ const TabContainer = styled.div`
   justify-content: space-between;
   align-items: center;
   width: 100%;
-  padding: 10px;
   border-bottom: 1px solid #ddd;
 `;
 

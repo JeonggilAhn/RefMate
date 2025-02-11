@@ -3,6 +3,7 @@ import { RecoilRoot } from 'recoil';
 import Form from './components/common/Form';
 import Confirm from './components/common/Confirm';
 import Alert from './components/common/Alert';
+import { Toaster } from '@/components/ui/toaster';
 
 import MainLayout from './layouts/MainLayout';
 import Blueprint from './pages/Blueprint';
@@ -22,7 +23,7 @@ function App() {
             element={<BlueprintList />}
           ></Route>
           <Route
-            path="/blueprint/:blueprint_id/:blueprint_version_id"
+            path="/projects/:projectId/blueprints/:blueprintId/:blueprintVersionId"
             element={<Blueprint />}
           />
           <Route path="/auth-redirect" element={<TokenCheck />} /> {/* 추가 */}
@@ -31,6 +32,7 @@ function App() {
       <Form />
       <Confirm />
       <Alert />
+      <Toaster />
     </RecoilRoot>
   );
 }

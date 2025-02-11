@@ -38,5 +38,13 @@ export default [
         version: 'detect', // React 버전 자동 감지
       },
     },
+    languageOptions: {
+      globals: {
+        // 브라우저 전역 변수를 'readonly' 혹은 'writable'로 지정
+        setTimeout: 'readonly',
+        clearTimeout: 'readonly',
+        document: 'readonly',
+      },
+    },
   },
 ];

@@ -20,11 +20,12 @@ const getHeaders = () => {
   return headers;
 };
 
-const get = (endpoint) => {
+const get = (endpoint, params) => {
   return axios({
     url: `${API_BASE_URL}/api/${endpoint}`,
     method: 'get',
     headers: getHeaders(),
+    params,
   });
 };
 
