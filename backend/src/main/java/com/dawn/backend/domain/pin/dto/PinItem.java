@@ -7,8 +7,8 @@ public record PinItem(
 	String pinName,
 	Integer pinX,
 	Integer pinY,
-	List<ImageItem> previewImageList,
-	Integer previewImageCount,
+	List<ImageItem> imageList,
+	Integer imageCount,
 	PinGroupDto pinGroup,
 	boolean hasUnreadNote,
 	boolean isActive
