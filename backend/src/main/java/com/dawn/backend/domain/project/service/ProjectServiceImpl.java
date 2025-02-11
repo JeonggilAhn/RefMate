@@ -1,6 +1,7 @@
 package com.dawn.backend.domain.project.service;
 
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -71,8 +72,18 @@ public class ProjectServiceImpl implements ProjectService {
 			));
 
 		List<Blueprint> blueprints = blueprintRepository.findByProjectIdIn(projectIds);
+
 		Map<Long, List<Blueprint>> blueprintMap = blueprints.stream()
-			.collect(Collectors.groupingBy(bp -> bp.getProject().getProjectId()));
+			.collect(Collectors.groupingBy(
+				bp -> bp.getProject().getProjectId(),
+				Collectors.collectingAndThen(
+					Collectors.toList(),
+					list -> list.stream()
+						.sorted(Comparator.comparing(Blueprint::getCreatedAt).reversed())
+						.limit(4)
+						.collect(Collectors.toList())
+				)
+			));
 
 		List<Long> blueprintIds = blueprints.stream()
 			.map(Blueprint::getBlueprintId)
