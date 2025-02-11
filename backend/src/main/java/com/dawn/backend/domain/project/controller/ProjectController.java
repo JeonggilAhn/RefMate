@@ -62,9 +62,10 @@ public class ProjectController {
 	@PreAuthorize("@authExpression.hasRoleOwnerInProject(#projectId)")
 	public ResponseEntity<ResponseWrapper<Void>> inviteUser(
 		@PathVariable("projectId") Long projectId,
-		@RequestBody InviteUserRequestDto request
+		@RequestBody InviteUserRequestDto request,
+		@AuthenticationPrincipal User user
 	) {
-		projectService.inviteUser(projectId, request);
+		projectService.inviteUser(projectId, request, user);
 		return ResponseWrapperFactory.setResponse(HttpStatus.CREATED, null, null);
 	}
 

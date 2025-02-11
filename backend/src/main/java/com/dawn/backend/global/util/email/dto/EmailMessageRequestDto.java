@@ -5,6 +5,6 @@ import lombok.Builder;
 @Builder
 public record EmailMessageRequestDto(
 	String[] to,
-	String subject,
-	String message) {
+	String subject
+) {
 }
