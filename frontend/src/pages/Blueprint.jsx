@@ -21,10 +21,10 @@ import Slider from '../components/common/Slider';
 import { modalState } from '../recoil/common/modal';
 import ImageCarouselPopup from '../components/blueprint/ImageCarouselPopup';
 import ColorInitializer from '../components/common/ColorInitializer';
+import { useParams } from 'react-router-dom';
 
 const Blueprint = () => {
-  const blueprint_id = 1;
-  const blueprint_version_id = 1987029227680993;
+  const { blueprint_id, blueprint_version_id } = useParams();
 
   // pins
   const [pins, setPins] = useRecoilState(pinState);
@@ -610,7 +610,7 @@ const Blueprint = () => {
                 })}
               </div>
             </div>
-            <ImportantNoteSection />
+            <ImportantNoteSection pinId={detailPin.pin_id} />
             <PinNotes pinInfo={detailPin} isSidebar={true} />
           </div>
         </div>

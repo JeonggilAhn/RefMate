@@ -5,9 +5,7 @@ import NoteDetail from './NoteDetail';
 import Icon from '../common/Icon';
 import { Skeleton } from '@/components/ui/skeleton';
 import NoteSearch from './NoteSearch';
-
-const BLUEPRINT_ID = '6430550723600965'; // 블루프린트 ID
-const BLUEPRINT_VERSION = '1287663269766013'; // 블루프린트 버전
+import { useParams } from 'react-router-dom';
 
 // 노트 데이터를 날짜별로 그룹화하고 정렬하는 함수
 const processNotes = (noteList) => {
@@ -47,6 +45,7 @@ const processNotes = (noteList) => {
 };
 
 const NoteHistory = () => {
+  const { blueprint_id, blueprint_version_id } = useParams(); // 컴포넌트 내부로 이동
   const [notesByDate, setNotesByDate] = useState([]); // 날짜별로 그룹화된 노트 상태
   const [errorMessage, setErrorMessage] = useState(''); // 에러 메시지 상태
   const [isSearching, setIsSearching] = useState(false); // 검색 모드 상태
@@ -60,7 +59,7 @@ const NoteHistory = () => {
     const fetchPins = async () => {
       try {
         setLoading(true); // 로딩 시작
-        const apiUrl = `blueprints/${BLUEPRINT_ID}/${BLUEPRINT_VERSION}/pins`; // API 호출 URL
+        const apiUrl = `blueprints/${blueprint_id}/${blueprint_version_id}/pins`; // API 호출 URL
         const response = await get(apiUrl); // API 호출
         const pinData = response.data.content || []; // 핀 데이터 상태 업데이트
         setPins(pinData);
@@ -81,217 +80,6 @@ const NoteHistory = () => {
         const allNotes = notesResults.flat(); // 가져온 노트 데이터를 하나의 배열로 합침
         const notesGroupedByDate = processNotes(allNotes); // 노트를 날짜별로 그룹화
         setNotesByDate(notesGroupedByDate); // 상태 업데이트
-
-        // 각 핀에 대한 노트 데이터 (목업 데이터 사용)
-        const mockNotes = [
-          {
-            note_id: 5845445,
-            note_writer: {
-              user_id: 8937565865589817,
-              user_email: 'Olin.Paucek@yahoo.com',
-              profile_url: 'https://avatars.githubusercontent.com/u/617429',
-              signup_date: '2025-02-07T08:01:26.458Z',
-              role: 'nisi mollit quis sit',
-            },
-            note_title: 'puzzled hmph blond except disposer quash than',
-            created_at: '2025-02-06T20:42:30.148Z',
-            is_editable: false,
-            is_present_image: true,
-            read_users: [
-              {
-                user_id: 4569878562513893,
-                user_email: 'Antonio63@yahoo.com',
-                profile_url: 'https://avatars.githubusercontent.com/u/4951571',
-                signup_date: '2025-02-07T08:01:26.459Z',
-                role: 'in sit',
-              },
-            ],
-          },
-          {
-            note_id: -74623705,
-            note_writer: {
-              user_id: 6202887093682253,
-              user_email: 'Amara91@gmail.com',
-              profile_url: 'https://avatars.githubusercontent.com/u/76738418',
-              signup_date: '2025-02-07T08:01:26.468Z',
-              role: 'proident enim fugiat',
-            },
-            note_title: 'mmm obnoxiously twin brr case',
-            created_at: '2025-02-07T02:51:01.877Z',
-            is_editable: true,
-            is_present_image: true,
-            read_users: [
-              {
-                user_id: 5152745109732729,
-                user_email: 'Justyn.Padberg@hotmail.com',
-                profile_url: 'https://avatars.githubusercontent.com/u/73429758',
-                signup_date: '2025-02-07T08:01:26.469Z',
-                role: 'aliqua velit amet enim',
-              },
-              {
-                user_id: 6441004563989400,
-                user_email: 'Bernadine11@hotmail.com',
-                profile_url: 'https://avatars.githubusercontent.com/u/79590346',
-                signup_date: '2025-02-07T08:01:26.470Z',
-                role: 'tempor',
-              },
-            ],
-          },
-          {
-            note_id: -746237051,
-            note_writer: {
-              user_id: 6202887093682253,
-              user_email: 'Amara91@gmail.com',
-              profile_url: 'https://avatars.githubusercontent.com/u/76738418',
-              signup_date: '2025-02-07T08:01:26.468Z',
-              role: 'proident enim fugiat',
-            },
-            note_title: 'mmm obnoxiously twin brr case',
-            created_at: '2025-02-07T02:51:01.877Z',
-            is_editable: true,
-            is_present_image: true,
-            read_users: [
-              {
-                user_id: 5152745109732729,
-                user_email: 'Justyn.Padberg@hotmail.com',
-                profile_url: 'https://avatars.githubusercontent.com/u/73429758',
-                signup_date: '2025-02-07T08:01:26.469Z',
-                role: 'aliqua velit amet enim',
-              },
-              {
-                user_id: 6441004563989400,
-                user_email: 'Bernadine11@hotmail.com',
-                profile_url: 'https://avatars.githubusercontent.com/u/79590346',
-                signup_date: '2025-02-07T08:01:26.470Z',
-                role: 'tempor',
-              },
-            ],
-          },
-          {
-            note_id: -746237052,
-            note_writer: {
-              user_id: 6202887093682253,
-              user_email: 'Amara91@gmail.com',
-              profile_url: 'https://avatars.githubusercontent.com/u/76738418',
-              signup_date: '2025-02-07T08:01:26.468Z',
-              role: 'proident enim fugiat',
-            },
-            note_title: 'mmm obnoxiously twin brr case',
-            created_at: '2025-02-07T02:51:01.877Z',
-            is_editable: true,
-            is_present_image: true,
-            read_users: [
-              {
-                user_id: 5152745109732729,
-                user_email: 'Justyn.Padberg@hotmail.com',
-                profile_url: 'https://avatars.githubusercontent.com/u/73429758',
-                signup_date: '2025-02-07T08:01:26.469Z',
-                role: 'aliqua velit amet enim',
-              },
-              {
-                user_id: 6441004563989400,
-                user_email: 'Bernadine11@hotmail.com',
-                profile_url: 'https://avatars.githubusercontent.com/u/79590346',
-                signup_date: '2025-02-07T08:01:26.470Z',
-                role: 'tempor',
-              },
-            ],
-          },
-          {
-            note_id: -746237053,
-            note_writer: {
-              user_id: 6202887093682253,
-              user_email: 'Amara91@gmail.com',
-              profile_url: 'https://avatars.githubusercontent.com/u/76738418',
-              signup_date: '2025-02-07T08:01:26.468Z',
-              role: 'proident enim fugiat',
-            },
-            note_title: 'mmm obnoxiously twin brr case',
-            created_at: '2025-02-07T02:51:01.877Z',
-            is_editable: true,
-            is_present_image: true,
-            read_users: [
-              {
-                user_id: 5152745109732729,
-                user_email: 'Justyn.Padberg@hotmail.com',
-                profile_url: 'https://avatars.githubusercontent.com/u/73429758',
-                signup_date: '2025-02-07T08:01:26.469Z',
-                role: 'aliqua velit amet enim',
-              },
-              {
-                user_id: 6441004563989400,
-                user_email: 'Bernadine11@hotmail.com',
-                profile_url: 'https://avatars.githubusercontent.com/u/79590346',
-                signup_date: '2025-02-07T08:01:26.470Z',
-                role: 'tempor',
-              },
-            ],
-          },
-          {
-            note_id: -1746237053,
-            note_writer: {
-              user_id: 6202887093682253,
-              user_email: 'Amara91@gmail.com',
-              profile_url: 'https://avatars.githubusercontent.com/u/76738418',
-              signup_date: '2025-02-07T08:01:26.468Z',
-              role: 'proident enim fugiat',
-            },
-            note_title: 'mmm obnoxiously twin brr case',
-            created_at: '2025-02-07T02:51:01.877Z',
-            is_editable: true,
-            is_present_image: true,
-            read_users: [
-              {
-                user_id: 5152745109732729,
-                user_email: 'Justyn.Padberg@hotmail.com',
-                profile_url: 'https://avatars.githubusercontent.com/u/73429758',
-                signup_date: '2025-02-07T08:01:26.469Z',
-                role: 'aliqua velit amet enim',
-              },
-              {
-                user_id: 6441004563989400,
-                user_email: 'Bernadine11@hotmail.com',
-                profile_url: 'https://avatars.githubusercontent.com/u/79590346',
-                signup_date: '2025-02-07T08:01:26.470Z',
-                role: 'tempor',
-              },
-            ],
-          },
-          {
-            note_id: -7462237053,
-            note_writer: {
-              user_id: 6202887093682253,
-              user_email: 'Amara91@gmail.com',
-              profile_url: 'https://avatars.githubusercontent.com/u/76738418',
-              signup_date: '2025-02-07T08:01:26.468Z',
-              role: 'proident enim fugiat',
-            },
-            note_title: 'mmm obnoxiously twin brr case',
-            created_at: '2025-02-07T02:51:01.877Z',
-            is_editable: true,
-            is_present_image: true,
-            read_users: [
-              {
-                user_id: 5152745109732729,
-                user_email: 'Justyn.Padberg@hotmail.com',
-                profile_url: 'https://avatars.githubusercontent.com/u/73429758',
-                signup_date: '2025-02-07T08:01:26.469Z',
-                role: 'aliqua velit amet enim',
-              },
-              {
-                user_id: 6441004563989400,
-                user_email: 'Bernadine11@hotmail.com',
-                profile_url: 'https://avatars.githubusercontent.com/u/79590346',
-                signup_date: '2025-02-07T08:01:26.470Z',
-                role: 'tempor',
-              },
-            ],
-          },
-        ];
-
-        const notesGroupedByDate1 = processNotes(mockNotes);
-        setNotesByDate(notesGroupedByDate1);
-        // 목업 테스트
       } catch (error) {
         console.error('핀 데이터 로드 실패:', error.message);
         setErrorMessage('핀 데이터를 불러오는 데 실패했습니다.');
@@ -308,13 +96,7 @@ const NoteHistory = () => {
     if (searchTargetId && noteRefs.current[searchTargetId]) {
       console.log('노트 찾음:', noteRefs.current[searchTargetId]);
 
-      // 이전 하이라이트 제거
-      Object.keys(noteRefs.current).forEach((noteId) => {
-        noteRefs.current[noteId].classList.remove('bg-yellow-200');
-      });
-
-      // 현재 노트 하이라이트 및 스크롤
-      noteRefs.current[searchTargetId].classList.add('bg-yellow-200');
+      // 현재 노트 스크롤
       noteRefs.current[searchTargetId].scrollIntoView({
         behavior: 'smooth',
         block: 'center',

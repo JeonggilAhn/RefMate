@@ -5,6 +5,7 @@ import PinComponent from './PinComponent';
 import PinPopup from './PinPopup';
 import { useRecoilState } from 'recoil';
 import { pinState } from '../../recoil/blueprint';
+import { useParams } from 'react-router-dom';
 
 const A3_WIDTH = 1587;
 const A3_HEIGHT = 1123;
@@ -27,8 +28,7 @@ const BlueprintCanvas = ({
   const imgRef = useRef(new Image());
   const overlayImgRef = useRef(new Image());
 
-  const blueprint_id = 1;
-  const blueprint_version_id = 1987029227680993;
+  const { blueprint_id, blueprint_version_id } = useParams();
 
   const [pins, setPins] = useRecoilState(pinState);
 
