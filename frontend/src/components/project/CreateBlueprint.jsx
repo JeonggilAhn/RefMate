@@ -21,8 +21,11 @@ const CreateBlueprint = ({ setModal, projectId, setBlueprints }) => {
       }
 
       const response = await post(
-        'projects/${project_id}/blueprints',
-        formData,
+        `projects/${projectId}/blueprints`,
+        {
+          blueprint_title: blueprintTitle,
+          origin_file: selectedImage,
+        },
         {
           headers: {
             'Content-Type': 'multipart/form-data',

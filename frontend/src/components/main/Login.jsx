@@ -7,7 +7,8 @@ const Login = ({ isVisible, onClose }) => {
   if (!isVisible) return null;
 
   const handleLogin = (provider) => {
-    window.location.href = `http://i12a807.p.ssafy.io:8000/oauth2/authorization/${provider}`;
+    const API_BASE_URL = import.meta.env.VITE_APP_API_BASE_URL;
+    window.location.href = `${API_BASE_URL}/oauth2/authorization/${provider}`;
   };
 
   /* 로그인 경로 변경
