@@ -165,7 +165,8 @@ public class ProjectServiceImpl implements ProjectService {
 		String unauthorizedGrantToken = grantService.createUnauthorizedGrantToken(project.getProjectId());
 		log.info("grantToken UUID : {}", grantToken);
 		log.info("unauthorizedGrantToken JWT : {}", unauthorizedGrantToken);
-		emailService.sendMail(emailMessageRequestDto, project.getProjectTitle(), grantToken, unauthorizedGrantToken);
+		emailService.sendMail(emailMessageRequestDto, project.getProjectTitle(),
+			grantToken, unauthorizedGrantToken, projectId);
 	}
 
 	@Transactional
