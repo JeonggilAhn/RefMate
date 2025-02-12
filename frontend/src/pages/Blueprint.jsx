@@ -29,7 +29,7 @@ import { processNotes } from '../utils/temp';
 import PinImages from '../components/blueprint/PinImages';
 
 const Blueprint = () => {
-  const { blueprint_id, blueprint_version_id, project_id } = useParams();
+  const { blueprint_id, blueprint_version_id, projectId } = useParams();
 
   // common
   const [colors, setColors] = useRecoilState(colorState);
@@ -146,7 +146,7 @@ const Blueprint = () => {
 
     const pinImgRes = await get(`pins/${pin.pin_id}/images`);
     const pinNotRes = await get(`pins/${pin.pin_id}/notes`, {
-      project_id: project_id,
+      project_id: projectId,
     });
 
     if (pinImgRes.status === 200) {
@@ -215,7 +215,7 @@ const Blueprint = () => {
         psRes.data.content.map(async (pin) => {
           const [pinNotRes, pinImgRes] = await Promise.all([
             get(`pins/${pin.pin_id}/notes`, {
-              project_id: project_id,
+              project_id: projectId,
             }),
             get(`pins/${pin.pin_id}/images`),
           ]);
@@ -496,7 +496,7 @@ const Blueprint = () => {
 
         // 핀 노트 요청
         const pinNotRes = await get(`pins/${item.pin_id}/notes`, {
-          project_id: project_id,
+          project_id: projectId,
         });
         if (pinNotRes.status === 200) {
           item.pinDetailNotes = [
@@ -618,7 +618,7 @@ const Blueprint = () => {
             </div>
           </div>
           <BlueprintCanvas
-            projectId={project_id}
+            projectId={projectId}
             imageUrl={blueprint.blueprint_image}
             overlayImageUrl={overlayBlueprint.blueprint_image}
             overlayOpacity={overlayOpacity}
