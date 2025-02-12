@@ -110,7 +110,7 @@ const PinPopup = ({
         <div className="mb-4">
           <label className="block font-bold mb-1">그룹:</label>
           <Select onValueChange={(value) => setPinGroup(value)}>
-            <SelectTrigger className="w-full border border-gray-300 rounded-md px-3 py-2 flex items-center gap-2">
+            <SelectTrigger className="w-full border border-gray-300 rounded-md px-3 py-2 flex items-center gap-2 bg-white">
               {pinGroup ? (
                 <>
                   <span
@@ -127,7 +127,7 @@ const PinPopup = ({
                 <SelectValue placeholder="그룹 선택" />
               )}
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="bg-white border border-gray-300 rounded-md shadow-md">
               {groupOptions.length > 0 ? (
                 groupOptions.map((option) => (
                   <SelectItem key={option.id} value={option.id}>
