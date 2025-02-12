@@ -5,8 +5,6 @@ import NoteSearch from './NoteSearch';
 import NoteDetail from './NoteDetail';
 import Icon from '../common/Icon';
 import Draggable from 'react-draggable';
-import { NoteState } from '../../recoil/blueprint/notes';
-import { useRecoilState } from 'recoil';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -15,13 +13,25 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 
-import { processNotes } from './PinComponent';
 import { post } from '../../api';
 import { useParams } from 'react-router-dom';
 import ImageUploader from '../common/ImageUploader';
+import { processNotes } from '../../utils/temp';
+import { useRecoilState } from 'recoil';
+import { pinState } from '../../recoil/blueprint';
 
-const PinNotes = ({ pinInfo, onClose, isSidebar }) => {
-  const [notes, setNotes] = useRecoilState(NoteState);
+const PinNotes = ({ pinInfo, onClose, isSidebar, pinId }) => {
+  const [pins, setPins] = useRecoilState(pinState);
+  const [data, setData] = useState({
+    pinDetailNotes: [],
+  });
+
+  useEffect(() => {
+    const pin = pins.find((item) => item.pin_id === pinId) || {
+      pinDetailNotes: [],
+    };
+    setData(pin);
+  }, [pinId, pins]);
 
   // 노트 추가
   const { projectId: project_id, blueprintVersionId: blueprint_version_id } =
@@ -51,7 +61,6 @@ const PinNotes = ({ pinInfo, onClose, isSidebar }) => {
 
   // 검색된 노트 목록 업데이트
   const handleSearchSelect = (note_id) => {
-    console.log(note_id);
     setSearchTargetId(note_id);
   };
 
@@ -107,11 +116,20 @@ const PinNotes = ({ pinInfo, onClose, isSidebar }) => {
         read_users: [],
       };
 
-      setNotes((prevNotes) => {
-        return processNotes([
-          ...prevNotes[0].notes,
-          { ...newNote, note_id: Number(response.data.content.note_id) },
-        ]);
+      setPins((prev) => {
+        return prev.map((item) => {
+          if (item.pin_id === pinInfo.pin_id) {
+            return {
+              ...item,
+              pinDetailNotes: processNotes([
+                ...item.pinDetailNotes[0].notes,
+                { ...newNote, note_id: Number(response.data.content.note_id) },
+              ]),
+            };
+          }
+
+          return item;
+        });
       });
 
       if (response.status === 201) {
@@ -228,10 +246,10 @@ const PinNotes = ({ pinInfo, onClose, isSidebar }) => {
               )}
             </Header>
             <NotesContainer>
-              {notes.length === 0 ? (
+              {data.pinDetailNotes.length === 0 ? (
                 <NoData>등록된 노트가 없습니다.</NoData>
               ) : (
-                notes.map(({ date, notes }) => (
+                data.pinDetailNotes.map(({ date, notes }) => (
                   <React.Fragment key={date}>
                     <DateSeparator>{date}</DateSeparator>
                     {notes.map((note) => (

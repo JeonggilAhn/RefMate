@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState } from 'react';
 import { get, patch } from '../api/index';
 import { useRecoilState } from 'recoil';
 
@@ -25,6 +25,8 @@ import { useParams } from 'react-router-dom';
 import AllPinFolder from '../components/blueprint/AllPinFolder';
 import AllPinList from '../components/blueprint/AllPinList';
 import { useToast } from '@/hooks/use-toast';
+import { processNotes } from '../utils/temp';
+import PinImages from '../components/blueprint/PinImages';
 
 const Blueprint = () => {
   const { blueprint_id, blueprint_version_id } = useParams();
@@ -58,9 +60,10 @@ const Blueprint = () => {
   const [overlayOpacity, setOverlayOpacity] = useState(0);
 
   // sidebar detail
-  const [detailPinImages, setDetailPinImages] = useState([]);
-  const bottomRef = useRef(null);
-  const [detailPin, setDetailPin] = useState({});
+  const [detailPin, setDetailPin] = useState({
+    pinDetailNotes: [],
+    pinDetailImages: [],
+  });
 
   const [modal, setModal] = useRecoilState(modalState);
   const [isDetailPopupOpen, setIsDetailPopupOpen] = useState(false);
@@ -136,26 +139,35 @@ const Blueprint = () => {
   const openBlueprintVersion = () => setIsVersionOpen(true);
   const closeBlueprintVersion = () => setIsVersionOpen(false);
 
-  const onClickInfoButton = (pin) => {
-    console.log('pin info button');
-    setDetailPin(pin);
-    console.log('핀 정보: ', pin);
+  const onClickPin = async (pin) => {
+    // 01 핀 상세 이미지 조회 (here)
+    // 02 핀 상세 중요 노트 조회 (컴포넌트 내부에서 조회해도될 것 같음)
+    // 03 핀 상세 모든 노트 조회 (here)
 
-    // 01 핀 상세 이미지 조회
-    // 02 핀 상세 중요 노트 조회
-    // 03 핀 상세 모든 노트 조회
+    const pinImgRes = await get(`pins/${pin.pin_id}/images`);
+    const pinNotRes = await get(`pins/${pin.pin_id}/notes`);
 
-    get('pins/{pin_id}/images').then((res) => {
-      const {
-        status,
-        data: { content },
-      } = res;
+    if (pinImgRes.status === 200 && pinNotRes.status === 200) {
+      setPins((prev) => {
+        return prev.map((item) => {
+          if (item.pin_id === pin.pin_id) {
+            const newItem = {
+              ...item,
+              pinDetailImages: pinImgRes.data.content,
+              pinDetailNotes: processNotes(pinNotRes.data.content.note_list),
+            };
+            setDetailPin(newItem);
+            console.log('pin info button');
+            console.log('핀 정보: ', newItem);
+            return newItem;
+          }
 
-      if (status === 200) {
-        setDetailPinImages(content);
-        setIsDetailSidebarOpen(true);
-      }
-    });
+          return item;
+        });
+      });
+    }
+
+    setIsDetailSidebarOpen(true);
   };
 
   const onClickSidebarBackButton = () => {
@@ -180,17 +192,39 @@ const Blueprint = () => {
       // blueprints 상태 업데이트가 느려서 만든 임시 배열
       let tmpBlueprints = [];
 
-      // (진행중인) 모든 핀 데이터터 조회
+      // (진행중인) 모든 핀 데이터
       if (psRes.status === 200) {
-        const data = psRes.data.content.map((item) => {
-          return {
-            is_visible: true,
-            is_open_note: false,
-            is_open_image: false,
-            ...item,
-          };
-        });
-        console.log('진행중인 전체 핀 데이터', data);
+        const data = psRes.data.content.map((orig) => ({
+          ...JSON.parse(JSON.stringify(orig)),
+          is_visible: true,
+          is_open_note: false,
+          is_open_image: false,
+          pinDetailNotes: [],
+          pinDetailImages: [],
+        }));
+
+        for (let i = 0; i < data.length; i++) {
+          const item = data[i];
+
+          // 핀 노트 요청
+          const pinNotRes = await get(`pins/${item.pin_id}/notes`);
+          if (pinNotRes.status === 200) {
+            item.pinDetailNotes = [
+              ...item.pinDetailNotes,
+              ...processNotes(pinNotRes.data.content.note_list),
+            ];
+          }
+
+          // 핀 이미지 요청
+          const pinImgRes = await get(`pins/${item.pin_id}/images`);
+          if (pinImgRes.status === 200) {
+            item.pinDetailImages = [
+              ...item.pinDetailImages,
+              ...pinImgRes.data.content,
+            ];
+          }
+        }
+
         setPins(data);
       }
 
@@ -204,7 +238,7 @@ const Blueprint = () => {
             ...item,
           };
         });
-        console.log('완료된 전체 핀 데이터', data);
+
         setDonePins(data);
       }
 
@@ -236,11 +270,6 @@ const Blueprint = () => {
 
     init();
   }, []);
-
-  // todo : 상세 이미지 컴포넌트가 렌더링될 때마다 스크롤을 가장 아래로 이동안함
-  useEffect(() => {
-    // bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [detailPinImages]);
 
   const tabActions = [
     {
@@ -387,7 +416,6 @@ const Blueprint = () => {
   const onClickPrevBlueprintButton = () => {
     setSelectedBlueprint((prev) => {
       if (prev.index > 0) {
-        console.log('prev 변경');
         return { ...blueprints[prev.index - 1] };
       }
 
@@ -398,7 +426,6 @@ const Blueprint = () => {
   const onClickNextBlueprintButton = () => {
     setSelectedBlueprint((prev) => {
       if (prev.index < blueprints.length - 1) {
-        console.log('next 변경');
         return { ...blueprints[prev.index + 1] };
       }
 
@@ -549,7 +576,7 @@ const Blueprint = () => {
             overlayOpacity={overlayOpacity}
             isOverlayVisible={isOverlayVisible}
             isPinButtonEnaled={isPinButtonEnaled}
-            onClickInfoButton={onClickInfoButton}
+            onClickPin={onClickPin}
           />
           {/* toolbar */}
           <div className="flex justify-between border w-[5.5rem] border-black absolute left-[50%] bottom-4 p-[0.2rem]">
@@ -612,7 +639,7 @@ const Blueprint = () => {
                   </div>
                   <div className="relative w-full h-full">
                     <div
-                      className={`absolute h-90 grid grid-cols-2 grid-rows-[12rem] gap-2 overflow-y-auto overflow-x-hidden ${isViewFolder ? 'visible' : 'invisible'}`}
+                      className={`absolute h-78 grid grid-cols-2 grid-rows-[12rem] gap-2 overflow-y-auto overflow-x-hidden ${isViewFolder ? 'visible' : 'invisible'}`}
                     >
                       <AllPinFolder
                         data={isActiveTab ? pins : donePins}
@@ -624,7 +651,7 @@ const Blueprint = () => {
                       />
                     </div>
                     <div
-                      className={`absolute h-90 grid grid-cols-1 grid-rows-8 gap-2 overflow-y-auto overflow-x-hidden ${isViewFolder ? 'invisible' : 'visible'}`}
+                      className={`absolute h-78 grid grid-cols-1 grid-rows-8 gap-2 overflow-y-auto overflow-x-hidden ${isViewFolder ? 'invisible' : 'visible'}`}
                     >
                       <AllPinList
                         data={isActiveTab ? pins : donePins}
@@ -641,6 +668,7 @@ const Blueprint = () => {
             {/* pin list section */}
           </div>
         </div>
+        {/* 상세 */}
         <div
           className={`absolute top-0 right-0 transition-transform duration-500 ease-in-out ${isDetailSidebarOpen ? 'w-[22rem]' : 'min-w-0 w-0 overflow-hidden'} h-screen border border-black z-[4] bg-white flex flex-col overflow-hidden`}
         >
@@ -662,48 +690,13 @@ const Blueprint = () => {
                 <DropDown />
               </div>
             </div>
-            <div className="relative border border-[#CBCBCB] rounded-lg shadow-md bg-white h-[250px]">
-              <div className="sticky top-0 w-full rounded-t-lg text-lg font-semibold bg-[#F5F5F5]">
-                <h2>레퍼런스</h2>
-              </div>
-              <div ref={bottomRef} className="h-[210px] overflow-y-auto p-2">
-                {detailPinImages.map((pin) => {
-                  const images = pin.image_list.slice(0, 3); // 최대 3개 표시
-                  return (
-                    <div key={pin.note_id} className="mb-2">
-                      <div className="text-sm font-medium bg-gray-100 px-2 py-1 rounded-md">
-                        {pin.note_title}
-                      </div>
-                      <div className="grid gap-1 mt-2 grid-cols-3 place-items-center">
-                        {images.map((item, idx) => (
-                          <div
-                            key={item.image_id}
-                            className="relative w-[6.1rem] h-[6.1rem]"
-                            onClick={() => onClickImage(pin.image_list, idx)}
-                          >
-                            <img
-                              src={item.image_preview}
-                              alt="reference"
-                              className="w-full h-full object-cover rounded-md border"
-                            />
-                            {item.is_bookmark && (
-                              <div className="absolute top-0 right-0 w-4 h-4 bg-blue-500 clip-triangle"></div>
-                            )}
-                            {idx === 2 && pin.image_list.length > 3 && (
-                              <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center text-white text-sm font-semibold rounded-md">
-                                +{pin.image_list.length - 3}
-                              </div>
-                            )}
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
+            <PinImages pinId={detailPin.pin_id} onClickImage={onClickImage} />
             <ImportantNoteSection pinId={detailPin.pin_id} />
-            <PinNotes pinInfo={detailPin} isSidebar={true} />
+            <PinNotes
+              pinInfo={detailPin}
+              isSidebar={true}
+              pinId={detailPin.pin_id}
+            />
           </div>
         </div>
       </div>
