@@ -1,6 +1,5 @@
 package com.dawn.backend.domain.blueprint.service;
 
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -67,7 +66,7 @@ public class BlueprintService {
 					blueprint.getBlueprintId(),
 					blueprint.getBlueprintTitle(),
 					latestVersion.getBlueprintImg(),
-					blueprint.getCreatedAt().format(DateTimeFormatter.ISO_DATE_TIME),
+					blueprint.getCreatedAt(),
 					latestVersion.getBlueprintVersionId()
 				);
 			})
@@ -85,7 +84,7 @@ public class BlueprintService {
 				blueprintVersion.getBlueprintVersionId(),
 				blueprintVersion.getBlueprintVersionName(),
 				blueprintVersion.getPreviewImg(),
-				blueprintVersion.getCreatedAt().format(DateTimeFormatter.ISO_DATE_TIME),
+				blueprintVersion.getCreatedAt(),
 				blueprintVersion.getBlueprintVersionSeq()
 			))
 			.toList();

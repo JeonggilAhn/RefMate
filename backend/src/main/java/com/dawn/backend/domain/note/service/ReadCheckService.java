@@ -1,7 +1,5 @@
 package com.dawn.backend.domain.note.service;
 
-import java.io.IOException;
-import java.time.format.DateTimeFormatter;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -62,7 +60,7 @@ public class ReadCheckService {
 						user.getUserId(),
 						user.getUserEmail(),
 						user.getProfileImage(),
-						user.getCreatedAt().format(DateTimeFormatter.ISO_DATE_TIME)
+						user.getCreatedAt()
 					)
 				),
 				MediaType.APPLICATION_JSON

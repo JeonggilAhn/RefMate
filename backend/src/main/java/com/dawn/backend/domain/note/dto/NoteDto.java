@@ -1,5 +1,6 @@
 package com.dawn.backend.domain.note.dto;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -15,7 +16,7 @@ public record NoteDto(
 	String noteContent,
 	boolean isBookmark,
 	List<ImageItem> imageList,
-	String createdAt,
+	LocalDateTime createdAt,
 	boolean isEditable
 ) {
 	public static NoteDto from(Note note, ProjectUserDto noteWriter, List<NoteImage> noteImages, boolean isEditable) {
@@ -30,7 +31,7 @@ public record NoteDto(
 			note.getNoteContent(),
 			note.getBookmark(),
 			imageList,
-			note.getCreatedAt().toString(),
+			note.getCreatedAt(),
 			isEditable
 		);
 	}

@@ -7,6 +7,7 @@ import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.stream.Collectors;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
@@ -25,20 +26,23 @@ import com.dawn.backend.global.util.email.exception.EmailTemplateReadFailedExcep
 @Service
 @RequiredArgsConstructor
 public class EmailService {
+	@Value("${front-url}")
+	private String frontUrl;
 
 	private final JavaMailSender javaMailSender;
 
 	public void sendMail(EmailMessageRequestDto emailMessageRequestDto, String projectTitle,
-						String grantToken, String unauthorizedGrantToken) {
+						String grantToken, String unauthorizedGrantToken, Long projectId) {
 
 		MimeMessage mimeMessage = javaMailSender.createMimeMessage();
 
 		try {
 			String content = readHtmlTemplate("mail/mail.html");
 
-			String inviteLink = "/invite?grant_token=" + grantToken;
-			String unauthorizedInviteLink = "/invite?presigned=" + unauthorizedGrantToken;
-
+			// login 페이지 url 확정 시 추가예정
+			String inviteLink = "?grant_token=" + grantToken;
+			String unauthorizedInviteLink = frontUrl + "/#/projects/" + projectId + "/blueprints"
+				+ "?presigned=" + unauthorizedGrantToken;
 			content = content
 				.replace("{projectTitle}", projectTitle)
 				.replace("{inviteLink}", inviteLink)

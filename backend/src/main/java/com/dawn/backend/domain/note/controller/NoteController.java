@@ -21,8 +21,6 @@ import com.dawn.backend.domain.note.dto.request.BookmarkImageRequestDto;
 import com.dawn.backend.domain.note.dto.request.BookmarkNoteRequestDto;
 import com.dawn.backend.domain.note.dto.request.CreateNoteRequestDto;
 import com.dawn.backend.domain.note.dto.request.GetBookmarkNotesRequestDto;
-import com.dawn.backend.domain.note.dto.request.GetNotesByBlueprintRequestDto;
-import com.dawn.backend.domain.note.dto.request.GetNotesByPinRequestDto;
 import com.dawn.backend.domain.note.dto.request.UpdateNoteRequestDto;
 import com.dawn.backend.domain.note.dto.response.BookmarkImageResponseDto;
 import com.dawn.backend.domain.note.dto.response.BookmarkNoteResponseDto;
@@ -50,9 +48,9 @@ public class NoteController {
 
 	@DeleteMapping("/notes/{noteId}")
 	@PreAuthorize("@authExpression.isNoteWriter(#noteId)")
-	public ResponseEntity<DeleteNoteResponseDto> deleteNote(@PathVariable Long noteId) {
+	public ResponseEntity<ResponseWrapper<DeleteNoteResponseDto>> deleteNote(@PathVariable Long noteId) {
 		DeleteNoteResponseDto response = noteService.deleteNote(noteId);
-		return ResponseEntity.ok(response);
+		return ResponseWrapperFactory.setResponse(HttpStatus.OK, null, response);
 	}
 
 	@PostMapping("/pins/{pinId}/notes")

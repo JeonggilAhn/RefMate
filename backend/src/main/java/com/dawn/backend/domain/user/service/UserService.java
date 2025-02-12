@@ -1,7 +1,6 @@
 package com.dawn.backend.domain.user.service;
 
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -28,7 +27,7 @@ public class UserService {
 			user.getUserId(),
 			user.getUserEmail(),
 			user.getProfileImage(),
-			user.getCreatedAt().format(DateTimeFormatter.ISO_DATE_TIME)
+			user.getCreatedAt()
 		);
 	}
 
