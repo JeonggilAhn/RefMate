@@ -8,12 +8,12 @@ import NoteImageDetail from './NoteImageDetail';
 import { processNotes } from '../../utils/temp';
 import { useRecoilState } from 'recoil';
 import { pinState } from '../../recoil/blueprint';
-
+import { useParams } from 'react-router-dom';
 const TEST_USER_ID = 6569173793051701; // 테스트용 user_id 고정
 
 const PinComponent = ({ blueprintId, blueprintVersion, pin, onClickPin }) => {
   const [pins, setPins] = useRecoilState(pinState);
-
+  const { projectId } = useParams();
   const [pinInfo, setPinInfo] = useState(pin);
   const [hoveredPin, setHoveredPin] = useState(null);
   const [recentNotes, setRecentNotes] = useState(null);
@@ -100,7 +100,9 @@ const PinComponent = ({ blueprintId, blueprintVersion, pin, onClickPin }) => {
   // 읽음 여부 판단
   const fetchUnreadStatus = useCallback(async () => {
     try {
-      const response = await get(`pins/${pinInfo.pin_id}/notes`);
+      const response = await get(`pins/${pinInfo.pin_id}/notes`, {
+        project_id: projectId,
+      });
       const notes = response.data?.content?.note_list || [];
 
       // 내 user_id(TEST_USER_ID)가 read_users에 없으면 unreadNotes = true

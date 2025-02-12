@@ -29,7 +29,7 @@ import { processNotes } from '../utils/temp';
 import PinImages from '../components/blueprint/PinImages';
 
 const Blueprint = () => {
-  const { blueprint_id, blueprint_version_id } = useParams();
+  const { blueprint_id, blueprint_version_id, projectId } = useParams();
 
   // common
   const [colors, setColors] = useRecoilState(colorState);
@@ -145,7 +145,9 @@ const Blueprint = () => {
     // 03 핀 상세 모든 노트 조회 (here)
 
     const pinImgRes = await get(`pins/${pin.pin_id}/images`);
-    const pinNotRes = await get(`pins/${pin.pin_id}/notes`);
+    const pinNotRes = await get(`pins/${pin.pin_id}/notes`, {
+      project_id: projectId,
+    });
 
     if (pinImgRes.status === 200 && pinNotRes.status === 200) {
       setPins((prev) => {
@@ -207,7 +209,9 @@ const Blueprint = () => {
           const item = data[i];
 
           // 핀 노트 요청
-          const pinNotRes = await get(`pins/${item.pin_id}/notes`);
+          const pinNotRes = await get(`pins/${item.pin_id}/notes`, {
+            project_id: projectId,
+          });
           if (pinNotRes.status === 200) {
             item.pinDetailNotes = [
               ...item.pinDetailNotes,
