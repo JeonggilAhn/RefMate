@@ -10,6 +10,7 @@ import Blueprint from './pages/Blueprint';
 import ProjectList from './pages/ProjectList';
 import BlueprintList from './pages/BlueprintList';
 import TokenCheck from './pages/TokenCheck'; // 추가
+import InvitedUserLogin from './pages/InvitedUserLogin';
 
 function App() {
   return (
@@ -27,6 +28,7 @@ function App() {
             element={<Blueprint />}
           />
           <Route path="/auth-redirect" element={<TokenCheck />} /> {/* 추가 */}
+          <Route path="/invite/login" element={<InvitedUserLogin />} />
         </Routes>
       </Router>
       <Form />
