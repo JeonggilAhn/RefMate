@@ -57,7 +57,9 @@ public class PinService {
 		PinGroupRepository pinGroupRepository,
 		ImageRepository imageRepository,
 		NoteCheckRepository noteCheckRepository,
-		NoteRepository noteRepository, BlueprintVersionRepository blueprintVersionRepository) {
+		NoteRepository noteRepository,
+		BlueprintVersionRepository blueprintVersionRepository
+	) {
 		this.pinRepository = pinRepository;
 		this.pinVersionRepository = pinVersionRepository;
 		this.pinGroupRepository = pinGroupRepository;
@@ -67,14 +69,18 @@ public class PinService {
 		this.blueprintVersionRepository = blueprintVersionRepository;
 	}
 
-	public List<PinItem> pins(Long blueprintVersionId, Boolean isActive, User user) {
+	public List<PinItem> pins(Long blueprintVersionId, Boolean isActive, Long pinGroupId, User user) {
+
 		List<PinVersion> pinlist;
-		if (isActive == null) {
-			pinlist = pinVersionRepository.findAllByBlueprintVersionBlueprintVersionId(blueprintVersionId);
+		if (isActive == null && pinGroupId == null) {
+			pinlist = pinVersionRepository.findAllByBlueprintVersionId(blueprintVersionId);
+		} else if (isActive == null) {
+			pinlist = pinVersionRepository.findAllByBlueprintVersionIdAndPinGroupId(blueprintVersionId, pinGroupId);
+		} else if (pinGroupId == null) {
+			pinlist = pinVersionRepository.findAllByBlueprintVersionIdAndIsActive(blueprintVersionId, isActive);
 		} else {
-			pinlist = pinVersionRepository.findAllByBlueprintVersionBlueprintVersionIdAndIsActive(
-				blueprintVersionId,
-				isActive
+			pinlist = pinVersionRepository.findAllByBlueprintVersionIdAndPinGroupIdAndIsActive(
+				blueprintVersionId, pinGroupId, isActive
 			);
 		}
 

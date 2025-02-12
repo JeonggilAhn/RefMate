@@ -45,12 +45,13 @@ public class PinController {
 		@PathVariable("blueprintId") Long blueprintId,
 		@PathVariable("versionId") Long versionId,
 		@RequestParam(value = "is_active", required = false) Boolean isActive,
+		@RequestParam(value = "pin_group_id", required = false) Long pinGroupId,
 		@AuthenticationPrincipal User user
 	) {
 		return ResponseWrapperFactory.setResponse(
 			HttpStatus.OK,
 			null,
-			pinService.pins(versionId, isActive, user)
+			pinService.pins(versionId, isActive, pinGroupId, user)
 		);
 	}
 
