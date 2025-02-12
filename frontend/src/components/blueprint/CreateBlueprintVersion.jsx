@@ -10,7 +10,7 @@ const CreateBlueprintVersion = ({
   setBlueprints,
   refetchBlueprints,
 }) => {
-  const { blueprintId } = useParams();
+  const { blueprint_id } = useParams();
 
   const [blueprintTitle, setBlueprintTitle] = useState('');
   const [selectedImage, setSelectedImage] = useState(null);
@@ -29,7 +29,7 @@ const CreateBlueprintVersion = ({
         formData.append('origin_file', selectedImage);
       }
 
-      const response = await post(`blueprints/${blueprintId}`, {
+      const response = await post(`blueprints/${blueprint_id}`, {
         blueprint_title: blueprintTitle,
         origin_file: selectedImage,
       });
