@@ -19,7 +19,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
 	@Query("""
 		SELECT new com.dawn.backend.domain.user.dto.ProjectUserDto(
-			u.userId, u.userEmail, u.profileImage, u.createdAt, u.resignDate, up.userRole
+			u.userId, u.userEmail, u.profileImage, u.createdAt, up.userRole
 		)
 		FROM User u
 		LEFT JOIN UserProject up ON u.userId = up.user.userId AND up.project.projectId = :projectId
@@ -32,7 +32,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
 	@Query("""
 		SELECT new com.dawn.backend.domain.user.dto.ProjectUserDto(
-			u.userId, u.userEmail, u.profileImage, u.createdAt, u.resignDate, up.userRole
+			u.userId, u.userEmail, u.profileImage, u.createdAt, up.userRole
 		)
 		FROM User u
 		JOIN UserNoteCheck unc ON u.userId = unc.user.userId

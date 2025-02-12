@@ -10,7 +10,6 @@ public record ProjectUserDto(
 	String userEmail,
 	String profileUrl,
 	LocalDateTime signupDate,
-	LocalDateTime resignDate,
 	String role
 ) {
 	public static ProjectUserDto from(User user, String role) {
@@ -19,7 +18,6 @@ public record ProjectUserDto(
 			user.getUserEmail(),
 			user.getProfileImage(),
 			user.getCreatedAt(),   // BaseTimeEntity 상속 필드
-			user.getResignDate(),
 			role
 		);
 	}
@@ -30,7 +28,6 @@ public record ProjectUserDto(
 			userProject.getUser().getUserEmail(),
 			userProject.getUser().getProfileImage(),
 			userProject.getUser().getCreatedAt(),
-			userProject.getUser().getResignDate(),
 			userProject.getUserRole()
 		);
 	}
