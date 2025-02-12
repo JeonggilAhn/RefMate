@@ -7,22 +7,33 @@ import BlueprintListSubHeader from '../components/project/BlueprintListSubHeader
 import BlueprintThumbnail from '../components/project/BlueprintThumbnail';
 import BlueprintListTabs from '../components/project/BlueprintListTabs';
 import { get } from '../api/index';
+import { useRecoilState } from 'recoil';
+import { projectState } from '../recoil/common/project';
 
 function BlueprintList() {
   const { projectId } = useParams(); // projectId 가져오기
+
+  console.log(projectId);
 
   const [projectTitle, setProjectTitle] = useState('');
   const [blueprints, setBlueprints] = useState([]);
   const [filterType, setFilterType] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
 
+  const [project, setProject] = useRecoilState(projectState);
+
   useEffect(() => {
     const fetchProjectName = async () => {
       if (projectId) {
         try {
           const response = await get(`projects/${projectId}`);
-          setProjectTitle(response.data.content.project_title);
-          console.log(projectTitle);
+          const title = response.data.content.project_title;
+          setProjectTitle(title);
+
+          setProject({
+            projectId: projectId,
+            projectTitle: title,
+          });
         } catch (error) {
           console.error('프로젝트 이름을 가져오는데 실패했습니다.', error);
         }

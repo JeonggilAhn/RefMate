@@ -21,6 +21,7 @@ const BlueprintThumbnail = ({ projectId, blueprints, setBlueprints }) => {
   const setModal = useSetRecoilState(modalState);
 
   const handleViewLatest = (blueprintId, blueprintVersionId) => {
+    console.log(blueprintVersionId);
     navigate(
       `/projects/${projectId}/blueprints/${blueprintId}/${blueprintVersionId}`,
     );
@@ -86,7 +87,10 @@ const BlueprintThumbnail = ({ projectId, blueprints, setBlueprints }) => {
                     <SheetTitle className="text-lg">모든 시안</SheetTitle>
                     <hr className="text-gray-300" />
                     <SheetTitle>{blueprint.blueprint_title}</SheetTitle>
-                    <VersionHistorySidebar blueprintId={selectedBlueprintId} />
+                    <VersionHistorySidebar
+                      projectId={projectId}
+                      blueprintId={selectedBlueprintId}
+                    />
                   </SheetHeader>
                 </AnimatedSheetContent>
               </Sheet>
