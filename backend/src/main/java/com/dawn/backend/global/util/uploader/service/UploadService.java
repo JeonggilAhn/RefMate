@@ -105,7 +105,7 @@ public class UploadService {
 
 			if (item.objectName().matches(".*_preview\\.webp$")) {
 				previewImgUrl = generatePublicUrl(item.objectName());
-			} else if (item.objectName().matches(".*\\.(png|jpg)$")) {
+			} else if (item.objectName().matches(".*\\.(png|jpg|jpeg)$")) {
 				imageUrl = generatePublicUrl(item.objectName());
 			}
 		}
