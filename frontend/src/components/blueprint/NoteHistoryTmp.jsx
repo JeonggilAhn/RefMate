@@ -45,7 +45,7 @@ const processNotes = (noteList) => {
 };
 
 const NoteHistory = () => {
-  const { BLUEPRINT_ID, BLUEPRINT_VERSION } = useParams(); // 블루프린트 ID
+  const { BLUEPRINT_ID, BLUEPRINT_VERSION, projectId } = useParams(); // 블루프린트 ID
   const [notesByDate, setNotesByDate] = useState([]); // 날짜별로 그룹화된 노트 상태
   const [errorMessage, setErrorMessage] = useState(''); // 에러 메시지 상태
   const [isSearching, setIsSearching] = useState(false); // 검색 모드 상태
@@ -66,7 +66,9 @@ const NoteHistory = () => {
 
         // 각 핀에 대한 노트 데이터를 가져옴
         const notesPromises = pinData.map(async (pin) => {
-          const notesResponse = await get(`pins/${pin.pin_id}/notes`); // 핀별 노트 데이터 API 호출
+          const notesResponse = await get(`pins/${pin.pin_id}/notes`, {
+            project_id: projectId,
+          }); // 핀별 노트 데이터 API 호출
           return (
             notesResponse.data.content?.note_list.map((note) => ({
               ...note,
