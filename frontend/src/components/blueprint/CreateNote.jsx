@@ -3,7 +3,7 @@ import { post } from '../../api';
 import Icon from '../common/Icon';
 import ImageUploader from '../common/ImageUploader';
 import { useParams } from 'react-router-dom';
-import { processNotes } from './PinComponent';
+import { processNotes } from '../../utils/temp';
 
 const CreateNote = ({ pinId, isSidebar, closeModal }) => {
   const [noteTitle, setNoteTitle] = useState('');
