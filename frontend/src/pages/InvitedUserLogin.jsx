@@ -12,10 +12,10 @@ const InvitedUserLogin = () => {
     const grantToken = query.get('grant_token');
 
     if (grantToken) {
-      document.cookie = `grant_token=${grantToken}; path=/; max-age=3600; Secure;`;
+      document.cookie = `grant_token=${grantToken}; path=/; max-age=3600; Secure; HttpOnly;`;
       console.log('쿠키: ', document.cookie);
 
-      navigate('/projects'); // grant_token이 있으면 /projects로 이동
+      // navigate('/projects'); // grant_token이 있으면 /projects로 이동
     } else {
       navigate('/'); // 없으면 메인으로 이동
     }
