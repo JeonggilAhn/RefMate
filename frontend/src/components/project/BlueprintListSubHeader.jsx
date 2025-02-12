@@ -15,6 +15,7 @@ const BlueprintListSubHeader = ({
   projectId,
   setBlueprints,
   setProjectTitle,
+  nonMember,
 }) => {
   const navigate = useNavigate();
   const setModal = useSetRecoilState(modalState);
@@ -85,27 +86,31 @@ const BlueprintListSubHeader = ({
     <div className="flex justify-between items-center w-full px-5 py-2.5">
       <div className="flex items-center gap-4">
         <div className="text-xl font-semibold">{projectTitle}</div>
-        <EditOption
-          actions={[
-            {
-              name: '수정',
-              handler: () => handleUpdateProjectName(projectId, projectTitle),
-            },
-            {
-              name: '삭제',
-              handler: () => handleRemoveProject(projectId),
-            },
-          ]}
-        />
+        {!nonMember && (
+          <EditOption
+            actions={[
+              {
+                name: '수정',
+                handler: () => handleUpdateProjectName(projectId, projectTitle),
+              },
+              {
+                name: '삭제',
+                handler: () => handleRemoveProject(projectId),
+              },
+            ]}
+          />
+        )}
       </div>
-      <div className="flex gap-4">
-        <button onClick={handleToggleInvite}>
-          <Icon name="IconTbShare" width={25} height={25}></Icon>
-        </button>
-        <TextButton onClick={handleCreateBlueprint}>
-          새 블루프린트 만들기 +
-        </TextButton>
-      </div>
+      {!nonMember && (
+        <div className="flex gap-4">
+          <button onClick={handleToggleInvite}>
+            <Icon name="IconTbShare" width={25} height={25}></Icon>
+          </button>
+          <TextButton onClick={handleCreateBlueprint}>
+            새 블루프린트 만들기 +
+          </TextButton>
+        </div>
+      )}
     </div>
   );
 };
