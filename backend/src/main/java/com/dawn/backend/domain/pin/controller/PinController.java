@@ -40,7 +40,7 @@ public class PinController {
 	}
 
 	@GetMapping("/blueprints/{blueprintId}/{versionId}/pins")
-	@PreAuthorize("@authExpression.hasBlueprintPermission(blueprintId)")
+	@PreAuthorize("@authExpression.hasBlueprintPermission(#blueprintId)")
 	public ResponseEntity<ResponseWrapper<List<PinItem>>> getPinListByBlueprint(
 		@PathVariable("blueprintId") Long blueprintId,
 		@PathVariable("versionId") Long versionId,
@@ -55,7 +55,7 @@ public class PinController {
 	}
 
 	@GetMapping("/pins/{pinId}/images")
-	@PreAuthorize("@authExpression.hasPinPermission(pinId)")
+	@PreAuthorize("@authExpression.hasPinPermission(#pinId)")
 	public ResponseEntity<ResponseWrapper<List<PinImageItem>>> getImagesByPin(
 		@PathVariable("pinId") Long pinId
 	) {
@@ -67,7 +67,7 @@ public class PinController {
 	}
 
 	@GetMapping("/blueprints/{blueprintId}/pin-groups")
-	@PreAuthorize("@authExpression.hasBlueprintPermission(blueprintId)")
+	@PreAuthorize("@authExpression.hasBlueprintPermission(#blueprintId)")
 	public ResponseEntity<ResponseWrapper<List<PinGroupDto>>> getPinGroups(
 		@PathVariable("blueprintId") Long blueprintId
 	) {
@@ -79,7 +79,7 @@ public class PinController {
 	}
 
 	@PostMapping("/blueprints/{blueprintId}/{versionId}/pins")
-	@PreAuthorize("@authExpression.hasBlueprintPermission(blueprintId)")
+	@PreAuthorize("@authExpression.hasBlueprintPermission(#blueprintId)")
 	public ResponseEntity<ResponseWrapper<CreatePinResponseDto>> createPin(
 		@PathVariable("blueprintId") Long blueprintId,
 		@PathVariable("versionId") Long versionId,
@@ -93,7 +93,7 @@ public class PinController {
 	}
 
 	@PatchMapping("/pins/{pinId}/{versionId}/status")
-	@PreAuthorize("@authExpression.hasPinPermission(pinId)")
+	@PreAuthorize("@authExpression.hasPinPermission(#pinId)")
 	public ResponseEntity<ResponseWrapper<UpdatePinStatusResponseDto>> updatePinStatus(
 			@PathVariable("pinId") Long pinId,
 			@PathVariable("versionId") Long versionId
@@ -106,7 +106,7 @@ public class PinController {
 	}
 
 	@PatchMapping("/pins/{pinId}/name")
-	@PreAuthorize("@authExpression.hasPinPermission(pinId)")
+	@PreAuthorize("@authExpression.hasPinPermission(#pinId)")
 	public ResponseEntity<ResponseWrapper<UpdatePinNameResponseDto>> updatePinName(
 			@PathVariable("pinId") Long pinId,
 			@RequestBody UpdatePinNameRequestDto pinInfo
@@ -119,7 +119,7 @@ public class PinController {
 	}
 
 	@PatchMapping("/pins/{pinId}/{versionId}/group")
-	@PreAuthorize("@authExpression.hasPinPermission(pinId)")
+	@PreAuthorize("@authExpression.hasPinPermission(#pinId)")
 	public ResponseEntity<ResponseWrapper<UpdatePinGroupResponseDto>> updatePinGroup(
 			@PathVariable("pinId") Long pinId,
 			@PathVariable("versionId") Long versionId,
