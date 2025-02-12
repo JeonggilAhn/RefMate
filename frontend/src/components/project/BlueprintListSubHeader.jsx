@@ -37,7 +37,7 @@ const BlueprintListSubHeader = ({
     setModal({
       type: 'modal',
       title: '프로젝트 초대하기',
-      content: <InviteUsersModal setModal={setModal} />,
+      content: <InviteUsersModal setModal={setModal} projectId={projectId} />,
     });
   };
 

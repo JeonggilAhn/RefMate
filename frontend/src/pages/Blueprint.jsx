@@ -220,7 +220,9 @@ const Blueprint = () => {
           }
 
           // 핀 이미지 요청
-          const pinImgRes = await get(`pins/${item.pin_id}/images`);
+          const pinImgRes = await get(`pins/${item.pin_id}/images`, {
+            project_id: projectId,
+          });
           if (pinImgRes.status === 200) {
             item.pinDetailImages = [
               ...item.pinDetailImages,
