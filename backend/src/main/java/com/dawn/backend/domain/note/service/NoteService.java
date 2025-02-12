@@ -28,7 +28,6 @@ import com.dawn.backend.domain.note.dto.request.BookmarkNoteRequestDto;
 import com.dawn.backend.domain.note.dto.request.CreateNoteRequestDto;
 import com.dawn.backend.domain.note.dto.request.GetBookmarkNotesRequestDto;
 import com.dawn.backend.domain.note.dto.request.GetNotesByBlueprintRequestDto;
-import com.dawn.backend.domain.note.dto.request.GetNotesByPinRequestDto;
 import com.dawn.backend.domain.note.dto.request.UpdateNoteRequestDto;
 import com.dawn.backend.domain.note.dto.response.BookmarkImageResponseDto;
 import com.dawn.backend.domain.note.dto.response.BookmarkNoteResponseDto;
@@ -297,7 +296,7 @@ public class NoteService {
 	}
 
 	public GetNotesByBlueprintResponseDto getNotesByBlueprint(
-		Long blueprintId, Long blueprintVersion, GetNotesByBlueprintRequestDto request, Long cursorId, int size
+		Long blueprintId, Long blueprintVersion, Long projectId, Long cursorId, int size
 	) {
 		if (!blueprintVersionRepository.existsById(blueprintVersion)) {
 			throw new NoteByBlueprintVersionNotFound();
@@ -318,7 +317,7 @@ public class NoteService {
 
 		Collections.reverse(notes);
 
-		List<ChatItemDto> resultList = convertNotesToChatItemsForBlueprint(notes, request.projectId());
+		List<ChatItemDto> resultList = convertNotesToChatItemsForBlueprint(notes, projectId);
 
 
 		return new GetNotesByBlueprintResponseDto(resultList, hasMore);
