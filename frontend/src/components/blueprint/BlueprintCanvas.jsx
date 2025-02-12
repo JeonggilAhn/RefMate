@@ -16,7 +16,7 @@ const BlueprintCanvas = ({
   overlayOpacity,
   isOverlayVisible,
   isPinButtonEnaled,
-  onClickInfoButton,
+  onClickPin,
 }) => {
   const canvasRef = useRef(null);
   const [scale, setScale] = useState(1);
@@ -153,7 +153,7 @@ const BlueprintCanvas = ({
       is_active: false,
       pin_group: {
         pin_group_color: 'violet',
-        pin_group_id: '1',
+        pin_group_id: 1,
         pingroup_name: '새 핀',
       },
       pin_id: null,
@@ -165,6 +165,8 @@ const BlueprintCanvas = ({
       is_visible: true,
       is_open_note: false,
       is_open_image: false,
+      pinDetailNotes: [],
+      pinDetailImages: [],
     });
 
     setIsPopupOpen(true);
@@ -184,7 +186,6 @@ const BlueprintCanvas = ({
     };
 
     setPins((prevPins) => {
-      console.log('잘봐라', [...prevPins, newPin]);
       return [...prevPins, newPin];
     });
     setPendingPin(null);
@@ -221,7 +222,7 @@ const BlueprintCanvas = ({
             blueprintId={blueprint_id}
             blueprintVersion={blueprint_version_id}
             pin={item}
-            onClickInfoButton={() => onClickInfoButton(item)}
+            onClickPin={() => onClickPin(item)}
           />
         </div>
       ))}

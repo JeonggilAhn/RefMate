@@ -5,48 +5,14 @@ import { get } from '../../api';
 import Icon from '../common/Icon';
 import PinNotes from './PinNotes';
 import NoteImageDetail from './NoteImageDetail';
-import { NoteState } from '../../recoil/blueprint/notes';
+import { processNotes } from '../../utils/temp';
 import { useRecoilState } from 'recoil';
-
-export const processNotes = (noteList) => {
-  if (!Array.isArray(noteList)) {
-    throw new Error('note_list 데이터가 배열 형식이 아닙니다.');
-  }
-
-  const groupedByDate = noteList.reduce((acc, note) => {
-    const date = new Date(note.created_at).toLocaleDateString('ko-KR', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      weekday: 'short',
-    });
-
-    if (!acc[date]) {
-      acc[date] = [];
-    }
-    acc[date].push(note);
-    return acc;
-  }, {});
-
-  return Object.entries(groupedByDate)
-    .sort(([dateA], [dateB]) => new Date(dateB) - new Date(dateA))
-    .map(([date, notes]) => ({
-      date,
-      notes: notes.sort(
-        (a, b) => new Date(a.created_at) - new Date(b.created_at),
-      ),
-    }));
-};
+import { pinState } from '../../recoil/blueprint';
 
 const TEST_USER_ID = 6569173793051701; // 테스트용 user_id 고정
 
-const PinComponent = ({
-  blueprintId,
-  blueprintVersion,
-  pin,
-  onClickInfoButton,
-}) => {
-  const [notes, setNotes] = useRecoilState(NoteState);
+const PinComponent = ({ blueprintId, blueprintVersion, pin, onClickPin }) => {
+  const [pins, setPins] = useRecoilState(pinState);
 
   const [pinInfo, setPinInfo] = useState(pin);
   const [hoveredPin, setHoveredPin] = useState(null);
@@ -61,12 +27,42 @@ const PinComponent = ({
 
   // 핀 활성화 여부 (핀 클릭, 노트/이미지 창 열림 시)
   const isActive = isClicked || showPinNotes || showImages;
+  const handleNoteClick = async () => {
+    const pinNotRes = await get(`pins/${pin.pin_id}/notes`);
 
-  const handleNoteClick = () => {
+    if (pinNotRes.status === 200) {
+      setPins((prev) => {
+        return prev.map((item) => {
+          if (item.pin_id === pin.pin_id) {
+            return {
+              ...item,
+              pinDetailNotes: processNotes(pinNotRes.data.content.note_list),
+            };
+          }
+
+          return item;
+        });
+      });
+    }
+
     setShowPinNotes((prevState) => !prevState);
   };
 
-  const handleImgClick = () => {
+  const handleImgClick = async () => {
+    const pinImgRes = await get(`pins/${pin.pin_id}/images`);
+
+    if (pinImgRes.status === 200) {
+      setPins((prev) => {
+        return prev.map((item) => {
+          if (item.pin_id === pin.pin_id) {
+            return { ...item, pinDetailImages: pinImgRes.data.content };
+          }
+
+          return item;
+        });
+      });
+    }
+
     setShowImages((prevState) => !prevState);
   };
 
@@ -106,8 +102,6 @@ const PinComponent = ({
     try {
       const response = await get(`pins/${pinInfo.pin_id}/notes`);
       const notes = response.data?.content?.note_list || [];
-
-      setNotes(processNotes(notes));
 
       // 내 user_id(TEST_USER_ID)가 read_users에 없으면 unreadNotes = true
       const isUnread = notes.some((note) =>
@@ -159,7 +153,7 @@ const PinComponent = ({
         onMouseLeave={() => setHoveredPin(null)}
         onClick={() => {
           setIsClicked((prev) => !prev);
-          onClickInfoButton(pinInfo);
+          onClickPin();
         }}
         style={{
           position: 'relative',
@@ -215,8 +209,10 @@ const PinComponent = ({
         {showPinNotes && (
           <div>
             <PinNotes
-              onClose={() => setShowPinNotes(false)}
               pinInfo={pinInfo}
+              isSidebar={false}
+              pinId={pinInfo.pin_id}
+              onClose={() => setShowPinNotes(false)}
             />
           </div>
         )}
