@@ -55,6 +55,7 @@ const BlueprintVersions = ({
         <CreateBlueprintVersion
           setModal={setModal}
           projectId={projectId}
+          blueprintId={blueprint_id}
           blueprints={blueprints}
           setBlueprints={setBlueprints}
           refetchBlueprints={refetchBlueprints}
