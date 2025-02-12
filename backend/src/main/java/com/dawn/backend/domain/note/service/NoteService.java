@@ -230,7 +230,7 @@ public class NoteService {
 		return new CreateNoteResponseDto(savedNote.getNoteId());
 	}
 
-	public GetNotesByPinResponseDto getNotesByPin(Long pinId, GetNotesByPinRequestDto getNotesByPinRequestDto) {
+	public GetNotesByPinResponseDto getNotesByPin(Long pinId, Long projectId) {
 		if (!pinRepository.existsById(pinId)) {
 			throw new PinNotFoundException();
 		}
@@ -242,12 +242,12 @@ public class NoteService {
 				ProjectUserDto noteWriter =
 					userRepository.findUserWithRoleByUserIdAndProjectId(
 						note.getUser().getUserId(),
-						getNotesByPinRequestDto.projectId());
+						projectId);
 				boolean isPresentImage = imageRepository.existsByNoteNoteId(note.getNoteId());
 
 				List<ProjectUserDto> readUsers =
 					userRepository.findCheckedUsersWithRolesByNoteId(note.getNoteId(),
-						getNotesByPinRequestDto.projectId());
+						projectId);
 
 				return new NoteItem(
 					note.getNoteId(),

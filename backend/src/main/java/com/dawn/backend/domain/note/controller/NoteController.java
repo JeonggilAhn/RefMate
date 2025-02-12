@@ -90,9 +90,9 @@ public class NoteController {
 	@PreAuthorize("@authExpression.hasProjectPermissionByPinId(#pinId)")
 	public ResponseEntity<ResponseWrapper<GetNotesByPinResponseDto>> getNotesByPin(
 		@PathVariable Long pinId,
-		@RequestBody GetNotesByPinRequestDto getNotesByPinRequestDto
+		@RequestParam("project_id") Long projectId
 	) {
-		GetNotesByPinResponseDto getNotesByPinResponseDto = noteService.getNotesByPin(pinId, getNotesByPinRequestDto);
+		GetNotesByPinResponseDto getNotesByPinResponseDto = noteService.getNotesByPin(pinId, projectId);
 		return ResponseWrapperFactory.setResponse(HttpStatus.OK, null, getNotesByPinResponseDto);
 	}
 
