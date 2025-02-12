@@ -493,7 +493,9 @@ const Blueprint = () => {
         const item = data[i];
 
         // 핀 노트 요청
-        const pinNotRes = await get(`pins/${item.pin_id}/notes`);
+        const pinNotRes = await get(`pins/${item.pin_id}/notes`, {
+          project_id: project_id,
+        });
         if (pinNotRes.status === 200) {
           item.pinDetailNotes = [
             ...item.pinDetailNotes,
