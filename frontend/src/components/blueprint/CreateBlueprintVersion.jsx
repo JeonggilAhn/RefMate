@@ -29,7 +29,7 @@ const CreateBlueprintVersion = ({
       }
 
       const response = await post(`blueprints/${blueprintId}`, {
-        blueprint_title: blueprintTitle,
+        blueprint_version_name: blueprintTitle,
         origin_file: selectedImage,
       });
 
