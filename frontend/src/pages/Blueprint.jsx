@@ -29,7 +29,7 @@ import { processNotes } from '../utils/temp';
 import PinImages from '../components/blueprint/PinImages';
 
 const Blueprint = () => {
-  const { blueprint_id, blueprint_version_id, projectId } = useParams();
+  const { blueprint_id, blueprint_version_id, project_id } = useParams();
 
   // common
   const [colors, setColors] = useRecoilState(colorState);
@@ -146,7 +146,7 @@ const Blueprint = () => {
 
     const pinImgRes = await get(`pins/${pin.pin_id}/images`);
     const pinNotRes = await get(`pins/${pin.pin_id}/notes`, {
-      project_id: projectId,
+      project_id: project_id,
     });
 
     if (pinImgRes.status === 200) {
@@ -614,6 +614,7 @@ const Blueprint = () => {
             </div>
           </div>
           <BlueprintCanvas
+            projectId={project_id}
             imageUrl={blueprint.blueprint_image}
             overlayImageUrl={overlayBlueprint.blueprint_image}
             overlayOpacity={overlayOpacity}
