@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useSearchParams } from 'react-router-dom';
 import styled from 'styled-components';
 import Header from '../components/common/Header';
 import BackButton from '../components/common/BackButton';
@@ -12,6 +12,17 @@ import { projectState } from '../recoil/common/project';
 
 function BlueprintList() {
   const { projectId } = useParams(); // projectId 가져오기
+  const [query, setQuery] = useSearchParams(); // query 가져오기
+  const [nonMember, setNonMember] = useState(false);
+
+  // presigned 쿼리 파라미터가 있으면 nonMember를 true로 설정
+  useEffect(() => {
+    if (query.get('presigned')) {
+      setNonMember(true);
+    } else {
+      setNonMember(false);
+    }
+  }, [query]);
 
   console.log(projectId);
 
@@ -75,6 +86,7 @@ function BlueprintList() {
           projectId={projectId}
           setBlueprints={setBlueprints}
           setProjectTitle={setProjectTitle}
+          nonMember={nonMember}
         />
         <BlueprintListTabs
           actions={[{ name: '모든 블루프린트', type: 'all' }]}
@@ -85,6 +97,7 @@ function BlueprintList() {
           projectId={projectId}
           blueprints={searchedBlueprints}
           setBlueprints={setBlueprints}
+          nonMember={nonMember}
         />
       </ContentWrapper>
       <BackButton />
