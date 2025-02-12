@@ -236,30 +236,39 @@ public class NoteService {
 
 		List<Note> notes = noteRepository.findAllByPinPinIdAndIsDeletedFalse(pinId);
 
-		List<NoteItem> noteItems = notes.stream()
-			.map(note -> {
-				ProjectUserDto noteWriter =
-					userRepository.findUserWithRoleByUserIdAndProjectId(
-						note.getUser().getUserId(),
-						projectId);
-				boolean isPresentImage = imageRepository.existsByNoteNoteId(note.getNoteId());
+		List<ChatItemDto> charItems = convertNotesToChatItemsForPin(notes, projectId);
 
-				List<ProjectUserDto> readUsers =
-					userRepository.findCheckedUsersWithRolesByNoteId(note.getNoteId(),
-						projectId);
+		return new GetNotesByPinResponseDto(charItems);
+	}
 
-				return new NoteItem(
-					note.getNoteId(),
-					noteWriter,
-					note.getNoteTitle(),
-					note.getBookmark(),
-					note.getCreatedAt(),
-					isPresentImage,
-					readUsers
-				);
-			}).collect(Collectors.toList());
+	private List<ChatItemDto> convertNotesToChatItemsForPin(List<Note> notes, Long projectId) {
+		List<ChatItemDto> items = new ArrayList<>();
+		LocalDateTime prevDate = null;
 
-		return new GetNotesByPinResponseDto(noteItems);
+		for (Note note : notes) {
+			LocalDateTime currentDate = note.getCreatedAt().toLocalDate().atStartOfDay();
+
+			if (prevDate == null || !currentDate.equals(prevDate)) {
+				items.add(DateSeparatorDto.from(note.getCreatedAt()));
+				prevDate = currentDate;
+			}
+
+			ProjectUserDto noteWriter = userRepository.findUserWithRoleByUserIdAndProjectId(
+				note.getUser().getUserId(),
+				projectId
+			);
+			boolean isPresentImage = imageRepository.existsByNoteNoteId(note.getNoteId());
+			List<ProjectUserDto> readUsers = userRepository.findCheckedUsersWithRolesByNoteId(
+				note.getNoteId(), projectId
+			);
+
+			ChatItemDto noteItemDto = NoteItemWithTypeDto.fromForPin(
+				note, noteWriter, isPresentImage, readUsers
+			);
+			items.add(noteItemDto);
+		}
+
+		return items;
 	}
 
 	public GetBookmarkNotesResponseDto getBookmarkNotes(Long pinId, GetBookmarkNotesRequestDto request) {
