@@ -26,13 +26,11 @@ const PinComponent = ({
   const [unreadNotes, setUnreadNotes] = useState(false);
   const [isClicked, setIsClicked] = useState(false);
   const pinRef = useRef(null);
-  const [showPinNotes, setShowPinNotes] = useState(false);
-  const [showImages, setShowImages] = useState(false);
 
   const API_BASE_URL = import.meta.env.VITE_APP_API_BASE_URL;
 
   // 핀 활성화 여부 (핀 클릭, 노트/이미지 창 열림 시)
-  const isActive = isClicked || showPinNotes || showImages;
+  const isActive = isClicked || pin.is_open_note || pin.is_open_image;
   const handleNoteClick = async () => {
     const pinNotRes = await get(`pins/${pin.pin_id}/notes`, {
       project_id: projectId,
@@ -44,6 +42,7 @@ const PinComponent = ({
           if (item.pin_id === pin.pin_id) {
             return {
               ...item,
+              is_open_note: !item.is_open_note,
               pinDetailNotes: processNotes(pinNotRes.data.content.note_list),
             };
           }
@@ -52,8 +51,6 @@ const PinComponent = ({
         });
       });
     }
-
-    setShowPinNotes((prevState) => !prevState);
   };
 
   const handleImgClick = async () => {
@@ -63,15 +60,17 @@ const PinComponent = ({
       setPins((prev) => {
         return prev.map((item) => {
           if (item.pin_id === pin.pin_id) {
-            return { ...item, pinDetailImages: pinImgRes.data.content };
+            return {
+              ...item,
+              is_open_image: !item.is_open_image,
+              pinDetailImages: pinImgRes.data.content,
+            };
           }
 
           return item;
         });
       });
     }
-
-    setShowImages((prevState) => !prevState);
   };
 
   // SSE를 통한 실시간 읽음 상태 업데이트
@@ -216,21 +215,44 @@ const PinComponent = ({
 
       <div className="absolute min-w-fit top-20 flex justify-center gap-4">
         {/* 노트 상세 보기 유지 */}
-        {showPinNotes && (
+        {pin.is_open_note && (
           <div>
             <PinNotes
               pinInfo={pinInfo}
               isSidebar={false}
               pinId={pinInfo.pin_id}
-              onClose={() => setShowPinNotes(false)}
+              onClose={() =>
+                setPins((prev) => {
+                  return prev.map((item) => {
+                    if (item.pin_id === pin.pin_id) {
+                      return {
+                        ...item,
+                        is_open_note: false,
+                      };
+                    }
+
+                    return item;
+                  });
+                })
+              }
             />
           </div>
         )}
         {/* 이미지들 상세 보기 유지 */}
-        {showImages && (
+        {pin.is_open_image && (
           <div>
             <NoteImageDetail
-              onClose={() => setShowImages(false)}
+              onClose={() =>
+                setPins((prev) => {
+                  return prev.map((item) => {
+                    if (item.pin_id === pin.pin_id) {
+                      return { ...item, is_open_image: false };
+                    }
+
+                    return item;
+                  });
+                })
+              }
               pinInfo={pinInfo}
             />
           </div>
