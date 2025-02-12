@@ -17,8 +17,12 @@ function BlueprintList() {
 
   // presigned 쿼리 파라미터가 있으면 nonMember를 true로 설정
   useEffect(() => {
-    if (query.get('presigned')) {
+    const presigned = query.get('presigned');
+    if (presigned) {
       setNonMember(true);
+
+      // 로컬 스토리지에 저장
+      localStorage.setItem('presigned', presigned);
     } else {
       setNonMember(false);
     }
