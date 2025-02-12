@@ -214,7 +214,9 @@ const Blueprint = () => {
       const data = await Promise.all(
         psRes.data.content.map(async (pin) => {
           const [pinNotRes, pinImgRes] = await Promise.all([
-            get(`pins/${pin.pin_id}/notes`),
+            get(`pins/${pin.pin_id}/notes`, {
+              project_id: project_id,
+            }),
             get(`pins/${pin.pin_id}/images`),
           ]);
 
