@@ -34,7 +34,7 @@ const PinNotes = ({ pinInfo, onClose, isSidebar, pinId }) => {
   }, [pinId, pins]);
 
   // 노트 추가
-  const { projectId: project_id, blueprintVersionId: blueprint_version_id } =
+  const { projectId: project_id, blueprint_version_id: blueprint_version_id } =
     useParams(); // projectId 가져오기
   const [noteTitle, setNoteTitle] = useState('');
   const [noteContent, setNoteContent] = useState('');
