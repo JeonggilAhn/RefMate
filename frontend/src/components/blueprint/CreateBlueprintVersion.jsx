@@ -1,8 +1,17 @@
 import React, { useState } from 'react';
 import { post } from '../../api';
 import ImageUploader from '../common/ImageUploader';
+import { useParams } from 'react-router-dom';
 
-const CreateBlueprint = ({ setModal, projectId, setBlueprints }) => {
+const CreateBlueprintVersion = ({
+  setModal,
+  projectId,
+  blueprints,
+  setBlueprints,
+  refetchBlueprints,
+}) => {
+  const { blueprintId } = useParams();
+
   const [blueprintTitle, setBlueprintTitle] = useState('');
   const [selectedImage, setSelectedImage] = useState(null);
 
@@ -20,41 +29,31 @@ const CreateBlueprint = ({ setModal, projectId, setBlueprints }) => {
         formData.append('origin_file', selectedImage);
       }
 
-      const response = await post(
-        `projects/${projectId}/blueprints`,
-        {
-          blueprint_title: blueprintTitle,
-          origin_file: selectedImage,
-        },
-        {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-          },
-        },
-      );
+      const response = await post(`blueprints/${blueprintId}`, {
+        blueprint_title: blueprintTitle,
+        origin_file: selectedImage,
+      });
 
       const newBlueprint = {
-        blueprint_id: null,
-        blueprint_title: blueprintTitle,
+        blueprint_version_id: response.data.content.blueprint_version_id,
+        blueprint_version_name: blueprintTitle,
         preview_image: selectedImage,
         created_at: new Date(),
-        latest_version_id: null,
+        index: blueprints.length - 1,
+        blueprint_version_seq: null,
       };
 
-      console.log();
+      setBlueprints((prevBlueprints) => {
+        return [
+          {
+            ...newBlueprint,
+          },
+          ...prevBlueprints,
+        ];
+      });
 
-      setBlueprints((prevBlueprints) => [
-        {
-          ...newBlueprint,
-          blueprint_id: Number(response.data.content.blueprint_id),
-          latest_version_id: Number(response.data.content.blueprint_version_id),
-        },
-        ...prevBlueprints, // 기존 배열을 뒤에 붙임
-      ]);
-
-      console.log('블루프린트 생성 성공:', response.data);
-      console.log('url : ', selectedImage);
-      console.log('--', selectedImage);
+      console.log('블루프린트 버전 생성 성공:', response.data);
+      await refetchBlueprints();
 
       alert('생성 완료');
       setModal(null);
@@ -102,4 +101,4 @@ const CreateBlueprint = ({ setModal, projectId, setBlueprints }) => {
   );
 };
 
-export default CreateBlueprint;
+export default CreateBlueprintVersion;

@@ -8,7 +8,7 @@ import ImportantNoteSection from '../components/blueprint/ImportantNoteSection';
 import NoteHistory from '../components/blueprint/NoteHistory';
 import PinNotes from '../components/blueprint/PinNotes';
 import { SelectItem } from '@/components/ui/select';
-import Blueprintversions from '../components/blueprint/BlueprintVersions';
+import BlueprintVersions from '../components/blueprint/BlueprintVersions';
 
 import Icon from '../components/common/Icon';
 
@@ -745,9 +745,10 @@ const Blueprint = () => {
         </div>
       </div>
       {isVersionOpen && (
-        <Blueprintversions
-          blueprintId={blueprint_id}
-          blueprintTitle={blueprint.blueprint_version_name}
+        <BlueprintVersions
+          blueprint_id={blueprint_id}
+          blueprints={blueprints}
+          setBlueprints={setBlueprints}
           closeModal={closeBlueprintVersion}
         />
       )}
