@@ -63,7 +63,7 @@ function NoteSearch({ onSelect, onClose }) {
   };
 
   return (
-    <div className="p-4 border border-gray-300 rounded w-85">
+    <div className="p-2 border border-gray-300 rounded w-85">
       <div className="flex items-center space-x-4 justify-between">
         <input
           type="text"

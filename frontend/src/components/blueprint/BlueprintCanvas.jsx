@@ -43,39 +43,54 @@ const BlueprintCanvas = ({
     setPosition({ x: canvas.width / 2, y: canvas.height / 2 });
   };
 
+  const resizeCanvas = () => {
+    const canvas = canvasRef.current;
+    canvas.width = canvas.parentElement.clientWidth;
+    canvas.height = canvas.parentElement.clientHeight;
+
+    adjustImagePosition();
+
+    const ctx = canvas.getContext('2d');
+    drawImage(ctx);
+  };
+
   useEffect(() => {
-    if (!imageUrl || !overlayImageUrl) {
+    if (!imageUrl) {
       return;
     }
 
-    const canvas = canvasRef.current;
-    const resizeCanvas = () => {
-      canvas.width = canvas.parentElement.clientWidth;
-      canvas.height = canvas.parentElement.clientHeight;
-
-      adjustImagePosition();
-
-      const ctx = canvas.getContext('2d');
-      drawImage(ctx);
-    };
-
-    window.addEventListener('resize', resizeCanvas);
-    resizeCanvas();
-
     imgRef.current.src = imageUrl;
-    overlayImgRef.current.src = overlayImageUrl;
+    const canvas = canvasRef.current;
 
     imgRef.current.onload = () => {
       const ctx = canvas.getContext('2d');
       adjustImagePosition();
       drawImage(ctx);
     };
+  }, [imageUrl]);
+
+  useEffect(() => {
+    if (overlayImageUrl) {
+      return;
+    }
+
+    overlayImgRef.current.src = overlayImageUrl;
+    const canvas = canvasRef.current;
 
     overlayImgRef.current.onload = () => {
       const ctx = canvas.getContext('2d');
       adjustImagePosition();
       drawImage(ctx);
     };
+  }, [overlayImageUrl]);
+
+  useEffect(() => {
+    if (!imageUrl || !overlayImageUrl) {
+      return;
+    }
+
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
 
     return () => window.removeEventListener('resize', resizeCanvas);
   }, [imageUrl, overlayImageUrl]);
@@ -83,6 +98,15 @@ const BlueprintCanvas = ({
   const drawImage = (ctx) => {
     const canvas = canvasRef.current;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    if (
+      !imgRef.current.complete ||
+      imgRef.current.naturalWidth === 0 ||
+      imgRef.current.naturalHeight === 0
+    ) {
+      return;
+    }
+
     ctx.save();
     ctx.translate(position.x, position.y);
     ctx.scale(scale, scale);
@@ -96,15 +120,21 @@ const BlueprintCanvas = ({
     );
 
     if (isOverlayVisible) {
-      ctx.globalAlpha = overlayOpacity;
-      ctx.drawImage(
-        overlayImgRef.current,
-        -A3_WIDTH / 2,
-        -A3_HEIGHT / 2,
-        A3_WIDTH,
-        A3_HEIGHT,
-      );
-      ctx.globalAlpha = 1;
+      if (
+        overlayImgRef.current.complete &&
+        overlayImgRef.current.naturalWidth > 0 &&
+        overlayImgRef.current.naturalHeight > 0
+      ) {
+        ctx.globalAlpha = overlayOpacity;
+        ctx.drawImage(
+          overlayImgRef.current,
+          -A3_WIDTH / 2,
+          -A3_HEIGHT / 2,
+          A3_WIDTH,
+          A3_HEIGHT,
+        );
+        ctx.globalAlpha = 1;
+      }
     }
 
     ctx.restore();
@@ -238,7 +268,6 @@ const BlueprintCanvas = ({
         onMouseLeave={handleMouseUp}
         onClick={handleCanvasClick}
         style={{
-          border: '1px solid black',
           cursor: !isPinButtonEnaled
             ? dragging
               ? 'grabbing'

@@ -25,9 +25,9 @@ const NoteImageDetail = ({ pinInfo, onClose }) => {
 
   return (
     <Draggable>
-      <div className="border border-gray-300 h-auto w-80 bg-gray-100 shadow-lg">
+      <div className="border border-[#CBCBCB] h-[20.5rem] w-[300px] bg-[#F5F5F5] rounded-lg shadow-md">
         {/* 헤더 영역 */}
-        <div className="flex border border-gray-200 p-4 bg-white">
+        <div className="flex p-2 border-b border-[#CBCBCB] rounded-t-lg bg-white">
           <div className="flex items-center justify-center flex-grow gap-2">
             <div
               className="w-4 h-4 rounded-full"
@@ -37,27 +37,27 @@ const NoteImageDetail = ({ pinInfo, onClose }) => {
             <div>{pinInfo.pin_name}</div>
           </div>
           <button onClick={onClose}>
-            <Icon name="IconCgClose" width={24} height={24} />
+            <Icon name="IconCgClose" width={20} height={20} />
           </button>
         </div>
 
         {/* 노트 리스트 */}
-        <div className="overflow-y-auto h-[250px]">
+        <div className="overflow-y-auto h-[17.3rem]">
           {detailPinImages.map((pin) => (
-            <div key={pin.note_id} className="mb-3 p-2">
+            <div key={pin.note_id} className="p-2">
               {/* 노트 제목 */}
-              <div className="text-sm font-medium bg-white p-1 rounded-md shadow-sm">
+              <div className="border border-[#CBCBCB] text-sm font-medium bg-white p-1 rounded-md shadow-sm">
                 {pin.note_title}
               </div>
 
               {/* 이미지 리스트 */}
-              <div className="grid gap-0.5 mt-2 grid-cols-3 place-items-center">
+              <div className="grid gap-2 mt-2 grid-cols-3 place-items-center">
                 {pin.image_list?.slice(0, 3).map((item, idx) => (
                   <div key={item.image_id} className="relative w-22 h-22">
                     <img
                       src={item.image_preview}
                       alt="reference"
-                      className="w-full h-full object-cover rounded-md border"
+                      className="w-full h-full object-cover rounded-md"
                     />
                     {/* 북마크 아이콘 */}
                     {item.is_bookmark && (
