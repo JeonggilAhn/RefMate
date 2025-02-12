@@ -221,6 +221,7 @@ const BlueprintCanvas = ({
           <PinComponent
             blueprintId={blueprint_id}
             blueprintVersion={blueprint_version_id}
+            projectId={projectId}
             pin={item}
             onClickPin={() => onClickPin(item)}
           />

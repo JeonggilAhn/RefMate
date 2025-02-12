@@ -8,12 +8,18 @@ import NoteImageDetail from './NoteImageDetail';
 import { processNotes } from '../../utils/temp';
 import { useRecoilState } from 'recoil';
 import { pinState } from '../../recoil/blueprint';
-import { useParams } from 'react-router-dom';
+
 const TEST_USER_ID = 6569173793051701; // 테스트용 user_id 고정
 
-const PinComponent = ({ blueprintId, blueprintVersion, pin, onClickPin }) => {
+const PinComponent = ({
+  blueprintId,
+  blueprintVersion,
+  projectId,
+  pin,
+  onClickPin,
+}) => {
   const [pins, setPins] = useRecoilState(pinState);
-  const { projectId } = useParams();
+
   const [pinInfo, setPinInfo] = useState(pin);
   const [hoveredPin, setHoveredPin] = useState(null);
   const [recentNotes, setRecentNotes] = useState(null);
@@ -28,7 +34,9 @@ const PinComponent = ({ blueprintId, blueprintVersion, pin, onClickPin }) => {
   // 핀 활성화 여부 (핀 클릭, 노트/이미지 창 열림 시)
   const isActive = isClicked || showPinNotes || showImages;
   const handleNoteClick = async () => {
-    const pinNotRes = await get(`pins/${pin.pin_id}/notes`);
+    const pinNotRes = await get(`pins/${pin.pin_id}/notes`, {
+      project_id: projectId,
+    });
 
     if (pinNotRes.status === 200) {
       setPins((prev) => {
