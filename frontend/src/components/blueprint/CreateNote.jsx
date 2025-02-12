@@ -11,7 +11,7 @@ const CreateNote = ({ pinId, isSidebar, closeModal }) => {
   const [imageUrls, setImageUrls] = useState([]);
   const [notes, setNotes] = useRecoilState(NoteState);
 
-  const { projectId, blueprintVersionId } = useParams(); // projectId 가져오기
+  const { projectId, blueprint_version_id } = useParams(); // projectId 가져오기
 
   const handleImageSelect = (urls) => {
     setImageUrls(urls);
@@ -23,7 +23,7 @@ const CreateNote = ({ pinId, isSidebar, closeModal }) => {
     try {
       const response = await post(`pins/${pinId}/notes`, {
         blueprint_version_id: blueprint_version_id,
-        project_id: project_id,
+        project_id: projectId,
         note_title: noteTitle,
         note_content: noteContent,
         image_url_list: imageUrls,
@@ -99,7 +99,7 @@ const CreateNote = ({ pinId, isSidebar, closeModal }) => {
         <div className="relative">
           <ImageUploader
             onImageSelect={handleImageSelect}
-            projectId={project_id}
+            projectId={projectId}
             type="note"
           />
           <div className="absolute bottom-0 right-0">
