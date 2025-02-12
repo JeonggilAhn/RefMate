@@ -6,6 +6,8 @@ import java.util.List;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 import com.dawn.backend.domain.note.entity.Note;
+import com.dawn.backend.domain.pin.entity.Pin;
+import com.dawn.backend.domain.pin.entity.PinGroup;
 import com.dawn.backend.domain.user.dto.ProjectUserDto;
 
 public record NoteItemWithTypeDto(
@@ -22,13 +24,29 @@ public record NoteItemWithTypeDto(
 	@JsonInclude(JsonInclude.Include.NON_NULL)
 	String blueprintTitle,
 	@JsonInclude(JsonInclude.Include.NON_NULL)
-	Long blueprintVersionId
+	Long blueprintVersionId,
+	@JsonInclude(JsonInclude.Include.NON_NULL)
+	Long pinId,
+	@JsonInclude(JsonInclude.Include.NON_NULL)
+	String pinName,
+	@JsonInclude(JsonInclude.Include.NON_NULL)
+	Float pinX,
+	@JsonInclude(JsonInclude.Include.NON_NULL)
+	Float pinY,
+	@JsonInclude(JsonInclude.Include.NON_NULL)
+	Long pinGroupId,
+	@JsonInclude(JsonInclude.Include.NON_NULL)
+	String pinGroupName,
+	@JsonInclude(JsonInclude.Include.NON_NULL)
+	String pinGroupColor
 ) implements ChatItemDto {
 	public static NoteItemWithTypeDto fromForBlueprint(
 		Note note,
 		ProjectUserDto noteWriter,
 		boolean isPresentImage,
-		List<ProjectUserDto> readUsers
+		List<ProjectUserDto> readUsers,
+		Pin pin,
+		PinGroup pinGroup
 	) {
 		var blueprintVersion = note.getBlueprintVersion();
 		var blueprint = blueprintVersion.getBlueprint();
@@ -44,7 +62,14 @@ public record NoteItemWithTypeDto(
 			readUsers,
 			blueprint.getBlueprintId(),
 			blueprint.getBlueprintTitle(),
-			blueprintVersion.getBlueprintVersionId()
+			blueprintVersion.getBlueprintVersionId(),
+			pin.getPinId(),
+			pin.getPinName(),
+			pin.getPinX(),
+			pin.getPinY(),
+			pinGroup.getPinGroupId(),
+			pinGroup.getPinGroupName(),
+			pinGroup.getPinGroupColor()
 		);
 	}
 
@@ -65,7 +90,14 @@ public record NoteItemWithTypeDto(
 			readUsers,
 			null,  // blueprintId
 			null,  // blueprintTitle
-			null   // blueprintVersionId
+			null,   // blueprintVersionId,
+			null, // pinId
+			null, // pinName
+			null, // pinX
+			null, // pinY
+			null, // pinGroupId
+			null, // pinGroupName
+			null  // pinGroupColor
 		);
 	}
 }
