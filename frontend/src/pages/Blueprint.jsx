@@ -25,8 +25,9 @@ import { useParams } from 'react-router-dom';
 import AllPinFolder from '../components/blueprint/AllPinFolder';
 import AllPinList from '../components/blueprint/AllPinList';
 import { useToast } from '@/hooks/use-toast';
-import { processNotes } from '../utils/temp';
 import PinImages from '../components/blueprint/PinImages';
+import EditOption from '../components/project/EditOption';
+import UpdateProjectName from '../components/project/UpdateProjectName';
 
 const Blueprint = () => {
   const { blueprint_id, blueprint_version_id, projectId } = useParams();
@@ -43,6 +44,8 @@ const Blueprint = () => {
 
   // current blueprint
   const [blueprint, setBlueprint] = useState({});
+  const [blueprintTitle, setBlueprintTitle] = useState('');
+
   // overlay blueprint
   const [overlayBlueprint, setOverlayBlueprint] = useState({});
 
@@ -174,7 +177,7 @@ const Blueprint = () => {
           if (item.pin_id === pin.pin_id) {
             const newItem = {
               ...item,
-              pinDetailNotes: processNotes(pinNotRes.data.content.note_list),
+              pinDetailNotes: pinNotRes.data.content.note_list,
             };
             setDetailPin(newItem);
             console.log('pin info button');
@@ -226,9 +229,7 @@ const Blueprint = () => {
             is_open_note: false,
             is_open_image: false,
             pinDetailNotes:
-              pinNotRes.status === 200
-                ? processNotes(pinNotRes.data.content.note_list)
-                : [],
+              pinNotRes.status === 200 ? pinNotRes.data.content.note_list : [],
             pinDetailImages:
               pinImgRes.status === 200 ? pinImgRes.data.content : [],
           };
@@ -262,7 +263,11 @@ const Blueprint = () => {
     // 개별 블루프린트 조회
     // 첫 조회 블루프린트가 곧 첫 오버레이 블루프린트
     if (bpRes.status === 200) {
+      // todo : 테스트 후 코드 제거
+      bpRes.data.content.blueprint_image =
+        'https://magazine.brique.co/wp-content/uploads/2017/06/01-2%EC%B8%B5%ED%8F%89%EB%A9%B4%EB%8F%84.jpg';
       setBlueprint(bpRes.data.content);
+      setBlueprintTitle(bpRes.data.content.blueprint_version_title);
       setOverlayBlueprint(bpRes.data.content);
 
       const print = tmpBlueprints.find(
@@ -501,7 +506,7 @@ const Blueprint = () => {
         if (pinNotRes.status === 200) {
           item.pinDetailNotes = [
             ...item.pinDetailNotes,
-            ...processNotes(pinNotRes.data.content.note_list),
+            ...pinNotRes.data.content.note_list,
           ];
         }
 
@@ -519,13 +524,33 @@ const Blueprint = () => {
     }
   };
 
+  const projectActions = [
+    {
+      name: '수정',
+      handler: () => {
+        setModal({
+          type: 'modal',
+          title: '프로젝트 수정',
+          content: (
+            <UpdateProjectName
+              projectId={project_id}
+              projectTitle={blueprintTitle}
+              setProjectName={setBlueprintTitle}
+              setModal={setModal}
+            />
+          ),
+        });
+      },
+    },
+  ];
+
   return (
     <BlueprintLayout>
       <ColorInitializer blueprintId={blueprint_id} />
       <div className="relative overflow-hidden">
         {/* 사이드바 컨트롤 버튼 */}
         <div
-          className={`fixed top-[48px] ${isSidebarOpen ? 'w-[21.2rem]' : 'w-[12.3rem]'} right-0 z-10 p-1 flex justify-between items-center border border-[#CBCBCB] rounded-md m-1.5`}
+          className={`fixed top-[48px] ${isSidebarOpen ? 'w-[21.2rem]' : 'w-[12.3rem]'} right-0 z-10 p-1 flex justify-between items-center border border-[#CBCBCB] rounded-md m-1.5 bg-white`}
         >
           <button
             onClick={toggleSidebar}
@@ -627,15 +652,15 @@ const Blueprint = () => {
             onClickPin={onClickPin}
           />
           {/* toolbar */}
-          <div className="flex justify-between border w-[5.5rem] border-black absolute left-[50%] bottom-4 p-[0.2rem]">
+          <div className="flex justify-between border w-[5.5rem] border-[#CBCBCB] absolute left-[50%] bottom-4 p-[0.2rem] bg-white rounded-md">
             <button
-              className="w-[2.4rem] h-[2.4rem] flex justify-center items-center border border-black cursor-pointer hover:bg-[#F1F1F1]"
+              className="w-[2.4rem] h-[2.4rem] flex justify-center items-center cursor-pointer hover:bg-[#F1F1F1] rounded-md"
               onClick={onClickPinButton}
             >
               <Icon name="IconTbPinStroke" width={30} height={30} />
             </button>
             <button
-              className="w-[2.4rem] h-[2.4rem] flex justify-center items-center border border-black cursor-pointer hover:bg-[#F1F1F1]"
+              className="w-[2.4rem] h-[2.4rem] flex justify-center items-center cursor-pointer hover:bg-[#F1F1F1] rounded-md"
               onClick={onClickMouseButon}
             >
               <Icon name="IconBsCursor" width={25} height={25} />
@@ -644,7 +669,7 @@ const Blueprint = () => {
         </div>
         {/* sidebar */}
         <div
-          className={`absolute top-0 right-0 transition-transform duration-500 ease-in-out ${isSidebarOpen ? 'w-[22rem]' : 'min-w-0 w-0 overflow-hidden'} h-screen border border-black z-[4] bg-white flex flex-col overflow-hidden`}
+          className={`absolute top-0 right-0 transition-transform duration-500 ease-in-out ${isSidebarOpen ? 'w-[22rem]' : 'min-w-0 w-0 overflow-hidden'} h-screen border-l border-[#CBCBCB] z-[4] bg-white flex flex-col overflow-hidden`}
         >
           <div className="pt-[48px]" />
           <div className="mt-[60px] px-[0.3rem] grid grid-cols-1 grid-rows-[1fr_2fr] gap-2 h-[calc(100%-115px)]">
@@ -718,24 +743,25 @@ const Blueprint = () => {
         </div>
         {/* 상세 */}
         <div
-          className={`absolute top-0 right-0 transition-transform duration-500 ease-in-out ${isDetailSidebarOpen ? 'w-[22rem]' : 'min-w-0 w-0 overflow-hidden'} h-screen border border-black z-[4] bg-white flex flex-col overflow-hidden`}
+          className={`absolute top-0 right-0 transition-transform duration-500 ease-in-out ${isDetailSidebarOpen ? 'w-[22rem]' : 'min-w-0 w-0 overflow-hidden'} h-screen border-l border-[#CBCBCB] z-[4] bg-white flex flex-col overflow-hidden`}
         >
-          <div className="pt-[40px]" />
-          <div className="mt-[60px] px-[0.3rem] flex-1 overflow-hidden">
+          <div className="pt-[46px]" />
+          <div className="mt-[60px] px-[0.3rem] grid grid-cols-1 grid-rows[2fr_1fr_2fr] gap-2 overflow-hidden">
             <div className="flex justify-between items-center">
               <div className="flex items-center">
-                <button className="w-[2.4rem] h-[2.4rem] flex justify-center items-center border border-black cursor-pointer hover:bg-[#F1F1F1]">
+                <button className="w-[2.4rem] h-[2.4rem] flex justify-center items-center rounded-sm cursor-pointer hover:bg-[#F1F1F1]">
                   <Icon
                     name="IconGoChevronPrev"
+                    width={24}
                     onClick={onClickSidebarBackButton}
                   />
                 </button>
-                <p className="break-words">
-                  {blueprint.blueprint_version_name}
+                <p className="pl-2 w-65 truncate break-words">
+                  {blueprintTitle}
                 </p>
               </div>
               <div>
-                <DropDown />
+                <EditOption actions={projectActions} />
               </div>
             </div>
             <PinImages pinId={detailPin.pin_id} onClickImage={onClickImage} />
@@ -749,9 +775,9 @@ const Blueprint = () => {
         </div>
       </div>
       {isVersionOpen && (
-        <BlueprintVersions
-          blueprint_id={blueprint_id}
-          blueprints={blueprints}
+        <Blueprintversions
+          blueprintId={blueprint_id}
+          blueprintTitle={blueprintTitle}
           setBlueprints={setBlueprints}
           closeModal={closeBlueprintVersion}
         />

@@ -16,10 +16,10 @@ const PinImages = ({ pinId, onClickImage }) => {
 
   return (
     <div className="relative border border-[#CBCBCB] rounded-lg shadow-md bg-white h-[250px]">
-      <div className="sticky top-0 w-full rounded-t-lg text-lg font-semibold bg-[#F5F5F5]">
-        <h2>레퍼런스</h2>
+      <div className="sticky text-center p-2 border-b border-[#CBCBCB] top-0 w-full rounded-t-lg bg-[#F5F5F5]">
+        레퍼런스
       </div>
-      <div ref={bottomRef} className="h-[210px] overflow-y-auto p-2">
+      <div ref={bottomRef} className="h-50 overflow-y-auto p-2">
         {data.pinDetailImages.map((pin) => {
           const images = pin.image_list.slice(0, 3); // 최대 3개 표시
           return (
@@ -37,7 +37,7 @@ const PinImages = ({ pinId, onClickImage }) => {
                     <img
                       src={item.image_preview}
                       alt="reference"
-                      className="w-full h-full object-cover rounded-md border"
+                      className="w-full h-full object-cover rounded-md"
                     />
                     {item.is_bookmark && (
                       <div className="absolute top-0 right-0 w-4 h-4 bg-blue-500 clip-triangle"></div>

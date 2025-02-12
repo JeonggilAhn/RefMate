@@ -16,7 +16,7 @@ const ImportantNoteList = ({ notes, onNoteClick }) => {
         <div
           key={note.note_id}
           onClick={() => onNoteClick(note.note_id)}
-          className="w-full bg-gray-100 rounded-md flex items-center p-2 cursor-pointer border-l-7 border-blue-400 hover:bg-gray-200"
+          className="w-full bg-gray-100 rounded-md flex items-center p-2 pr-3 cursor-pointer border-l-9 border-blue-400 hover:bg-gray-200"
         >
           <div className="flex-1 min-w-0">
             <span className="block text-sm font-bold text-gray-900 truncate max-w-[8rem]">

@@ -70,11 +70,13 @@ const ImportantNoteSection = (pinId) => {
       <NoteDetail note={selectedNote} onBack={handleBack} />
     </div>
   ) : (
-    <div className="w-full max-w-md mx-auto p-4 border border-gray-300 rounded-lg bg-white">
-      <h2 className="text-xl font-bold text-gray-800 mb-4 text-center">
+    <div className="w-full border border-[#CBCBCB] rounded-lg shadow-md bg-white">
+      <h2 className="text-center p-2 border-b border-[#CBCBCB] rounded-t-lg bg-[#F5F5F5]">
         중요한 노트
       </h2>
-      <ImportantNoteList notes={notes} onNoteClick={handleNoteClick} />
+      <div className="h-40 overflow-y-auto">
+        <ImportantNoteList notes={notes} onNoteClick={handleNoteClick} />
+      </div>
     </div>
   );
 };

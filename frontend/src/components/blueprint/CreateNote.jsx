@@ -3,7 +3,6 @@ import { post } from '../../api';
 import Icon from '../common/Icon';
 import ImageUploader from '../common/ImageUploader';
 import { useParams } from 'react-router-dom';
-import { processNotes } from '../../utils/temp';
 
 const CreateNote = ({ pinId, isSidebar, closeModal }) => {
   const [noteTitle, setNoteTitle] = useState('');
@@ -47,10 +46,10 @@ const CreateNote = ({ pinId, isSidebar, closeModal }) => {
       };
 
       setNotes((prevNotes) => {
-        return processNotes([
-          ...prevNotes[0].notes,
+        return [
+          ...prevNotes,
           { ...newNote, note_id: Number(response.data.content.note_id) },
-        ]);
+        ];
       });
 
       if (response.status === 201) {
