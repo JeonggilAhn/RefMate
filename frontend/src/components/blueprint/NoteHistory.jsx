@@ -65,8 +65,11 @@ const NoteHistory = () => {
         setPins(pinData);
 
         // 각 핀에 대한 노트 데이터를 가져옴
+        const { project_id } = useParams();
         const notesPromises = pinData.map(async (pin) => {
-          const notesResponse = await get(`pins/${pin.pin_id}/notes`); // 핀별 노트 데이터 API 호출
+          const notesResponse = await get(
+            `/pins/${pin.pin_id}/notes?project_id=${project_id}`,
+          ); // 핀별 노트 데이터 API 호출
           return (
             notesResponse.data.content?.note_list.map((note) => ({
               ...note,
