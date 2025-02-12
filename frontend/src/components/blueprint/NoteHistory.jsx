@@ -6,41 +6,7 @@ import Icon from '../common/Icon';
 import { Skeleton } from '@/components/ui/skeleton';
 import NoteSearch from './NoteSearch';
 import { useParams } from 'react-router-dom';
-
-// 정렬 및
-const processNotes = (noteList, lastDate) => {
-  if (!Array.isArray(noteList)) {
-    throw new Error('note_list 데이터가 배열 형식이 아닙니다.');
-  }
-
-  // note_id 기준으로 노트를 정렬 (최신 노트가 아래로 오도록)
-  const sortedNotes = noteList.sort((a, b) => a.note_id - b.note_id);
-
-  // 날짜 구분선을 추가
-  const notesWithSeparators = [];
-  let currentDate = lastDate;
-
-  sortedNotes.forEach((note) => {
-    const noteDate = new Date(note.created_at).toLocaleDateString('ko-KR', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      weekday: 'short',
-    });
-
-    if (noteDate !== currentDate) {
-      notesWithSeparators.push({ type: 'date-separator', date: noteDate });
-      currentDate = noteDate;
-    }
-
-    notesWithSeparators.push(note);
-  });
-
-  console.log('Processed Notes:', notesWithSeparators);
-  console.log('Last Date:', currentDate);
-
-  return { notesWithSeparators, lastDate: currentDate };
-};
+import { processNotes } from '../../utils/temp';
 
 const NoteHistory = () => {
   const { blueprint_id, blueprint_version_id, projectId } = useParams(); // 컴포넌트 내부로 이동
@@ -73,9 +39,6 @@ const NoteHistory = () => {
       setNotes((prevNotes) => [...notesWithSeparators, ...prevNotes]); // 상태 업데이트
       setCursorId(noteData.length > 0 ? noteData[0].note_id : null); // 커서 ID 업데이트
       setLastDate(newLastDate); // 마지막 날짜 구분선 날짜 업데이트
-
-      console.log('Fetched Notes:', noteData);
-      console.log('New Last Date:', newLastDate);
     } catch (error) {
       console.error('노트 데이터 로드 실패:', error.message);
       setErrorMessage('노트 데이터를 불러오는 데 실패했습니다.');
@@ -89,7 +52,6 @@ const NoteHistory = () => {
   }, []); // 컴포넌트 마운트 시 노트 데이터를 불러옴
 
   useEffect(() => {
-    console.log('searchTargetId 변경:', searchTargetId);
     if (searchTargetId && noteRefs.current[searchTargetId]) {
       noteRefs.current[searchTargetId].scrollIntoView({
         behavior: 'smooth',

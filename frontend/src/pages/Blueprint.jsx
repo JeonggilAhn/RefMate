@@ -25,7 +25,6 @@ import { useParams } from 'react-router-dom';
 import AllPinFolder from '../components/blueprint/AllPinFolder';
 import AllPinList from '../components/blueprint/AllPinList';
 import { useToast } from '@/hooks/use-toast';
-import { processNotes } from '../utils/temp';
 import PinImages from '../components/blueprint/PinImages';
 
 const Blueprint = () => {
@@ -174,7 +173,7 @@ const Blueprint = () => {
           if (item.pin_id === pin.pin_id) {
             const newItem = {
               ...item,
-              pinDetailNotes: processNotes(pinNotRes.data.content.note_list),
+              pinDetailNotes: pinNotRes.data.content.note_list,
             };
             setDetailPin(newItem);
             console.log('pin info button');
@@ -226,9 +225,7 @@ const Blueprint = () => {
             is_open_note: false,
             is_open_image: false,
             pinDetailNotes:
-              pinNotRes.status === 200
-                ? processNotes(pinNotRes.data.content.note_list)
-                : [],
+              pinNotRes.status === 200 ? pinNotRes.data.content.note_list : [],
             pinDetailImages:
               pinImgRes.status === 200 ? pinImgRes.data.content : [],
           };
@@ -501,7 +498,7 @@ const Blueprint = () => {
         if (pinNotRes.status === 200) {
           item.pinDetailNotes = [
             ...item.pinDetailNotes,
-            ...processNotes(pinNotRes.data.content.note_list),
+            ...pinNotRes.data.content.note_list,
           ];
         }
 

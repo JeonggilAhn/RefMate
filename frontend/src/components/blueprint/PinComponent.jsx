@@ -5,7 +5,6 @@ import { get } from '../../api';
 import Icon from '../common/Icon';
 import PinNotes from './PinNotes';
 import NoteImageDetail from './NoteImageDetail';
-import { processNotes } from '../../utils/temp';
 import { useRecoilState } from 'recoil';
 import { pinState } from '../../recoil/blueprint';
 
@@ -43,7 +42,7 @@ const PinComponent = ({
             return {
               ...item,
               is_open_note: !item.is_open_note,
-              pinDetailNotes: processNotes(pinNotRes.data.content.note_list),
+              pinDetailNotes: pinNotRes.data.content.note_list,
             };
           }
 
@@ -162,7 +161,7 @@ const PinComponent = ({
         onMouseLeave={() => setHoveredPin(null)}
         onClick={() => {
           setIsClicked((prev) => !prev);
-          onClickPin();
+          onClickPin(pinInfo);
         }}
         style={{
           position: 'relative',
