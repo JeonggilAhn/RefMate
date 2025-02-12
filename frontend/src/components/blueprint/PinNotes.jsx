@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import styled from 'styled-components';
 import NoteButton from './NoteButton';
 import NoteSearch from './NoteSearch';
@@ -16,9 +16,9 @@ import {
 import { post } from '../../api';
 import { useParams } from 'react-router-dom';
 import ImageUploader from '../common/ImageUploader';
-import { processNotes } from '../../utils/temp';
 import { useRecoilState } from 'recoil';
 import { pinState } from '../../recoil/blueprint';
+import { processNotes } from '../../utils/temp';
 
 const PinNotes = ({ pinInfo, onClose, isSidebar, pinId }) => {
   const [pins, setPins] = useRecoilState(pinState);
@@ -32,6 +32,11 @@ const PinNotes = ({ pinInfo, onClose, isSidebar, pinId }) => {
     };
     setData(pin);
   }, [pinId, pins]);
+
+  const processedNotes = useMemo(
+    () => processNotes(data.pinDetailNotes),
+    [data.pinDetailNotes],
+  );
 
   // 노트 추가
   const { projectId: project_id, blueprintVersionId: blueprint_version_id } =
@@ -121,10 +126,10 @@ const PinNotes = ({ pinInfo, onClose, isSidebar, pinId }) => {
           if (item.pin_id === pinInfo.pin_id) {
             return {
               ...item,
-              pinDetailNotes: processNotes([
-                ...item.pinDetailNotes[0].notes,
+              pinDetailNotes: [
+                ...item.pinDetailNotes,
                 { ...newNote, note_id: Number(response.data.content.note_id) },
-              ]),
+              ],
             };
           }
 
@@ -246,29 +251,27 @@ const PinNotes = ({ pinInfo, onClose, isSidebar, pinId }) => {
               )}
             </Header>
             <NotesContainer>
-              {data.pinDetailNotes.length === 0 ? (
+              {processedNotes.notesWithSeparators.length === 0 ? (
                 <NoData>등록된 노트가 없습니다.</NoData>
               ) : (
-                data.pinDetailNotes.map(({ date, notes }) => (
-                  <React.Fragment key={date}>
-                    <DateSeparator>{date}</DateSeparator>
-                    {notes.map((note) => (
-                      <NoteWithPinWrapper
-                        key={note.note_id}
-                        ref={(el) => (noteRefs.current[note.note_id] = el)} // ref 설정
-                        id={note.note_id} // id 추가 (하이라이트를 위해 필요)
-                        className={`p-2 ${searchTargetId === note.note_id ? 'bg-yellow-200' : ''}`}
-                      >
-                        <NoteButton
-                          note={note}
-                          onClick={() => handleNoteClick(note)}
-                        />
-                      </NoteWithPinWrapper>
-                    ))}
-                  </React.Fragment>
-                ))
+                processedNotes.notesWithSeparators.map((note, index) =>
+                  note.type === 'date-separator' ? (
+                    <DateSeparator key={index}>{note.date}</DateSeparator>
+                  ) : (
+                    <div
+                      key={note.note_id}
+                      ref={(el) => (noteRefs.current[note.note_id] = el)}
+                    >
+                      <NoteButton
+                        note={note}
+                        onClick={() => handleNoteClick(note)}
+                      />
+                    </div>
+                  ),
+                )
               )}
             </NotesContainer>
+
             {isSearching && (
               <div className="absolute h-auto w-full top-14 bg-white z-20 flex flex-col">
                 <NoteSearch
