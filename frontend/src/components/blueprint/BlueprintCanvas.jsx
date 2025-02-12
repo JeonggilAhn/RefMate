@@ -11,6 +11,7 @@ const A3_WIDTH = 1587;
 const A3_HEIGHT = 1123;
 
 const BlueprintCanvas = ({
+  projectId,
   imageUrl,
   overlayImageUrl,
   overlayOpacity,
