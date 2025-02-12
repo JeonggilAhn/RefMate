@@ -56,8 +56,6 @@ public interface PinVersionRepository extends JpaRepository<PinVersion, Long> {
 
 	List<PinVersion> findAllByBlueprintVersionBlueprintVersionId(Long blueprintVersionId);
 
-	List<PinVersion> findAllByBlueprintVersionBlueprintVersionIdAndIsActive(Long blueprintVersionId, Boolean isActive);
-
 	PinVersion findFirstByBlueprintVersionBlueprintVersionIdAndPinPinId(Long blueprintVersionId, Long pinId);
 
 	Optional<PinVersion> findByBlueprintVersionAndPinAndIsActive(
