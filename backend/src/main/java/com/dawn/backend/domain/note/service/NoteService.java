@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import javax.swing.text.html.Option;
+
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -54,7 +56,9 @@ import com.dawn.backend.domain.note.repository.ImageRepository;
 import com.dawn.backend.domain.note.repository.NoteCheckRepository;
 import com.dawn.backend.domain.note.repository.NoteRepository;
 import com.dawn.backend.domain.pin.dto.PinGroupDto;
+import com.dawn.backend.domain.pin.dto.PinItem;
 import com.dawn.backend.domain.pin.entity.Pin;
+import com.dawn.backend.domain.pin.entity.PinGroup;
 import com.dawn.backend.domain.pin.entity.PinVersion;
 import com.dawn.backend.domain.pin.exception.PinNotFoundException;
 import com.dawn.backend.domain.pin.exception.PinVersionNotFoundException;
@@ -350,8 +354,22 @@ public class NoteService {
 			List<ProjectUserDto> readUsers = userRepository.findCheckedUsersWithRolesByNoteId(
 				note.getNoteId(), projectId
 			);
+			PinVersion pinVersion = pinVersionRepository.findByBlueprintVersionAndPinAndIsActive(
+				note.getBlueprintVersion(),
+				note.getPin(),
+				true
+			).orElseThrow(PinVersionNotFoundException::new);
 
-			ChatItemDto noteItemDto = NoteItemWithTypeDto.fromForBlueprint(note, noteWriter, isPresentImage, readUsers);
+			Pin pin = note.getPin();
+			PinGroup pinGroup = pinVersion.getPinGroup();
+			ChatItemDto noteItemDto = NoteItemWithTypeDto.fromForBlueprint(
+				note,
+				noteWriter,
+				isPresentImage,
+				readUsers,
+				pin,
+				pinGroup
+			);
 			items.add(noteItemDto);
 		}
 		return items;

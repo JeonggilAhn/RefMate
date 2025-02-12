@@ -21,38 +21,15 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
 		""")
 	List<Project> findByIdInAndIsDeletedFalse(@Param("projectIds") List<Long> projectIds);
 
-	@Query("""
-		SELECT p FROM Note n
-		JOIN n.blueprintVersion bv
-		JOIN bv.blueprint b
-		JOIN b.project p
-		WHERE n.noteId = :noteId
-		""")
+	@Query("SELECT n.blueprintVersion.blueprint FROM Note n WHERE n.noteId = :noteId")
 	Optional<Project> findByNoteId(@Param("noteId") Long noteId);
 
-	@Query("""
-		SELECT p FROM NoteImage ni
-		JOIN ni.note n
-		JOIN n.blueprintVersion bv
-		JOIN bv.blueprint b
-		JOIN b.project p
-		WHERE n.noteId = :noteId
-		""")
-	Optional<Project> findByImageId(@Param("noteId") Long noteId);
+	@Query("SELECT n.blueprintVersion.blueprint FROM NoteImage ni JOIN ni.note n WHERE ni.imageId = :imageId")
+	Optional<Project> findByImageId(@Param("imageId") Long imageId);
 
-	@Query("""
-		SELECT p FROM Pin pin
-		JOIN PinVersion pv ON pin.pinId = pv.pin.pinId
-		JOIN pv.blueprintVersion bv
-		JOIN bv.blueprint b
-		JOIN b.project p
-		WHERE pin.pinId = :pinId
-		""")
+	@Query("SELECT pv.blueprintVersion.blueprint FROM PinVersion pv WHERE pv.pin.pinId = :pinId")
 	Optional<Project> findByPinId(Long pinId);
 
-	@Query("""
-		SELECT b.project FROM Blueprint b
-		WHERE b.blueprintId = :blueprintId
-		""")
+	@Query("SELECT b.project FROM Blueprint b WHERE b.blueprintId = :blueprintId")
 	Optional<Project> findByBlueprintId(Long blueprintId);
 }
