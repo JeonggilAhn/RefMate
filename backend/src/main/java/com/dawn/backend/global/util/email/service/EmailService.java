@@ -39,8 +39,7 @@ public class EmailService {
 		try {
 			String content = readHtmlTemplate("mail/mail.html");
 
-			// login 페이지 url 확정 시 추가예정
-			String inviteLink = "?grant_token=" + grantToken;
+			String inviteLink = frontUrl + "/invite/login" + "?grant_token=" + grantToken;
 			String unauthorizedInviteLink = frontUrl + "/projects/" + projectId + "/blueprints"
 				+ "?presigned=" + unauthorizedGrantToken;
 			content = content
