@@ -49,7 +49,7 @@ const MainPage = () => {
     <>
       <Header />
       <div className="flex flex-col h-screen p-4 box-border">
-        <div className="flex justify-center items-center h-full gap-4">
+        <div className="flex justify-center items-center h-full gap-40">
           {/* 왼쪽 섹션 */}
           <div className="flex flex-col items-center text-center">
             <h1 className="text-2xl mb-2">Ref Mate</h1>
@@ -59,7 +59,7 @@ const MainPage = () => {
             </TextButton>
           </div>
 
-          {/* 이미지 및 컴포넌트 영역 */}
+          {/* 이미지 영역 */}
           <div className="w-[830px] h-[520px] flex items-center justify-center border border-gray-300 rounded-md">
             {buttons[selectedButtonIndex].component}
           </div>

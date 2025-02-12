@@ -8,7 +8,7 @@ const ButtonGroup = ({ onNoteClick, onImgClick }) => {
         onClick={onNoteClick}
         className="flex items-center justify-center w-8 h-8 bg-white/70 rounded-full shrink-0 cursor-pointer"
       >
-        <Icon name="IconTbNotes" width={24} height={24} />
+        <Icon name="IconTbNote" width={24} height={24} />
       </button>
       <button
         onClick={onImgClick}
