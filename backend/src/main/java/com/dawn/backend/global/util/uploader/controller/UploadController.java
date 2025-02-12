@@ -29,7 +29,7 @@ public class UploadController {
 	 * service - 기존 dto에서 가져오던 user_id로직 수정
 	 */
 
-	@PreAuthorize("@authExpression.hasProjectPermission(#requestBody.projectId())")
+	@PreAuthorize("@authExpression.hasProjectPermissionByProjectId(#requestBody.projectId())")
 	@PostMapping("/uploads/pre-signed-url")
 	public ResponseEntity<ResponseWrapper<PreSignedResponseDto>> getBlueprintPreSignedUrl(
 		@RequestBody PreSignedRequestDto requestBody
