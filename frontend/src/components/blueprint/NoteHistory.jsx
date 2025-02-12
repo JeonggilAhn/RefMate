@@ -62,9 +62,9 @@ const NoteHistory = () => {
   const fetchNotes = async (cursorId = null) => {
     try {
       setLoading(true); // 로딩 시작
-      const apiUrl = `blueprints/${blueprint_id}/${blueprint_version_id}/notes?project_id=${projectId}`;
-      const params = { cursor_id: cursorId, size: 20 }; // 페이지네이션을 위한 파라미터
-      const response = await get(apiUrl, { params }); // API 호출
+      const apiUrl = `blueprints/${blueprint_id}/${blueprint_version_id}/notes`;
+      const params = { project_id: projectId, cursor_id: cursorId, size: 20 }; // 페이지네이션을 위한 파라미터
+      const response = await get(apiUrl, params); // API 호출
       const noteData = response.data.content.note_list || []; // 노트 데이터 상태 업데이트
       const { notesWithSeparators, lastDate: newLastDate } = processNotes(
         noteData,
