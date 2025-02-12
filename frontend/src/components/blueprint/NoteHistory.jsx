@@ -43,7 +43,7 @@ const processNotes = (noteList, lastDate) => {
 };
 
 const NoteHistory = () => {
-  const { blueprint_id, blueprint_version_id } = useParams(); // 컴포넌트 내부로 이동
+  const { blueprint_id, blueprint_version_id, projectId } = useParams(); // 컴포넌트 내부로 이동
   const [notes, setNotes] = useState([]); // 노트 상태
   const [errorMessage, setErrorMessage] = useState(''); // 에러 메시지 상태
   const [isSearching, setIsSearching] = useState(false); // 검색 모드 상태
@@ -58,12 +58,11 @@ const NoteHistory = () => {
   // 추가된 부분: 스크롤 컨테이너 ref 및 저장된 스크롤 위치
   const scrollContainerRef = useRef(null);
   const scrollPositionRef = useRef(0);
-  const { project_id } = useParams();
 
   const fetchNotes = async (cursorId = null) => {
     try {
       setLoading(true); // 로딩 시작
-      const apiUrl = `blueprints/${blueprint_id}/${blueprint_version_id}/notes?project_id=${project_id}`;
+      const apiUrl = `blueprints/${blueprint_id}/${blueprint_version_id}/notes?project_id=${projectId}`;
       const params = { cursor_id: cursorId, size: 20 }; // 페이지네이션을 위한 파라미터
       const response = await get(apiUrl, { params }); // API 호출
       const noteData = response.data.content.note_list || []; // 노트 데이터 상태 업데이트
