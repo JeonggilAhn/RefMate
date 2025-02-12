@@ -6,12 +6,11 @@ import { useParams } from 'react-router-dom';
 const CreateBlueprintVersion = ({
   setModal,
   projectId,
+  blueprintId,
   blueprints,
   setBlueprints,
   refetchBlueprints,
 }) => {
-  const { blueprint_id } = useParams();
-
   const [blueprintTitle, setBlueprintTitle] = useState('');
   const [selectedImage, setSelectedImage] = useState(null);
 
@@ -29,7 +28,7 @@ const CreateBlueprintVersion = ({
         formData.append('origin_file', selectedImage);
       }
 
-      const response = await post(`blueprints/${blueprint_id}`, {
+      const response = await post(`blueprints/${blueprintId}`, {
         blueprint_title: blueprintTitle,
         origin_file: selectedImage,
       });
