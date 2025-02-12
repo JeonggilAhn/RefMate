@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { get, patch } from '../api/index';
 import { useRecoilState } from 'recoil';
 
@@ -149,13 +149,31 @@ const Blueprint = () => {
       project_id: projectId,
     });
 
-    if (pinImgRes.status === 200 && pinNotRes.status === 200) {
+    if (pinImgRes.status === 200) {
       setPins((prev) => {
         return prev.map((item) => {
           if (item.pin_id === pin.pin_id) {
             const newItem = {
               ...item,
               pinDetailImages: pinImgRes.data.content,
+            };
+            setDetailPin(newItem);
+            console.log('pin info button');
+            console.log('핀 정보: ', newItem);
+            return newItem;
+          }
+
+          return item;
+        });
+      });
+    }
+
+    if (pinNotRes.status === 200) {
+      setPins((prev) => {
+        return prev.map((item) => {
+          if (item.pin_id === pin.pin_id) {
+            const newItem = {
+              ...item,
               pinDetailNotes: processNotes(pinNotRes.data.content.note_list),
             };
             setDetailPin(newItem);
@@ -176,106 +194,86 @@ const Blueprint = () => {
     setIsDetailSidebarOpen(false);
   };
 
-  useEffect(() => {
-    const init = async () => {
-      const bpRes = await get(
-        `blueprints/${blueprint_id}/${blueprint_version_id}`,
-      );
-      const psRes = await get(
-        `blueprints/${blueprint_id}/${blueprint_version_id}/pins`,
-        { is_active: true },
-      );
-      const dpsRes = await get(
-        `blueprints/${blueprint_id}/${blueprint_version_id}/pins`,
-        { is_active: false },
-      );
-      const bpsRes = await get(`blueprints/${blueprint_id}`);
+  const init = async () => {
+    const [bpRes, psRes, dpsRes, bpsRes] = await Promise.all([
+      get(`blueprints/${blueprint_id}/${blueprint_version_id}`),
+      get(`blueprints/${blueprint_id}/${blueprint_version_id}/pins`, {
+        is_active: true,
+      }),
+      get(`blueprints/${blueprint_id}/${blueprint_version_id}/pins`, {
+        is_active: false,
+      }),
+      get(`blueprints/${blueprint_id}`),
+    ]);
 
-      // blueprints 상태 업데이트가 느려서 만든 임시 배열
-      let tmpBlueprints = [];
+    // blueprints 상태 업데이트가 느려서 만든 임시 배열
+    let tmpBlueprints = [];
 
-      // (진행중인) 모든 핀 데이터
-      if (psRes.status === 200) {
-        const data = psRes.data.content.map((orig) => ({
-          ...JSON.parse(JSON.stringify(orig)),
-          is_visible: true,
-          is_open_note: false,
-          is_open_image: false,
-          pinDetailNotes: [],
-          pinDetailImages: [],
-        }));
+    // (진행중인) 모든 핀 데이터
+    if (psRes.status === 200) {
+      const data = await Promise.all(
+        psRes.data.content.map(async (pin) => {
+          const [pinNotRes, pinImgRes] = await Promise.all([
+            get(`pins/${pin.pin_id}/notes`),
+            get(`pins/${pin.pin_id}/images`),
+          ]);
 
-        for (let i = 0; i < data.length; i++) {
-          const item = data[i];
-
-          // 핀 노트 요청
-          const pinNotRes = await get(`pins/${item.pin_id}/notes`, {
-            project_id: projectId,
-          });
-          if (pinNotRes.status === 200) {
-            item.pinDetailNotes = [
-              ...item.pinDetailNotes,
-              ...processNotes(pinNotRes.data.content.note_list),
-            ];
-          }
-
-          // 핀 이미지 요청
-          const pinImgRes = await get(`pins/${item.pin_id}/images`, {
-            project_id: projectId,
-          });
-          if (pinImgRes.status === 200) {
-            item.pinDetailImages = [
-              ...item.pinDetailImages,
-              ...pinImgRes.data.content,
-            ];
-          }
-        }
-
-        setPins(data);
-      }
-
-      // (완료된된) 모든 핀 데이터터 조회
-      if (dpsRes.status === 200) {
-        const data = dpsRes.data.content.map((item) => {
           return {
+            ...pin,
             is_visible: true,
             is_open_note: false,
             is_open_image: false,
-            ...item,
+            pinDetailNotes:
+              pinNotRes.status === 200
+                ? processNotes(pinNotRes.data.content.note_list)
+                : [],
+            pinDetailImages:
+              pinImgRes.status === 200 ? pinImgRes.data.content : [],
           };
-        });
+        }),
+      );
+      setPins(data);
+    }
 
-        setDonePins(data);
-      }
+    // (완료된된) 모든 핀 데이터터 조회
+    if (dpsRes.status === 200) {
+      setDonePins(
+        dpsRes.data.content.map((pin) => ({
+          ...pin,
+          is_visible: true,
+          is_open_note: false,
+          is_open_image: false,
+        })),
+      );
+    }
 
-      // 모든 블루프린트 버전 리스트 조회
-      if (bpsRes.status === 200) {
-        const newContent = bpsRes.data.content.map((item, index) => {
-          return { ...item, index };
-        });
-        tmpBlueprints = newContent;
-        setBlueprints(newContent);
-      }
+    // 모든 블루프린트 버전 리스트 조회
+    if (bpsRes.status === 200) {
+      const newContent = bpsRes.data.content.map((item, index) => {
+        return { ...item, index };
+      });
 
-      // 개별 블루프린트 조회
-      // 첫 조회 블루프린트가 곧 첫 오버레이 블루프린트
-      if (bpRes.status === 200) {
-        const data = bpRes.data.content;
-        data.blueprint_image =
-          'https://magazine.brique.co/wp-content/uploads/2022/08/3_%EB%8F%84%EB%A9%B4_3%EC%B8%B5%ED%8F%89%EB%A9%B4%EB%8F%84.jpeg';
-        setBlueprint(data);
-        setOverlayBlueprint(data);
+      tmpBlueprints = newContent;
+      setBlueprints(newContent);
+    }
 
-        // 현재는 같을리가 없겠구나 ..
-        const print = tmpBlueprints.find(
-          (item) => item.blueprint_version_id === data.blueprint_version_id,
-        );
-        setSelectedBlueprint(print ? print : tmpBlueprints[0]);
-      }
-    };
+    // 개별 블루프린트 조회
+    // 첫 조회 블루프린트가 곧 첫 오버레이 블루프린트
+    if (bpRes.status === 200) {
+      setBlueprint(bpRes.data.content);
+      setOverlayBlueprint(bpRes.data.content);
 
+      const print = tmpBlueprints.find(
+        (item) =>
+          item.blueprint_version_id === bpRes.data.content.blueprint_version_id,
+      );
+      setSelectedBlueprint(print ? print : tmpBlueprints[0]);
+    }
+  };
+
+  useEffect(() => {
     init();
-  }, []);
+  }, [blueprint_id, blueprint_version_id]);
 
   const tabActions = [
     {
@@ -473,9 +471,48 @@ const Blueprint = () => {
     setIsDetailPopupOpen(true);
   };
 
-  const onSelectColor = (value) => {
-    console.log(value);
+  const onSelectColor = async (value) => {
     // todo : 색상별 전체 핀 리스트 조회
+    const psRes = await get(
+      `blueprints/${blueprint_id}/${blueprint_version_id}/pins`,
+      { is_active: isActiveTab, pin_group_id: value.id },
+    );
+
+    // (진행중인) 모든 핀 데이터
+    if (psRes.status === 200) {
+      const data = psRes.data.content.map((orig) => ({
+        ...JSON.parse(JSON.stringify(orig)),
+        is_visible: true,
+        is_open_note: false,
+        is_open_image: false,
+        pinDetailNotes: [],
+        pinDetailImages: [],
+      }));
+
+      for (let i = 0; i < data.length; i++) {
+        const item = data[i];
+
+        // 핀 노트 요청
+        const pinNotRes = await get(`pins/${item.pin_id}/notes`);
+        if (pinNotRes.status === 200) {
+          item.pinDetailNotes = [
+            ...item.pinDetailNotes,
+            ...processNotes(pinNotRes.data.content.note_list),
+          ];
+        }
+
+        // 핀 이미지 요청
+        const pinImgRes = await get(`pins/${item.pin_id}/images`);
+        if (pinImgRes.status === 200) {
+          item.pinDetailImages = [
+            ...item.pinDetailImages,
+            ...pinImgRes.data.content,
+          ];
+        }
+      }
+
+      setPins(data);
+    }
   };
 
   return (
@@ -630,7 +667,7 @@ const Blueprint = () => {
                     >
                       {colors.map((item, index) => {
                         return (
-                          <SelectItem key={item.id} value={item.name}>
+                          <SelectItem key={item.id} value={item}>
                             <div className="flex items-center gap-2">
                               <div
                                 className="w-2.5 h-2.5 rounded-full flex-shrink-0"
