@@ -15,7 +15,12 @@ import {
   SheetTrigger,
 } from '@/components/ui/sheet';
 
-const BlueprintThumbnail = ({ projectId, blueprints, setBlueprints }) => {
+const BlueprintThumbnail = ({
+  projectId,
+  blueprints,
+  setBlueprints,
+  nonMember,
+}) => {
   const [selectedBlueprintId, setSelectedBlueprintId] = useState(null);
   const navigate = useNavigate();
   const setModal = useSetRecoilState(modalState);
@@ -98,18 +103,20 @@ const BlueprintThumbnail = ({ projectId, blueprints, setBlueprints }) => {
           </ImageWrapperHover>
           <Footer>
             <Title>{blueprint.blueprint_title}</Title>
-            <EditOption
-              actions={[
-                {
-                  name: '수정',
-                  handler: () =>
-                    handleUpdateBlueprintName(
-                      blueprint.blueprint_id,
-                      blueprint.blueprint_title,
-                    ),
-                },
-              ]}
-            />
+            {!nonMember && (
+              <EditOption
+                actions={[
+                  {
+                    name: '수정',
+                    handler: () =>
+                      handleUpdateBlueprintName(
+                        blueprint.blueprint_id,
+                        blueprint.blueprint_title,
+                      ),
+                  },
+                ]}
+              />
+            )}
           </Footer>
 
           <CreatedAt>
