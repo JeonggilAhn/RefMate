@@ -159,18 +159,18 @@ const PinNotes = ({ pinInfo, onClose, isSidebar, pinId }) => {
 
   return (
     <Draggable disabled={isSidebar}>
-      <Container>
+      <Container isSidebar={isSidebar}>
         {selectedNote ? (
           <NoteDetail note={selectedNote} onBack={handleBack} />
         ) : (
           <>
-            <Header>
+            <Header isSidebar={isSidebar}>
               <DropdownMenu open={open} modal={false}>
                 <DropdownMenuTrigger
                   asChild
                   className="p-0 focus-visible:outline-none focus-visible:ring-0"
                 >
-                  <Button variant="none" onClick={handleOpen}>
+                  <Button variant="none" onClick={handleOpen} className="pl-2">
                     <Icon name="IconIoIosAddCircleOutline" />
                   </Button>
                 </DropdownMenuTrigger>
@@ -240,13 +240,13 @@ const PinNotes = ({ pinInfo, onClose, isSidebar, pinId }) => {
               </div>
 
               {!onClose && (
-                <button onClick={handleIconClick}>
+                <button onClick={handleIconClick} className="pr-2">
                   <Icon name="IconTbSearch" width={20} height={20} />
                 </button>
               )}
               {onClose && (
-                <button onClick={onClose} className="text-gray-500">
-                  <Icon name="IconCgClose" width={24} height={24} />
+                <button onClick={onClose} className="text-gray-500 pr-2">
+                  <Icon name="IconCgClose" width={20} height={20} />
                 </button>
               )}
             </Header>
@@ -273,7 +273,7 @@ const PinNotes = ({ pinInfo, onClose, isSidebar, pinId }) => {
             </NotesContainer>
 
             {isSearching && (
-              <div className="absolute h-auto w-full top-14 bg-white z-20 flex flex-col">
+              <div className="absolute h-auto w-full top-10 bg-white z-20 flex flex-col">
                 <NoteSearch
                   onSelect={handleSearchSelect}
                   onClose={() => {
@@ -295,22 +295,24 @@ export default PinNotes;
 const Container = styled.div`
   display: flex;
   flex-direction: column;
-  border: 0.0625rem solid #e0e0e0;
-  background-color: #fff;
-  height: 20rem;
-  width: 100%;
+  border: 0.0625rem solid #cbcbcb;
+  background-color: ${(props) => (props.isSidebar ? '#ffffff' : '#f5f5f5')};
+  height: 20.5rem;
+  width: ${(props) => (props.isSidebar ? '100%' : '300px')};
   z-index: 99;
-  border-radius: 10px;
+  border-radius: 8px;
+  box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 12px;
 `;
 
 const Header = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 1rem;
-  border-bottom: 1px solid #e0e0e0;
-  background-color: #f9f9f9;
-  border-radius: 10px;
+  padding: 2.5px;
+  border-bottom: 1px solid #cbcbcb;
+  background-color: ${(props) => (props.isSidebar ? '#F5F5F5' : '#ffffff')};
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
 `;
 
 const NotesContainer = styled.div`
