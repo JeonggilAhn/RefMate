@@ -55,7 +55,14 @@ public class AuthExpression {
 	}
 
 	public boolean hasProjectPermissionByProjectId(Long projectId) {
-		User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		User user;
+		Object object = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		if (object.equals("anonymousUser")) {
+			return false;
+		} else {
+			user = (User) object;
+		}
+
 		if (user instanceof UnauthorizeUser) {
 			return Objects.equals(projectId, ((UnauthorizeUser) user).getPermissionProjectId());
 		} else {

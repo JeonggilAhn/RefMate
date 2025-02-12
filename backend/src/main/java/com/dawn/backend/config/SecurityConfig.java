@@ -6,11 +6,15 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.logout.LogoutFilter;
 import org.springframework.web.cors.CorsConfiguration;
@@ -28,6 +32,8 @@ import com.dawn.backend.global.util.email.repository.GrantTokenRepository;
 import com.dawn.backend.global.util.jwt.JwtUtil;
 
 @Configuration
+@EnableWebSecurity
+@EnableMethodSecurity
 public class SecurityConfig {
 
 	private final CustomOAuth2UserService customOAuth2UserService;
@@ -36,6 +42,8 @@ public class SecurityConfig {
 	private final UserRepository userRepository;
 	private final TokenBlackListRepository tokenBlackListRepository;
 	private final GrantTokenRepository grantTokenRepository;
+	private final AuthenticationEntryPoint authenticationEntryPoint;
+	private final AccessDeniedHandler accessDeniedHandler;
 
 	@Value("${front-url}")
 	String frontUrl;
@@ -47,7 +55,9 @@ public class SecurityConfig {
 		JwtUtil jwtUtil,
 		UserRepository userRepository,
 		TokenBlackListRepository tokenBlackListRepository,
-		GrantTokenRepository grantTokenRepository
+		GrantTokenRepository grantTokenRepository,
+		AuthenticationEntryPoint authenticationEntryPoint,
+		AccessDeniedHandler accessDeniedHandler
 	) {
 		this.customOAuth2UserService = customOAuth2UserService;
 		this.customOAuth2SuccessHandler = customOAuth2SuccessHandler;
@@ -55,6 +65,8 @@ public class SecurityConfig {
 		this.userRepository = userRepository;
 		this.tokenBlackListRepository = tokenBlackListRepository;
 		this.grantTokenRepository = grantTokenRepository;
+		this.authenticationEntryPoint = authenticationEntryPoint;
+		this.accessDeniedHandler = accessDeniedHandler;
 	}
 
 	// secret encoder
@@ -122,6 +134,12 @@ public class SecurityConfig {
 		// exception handling filter
 		ExceptionHandlingFilter exceptionHandlingFilter = new ExceptionHandlingFilter();
 		http.addFilterBefore(exceptionHandlingFilter, JwtFilter.class);
+
+		// handling Exception
+		http.exceptionHandling((exception) -> exception
+			.authenticationEntryPoint(authenticationEntryPoint)
+			.accessDeniedHandler(accessDeniedHandler)
+		);
 
 		return http.build();
 	}
