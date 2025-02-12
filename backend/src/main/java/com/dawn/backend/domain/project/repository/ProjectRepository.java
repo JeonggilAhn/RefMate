@@ -51,7 +51,7 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
 	Optional<Project> findByPinId(Long pinId);
 
 	@Query("""
-		SELECT b FROM Blueprint b
+		SELECT b.project FROM Blueprint b
 		WHERE b.blueprintId = :blueprintId
 		""")
 	Optional<Project> findByBlueprintId(Long blueprintId);
