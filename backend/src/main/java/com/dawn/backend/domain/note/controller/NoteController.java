@@ -122,12 +122,12 @@ public class NoteController {
 	public ResponseEntity<ResponseWrapper<GetNotesByBlueprintResponseDto>> getNotesByBlueprint(
 		@PathVariable Long blueprintId,
 		@PathVariable Long blueprintVersion,
-		@RequestBody GetNotesByBlueprintRequestDto requestDto,
+		@RequestParam(value = "project_id") Long projectId,
 		@RequestParam(value = "cursor_id", required = false, defaultValue = Long.MAX_VALUE + "") Long cursorId,
 		@RequestParam(value = "size", required = false, defaultValue = "10") int size
 	) {
 		GetNotesByBlueprintResponseDto responseDto =
-			noteService.getNotesByBlueprint(blueprintId, blueprintVersion, requestDto, cursorId, size);
+			noteService.getNotesByBlueprint(blueprintId, blueprintVersion, projectId, cursorId, size);
 		return ResponseWrapperFactory.setResponse(HttpStatus.OK, null, responseDto);
 	}
 
