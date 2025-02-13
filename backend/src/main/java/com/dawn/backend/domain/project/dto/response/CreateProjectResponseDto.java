@@ -1,8 +1,8 @@
 package com.dawn.backend.domain.project.dto.response;
 
-import com.dawn.backend.domain.project.entity.Project;
+import com.dawn.backend.domain.project.dto.ProjectItemDto;
 
 public record CreateProjectResponseDto(
-	Project project
+	ProjectItemDto project
 ) {
 }
