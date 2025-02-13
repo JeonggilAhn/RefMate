@@ -109,9 +109,9 @@ public class NoteController {
 	@PreAuthorize("@authExpression.hasProjectPermissionByPinId(#pinId)")
 	public ResponseEntity<ResponseWrapper<GetBookmarkNotesResponseDto>> getNotesBookmark(
 		@PathVariable Long pinId,
-		@RequestBody GetBookmarkNotesRequestDto request
+		@RequestParam("project_id") Long projectId
 	) {
-		GetBookmarkNotesResponseDto response = noteService.getBookmarkNotes(pinId, request);
+		GetBookmarkNotesResponseDto response = noteService.getBookmarkNotes(pinId, projectId);
 		return ResponseWrapperFactory.setResponse(HttpStatus.OK, null, response);
 	}
 
