@@ -1,10 +1,10 @@
 package com.dawn.backend.domain.note.dto.response;
 
-import java.util.List;
-
 import com.dawn.backend.domain.note.dto.ChatItemDto;
+import com.dawn.backend.domain.note.dto.DateSeparatorDto;
 
 public record CreateNoteResponseDto(
-	List<ChatItemDto> note
+	DateSeparatorDto dateSeparator,
+	ChatItemDto note
 ) {
 }

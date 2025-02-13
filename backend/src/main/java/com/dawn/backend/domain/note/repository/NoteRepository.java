@@ -15,23 +15,17 @@ import com.dawn.backend.domain.note.entity.Note;
 public interface NoteRepository extends JpaRepository<Note, Long> {
 
 	@Query("""
-		SELECT n FROM Note n
-		WHERE n.noteId = (
-				SELECT MAX(n2.noteId)
-				FROM Note n2
-				WHERE n2.blueprintVersion.blueprintVersionId = :blueprintVersionId
-				AND n2.isDeleted = false
-				AND n2.noteId < :cursorId
-				AND (
-						n2.noteTitle LIKE CONCAT('%', :keyword, '%')
-						OR n2.noteContent LIKE CONCAT('%', :keyword, '%')
-					)
-		)
+		SELECT n.noteId FROM Note n
+		WHERE n.blueprintVersion.blueprintVersionId = :blueprintVersionId
+			AND n.isDeleted = false
+			AND (
+				LOWER(n.noteTitle) LIKE LOWER(CONCAT('%', :keyword, '%'))
+				OR LOWER(n.noteContent) LIKE LOWER(CONCAT('%', :keyword, '%'))
+			)
 		""")
-	Optional<Note> findNoteByKeyword(
+	List<Long> findNoteByKeyword(
 		@Param("blueprintVersionId") Long blueprintVersionId,
-		@Param("keyword") String keyword,
-		@Param("cursorId") Long cursorId
+		@Param("keyword") String keyword
 	);
 
 	/**
@@ -79,7 +73,7 @@ public interface NoteRepository extends JpaRepository<Note, Long> {
 		WHERE n.pin.pinId = :pinId
 			AND n.isDeleted = false
 			AND n.noteId < :cursorId
-		ORDER BY n.noteId DESC
+		ORDER BY n.noteId ASC
 		""")
 	List<Note> findNotesByPinAfterCursor(
 		@Param("pinId") Long pinId,
