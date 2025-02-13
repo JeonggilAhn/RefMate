@@ -84,29 +84,41 @@ public class UploadService {
 			originFilePath.lastIndexOf("/") + 1
 		);
 
-		Iterable<Result<Item>> objects = minioClient.listObjects(
-			ListObjectsArgs.builder()
-				.bucket(minioConfig.getBucketName())
-				.prefix(originFilePath)
-				.build()
-		);
-
 		String imageUrl = null;
 		String previewImgUrl = null;
+		int count = 5;
 
-		for (Result<Item> object : objects) {
-			Item item;
+		while (count-- > 0) {
+			Iterable<Result<Item>> objects = minioClient.listObjects(
+				ListObjectsArgs.builder()
+					.bucket(minioConfig.getBucketName())
+					.prefix(originFilePath)
+					.build()
+			);
 
-			try {
-				item = object.get();
-			} catch (Exception e) {
-				throw new RuntimeException(e);
+			for (Result<Item> object : objects) {
+				Item item;
+
+				try {
+					item = object.get();
+				} catch (Exception e) {
+					throw new RuntimeException(e);
+				}
+
+				if (item.objectName().matches(".*_preview\\.webp$")) {
+					previewImgUrl = generatePublicUrl(item.objectName());
+				} else if (item.objectName().matches(".*\\.(png|jpg|jpeg)$")) {
+					imageUrl = generatePublicUrl(item.objectName());
+				}
 			}
-
-			if (item.objectName().matches(".*_preview\\.webp$")) {
-				previewImgUrl = generatePublicUrl(item.objectName());
-			} else if (item.objectName().matches(".*\\.(png|jpg|jpeg)$")) {
-				imageUrl = generatePublicUrl(item.objectName());
+			if (previewImgUrl != null) {
+				try {
+					Thread.sleep(500);
+				} catch (InterruptedException e) {
+					throw new RuntimeException(e);
+				}
+			} else {
+				break;
 			}
 		}
 
