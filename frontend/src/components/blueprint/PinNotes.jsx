@@ -161,7 +161,7 @@ const PinNotes = ({ pinInfo, onClose, isSidebar, pinId }) => {
     <Draggable disabled={isSidebar}>
       <Container isSidebar={isSidebar}>
         {selectedNote ? (
-          <NoteDetail note={selectedNote} onBack={handleBack} />
+          <NoteDetail noteId={selectedNote.note_id} onBack={handleBack} />
         ) : (
           <>
             <Header isSidebar={isSidebar}>

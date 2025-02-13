@@ -363,7 +363,7 @@ const NoteHistory = () => {
   return (
     <div className="flex flex-col border border-gray-200 rounded-lg bg-white h-full max-h-[20rem]">
       {selectedNote ? (
-        <NoteDetail note={selectedNote} onBack={handleBack} />
+        <NoteDetail noteId={selectedNote.note_id} onBack={handleBack} />
       ) : (
         <>
           <div className="sticky top-0 z-10 bg-gray-100 p-4 text-lg font-bold text-center border-b border-gray-200 flex justify-between items-center">

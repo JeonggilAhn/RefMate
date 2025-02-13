@@ -67,7 +67,7 @@ const ImportantNoteSection = (pinId) => {
 
   return selectedNote ? (
     <div className="w-full max-w-md mx-auto p-4 border border-blue-500 rounded-lg bg-gray-100">
-      <NoteDetail note={selectedNote} onBack={handleBack} />
+      <NoteDetail noteId={selectedNote.note_id} onBack={handleBack} />
     </div>
   ) : (
     <div className="w-full border border-[#CBCBCB] rounded-lg shadow-md bg-white">
