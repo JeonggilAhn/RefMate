@@ -28,15 +28,16 @@ const CreateProject = ({ setProjects, setModal }) => {
         project_title: projectTitle,
       });
 
-      const projectId = response.data.content.project_id;
+      const project = response.data.content.project;
+      const projectId = project.project_id;
 
       if (!projectId) {
         throw new Error('프로젝트 ID를 가져오지 못했습니다.');
       }
 
       const newProject = {
-        project_id: null,
-        project_title: projectTitle,
+        project_id: project.project_id,
+        project_title: project.project_title,
         created_at: new Date(),
         preview_images: [],
         is_mine: true,
@@ -45,9 +46,9 @@ const CreateProject = ({ setProjects, setModal }) => {
 
       setProjects((prevProjects) => [
         ...prevProjects,
-        { ...newProject, project_id: Number(response.data.content.project_id) },
+        { ...newProject, project_id: Number(projectId) },
       ]);
-      console.log('프로젝트 생성 성공:', response.data.content.project_id);
+      console.log('프로젝트 생성 성공:', projectId);
 
       if (validEmails.length > 0) {
         const inviteEmailList = validEmails.map((emailObj) => emailObj.email);
