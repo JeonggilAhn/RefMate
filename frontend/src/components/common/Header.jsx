@@ -45,16 +45,16 @@ function Header() {
     }
   }, [isLoggedIn]);
 
-  useEffect(() => {
-    const handleBeforeUnload = () => {
-      localStorage.removeItem('access_token'); // 창이 닫힐 때 access_token 삭제
-    };
+  // useEffect(() => {
+  //   const handleBeforeUnload = () => {
+  //     localStorage.removeItem('access_token'); // 창이 닫힐 때 access_token 삭제
+  //   };
 
-    window.addEventListener('beforeunload', handleBeforeUnload);
-    return () => {
-      window.removeEventListener('beforeunload', handleBeforeUnload);
-    };
-  }, []);
+  //   window.addEventListener('beforeunload', handleBeforeUnload);
+  //   return () => {
+  //     window.removeEventListener('beforeunload', handleBeforeUnload);
+  //   };
+  // }, []);
 
   const handleLogout = () => {
     localStorage.removeItem('access_token'); // access_token 삭제
