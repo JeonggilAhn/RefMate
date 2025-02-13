@@ -61,7 +61,10 @@ const NoteImageDetail = ({ pinInfo, onClose }) => {
                     />
                     {/* 북마크 아이콘 */}
                     {item.is_bookmark && (
-                      <div className="absolute top-0 right-0 w-4 h-4 bg-blue-500 clip-triangle"></div>
+                      <div
+                        className="absolute top-0 right-0 w-4 h-4 clip-triangle"
+                        style={{ backgroundColor: '#87b5fa' }}
+                      ></div>
                     )}
                     {/* 추가 이미지 개수 표시 */}
                     {idx === 2 && pin.image_list.length > 3 && (

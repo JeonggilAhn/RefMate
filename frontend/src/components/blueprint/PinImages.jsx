@@ -40,7 +40,10 @@ const PinImages = ({ pinId, onClickImage }) => {
                       className="w-full h-full object-cover rounded-md"
                     />
                     {item.is_bookmark && (
-                      <div className="absolute top-0 right-0 w-4 h-4 bg-blue-500 clip-triangle"></div>
+                      <div
+                        className="absolute top-0 right-0 w-4 h-4 clip-triangle"
+                        style={{ backgroundColor: '#87b5fa' }}
+                      ></div>
                     )}
                     {idx === 2 && pin.image_list.length > 3 && (
                       <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center text-white text-sm font-semibold rounded-md">
