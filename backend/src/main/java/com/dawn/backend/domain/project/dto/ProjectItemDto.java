@@ -1,6 +1,7 @@
 package com.dawn.backend.domain.project.dto;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 import com.dawn.backend.domain.project.entity.Project;
@@ -21,7 +22,7 @@ public record ProjectItemDto(
 			project.getProjectId(),
 			project.getProjectTitle(),
 			project.getCreatedAt(),
-			null,
+			new ArrayList<>(),
 			true,
 			user.getUserId(),
 			0
