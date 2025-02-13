@@ -4,7 +4,6 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -242,7 +241,8 @@ public class NoteService {
 			readUsers
 		);
 		return new CreateNoteResponseDto(
-			List.of(dateSeparator, noteItemDto)
+			dateSeparator,
+			noteItemDto
 		);
 	}
 
