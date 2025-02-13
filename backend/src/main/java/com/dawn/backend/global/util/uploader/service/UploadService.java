@@ -86,7 +86,7 @@ public class UploadService {
 
 		String imageUrl = null;
 		String previewImgUrl = null;
-		int count = 5;
+		int count = 10;
 
 		while (count-- > 0) {
 			Iterable<Result<Item>> objects = minioClient.listObjects(
@@ -113,7 +113,7 @@ public class UploadService {
 			}
 			if (previewImgUrl == null) {
 				try {
-					Thread.sleep(500);
+					Thread.sleep(1000);
 				} catch (InterruptedException e) {
 					throw new RuntimeException(e);
 				}
