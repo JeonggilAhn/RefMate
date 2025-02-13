@@ -275,31 +275,32 @@ public class NoteService {
 		return items;
 	}
 
-	public GetBookmarkNotesResponseDto getBookmarkNotes(Long pinId, GetBookmarkNotesRequestDto request) {
+	public GetBookmarkNotesResponseDto getBookmarkNotes(Long pinId, Long projectId) {
 		if (!pinRepository.existsById(pinId)) {
 			throw new PinNotFoundException();
 		}
 
 		List<Note> bookmarkedNotes = noteRepository.findAllByPinPinIdAndBookmarkAndIsDeletedFalse(pinId, true);
 
-		List<BookmarkNoteItem> noteItems = bookmarkedNotes.stream()
-			.map(note -> {
-				ProjectUserDto noteWriter =
-					userRepository.findUserWithRoleByUserIdAndProjectId(
-						note.getUser().getUserId(),
-						request.projectId());
-				boolean isPresentImage = imageRepository.existsByNoteNoteId(note.getNoteId());
-				return new BookmarkNoteItem(
-					note.getNoteId(),
-					noteWriter,
-					note.getNoteTitle(),
-					note.getBookmark(),
-					note.getCreatedAt(),
-					isPresentImage
-				);
-			}).collect(Collectors.toList());
+		List<ChatItemDto> chatItems = convertNotesToChatItemsForPin(bookmarkedNotes, projectId);
+//		List<BookmarkNoteItem> noteItems = bookmarkedNotes.stream()
+//			.map(note -> {
+//				ProjectUserDto noteWriter =
+//					userRepository.findUserWithRoleByUserIdAndProjectId(
+//						note.getUser().getUserId(),
+//						request.projectId());
+//				boolean isPresentImage = imageRepository.existsByNoteNoteId(note.getNoteId());
+//				return new BookmarkNoteItem(
+//					note.getNoteId(),
+//					noteWriter,
+//					note.getNoteTitle(),
+//					note.getBookmark(),
+//					note.getCreatedAt(),
+//					isPresentImage
+//				);
+//			}).collect(Collectors.toList());
 
-		return new GetBookmarkNotesResponseDto(noteItems);
+		return new GetBookmarkNotesResponseDto(chatItems);
 	}
 
 	private void validatePinExist(Long pinId) {
