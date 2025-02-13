@@ -111,7 +111,7 @@ public class UploadService {
 					imageUrl = generatePublicUrl(item.objectName());
 				}
 			}
-			if (previewImgUrl != null) {
+			if (previewImgUrl == null) {
 				try {
 					Thread.sleep(500);
 				} catch (InterruptedException e) {
