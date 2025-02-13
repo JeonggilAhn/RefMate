@@ -15,7 +15,7 @@ const ImportantNoteList = ({ notes, onNoteClick }) => {
       {notes.map((note) => (
         <div
           key={note.note_id}
-          onClick={() => onNoteClick(note.note_id)}
+          onClick={() => onNoteClick(note)}
           className="w-full bg-gray-100 rounded-md flex items-center p-2 pr-3 cursor-pointer border-l-9 border-blue-400 hover:bg-gray-200"
         >
           <div className="flex-1 min-w-0">

@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { get } from '../../api';
 import ImportantNoteList from './ImportantNoteList';
-import NoteDetail from './NoteDetail';
 import { Skeleton } from '@/components/ui/skeleton';
 
-const ImportantNoteSection = (pinId) => {
-  const [notes, setNotes] = useState([]); // 노트 목록 상태
-  const [selectedNote, setSelectedNote] = useState(null); // 선택된 노트 상태
+import { useRecoilState } from 'recoil';
+import { importantNotesState } from '../../recoil/blueprint';
+
+const ImportantNoteSection = ({ pinId, setDetailNote }) => {
+  const [notes, setNotes] = useRecoilState(importantNotesState); // 전역 상태 사용
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -14,15 +15,8 @@ const ImportantNoteSection = (pinId) => {
       try {
         setLoading(true);
         const response = await get(`pins/${pinId}/notes/bookmark`);
-        if (
-          response.data &&
-          response.data.content &&
-          Array.isArray(response.data.content.note_list)
-        ) {
-          const sortedNotes = response.data.content.note_list
-            .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
-            .reverse();
-          setNotes(sortedNotes);
+        if (response.data?.content?.note_list) {
+          setNotes(response.data.content.note_list.reverse()); // 전역 상태 업데이트
         } else {
           setNotes([]);
         }
@@ -35,14 +29,15 @@ const ImportantNoteSection = (pinId) => {
     };
 
     fetchNotes();
-  }, []);
+  }, [pinId]);
 
   const handleNoteClick = (note) => {
-    setSelectedNote(note); // 선택된 노트 설정
+    setDetailNote((prevNote) =>
+      prevNote?.note_id !== note.note_id ? note : prevNote,
+    );
   };
-
   const handleBack = () => {
-    setSelectedNote(null); // 상세보기 닫기
+    setDetailNote(null); // 상세보기 닫기
   };
 
   if (loading) {
@@ -65,11 +60,7 @@ const ImportantNoteSection = (pinId) => {
     );
   }
 
-  return selectedNote ? (
-    <div className="w-full max-w-md mx-auto p-4 border border-blue-500 rounded-lg bg-gray-100">
-      <NoteDetail noteId={selectedNote.note_id} onBack={handleBack} />
-    </div>
-  ) : (
+  return (
     <div className="w-full border border-[#CBCBCB] rounded-lg shadow-md bg-white">
       <h2 className="text-center p-2 border-b border-[#CBCBCB] rounded-t-lg bg-[#F5F5F5]">
         중요한 노트

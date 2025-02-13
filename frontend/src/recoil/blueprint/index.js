@@ -9,3 +9,8 @@ export const noteState = atom({
   key: 'noteState',
   default: [],
 });
+
+export const importantNotesState = atom({
+  key: 'importantNotesState',
+  default: [],
+});
