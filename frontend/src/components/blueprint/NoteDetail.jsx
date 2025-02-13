@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { get, del, patch } from '../../api';
 import { useRecoilState } from 'recoil';
+import { importantNotesState } from '../../recoil/blueprint';
 import { modalState } from '../../recoil/common/modal';
 import Confirm from '../../components/common/Confirm';
 import Icon from '../common/Icon';
@@ -14,6 +15,8 @@ const NoteDetail = ({ noteId, onBack }) => {
   const [modal, setModal] = useRecoilState(modalState);
   const [isBookmark, setIsBookmark] = useState(false);
   const [editModal, setEditModal] = useState(false);
+  const [importantNotes, setImportantNotes] =
+    useRecoilState(importantNotesState); // 전역 상태 사용
 
   // 이미지 팝업 상태
   const [isDetailPopupOpen, setIsDetailPopupOpen] = useState(false);
@@ -22,6 +25,7 @@ const NoteDetail = ({ noteId, onBack }) => {
 
   useEffect(() => {
     const fetchNote = async () => {
+      console.log('noteId : ', noteId);
       try {
         const response = await get(`notes/${noteId}`);
         const note = response.data.content.note;
@@ -81,6 +85,14 @@ const NoteDetail = ({ noteId, onBack }) => {
 
       if (response.status === 200) {
         setIsBookmark((prev) => !prev);
+        // 북마크 추가/삭제 시 `importantNotesState` 업데이트
+        setImportantNotes((prevNotes) => {
+          if (!isBookmark) {
+            return [...prevNotes, noteData]; // 북마크 추가
+          } else {
+            return prevNotes.filter((note) => note.note_id !== noteId); // 북마크 해제
+          }
+        });
         setModal({
           type: 'alert',
           message: !isBookmark

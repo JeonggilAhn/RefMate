@@ -1,13 +1,15 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, useCallback } from 'react';
 import NoteButton from './NoteButton';
 import NoteDetail from './NoteDetail';
 import Icon from '../common/Icon';
 import { Skeleton } from '@/components/ui/skeleton';
 import NoteSearch from './NoteSearch';
 import { processNotes } from '../../utils/temp';
-import { useRecoilValue } from 'recoil';
+import { useRecoilValue, useRecoilState } from 'recoil';
 import { noteState } from '../../recoil/blueprint';
 import { userState } from '../../recoil/common/user';
+import { useParams } from 'react-router-dom';
+import { get } from '../../api/index';
 
 const NoteHistory = () => {
   const rawNotes = useRecoilValue(noteState); // Blueprint에서 받은 전역 상태 사용
@@ -19,6 +21,11 @@ const NoteHistory = () => {
   const [selectedNote, setSelectedNote] = useState(null);
   const [searchTargetId, setSearchTargetId] = useState(null);
   const noteRefs = useRef({});
+  const scrollContainerRef = useRef(null);
+  const scrollPositionRef = useRef(0);
+  const cursorIdRef = useRef(null);
+  const [isFetching, setIsFetching] = useState(false);
+  const { blueprint_id, blueprint_version_id, projectId } = useParams();
 
   // 날짜별 구분선 추가하여 상태 저장
   useEffect(() => {
@@ -43,9 +50,6 @@ const NoteHistory = () => {
   }, [searchTargetId]);
 
   // NoteDetail 이동 시 스크롤 저장/복원
-  const scrollContainerRef = useRef(null);
-  const scrollPositionRef = useRef(0);
-
   const handleNoteClick = (note) => {
     if (scrollContainerRef.current) {
       scrollPositionRef.current = scrollContainerRef.current.scrollTop;
@@ -61,6 +65,60 @@ const NoteHistory = () => {
       }
     }, 0);
   };
+
+  const fetchMoreNotes = useCallback(async () => {
+    if (isFetching) return; // 중복 요청 방지
+    setIsFetching(true);
+
+    try {
+      const apiUrl = `blueprints/${blueprint_id}/${blueprint_version_id}/notes`;
+      const params = {
+        project_id: projectId,
+        cursor_id: cursorIdRef.current,
+        size: 5,
+      };
+      const response = await get(apiUrl, params);
+
+      if (response.status === 200 && response.data?.content?.note_list) {
+        setNotes((prevNotes) => {
+          const { notesWithSeparators } = processNotes(
+            [...response.data.content.note_list, ...prevNotes],
+            lastDate,
+          );
+          return notesWithSeparators;
+        });
+
+        // 새로운 커서 ID 설정 (다음 요청을 위해)
+        if (response.data.content.note_list.length > 0) {
+          cursorIdRef.current = response.data.content.note_list.at(-1).note_id;
+        }
+      }
+    } catch (error) {
+      console.error('노트 히스토리 로딩 실패:', error);
+    } finally {
+      setIsFetching(false);
+    }
+  }, [isFetching, blueprint_id, blueprint_version_id, projectId, lastDate]);
+
+  const handleScroll = () => {
+    if (scrollContainerRef.current) {
+      const { scrollTop } = scrollContainerRef.current;
+      // 스크롤이 거의 최상단에 도달했을 때
+      if (scrollTop < 5 && !isFetching) {
+        fetchMoreNotes();
+      }
+    }
+  };
+
+  useEffect(() => {
+    const scrollContainer = scrollContainerRef.current;
+    if (scrollContainer) {
+      scrollContainer.addEventListener('scroll', handleScroll);
+      return () => {
+        scrollContainer.removeEventListener('scroll', handleScroll);
+      };
+    }
+  }, [handleScroll]);
 
   if (!notes.length) {
     return (
@@ -131,7 +189,7 @@ const NoteHistory = () => {
                       ref={(el) => (noteRefs.current[note.note_id] = el)}
                       className={`w-full flex ${
                         isMyNote ? 'justify-end' : 'justify-start'
-                      }`} // ✅ 내 노트면 오른쪽 정렬, 남의 노트면 왼쪽 정렬
+                      }`} // 내 노트면 오른쪽 정렬, 남의 노트면 왼쪽 정렬
                     >
                       <NoteButton
                         note={note}

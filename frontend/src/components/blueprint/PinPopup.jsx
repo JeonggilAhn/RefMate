@@ -62,7 +62,12 @@ const PinPopup = ({
         const {
           data: { content },
         } = res;
-        onConfirm(pinName, pinGroup, groupColor, content.pin_id);
+        onConfirm(
+          content.pin.pin_name,
+          content.pin.pin_group.pin_group_id,
+          content.pin.pin_group.pin_group_color,
+          content.pin.pin_id,
+        );
       });
     } catch (error) {
       console.error('핀 생성 실패:', error);

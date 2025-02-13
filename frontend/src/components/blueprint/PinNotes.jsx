@@ -20,7 +20,22 @@ import { useRecoilState } from 'recoil';
 import { pinState } from '../../recoil/blueprint';
 import { processNotes } from '../../utils/temp';
 
-const PinNotes = ({ pinInfo, onClose, isSidebar, pinId }) => {
+const PinNotes = ({
+  pinInfo,
+  onClose,
+  isSidebar,
+  pinId,
+  detailNote,
+  setDetailNote,
+}) => {
+  if (detailNote) {
+    return (
+      <NoteDetail
+        noteId={detailNote.note_id}
+        onBack={() => setDetailNote(null)}
+      />
+    );
+  }
   const [pins, setPins] = useRecoilState(pinState);
   const [data, setData] = useState({
     pinDetailNotes: [],
@@ -104,23 +119,6 @@ const PinNotes = ({ pinInfo, onClose, isSidebar, pinId }) => {
         image_url_list: imageUrls,
       });
 
-      const newNote = {
-        note_id: null,
-        note_writer: {
-          user_id: 1,
-          user_email: '',
-          profile_url: '',
-          signup_date: '',
-          role: '',
-        },
-        note_title: noteTitle,
-        is_bookmark: false,
-        created_at: new Date(),
-        is_editable: true,
-        is_present_image: true,
-        read_users: [],
-      };
-
       setPins((prev) => {
         return prev.map((item) => {
           if (item.pin_id === pinInfo.pin_id) {
@@ -128,7 +126,10 @@ const PinNotes = ({ pinInfo, onClose, isSidebar, pinId }) => {
               ...item,
               pinDetailNotes: [
                 ...item.pinDetailNotes,
-                { ...newNote, note_id: Number(response.data.content.note_id) },
+                {
+                  ...response.data.content.note,
+                  note_id: Number(response.data.content.note.note_id),
+                },
               ],
             };
           }
@@ -161,7 +162,11 @@ const PinNotes = ({ pinInfo, onClose, isSidebar, pinId }) => {
     <Draggable disabled={isSidebar}>
       <Container isSidebar={isSidebar}>
         {selectedNote ? (
-          <NoteDetail noteId={selectedNote.note_id} onBack={handleBack} />
+          <NoteDetail
+            noteId={selectedNote.note_id}
+            note={detailNote}
+            onBack={handleBack}
+          />
         ) : (
           <>
             <Header isSidebar={isSidebar}>

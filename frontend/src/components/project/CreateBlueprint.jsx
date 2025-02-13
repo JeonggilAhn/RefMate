@@ -33,21 +33,15 @@ const CreateBlueprint = ({ setModal, projectId, setBlueprints }) => {
         },
       );
 
-      const newBlueprint = {
-        blueprint_id: null,
-        blueprint_title: blueprintTitle,
-        preview_image: selectedImage,
-        created_at: new Date(),
-        latest_version_id: null,
-      };
-
-      console.log();
+      console.log(response.data.content.blueprint);
 
       setBlueprints((prevBlueprints) => [
         {
-          ...newBlueprint,
-          blueprint_id: Number(response.data.content.blueprint_id),
-          latest_version_id: Number(response.data.content.blueprint_version_id),
+          ...response.data.content.blueprint,
+          blueprint_id: Number(response.data.content.blueprint.blueprint_id),
+          latest_version_id: Number(
+            response.data.content.blueprint.latest_version_id,
+          ),
         },
         ...prevBlueprints, // 기존 배열을 뒤에 붙임
       ]);
