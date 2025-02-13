@@ -4,7 +4,6 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import jakarta.transaction.Transactional;
@@ -202,7 +201,7 @@ public class PinService {
 		pinVersionRepository.save(pinVersion);
 
 		return new CreatePinResponseDto(
-			savedPin.getPinId()
+			PinItem.from(savedPin, PinGroupDto.from(pinGroup), pinVersion)
 		);
 	}
 
