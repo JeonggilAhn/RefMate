@@ -20,7 +20,22 @@ import { useRecoilState } from 'recoil';
 import { pinState } from '../../recoil/blueprint';
 import { processNotes } from '../../utils/temp';
 
-const PinNotes = ({ pinInfo, onClose, isSidebar, pinId }) => {
+const PinNotes = ({
+  pinInfo,
+  onClose,
+  isSidebar,
+  pinId,
+  detailNote,
+  setDetailNote,
+}) => {
+  if (detailNote) {
+    return (
+      <NoteDetail
+        noteId={detailNote.note_id}
+        onBack={() => setDetailNote(null)}
+      />
+    );
+  }
   const [pins, setPins] = useRecoilState(pinState);
   const [data, setData] = useState({
     pinDetailNotes: [],
@@ -147,7 +162,11 @@ const PinNotes = ({ pinInfo, onClose, isSidebar, pinId }) => {
     <Draggable disabled={isSidebar}>
       <Container isSidebar={isSidebar}>
         {selectedNote ? (
-          <NoteDetail noteId={selectedNote.note_id} onBack={handleBack} />
+          <NoteDetail
+            noteId={selectedNote.note_id}
+            note={detailNote}
+            onBack={handleBack}
+          />
         ) : (
           <>
             <Header isSidebar={isSidebar}>

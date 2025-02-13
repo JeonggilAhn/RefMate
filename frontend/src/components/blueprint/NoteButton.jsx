@@ -43,7 +43,7 @@ const NoteButton = ({ note, onClick }) => {
   } = note;
 
   return (
-    <div className="flex items-center gap-4 p-2 bg-white">
+    <div className="flex items-center gap-4 p-2 bg-transp">
       {/* 작성자 프로필 이미지 (로그인한 유저와 다를 때만 표시) */}
       {user?.email !== note_writer.user_email && (
         <img
@@ -56,7 +56,7 @@ const NoteButton = ({ note, onClick }) => {
         {/* 제목과 아이콘 */}
         <TitleWrapper
           onClick={onClick} // 클릭 시 Note 상세 정보를 열기 위한 함수 실행
-          className="relative flex items-center justify-between w-full p-2 gap-2 bg-transparent border rounded-lg border-gray-300"
+          className="relative flex items-center justify-between w-full p-2 gap-2 bg-white border rounded-lg border-gray-300"
         >
           {/* 제목 표시 (최대 20글자로 제한) */}
           <span className="text-sm font-bold truncate max-w-[10rem]">
@@ -104,7 +104,7 @@ const TitleWrapper = styled.button`
   border-radius: 0.5rem;
   padding: 0.5rem;
   border: 0.0625rem solid #ccc;
-  background-color: transparent;
+  background-color: white;
   width: 100%;
   display: flex;
   justify-content: space-between;
