@@ -263,9 +263,6 @@ const Blueprint = () => {
     // 개별 블루프린트 조회
     // 첫 조회 블루프린트가 곧 첫 오버레이 블루프린트
     if (bpRes.status === 200) {
-      // todo : 테스트 후 코드 제거
-      bpRes.data.content.blueprint_image =
-        'https://magazine.brique.co/wp-content/uploads/2017/06/01-2%EC%B8%B5%ED%8F%89%EB%A9%B4%EB%8F%84.jpg';
       setBlueprint(bpRes.data.content);
       setBlueprintTitle(bpRes.data.content.blueprint_version_title);
       setOverlayBlueprint(bpRes.data.content);
@@ -455,9 +452,6 @@ const Blueprint = () => {
         } = res;
 
         if (status === 200) {
-          // todo : 추후 제거
-          content.blueprint_image =
-            'https://dimg.donga.com/wps/NEWS/IMAGE/2022/01/28/111500268.2.jpg';
           setOverlayBlueprint(content);
         }
       },
@@ -775,9 +769,9 @@ const Blueprint = () => {
         </div>
       </div>
       {isVersionOpen && (
-        <Blueprintversions
+        <BlueprintVersions
           blueprintId={blueprint_id}
-          blueprintTitle={blueprintTitle}
+          blueprints={blueprints}
           setBlueprints={setBlueprints}
           closeModal={closeBlueprintVersion}
         />
