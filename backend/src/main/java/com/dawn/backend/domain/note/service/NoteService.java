@@ -5,9 +5,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
-
-import javax.swing.text.html.Option;
 
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -19,17 +16,13 @@ import lombok.RequiredArgsConstructor;
 import com.dawn.backend.domain.blueprint.entity.BlueprintVersion;
 import com.dawn.backend.domain.blueprint.exception.BlueprintNotFoundException;
 import com.dawn.backend.domain.blueprint.repository.BlueprintVersionRepository;
-import com.dawn.backend.domain.note.dto.BookmarkNoteItem;
 import com.dawn.backend.domain.note.dto.ChatItemDto;
 import com.dawn.backend.domain.note.dto.DateSeparatorDto;
 import com.dawn.backend.domain.note.dto.NoteDto;
-import com.dawn.backend.domain.note.dto.NoteItem;
 import com.dawn.backend.domain.note.dto.NoteItemWithTypeDto;
 import com.dawn.backend.domain.note.dto.request.BookmarkImageRequestDto;
 import com.dawn.backend.domain.note.dto.request.BookmarkNoteRequestDto;
 import com.dawn.backend.domain.note.dto.request.CreateNoteRequestDto;
-import com.dawn.backend.domain.note.dto.request.GetBookmarkNotesRequestDto;
-import com.dawn.backend.domain.note.dto.request.GetNotesByBlueprintRequestDto;
 import com.dawn.backend.domain.note.dto.request.UpdateNoteRequestDto;
 import com.dawn.backend.domain.note.dto.response.BookmarkImageResponseDto;
 import com.dawn.backend.domain.note.dto.response.BookmarkNoteResponseDto;
@@ -56,7 +49,6 @@ import com.dawn.backend.domain.note.repository.ImageRepository;
 import com.dawn.backend.domain.note.repository.NoteCheckRepository;
 import com.dawn.backend.domain.note.repository.NoteRepository;
 import com.dawn.backend.domain.pin.dto.PinGroupDto;
-import com.dawn.backend.domain.pin.dto.PinItem;
 import com.dawn.backend.domain.pin.entity.Pin;
 import com.dawn.backend.domain.pin.entity.PinGroup;
 import com.dawn.backend.domain.pin.entity.PinVersion;
@@ -70,6 +62,7 @@ import com.dawn.backend.domain.project.repository.ProjectRepository;
 import com.dawn.backend.domain.user.dto.ProjectUserDto;
 import com.dawn.backend.domain.user.entity.User;
 import com.dawn.backend.domain.user.entity.UserProject;
+import com.dawn.backend.domain.user.exception.UserProjectNotFound;
 import com.dawn.backend.domain.user.repository.UserProjectRepository;
 import com.dawn.backend.domain.user.repository.UserRepository;
 import com.dawn.backend.global.util.uploader.dto.ImagePathDto;
@@ -202,7 +195,9 @@ public class NoteService {
 			savedNote.getCreatedAt()
 		));
 
-		if (createNoteRequestDto.imageUrlList() != null) {
+		boolean isPresentImage = createNoteRequestDto.imageUrlList() != null
+			&& !createNoteRequestDto.imageUrlList().isEmpty();
+		if (isPresentImage) {
 			for (String imageUrl : createNoteRequestDto.imageUrlList()) {
 				ImagePathDto imagePathDto = uploadService.getImagePath(imageUrl);
 
@@ -230,7 +225,26 @@ public class NoteService {
 				.build())
 			.forEach(noteCheckRepository::save);
 
-		return new CreateNoteResponseDto(savedNote.getNoteId());
+
+		UserProject userWithRole = userProjectRepository.findByUserIdAndProjectId(
+			user.getUserId(), createNoteRequestDto.projectId()).orElseThrow(UserProjectNotFound::new);
+
+		ProjectUserDto noteWriter = ProjectUserDto.from(userWithRole);
+
+		List<ProjectUserDto> readUsers = userRepository.findCheckedUsersWithRolesByNoteId(
+			note.getNoteId(), createNoteRequestDto.projectId()
+		);
+
+		DateSeparatorDto dateSeparator = DateSeparatorDto.from(note.getCreatedAt());
+		ChatItemDto noteItemDto = NoteItemWithTypeDto.fromForPin(
+			note,
+			noteWriter,
+			isPresentImage,
+			readUsers
+		);
+		return new CreateNoteResponseDto(
+			List.of(dateSeparator, noteItemDto)
+		);
 	}
 
 	public GetNotesByPinResponseDto getNotesByPin(Long pinId, Long projectId) {
