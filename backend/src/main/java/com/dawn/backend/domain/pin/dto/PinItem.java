@@ -1,5 +1,6 @@
 package com.dawn.backend.domain.pin.dto;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.dawn.backend.domain.pin.entity.Pin;
@@ -22,7 +23,7 @@ public record PinItem(
 			pin.getPinName(),
 			pin.getPinX(),
 			pin.getPinY(),
-			null,
+			new ArrayList<>(),
 			0,
 			pinGroupDto,
 			false,
