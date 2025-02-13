@@ -163,8 +163,6 @@ public class NoteController {
 	 * 센터 노트를 포함하여 주변 노트들을 DTO로 매핑하여 반환한다.
 	 *
 	 * @param keyword 검색어
-	 * @param centerNoteId (cursor_id) 센터로 사용할 노트의 ID (최초 검색 시 null)
-	 * @param size 각 방향으로 조회할 최대 개수
 	 * @return GetNotesByKeywordResponseDto
 	 */
 	@GetMapping("/{projectId}/blueprints/{blueprintId}/{blueprintVersionId}/notes/search")
@@ -173,12 +171,10 @@ public class NoteController {
 		@PathVariable Long projectId,
 		@PathVariable Long blueprintId,
 		@PathVariable Long blueprintVersionId,
-		@RequestParam String keyword,
-		@RequestParam(value = "cursor_id", required = false, defaultValue = Long.MAX_VALUE + "") Long centerNoteId,
-		@RequestParam(value = "size", required = false, defaultValue = "5") int size
+		@RequestParam String keyword
 	) {
 		GetNotesByKeywordResponseDto responseDto = noteService.getNotesByKeyword(
-			projectId, blueprintId, blueprintVersionId, keyword, centerNoteId, size
+			projectId, blueprintId, blueprintVersionId, keyword
 		);
 		return ResponseWrapperFactory.setResponse(HttpStatus.OK, null, responseDto);
 	}
