@@ -2,8 +2,13 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import Icon from '../common/Icon';
 import NoteReaders from './NoteReaders';
+import { useRecoilValue } from 'recoil';
+import { userState } from '../../recoil/common/user';
 
 const NoteButton = ({ note, onClick }) => {
+  // 로그인한 유저 정보 가져오기
+  const user = useRecoilValue(userState);
+
   // 읽은 사용자 목록 표시 여부 상태
   const [showReaders, setShowReaders] = useState(false);
 
@@ -39,12 +44,14 @@ const NoteButton = ({ note, onClick }) => {
 
   return (
     <div className="flex items-center gap-4 p-2 bg-white">
-      {/* 작성자 프로필 이미지 */}
-      <img
-        src={note_writer.profile_url}
-        alt="프로필"
-        className="w-8 h-8 rounded-full shrink-0"
-      />
+      {/* 작성자 프로필 이미지 (로그인한 유저와 다를 때만 표시) */}
+      {user?.email !== note_writer.user_email && (
+        <img
+          src={note_writer.profile_url}
+          alt="프로필"
+          className="w-8 h-8 rounded-full shrink-0"
+        />
+      )}
       <div className="flex flex-col justify-center flex-1">
         {/* 제목과 아이콘 */}
         <TitleWrapper
@@ -64,7 +71,12 @@ const NoteButton = ({ note, onClick }) => {
             )}
           </div>
           {/* 북마크 표시 (있을 경우 삼각형 표시) */}
-          {is_bookmark && <StyledBookmark />}
+          {is_bookmark && (
+            <div
+              className="absolute top-0 right-0 w-4 h-4 clip-triangle"
+              style={{ backgroundColor: '#87b5fa' }}
+            ></div>
+          )}
         </TitleWrapper>
         {/* 작성자, 작성 시간, 읽은 사용자 표시 */}
         <div className="flex items-center text-xs text-gray-500">
@@ -86,19 +98,6 @@ const NoteButton = ({ note, onClick }) => {
 };
 
 export default NoteButton;
-
-// 북마크 삼각형 스타일
-const StyledBookmark = styled.div`
-  position: absolute;
-  top: 0;
-  right: 0;
-  width: 0;
-  height: 0;
-  border-style: solid;
-  border-width: 0 15px 15px 0;
-  border-color: #ccc #87b5fa transparent transparent;
-  border-radius: 0 0.3rem 0 0;
-`;
 
 const TitleWrapper = styled.button`
   position: relative;

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState, useRef } from 'react';
 import { get, patch } from '../api/index';
 import { useRecoilState } from 'recoil';
 
@@ -14,7 +14,7 @@ import Icon from '../components/common/Icon';
 
 import DropDown from '../components/common/DropDown';
 import SelectBox from '../components/common/SelectBox';
-import { pinState } from '../recoil/blueprint';
+import { pinState, noteState } from '../recoil/blueprint';
 import PinTabs from '../components/blueprint/PinTabs';
 import Slider from '../components/common/Slider';
 import { modalState } from '../recoil/common/modal';
@@ -41,6 +41,13 @@ const Blueprint = () => {
   const [donePins, setDonePins] = useState([]);
   const [isViewFolder, setIsViewFolder] = useState(true);
   const [isActiveTab, setIsActiveTab] = useState(true);
+
+  // notes
+  const [notes, setNotes] = useRecoilState(noteState);
+
+  // cursor ID (페이지네이션을 위한 마지막 note_id)
+  const cursorIdRef = useRef(null);
+  const [isFetching, setIsFetching] = useState(false);
 
   // current blueprint
   const [blueprint, setBlueprint] = useState({});
@@ -109,6 +116,49 @@ const Blueprint = () => {
       });
     });
   };
+
+  // 블루프린트별 노트 데이터 가져오기
+  const fetchNoteHistory = useCallback(async () => {
+    if (isFetching) return; // 중복 요청 방지
+    setIsFetching(true);
+
+    try {
+      const apiUrl = `blueprints/${blueprint_id}/${blueprint_version_id}/notes`;
+      const params = {
+        project_id: projectId,
+        cursor_id: cursorIdRef.current,
+        size: 5,
+      };
+      const response = await get(apiUrl, params);
+
+      console.log('API :', response.data.content.note_list); // 받아온 notes 데이터 확인
+
+      if (response.status === 200 && response.data?.content?.note_list) {
+        setNotes((prevNotes) => {
+          const updatedNotes = [
+            ...prevNotes,
+            ...response.data.content.note_list,
+          ];
+          console.log('Fetched Notes:', updatedNotes); // 받아온 notes 데이터 확인
+          return updatedNotes;
+        });
+
+        // 새로운 커서 ID 설정 (다음 요청을 위해)
+        if (response.data.content.note_list.length > 0) {
+          cursorIdRef.current = response.data.content.note_list.at(-1).note_id;
+        }
+      }
+    } catch (error) {
+      console.error('전체 노트 히스토리 로딩 실패:', error);
+    } finally {
+      setIsFetching(false);
+    }
+  }, [blueprint_id, blueprint_version_id, projectId, setNotes, isFetching]);
+
+  // 컴포넌트 마운트 시 첫 노트 데이터 가져오기
+  useEffect(() => {
+    fetchNoteHistory();
+  }, [blueprint_id, blueprint_version_id]);
 
   // todo : 고장남 ㅋ
   const toggleOverlayVisible = () => {
@@ -263,6 +313,9 @@ const Blueprint = () => {
     // 개별 블루프린트 조회
     // 첫 조회 블루프린트가 곧 첫 오버레이 블루프린트
     if (bpRes.status === 200) {
+      // todo : 테스트 후 코드 제거
+      bpRes.data.content.blueprint_image =
+        'https://magazine.brique.co/wp-content/uploads/2017/06/01-2%EC%B8%B5%ED%8F%89%EB%A9%B4%EB%8F%84.jpg';
       setBlueprint(bpRes.data.content);
       setBlueprintTitle(bpRes.data.content.blueprint_version_title);
       setOverlayBlueprint(bpRes.data.content);
@@ -452,6 +505,9 @@ const Blueprint = () => {
         } = res;
 
         if (status === 200) {
+          // todo : 추후 제거
+          content.blueprint_image =
+            'https://dimg.donga.com/wps/NEWS/IMAGE/2022/01/28/111500268.2.jpg';
           setOverlayBlueprint(content);
         }
       },
@@ -769,9 +825,9 @@ const Blueprint = () => {
         </div>
       </div>
       {isVersionOpen && (
-        <BlueprintVersions
+        <Blueprintversions
           blueprintId={blueprint_id}
-          blueprints={blueprints}
+          blueprintTitle={blueprintTitle}
           setBlueprints={setBlueprints}
           closeModal={closeBlueprintVersion}
         />
