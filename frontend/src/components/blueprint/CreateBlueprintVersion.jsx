@@ -33,19 +33,10 @@ const CreateBlueprintVersion = ({
         origin_file: selectedImage,
       });
 
-      const newBlueprint = {
-        blueprint_version_id: response.data.content.blueprint_version_id,
-        blueprint_version_name: blueprintTitle,
-        preview_image: selectedImage,
-        created_at: new Date(),
-        index: blueprints.length - 1,
-        blueprint_version_seq: null,
-      };
-
       setBlueprints((prevBlueprints) => {
         return [
           {
-            ...newBlueprint,
+            ...response.data.content.blueprint_version,
           },
           ...prevBlueprints,
         ];

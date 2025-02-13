@@ -104,23 +104,6 @@ const PinNotes = ({ pinInfo, onClose, isSidebar, pinId }) => {
         image_url_list: imageUrls,
       });
 
-      const newNote = {
-        note_id: null,
-        note_writer: {
-          user_id: 1,
-          user_email: '',
-          profile_url: '',
-          signup_date: '',
-          role: '',
-        },
-        note_title: noteTitle,
-        is_bookmark: false,
-        created_at: new Date(),
-        is_editable: true,
-        is_present_image: true,
-        read_users: [],
-      };
-
       setPins((prev) => {
         return prev.map((item) => {
           if (item.pin_id === pinInfo.pin_id) {
@@ -128,7 +111,10 @@ const PinNotes = ({ pinInfo, onClose, isSidebar, pinId }) => {
               ...item,
               pinDetailNotes: [
                 ...item.pinDetailNotes,
-                { ...newNote, note_id: Number(response.data.content.note_id) },
+                {
+                  ...response.data.content.note,
+                  note_id: Number(response.data.content.note.note_id),
+                },
               ],
             };
           }
