@@ -146,8 +146,9 @@ public class ProjectServiceImpl implements ProjectService {
 		Project project = createProjectRequestDto.toEntity();
 		Project savedProject = projectRepository.save(project);
 		saveUserProject(user, project, "ROLE_OWNER");
-		return new CreateProjectResponseDto(savedProject);
-
+		return new CreateProjectResponseDto(
+			ProjectItemDto.from(savedProject, user)
+		);
 	}
 
 	@Transactional
