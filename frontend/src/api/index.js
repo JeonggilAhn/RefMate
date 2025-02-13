@@ -5,10 +5,10 @@ const API_BASE_URL = import.meta.env.VITE_APP_API_BASE_URL;
 
 /* docs : https://www.notion.so/woorively/9to6-174c93c039f9806ba0e0df0deccd9386?p=55a3cbd6e70f47bda4c0c628f093b24c&pm=s */
 
-const getGrantTokenFromUrl = () => {
+const getPresignedTokenFromUrl = () => {
   if (typeof window !== 'undefined') {
     const urlParams = new URLSearchParams(window.location.search);
-    return urlParams.get('grant_token');
+    return urlParams.get('presigned');
   }
   return null;
 };
@@ -21,9 +21,9 @@ const getHeaders = () => {
     accessToken = window.localStorage.getItem('access_token');
   }
 
-  const grantToken = getGrantTokenFromUrl();
-  if (typeof window !== 'undefined' && grantToken) {
-    accessToken = grantToken;
+  const presignedToken = getPresignedTokenFromUrl();
+  if (typeof window !== 'undefined' && presignedToken) {
+    accessToken = presignedToken;
     window.localStorage.setItem('access_token', accessToken);
   }
 
