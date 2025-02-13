@@ -38,6 +38,7 @@ import com.dawn.backend.domain.pin.exception.PinNotFoundException;
 import com.dawn.backend.domain.pin.repository.PinGroupRepository;
 import com.dawn.backend.domain.pin.repository.PinRepository;
 import com.dawn.backend.domain.pin.repository.PinVersionRepository;
+import com.dawn.backend.domain.user.entity.UnauthorizeUser;
 import com.dawn.backend.domain.user.entity.User;
 
 @Service
@@ -107,8 +108,11 @@ public class PinService {
 					pinVersion.getPinGroup().getPinGroupColor()
 				);
 
-				boolean hasUnreadNote =
-					noteCheckRepository.hasUnreadNoteByPin(user, pinVersion.getPin());
+				boolean hasUnreadNote = false;
+				if (!(user instanceof UnauthorizeUser)) {
+					hasUnreadNote =
+						noteCheckRepository.hasUnreadNoteByPin(user, pinVersion.getPin());
+				}
 
 				return new PinItem(
 					pinVersion.getPin().getPinId(),
