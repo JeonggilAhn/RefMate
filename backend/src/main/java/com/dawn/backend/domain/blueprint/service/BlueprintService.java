@@ -115,13 +115,14 @@ public class BlueprintService {
 
 		pinService.createDefaultPinGroup(savedBlueprint);
 
+		BlueprintVersion savedBlueprintVersion = createBlueprintVersion(
+			savedBlueprint,
+			savedBlueprint.getBlueprintTitle(),
+			createBlueprintRequestDto.originFile()
+		);
+
 		return new CreateBlueprintResponseDto(
-			savedBlueprint.getBlueprintId(),
-			createBlueprintVersion(
-				savedBlueprint,
-				savedBlueprint.getBlueprintTitle(),
-				createBlueprintRequestDto.originFile()
-			)
+			BlueprintDto.from(savedBlueprint, savedBlueprintVersion)
 		);
 	}
 
@@ -133,17 +134,18 @@ public class BlueprintService {
 		Blueprint targetBlueprint =
 			blueprintRepository.findById(blueprintId).orElseThrow(BlueprintNotFoundException::new);
 
+		BlueprintVersion savedBlueprintVersion = createBlueprintVersion(
+			targetBlueprint,
+			createBlueprintVersionRequestDto.blueprintVersionName(),
+			createBlueprintVersionRequestDto.originFile()
+		);
 		return new CreateBlueprintVersionResponseDto(
-			createBlueprintVersion(
-				targetBlueprint,
-				createBlueprintVersionRequestDto.blueprintVersionName(),
-				createBlueprintVersionRequestDto.originFile()
-			)
+			BlueprintVersionItem.from(savedBlueprintVersion)
 		);
 	}
 
 	@Transactional
-	public Long createBlueprintVersion(
+	public BlueprintVersion createBlueprintVersion(
 		Blueprint targetBlueprint,
 		String blueprintVersionName,
 		String originFile
@@ -175,7 +177,7 @@ public class BlueprintService {
 			pinService.copyPreVersionPins(latestVersion, savedBlueprintVersion);
 		}
 
-		return savedBlueprintVersion.getBlueprintVersionId();
+		return savedBlueprintVersion;
 	}
 
 	public UpdateBlueprintResponseDto updateBlueprint(
