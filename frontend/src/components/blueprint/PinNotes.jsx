@@ -293,6 +293,7 @@ const PinNotes = ({
             {isSearching && (
               <div className="absolute h-auto w-full top-10 bg-white z-20 flex flex-col">
                 <NoteSearch
+                  pinId={pinId}
                   onSelect={handleSearchSelect}
                   onClose={() => {
                     setIsSearching(false); // 검색 상태를 false로 설정
