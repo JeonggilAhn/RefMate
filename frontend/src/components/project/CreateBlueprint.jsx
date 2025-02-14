@@ -1,8 +1,13 @@
 import React, { useState } from 'react';
 import { post } from '../../api';
 import ImageUploader from '../common/ImageUploader';
+import TextButton from '../common/TextButton';
+import { useRecoilState } from 'recoil';
+import { modalState } from '../../recoil/common/modal';
 
-const CreateBlueprint = ({ setModal, projectId, setBlueprints }) => {
+const CreateBlueprint = ({ setBlueprints }) => {
+  const [modal, setModal] = useRecoilState(modalState);
+  const { projectId } = useParams();
   const [blueprintTitle, setBlueprintTitle] = useState('');
   const [selectedImage, setSelectedImage] = useState(null);
 
@@ -58,7 +63,7 @@ const CreateBlueprint = ({ setModal, projectId, setBlueprints }) => {
   };
 
   return (
-    <div className="p-4 w-150">
+    <div className="p-4 w-full">
       <form onSubmit={handleSubmit}>
         <div>
           <div className="mb-2">
@@ -79,17 +84,12 @@ const CreateBlueprint = ({ setModal, projectId, setBlueprints }) => {
         <ImageUploader onImageSelect={setSelectedImage} projectId={projectId} />
 
         <div className="flex justify-end">
-          <button
+          <TextButton
             type="submit"
-            className={`px-4 py-2 mt-2 text-white rounded ${
-              blueprintTitle.trim() && selectedImage
-                ? 'bg-blue-500 hover:bg-blue-600'
-                : 'bg-gray-300 cursor-not-allowed opacity-50'
-            }`}
             disabled={!blueprintTitle.trim() || !selectedImage}
           >
             완료
-          </button>
+          </TextButton>
         </div>
       </form>
     </div>

@@ -74,7 +74,7 @@ const TabContainer = styled.div`
   justify-content: space-between;
   align-items: center;
   width: 100%;
-  padding: 10px;
+  // padding: 10px;
   border-bottom: 1px solid #ddd;
 `;
 
