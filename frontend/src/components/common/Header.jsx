@@ -14,6 +14,7 @@ import {
 
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { useRecoilState } from 'recoil';
+import { userState } from '../../recoil/common/user';
 import { modalState } from '../../recoil/common/modal';
 import LoginContent from '../main/LoginContent';
 
@@ -28,24 +29,25 @@ function Header() {
   const [isLoggedIn, setIsLoggedIn] = useState(
     !!sessionStorage.getItem('access_token'),
   );
+  const [user, setUser] = useRecoilState(userState); // Recoil 상태 관리 추가
 
   useEffect(() => {
     if (isLoggedIn) {
       get(`users/me`)
         .then((response) => {
           const data = response.data?.content;
-          setUserId(data?.user_id || null);
-          setProfileUrl(data?.profile_url || 'https://via.placeholder.com/24');
-          setUserEmail(data?.user_email || 'N/A');
-          setSignupDate(
-            new Date(data?.signup_date).toLocaleDateString() || 'N/A',
-          );
+          setUser({
+            user_id: data?.user_id || null,
+            user_email: data?.user_email || '',
+            profile_url: data?.profile_url || 'https://via.placeholder.com/24',
+            signup_date: data?.signup_date || '',
+          });
         })
         .catch((error) =>
           console.error('사용자 정보를 가져오는데 실패했습니다.', error),
         );
     }
-  }, [isLoggedIn]);
+  }, [isLoggedIn, setUser]);
 
   // useEffect(() => {
   //   const handleBeforeUnload = () => {
@@ -61,10 +63,7 @@ function Header() {
   const handleLogout = () => {
     sessionStorage.removeItem('access_token'); // access_token 삭제
     setIsLoggedIn(false);
-    setUserId(null);
-    setProfileUrl('');
-    setUserEmail('');
-    setSignupDate('');
+    setUser({}); // 로그아웃 시 Recoil 상태 초기화
     navigate('/'); // 로그아웃 후 메인 페이지로 이동
   };
 
@@ -131,9 +130,9 @@ function Header() {
 
       {isProfileOpen && isLoggedIn && (
         <Profile
-          profileUrl={profileUrl}
-          userEmail={userEmail}
-          signupDate={signupDate}
+          profileUrl={user.profile_url}
+          userEmail={user.user_email}
+          signupDate={user.signup_date}
           onClose={() => setIsProfileOpen(false)}
           setIsLoggedIn={setIsLoggedIn}
         />
