@@ -8,8 +8,6 @@ import NoteImageDetail from './NoteImageDetail';
 import { useRecoilState } from 'recoil';
 import { pinState } from '../../recoil/blueprint';
 
-const TEST_USER_ID = 6569173793051701; // 테스트용 user_id 고정
-
 const PinComponent = ({
   blueprintId,
   blueprintVersion,
@@ -76,16 +74,22 @@ const PinComponent = ({
   useEffect(() => {
     if (!API_BASE_URL || !blueprintId) return; // 백엔드 미연결 방지
 
+    const accessToken = localStorage.getItem('accessToken');
+
     const eventSource = new EventSource(
       `${API_BASE_URL}/api/blueprints/${blueprintId}/task/read`,
+      {
+        withCredentials: true,
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      },
     );
 
     eventSource.onmessage = (event) => {
       try {
         const data = JSON.parse(event.data);
-
-        // 읽음 이벤트 발생 시 unreadNotes 상태 업데이트
-        if (data.pin_id === pinInfo.pin_id && data.user_id === TEST_USER_ID) {
+        if (data.pin_id === pinInfo.pin_id) {
           setUnreadNotes(false);
         }
       } catch (error) {
@@ -111,10 +115,10 @@ const PinComponent = ({
       });
       const notes = response.data?.content?.note_list || [];
 
-      // 내 user_id(TEST_USER_ID)가 read_users에 없으면 unreadNotes = true
-      const isUnread = notes.some((note) =>
-        note.read_users.every((user) => user.user_id !== TEST_USER_ID),
-      );
+      // // 내 user_id(TEST_USER_ID)가 read_users에 없으면 unreadNotes = true
+      // const isUnread = notes.some((note) =>
+      //   note.read_users.every((user) => user.user_id !== TEST_USER_ID),
+      // );
 
       setUnreadNotes(isUnread);
     } catch (error) {
