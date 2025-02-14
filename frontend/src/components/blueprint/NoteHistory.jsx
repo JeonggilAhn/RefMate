@@ -189,6 +189,7 @@ const NoteHistory = () => {
     setKeyword('');
     setCurrentIndex(0);
     setSearchTargetId(null);
+    setSearchedNotes([]);
   };
 
   // NoteDetail 이동 시 스크롤 저장/복원
