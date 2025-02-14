@@ -275,7 +275,10 @@ public class PinService {
 		List<PinVersion> pinVersionList =
 			pinVersionRepository.findAllByBlueprintVersionBlueprintVersionId(preVersion.getBlueprintVersionId());
 
-		pinVersionList.forEach(pinVersion -> pinVersion.setBlueprintVersion(postVersion));
+		pinVersionList.forEach(pinVersion -> {
+			pinVersion.setBlueprintVersion(postVersion);
+			pinVersion.setPinVersionId(null);
+		});
 
 		pinVersionRepository.saveAll(pinVersionList);
 	}
