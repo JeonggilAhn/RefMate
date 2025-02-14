@@ -154,6 +154,7 @@ public class PinService {
 					imageItems
 				);
 			})
+			.filter(item -> !item.imageList().isEmpty())
 			.toList();
 	}
 
