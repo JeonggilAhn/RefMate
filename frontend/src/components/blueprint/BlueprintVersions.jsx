@@ -9,13 +9,14 @@ import CreateBlueprintVersion from './CreateBlueprintVersion';
 import { get } from '../../api/index';
 
 const BlueprintVersions = ({
+  projectId,
   blueprint_id,
   blueprints,
   setBlueprints,
   closeModal,
 }) => {
   const [project, setProject] = useRecoilState(projectState);
-  const { projectId, projectTitle } = project;
+  const { projectTitle } = project;
   const [imageLoaded, setImageLoaded] = useState(false);
   const navigate = useNavigate();
 
@@ -53,6 +54,8 @@ const BlueprintVersions = ({
       title: '새 블루프린트',
       content: (
         <CreateBlueprintVersion
+          projectId={projectId}
+          blueprintId={blueprint_id}
           blueprints={blueprints}
           setBlueprints={setBlueprints}
           refetchBlueprints={refetchBlueprints}

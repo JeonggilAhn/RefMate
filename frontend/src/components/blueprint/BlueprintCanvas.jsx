@@ -71,7 +71,7 @@ const BlueprintCanvas = ({
   }, [imageUrl]);
 
   useEffect(() => {
-    if (overlayImageUrl) {
+    if (!overlayImageUrl) {
       return;
     }
 

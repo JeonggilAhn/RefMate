@@ -541,7 +541,7 @@ const Blueprint = () => {
         } = res;
 
         if (status === 200) {
-          setOverlayBlueprint(content);
+          setOverlayBlueprint({ ...content });
         }
       },
     );
@@ -674,14 +674,13 @@ const Blueprint = () => {
                 <Icon name="IconBsLayers" />
               </button>
               <div className="flex items-center gap-1">
-                <button
+                {/* <button
                   disabled={selectedBlueprint.index === 0}
                   className={`w-[2.4rem] h-[2.4rem] flex justify-center items-center border border-[#CBCBCB] bg-[#F5F5F5] rounded-md ${selectedBlueprint.index === 0 ? 'cursor-not-allowed' : 'cursor-pointer'}`}
                   onClick={onClickPrevBlueprintButton}
                 >
                   <Icon name="IconGoChevronPrev" width={20} height={20} />
-                </button>
-                {/* 개별 블루프린트 조회시 blueprint_version_seq 내려달라고 요청할 것 */}
+                </button> */}
                 <SelectBox
                   value={selectedBlueprint}
                   onValueChange={onSelectBlueprintVersion}
@@ -695,13 +694,13 @@ const Blueprint = () => {
                   ))}
                 </SelectBox>
 
-                <button
+                {/* <button
                   disabled={selectedBlueprint.index === blueprints.length - 1}
                   className={`w-[2.4rem] h-[2.4rem] flex justify-center items-center border border-[#CBCBCB] bg-[#F5F5F5] rounded-md ${selectedBlueprint.index === blueprints.length - 1 ? 'cursor-not-allowed' : 'cursor-pointer'}`}
                   onClick={onClickNextBlueprintButton}
                 >
                   <Icon name="IconGoChevronNext" width={20} height={20} />
-                </button>
+                </button> */}
               </div>
             </div>
             <div className="flex justify-between items-center gap-2">
@@ -863,6 +862,7 @@ const Blueprint = () => {
       </div>
       {isVersionOpen && (
         <BlueprintVersions
+          projectId={projectId}
           blueprint_id={blueprint_id}
           blueprints={blueprints}
           setBlueprints={setBlueprints}
