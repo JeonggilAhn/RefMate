@@ -7,11 +7,14 @@ import { useRecoilState } from 'recoil';
 import { importantNotesState } from '../../recoil/blueprint';
 
 const ImportantNoteSection = ({ detailPin, setDetailNote, projectId }) => {
-  const [notes, setNotes] = useRecoilState(importantNotesState); // ✅ 올바른 방식
+  const [notes, setNotes] = useRecoilState(importantNotesState);
   const [loading, setLoading] = useState(true);
 
+  const pinId = detailPin?.pin_id || null;
+  const validProjectId = projectId || null;
+
   useEffect(() => {
-    if (!detailPin?.pin_id || !projectId) {
+    if (!pinId || !validProjectId) {
       console.warn('필수 데이터 누락: detailPin 또는 projectId가 없습니다.');
       return;
     }
@@ -24,16 +27,19 @@ const ImportantNoteSection = ({ detailPin, setDetailNote, projectId }) => {
     const fetchNotes = async () => {
       try {
         setLoading(true);
-        const apiUrl = `pins/${detailPin.pin_id}/notes/bookmark`;
+        const apiUrl = `pins/${pinId}/notes/bookmark`;
         const params = {
-          project_id: projectId,
+          project_id: validProjectId,
         };
         const response = await get(apiUrl, params);
 
         console.log('API 응답:', response.data);
 
         if (response.data?.content?.note_list) {
-          const fetchedNotes = response.data.content.note_list.reverse() || [];
+          const fetchedNotes =
+            response.data.content.note_list
+              .filter((note) => note.type === 'note')
+              .reverse() || [];
 
           console.log('정렬된된 Notes:', fetchedNotes); // 여기서 확인
 
@@ -50,17 +56,19 @@ const ImportantNoteSection = ({ detailPin, setDetailNote, projectId }) => {
     };
 
     fetchNotes();
-  }, [detailPin.pin_id, projectId, setNotes]);
+  }, [pinId, validProjectId, setNotes]);
 
   const handleNoteClick = (note) => {
     setDetailNote((prevNote) =>
       prevNote?.note_id !== note.note_id ? note : prevNote,
     );
   };
-  const handleBack = () => {
-    setDetailNote(null); // 상세보기 닫기
-  };
 
+  if (!pinId || !validProjectId) {
+    return (
+      <div className="text-red-500 text-sm">⚠️ 필수 데이터가 없습니다.</div>
+    );
+  }
   if (loading) {
     return (
       <div className="w-full max-w-md mx-auto p-4 border border-gray-300 rounded-lg bg-white">
