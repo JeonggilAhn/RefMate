@@ -7,8 +7,10 @@ import com.dawn.backend.domain.note.entity.UserNoteCheck;
 
 public record BlueprintNoteItemDto(
 	String type,
-	Long noteId,
 	Long noteWriterId,
+	String writerEmail,
+	String writerProfileImage,
+	Long noteId,
 	String noteTitle,
 	Boolean isBookmarked,
 	LocalDateTime noteCreatedAt,
@@ -30,8 +32,10 @@ public record BlueprintNoteItemDto(
 	) {
 		return new BlueprintNoteItemDto(
 			"note",
-			dto.noteId(),
 			dto.writerId(),
+			dto.writerEmail(),
+			dto.writerProfileImage(),
+			dto.noteId(),
 			dto.noteTitle(),
 			dto.isBookmarked(),
 			dto.noteCreatedAt(),
