@@ -48,12 +48,13 @@ public class PinVersion extends BaseTimeEntity {
 		BlueprintVersion blueprintVersion,
 		Pin pin,
 		PinGroup pinGroup,
-		String pinGroupName
+		String pinGroupName,
+		Boolean isActive
 	) {
 		this.blueprintVersion = blueprintVersion;
 		this.pin = pin;
 		this.pinGroup = pinGroup;
-		this.isActive = true;
+		this.isActive = isActive == null || isActive;
 		this.pinGroupName = pinGroupName;
 	}
 }
