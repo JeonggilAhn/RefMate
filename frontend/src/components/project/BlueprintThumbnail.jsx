@@ -69,6 +69,7 @@ const BlueprintThumbnail = ({
             />
             <HoverButtons>
               <TextButton
+                type="start"
                 onClick={() =>
                   handleViewLatest(
                     blueprint.blueprint_id,
@@ -81,6 +82,7 @@ const BlueprintThumbnail = ({
               <Sheet>
                 <SheetTrigger>
                   <TextButton
+                    type="start"
                     onClick={() => handleViewAll(blueprint.blueprint_id)}
                   >
                     전체 시안 보기

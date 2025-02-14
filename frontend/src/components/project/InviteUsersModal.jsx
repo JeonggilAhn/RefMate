@@ -55,14 +55,18 @@ const InviteUsersModal = ({ projectId }) => {
 
   return (
     <div className="p-4 w-full">
-      <form onSubmit={handleSubmit}>
+      <form>
         <InviteUsers
           validEmails={validEmails}
           handleRemoveEmail={handleRemoveEmail}
           handleAddEmail={handleAddEmail}
         />
         <div className="flex justify-end">
-          <TextButton type="submit" disabled={validEmails.length === 0}>
+          <TextButton
+            type="submit"
+            disabled={validEmails.length === 0}
+            onClick={handleSubmit}
+          >
             완료
           </TextButton>
         </div>

@@ -22,7 +22,7 @@ const TextButton = ({
 };
 
 TextButton.propTypes = {
-  type: PropTypes.oneOf(['start', 'content']),
+  type: PropTypes.oneOf(['start', 'content', 'submit']),
   isSelected: PropTypes.bool,
   onClick: PropTypes.func.isRequired,
   children: PropTypes.node.isRequired,
