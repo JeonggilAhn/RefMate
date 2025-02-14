@@ -15,7 +15,7 @@ import com.dawn.backend.domain.note.entity.Note;
 public interface NoteRepository extends JpaRepository<Note, Long> {
 
 	@Query("""
-	SELECT new com.dawn.backend.domain.note.dto.NoteWithPinAndPinGroupDto(
+		SELECT new com.dawn.backend.domain.note.dto.NoteWithPinAndPinGroupDto(
 		n.noteId, u.userId, n.noteTitle, n.bookmark, n.createdAt,
 		n.blueprintVersion.blueprint.blueprintId,
 		n.blueprintVersion.blueprint.blueprintTitle,
@@ -49,7 +49,7 @@ public interface NoteRepository extends JpaRepository<Note, Long> {
 				p.pinId, p.pinName, p.pinX, p.pinY,
 				pg.pinGroupId, pg.pinGroupName, pg.pinGroupColor
 		ORDER BY n.noteId ASC
-	""")
+		""")
 	List<NoteWithPinAndPinGroupDto> findNotesWithPinAndPinGroupsByRange(
 		@Param("blueprintVersionId") Long blueprintVersionId,
 		@Param("nextId") Long nextId,

@@ -24,7 +24,7 @@ public record BlueprintNoteItemDto(
 	Long pinGroupId,
 	String pinGroupName,
 	String pinGroupColor
-) implements ChatItemDto{
+) implements ChatItemDto {
 	public static BlueprintNoteItemDto from(
 		NoteWithPinAndPinGroupDto dto
 	) {
