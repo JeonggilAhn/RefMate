@@ -6,9 +6,11 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { useRecoilState } from 'recoil';
 import { importantNotesState } from '../../recoil/blueprint';
 
-const ImportantNoteSection = ({ pinId, setDetailNote }) => {
+const ImportantNoteSection = ({ detailPin, pinId, setDetailNote }) => {
   const [notes, setNotes] = useRecoilState(importantNotesState); // 전역 상태 사용
   const [loading, setLoading] = useState(true);
+
+  console.log('hahaha', detailPin);
 
   useEffect(() => {
     console.log('ImportantNoteSection - Received pinId:', pinId); // pinId 값 확인
