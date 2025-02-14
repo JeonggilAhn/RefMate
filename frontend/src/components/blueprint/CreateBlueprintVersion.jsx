@@ -56,7 +56,7 @@ const CreateBlueprintVersion = ({
 
   return (
     <div className="p-4 w-full">
-      <form onSubmit={handleSubmit}>
+      <form>
         <div>
           <div className="mb-2">
             <label htmlFor="blueprintTitle">이름</label>
@@ -79,6 +79,7 @@ const CreateBlueprintVersion = ({
           <TextButton
             type="submit"
             disabled={!blueprintTitle.trim() || !selectedImage}
+            onClick={handleSubmit}
           >
             완료
           </TextButton>

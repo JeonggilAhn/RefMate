@@ -79,7 +79,7 @@ const CreateProject = ({ setProjects }) => {
 
   return (
     <div className="p-4 w-full">
-      <form onSubmit={handleSubmit}>
+      <form>
         <div>
           <div className="mb-2">
             <label htmlFor="projectTitle">이름</label>
@@ -101,7 +101,11 @@ const CreateProject = ({ setProjects }) => {
           />
         </div>
         <div className="flex justify-end">
-          <TextButton type="submit" disabled={!projectTitle.trim()}>
+          <TextButton
+            type="submit"
+            disabled={!projectTitle.trim()}
+            onClick={handleSubmit}
+          >
             완료
           </TextButton>
         </div>

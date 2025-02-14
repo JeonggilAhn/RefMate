@@ -3,9 +3,9 @@ import { get, del } from '../../api';
 import Icon from '../common/Icon';
 import TextButton from '../common/TextButton';
 import UpdateProjectName from './UpdateProjectName';
-import { useSetRecoilState } from 'recoil';
+import { useRecoilState, useSetRecoilState } from 'recoil';
 import { modalState } from '../../recoil/common/modal';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import EditOption from './EditOption';
 import CreateBlueprint from './CreateBlueprint';
 import InviteUsersModal from './InviteUsersModal';
@@ -18,7 +18,7 @@ const BlueprintListSubHeader = ({
   nonMember,
 }) => {
   const navigate = useNavigate();
-  const setModal = useSetRecoilState(modalState);
+  const [modal, setModal] = useRecoilState(modalState);
 
   const handleCreateBlueprint = () => {
     setModal({
@@ -77,6 +77,10 @@ const BlueprintListSubHeader = ({
     });
   };
 
+  if (!projectId) {
+    return null;
+  }
+
   return (
     <div className="flex justify-between items-center w-full px-5 py-2.5">
       <div className="flex items-center gap-4">
@@ -101,7 +105,7 @@ const BlueprintListSubHeader = ({
           <button onClick={handleToggleInvite}>
             <Icon name="IconTbShare" width={25} height={25}></Icon>
           </button>
-          <TextButton onClick={handleCreateBlueprint}>
+          <TextButton type="start" onClick={handleCreateBlueprint}>
             새 블루프린트 만들기 +
           </TextButton>
         </div>

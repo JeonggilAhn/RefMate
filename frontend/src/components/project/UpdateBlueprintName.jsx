@@ -43,7 +43,9 @@ const UpdateBlueprintName = ({
         />
       </div>
       <div className="flex justify-end">
-        <TextButton onClick={updateblueprintTitle}>완료</TextButton>
+        <TextButton type="start" onClick={updateblueprintTitle}>
+          완료
+        </TextButton>
       </div>
     </div>
   );
