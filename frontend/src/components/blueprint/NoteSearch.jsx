@@ -1,12 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { get } from '../../api';
 import Icon from '../common/Icon';
+import { useParams } from 'react-router-dom';
 
 function NoteSearch({ onSelect, onClose }) {
   const [keyword, setKeyword] = useState('');
-  const [notes, setNotes] = useState([]);
+  const [searchedNotes, setSearchedNotes] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isSearched, setIsSearched] = useState(false);
+
+  const { project_id, pin_id } = useParams();
 
   // 노트 검색 함수
   const searchNotes = async () => {
@@ -17,10 +20,13 @@ function NoteSearch({ onSelect, onClose }) {
     }
 
     try {
-      const response = await get(`notes/search?keyword=${keyword}`);
-      const noteList = response.data.content.note_list || [];
+      const response = await get(
+        `${project_id}/pin/${pin_id}/notes/search?keyword=${keyword}`,
+      );
+      const noteList = response.data.content.note_id_list || [];
 
-      setNotes(noteList);
+      setSearchedNotes(noteList);
+      console.log(noteList);
       setCurrentIndex(0);
       setIsSearched(true);
     } catch (error) {
@@ -30,29 +36,29 @@ function NoteSearch({ onSelect, onClose }) {
 
   useEffect(() => {
     // notes가 변경될 때마다 실행
-    if (notes.length > 0) {
-      console.log('노트가 변경됨:', notes);
-      onSelect(notes[0].note_id); // 상태가 변경되면 onSelect 호출
+    if (searchedNotes.length > 0) {
+      console.log('노트가 변경됨:', searchedNotes);
+      onSelect(searchedNotes[0].note_id); // 상태가 변경되면 onSelect 호출
     }
-  }, [notes]);
+  }, [searchedNotes]);
 
   // 이전 노트로 이동
   const goToPreviousNote = () => {
     if (currentIndex > 0) {
       const newIndex = currentIndex - 1;
       setCurrentIndex(newIndex);
-      console.log(notes[newIndex].note_id);
-      onSelect(notes[newIndex].note_id); // 부모로 노트 ID 전달
+      console.log(searchedNotes[newIndex]);
+      onSelect(searchedNotes[newIndex]); // 부모로 노트 ID 전달
     }
   };
 
   // 다음 노트로 이동
   const goToNextNote = () => {
-    if (currentIndex < notes.length - 1) {
+    if (currentIndex < searchedNotes.length - 1) {
       const newIndex = currentIndex + 1;
       setCurrentIndex(newIndex);
-      console.log(notes[newIndex].note_id);
-      onSelect(notes[newIndex].note_id); // 부모로 노트 ID 전달
+      console.log(searchedNotes[newIndex]);
+      onSelect(searchedNotes[newIndex]); // 부모로 노트 ID 전달
     }
   };
 
@@ -75,17 +81,17 @@ function NoteSearch({ onSelect, onClose }) {
         />
 
         <div className="flex gap-2">
-          {isSearched && notes.length == 0 && (
+          {isSearched && searchedNotes.length == 0 && (
             <div className="text-center text-gray-500">결과 없음</div>
           )}
 
-          {notes.length > 0 && (
+          {searchedNotes.length > 0 && (
             <div className="text-center text-gray-500">
-              {currentIndex + 1} / {notes.length}
+              {currentIndex + 1} / {searchedNotes.length}
             </div>
           )}
 
-          {notes.length > 0 && (
+          {searchedNotes.length > 0 && (
             <>
               <button onClick={goToPreviousNote} disabled={currentIndex === 0}>
                 <Icon
@@ -97,13 +103,15 @@ function NoteSearch({ onSelect, onClose }) {
               </button>
               <button
                 onClick={goToNextNote}
-                disabled={currentIndex === notes.length - 1}
+                disabled={currentIndex === searchedNotes.length - 1}
               >
                 <Icon
                   name="IconGoChevronNext"
                   width={20}
                   height={20}
-                  color={currentIndex === notes.length - 1 ? '#ccc' : '#000'}
+                  color={
+                    currentIndex === searchedNotes.length - 1 ? '#ccc' : '#000'
+                  }
                 />
               </button>
             </>

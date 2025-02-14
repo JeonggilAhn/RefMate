@@ -110,7 +110,7 @@ const PinNotes = ({
 
   // 노트 생성 로직
   const handleSubmit = async () => {
-    if (!noteTitle.trim() || !noteContent.trim()) return;
+    if (!noteTitle.trim()) return;
 
     try {
       const response = await post(`pins/${pinInfo.pin_id}/notes`, {
@@ -235,11 +235,11 @@ const PinNotes = ({
                       <button
                         onClick={handleSubmit}
                         className={`px-4 py-2 text-white rounded-md ${
-                          noteTitle.trim() && noteContent.trim()
+                          noteTitle.trim()
                             ? 'bg-blue-500 hover:bg-blue-600'
                             : 'bg-gray-300 cursor-not-allowed opacity-50'
                         }`}
-                        disabled={!noteTitle.trim() || !noteContent.trim()}
+                        disabled={!noteTitle.trim()}
                       >
                         저장
                       </button>
