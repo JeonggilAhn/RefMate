@@ -35,9 +35,7 @@ const AllPinFolder = ({
           </div>
           <EditOption
             actions={
-              isActiveTab
-                ? pinActiveActions(pin.pin_id)
-                : pinInactiveActions(pin.pin_id)
+              isActiveTab ? pinActiveActions(pin) : pinInactiveActions(pin)
             }
           />
         </div>

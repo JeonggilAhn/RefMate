@@ -28,6 +28,7 @@ import { useToast } from '@/hooks/use-toast';
 import PinImages from '../components/blueprint/PinImages';
 import EditOption from '../components/project/EditOption';
 import UpdateProjectName from '../components/project/UpdateProjectName';
+import PinPopup from '../components/blueprint/PinPopup';
 
 const Blueprint = () => {
   const { blueprint_id, blueprint_version_id, projectId } = useParams();
@@ -330,6 +331,19 @@ const Blueprint = () => {
     init();
   }, [blueprint_id, blueprint_version_id]);
 
+  const onClickEditPinComplete = (editedPin) => {
+    setModal(null);
+    setPins((prev) => {
+      return prev.map((pin) => {
+        if (pin.pin_id === editedPin.pin_id) {
+          return { ...pin, ...editedPin };
+        }
+
+        return { ...pin };
+      });
+    });
+  };
+
   const tabActions = [
     {
       name: '진행중',
@@ -379,13 +393,25 @@ const Blueprint = () => {
     },
   ];
 
-  const pinActiveActions = (id) => {
-    const pinId = id;
+  const pinActiveActions = (pin) => {
+    const pinId = pin.pin_id;
     return [
       {
         name: '수정',
         handler: () => {
-          // todo : 정길님 작업 후 수정 팝업 열기
+          setModal({
+            type: 'modal',
+            title: '핀 수정',
+            content: (
+              <PinPopup
+                isCreate={false}
+                blueprintId={blueprint_id}
+                blueprintVersion={blueprint_version_id}
+                initialPin={pin}
+                onConfirm={onClickEditPinComplete}
+              />
+            ),
+          });
         },
       },
       {
@@ -421,13 +447,25 @@ const Blueprint = () => {
     ];
   };
 
-  const pinInactiveActions = (id) => {
-    const pinId = id;
+  const pinInactiveActions = (pin) => {
+    const pinId = pin.pin_id;
     return [
       {
         name: '수정',
         handler: () => {
-          // todo : 정길님 작업 후 수정 팝업 열기
+          setModal({
+            type: 'modal',
+            title: '핀 수정',
+            content: (
+              <PinPopup
+                isCreate={false}
+                blueprintId={blueprint_id}
+                blueprintVersion={blueprint_version_id}
+                initialPin={pin}
+                onConfirm={onClickEditPinComplete}
+              />
+            ),
+          });
         },
       },
       {
@@ -578,10 +616,9 @@ const Blueprint = () => {
           title: '프로젝트 수정',
           content: (
             <UpdateProjectName
-              projectId={project_id}
+              projectId={projectId}
               projectTitle={blueprintTitle}
               setProjectName={setBlueprintTitle}
-              setModal={setModal}
             />
           ),
         });

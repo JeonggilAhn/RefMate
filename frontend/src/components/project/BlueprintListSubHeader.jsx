@@ -25,11 +25,7 @@ const BlueprintListSubHeader = ({
       type: 'modal',
       title: '새 블루프린트',
       content: (
-        <CreateBlueprint
-          setModal={setModal}
-          projectId={projectId}
-          setBlueprints={setBlueprints}
-        />
+        <CreateBlueprint projectId={projectId} setBlueprints={setBlueprints} />
       ),
     });
   };
@@ -38,7 +34,7 @@ const BlueprintListSubHeader = ({
     setModal({
       type: 'modal',
       title: '프로젝트 초대하기',
-      content: <InviteUsersModal setModal={setModal} projectId={projectId} />,
+      content: <InviteUsersModal projectId={projectId} />,
     });
   };
 
@@ -51,7 +47,6 @@ const BlueprintListSubHeader = ({
           projectId={projectId}
           projectTitle={projectTitle}
           setProjectName={setProjectTitle}
-          setModal={setModal}
         />
       ),
     });

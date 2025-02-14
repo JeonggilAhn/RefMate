@@ -1,8 +1,12 @@
 import React, { useState } from 'react';
 import { post } from '../../api';
 import InviteUsers from './InviteUsers';
+import TextButton from '../common/TextButton';
+import { useRecoilState } from 'recoil';
+import { modalState } from '../../recoil/common/modal';
 
-const InviteUsersModal = ({ setModal, projectId }) => {
+const InviteUsersModal = ({ projectId }) => {
+  const [modal, setModal] = useRecoilState(modalState);
   const [validEmails, setValidEmails] = useState([]); // 이메일 리스트 관리
 
   const handleAddEmail = (email, isValid) => {
@@ -50,7 +54,7 @@ const InviteUsersModal = ({ setModal, projectId }) => {
   };
 
   return (
-    <div className="p-4 w-150">
+    <div className="p-4 w-full">
       <form onSubmit={handleSubmit}>
         <InviteUsers
           validEmails={validEmails}
@@ -58,18 +62,9 @@ const InviteUsersModal = ({ setModal, projectId }) => {
           handleAddEmail={handleAddEmail}
         />
         <div className="flex justify-end">
-          <button
-            type="submit"
-            // className="px-4 py-2 mt-2 bg-blue-500 text-white rounded"
-            className={`px-4 py-2 mt-2 text-white rounded ${
-              validEmails.length > 0
-                ? 'bg-blue-500 hover:bg-blue-600'
-                : 'bg-gray-300 cursor-not-allowed opacity-50'
-            }`}
-            disabled={validEmails.length === 0}
-          >
+          <TextButton type="submit" disabled={validEmails.length === 0}>
             완료
-          </button>
+          </TextButton>
         </div>
       </form>
     </div>

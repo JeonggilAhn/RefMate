@@ -3,7 +3,6 @@ import NoteButton from './NoteButton';
 import NoteDetail from './NoteDetail';
 import Icon from '../common/Icon';
 import { Skeleton } from '@/components/ui/skeleton';
-import NoteSearch from './NoteSearch';
 import { processNotes } from '../../utils/temp';
 import { useRecoilValue, useRecoilState } from 'recoil';
 import { noteState } from '../../recoil/blueprint';
@@ -23,6 +22,14 @@ const NoteHistory = () => {
   const noteRefs = useRef({});
   const scrollContainerRef = useRef(null);
   const scrollPositionRef = useRef(0);
+
+  // 검색 기능
+  const [keyword, setKeyword] = useState('');
+  const [nextId, setNextId] = useState(0);
+  const [lastId, setLastId] = useState(0);
+  const [searchedNotes, setSearchedNotes] = useState([]);
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [isSearched, setIsSearched] = useState(false);
   const cursorIdRef = useRef(null);
   const [isFetching, setIsFetching] = useState(false);
   const { blueprint_id, blueprint_version_id, projectId } = useParams();
@@ -35,11 +42,91 @@ const NoteHistory = () => {
         lastDate,
       );
       setNotes(notesWithSeparators.reverse());
-      setLastDate(newLastDate);
+      setLastDate(newLastDate); // 마지막 날짜 구분선 날짜 업데이트
+      setLastId(notes.note_id);
     }
   }, [rawNotes]);
 
-  // 검색된 노트 위치로 스크롤 이동
+  // 검색 -> 스크롤 & 하이라이트
+  const fetchSearchNotes = async () => {
+    if (!keyword.trim()) {
+      alert('검색어를 입력하세요');
+      return; // 빈 검색어 방지
+    }
+
+    try {
+      const searchApiUrl = `${projectId}/blueprints/${blueprint_id}/${blueprint_version_id}/notes/search`;
+      const searchParams = { keyword: keyword };
+      const searchResponse = await get(searchApiUrl, searchParams);
+      const searchResults =
+        searchResponse.data.content.matched_note_id_list || [];
+      console.log(searchResponse.data.content);
+      console.log(searchResults);
+
+      // 노트 아이디들 저장
+      setSearchedNotes(searchResults);
+
+      // 아예 일치하는 노트들이 없다면
+      if (searchResults.length === 0) {
+        alert('일치하는 노트가 없습니다.');
+        return;
+      }
+
+      // 일치하는 노트 아이디들 중에서도 가장 최신 노트 아이디 저장
+      setNextId(searchResults[searchResults.length - 1]);
+      console.log(nextId);
+
+      const existingNote = (note_id) => {
+        return notes.some((note) => note.note_id === note_id);
+      };
+
+      // 이미 존재하면 해당 노트로 이동
+      if (existingNote(nextId)) {
+        setSearchTargetId(existingNote.note_id);
+      } else {
+        // 없으면 범위 노트 요청 API 호출 (검색된 노트를 가져오기 위해)
+        await fetchRangeNotes(searchResults);
+      }
+
+      // next_id 갱신
+      if (searchResults.length >= 2) {
+        setNextId(searchResults[searchResults.length - 2]);
+      }
+    } catch (error) {
+      console.error('검색 실패:', error.message);
+    }
+  };
+
+  // 노트 범위 요청
+  const fetchRangeNotes = async (searchResults) => {
+    try {
+      const rangeApiUrl = `${blueprint_id}/${blueprint_version_id}/notes`;
+      const rangeParams = {
+        project_id: projectId,
+        next_id: nextId,
+        last_id: lastId,
+      };
+      const rangeResponse = await get(rangeApiUrl, rangeParams);
+      const newNotes = rangeResponse.data.content.note_list || [];
+
+      if (newNotes.length > 0) {
+        setNotes((prevNotes) => [...prevNotes, ...newNotes]); // 노트 추가
+        setLastId(nextId); // 마지막 노트 아이디
+
+        // 추가된 노트 중 검색된 노트가 있는지 확인 후 스크롤
+        const foundNote = newNotes.find((note) =>
+          searchResults.includes(note.note_id),
+        );
+
+        if (foundNote) {
+          setSearchTargetId(foundNote.note_id);
+        }
+      }
+    } catch (error) {
+      console.error('범위 노트 요청 실패:', error.message);
+    }
+  };
+
   useEffect(() => {
     if (searchTargetId && noteRefs.current[searchTargetId]) {
       noteRefs.current[searchTargetId].scrollIntoView({
@@ -48,6 +135,46 @@ const NoteHistory = () => {
       });
     }
   }, [searchTargetId]);
+
+  const goToPreviousNote = () => {
+    if (currentIndex <= 0) return; // 이미 첫 번째 노트면 종료
+
+    const newIndex = currentIndex - 1;
+    setCurrentIndex(newIndex);
+
+    const targetNoteId = searchedNotes[newIndex];
+    if (!targetNoteId) return; // 유효한 노트 ID가 없으면 종료
+
+    // 현재 노트 목록에 존재하는지 확인
+    if (!notes.some((note) => note.note_id === targetNoteId)) {
+      fetchRangeNotes(targetNoteId); // 존재하지 않으면 노트 불러오기
+    }
+
+    setSearchTargetId(targetNoteId);
+  };
+
+  const goToNextNote = () => {
+    if (currentIndex >= searchedNotes.length - 1) return; // 이미 마지막 노트면 종료
+
+    const newIndex = currentIndex + 1;
+    setCurrentIndex(newIndex);
+
+    const targetNoteId = searchedNotes[newIndex];
+    if (!targetNoteId) return; // 유효한 노트 ID가 없으면 종료
+
+    // 현재 노트 목록에 존재하는지 확인
+    if (!notes.some((note) => note.note_id === targetNoteId)) {
+      fetchRangeNotes(targetNoteId); // 존재하지 않으면 노트 불러오기
+    }
+
+    setSearchTargetId(targetNoteId);
+  };
+
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter') {
+      fetchSearchNotes();
+    }
+  };
 
   // NoteDetail 이동 시 스크롤 저장/복원
   const handleNoteClick = (note) => {
@@ -159,13 +286,65 @@ const NoteHistory = () => {
           </div>
 
           {isSearching && (
-            <NoteSearch
-              onSelect={setSearchTargetId}
-              onClose={() => {
-                setIsSearching(false);
-                setSearchTargetId(null);
-              }}
-            />
+            <div className="p-2 border border-gray-300 rounded w-85">
+              <div className="flex items-center space-x-4 justify-between">
+                <input
+                  type="text"
+                  value={keyword}
+                  onChange={(e) => setKeyword(e.target.value)}
+                  onKeyDown={handleKeyDown}
+                  placeholder="search"
+                  className="w-35 focus:outline-none focus:ring-0 border-none"
+                />
+
+                <div className="flex gap-2">
+                  {/* 검색 버튼 눌렀는데 검색 결과도 없을 때 */}
+                  {isSearched && searchedNotes.length == 0 && (
+                    <div className="text-center text-gray-500">결과 없음</div>
+                  )}
+
+                  {searchedNotes.length > 0 && (
+                    <>
+                      <div className="text-center text-gray-500">
+                        {currentIndex + 1} / {searchedNotes.length}
+                      </div>
+                      <button
+                        onClick={goToPreviousNote}
+                        disabled={currentIndex === 0}
+                      >
+                        <Icon
+                          name="IconGoChevronPrev"
+                          width={20}
+                          height={20}
+                          color={currentIndex === 0 ? '#ccc' : '#000'}
+                        />
+                      </button>
+                      <button
+                        onClick={goToNextNote}
+                        disabled={currentIndex === searchedNotes.length - 1}
+                      >
+                        <Icon
+                          name="IconGoChevronNext"
+                          width={20}
+                          height={20}
+                          color={
+                            currentIndex === searchedNotes.length - 1
+                              ? '#ccc'
+                              : '#000'
+                          }
+                        />
+                      </button>
+                    </>
+                  )}
+                  <button onClick={() => setIsSearching(false)}>
+                    <Icon name="IconCgClose" width={20} height={20} />
+                  </button>
+                  <button onClick={fetchSearchNotes}>
+                    <Icon name="IconTbSearch" width={20} height={20} />
+                  </button>
+                </div>
+              </div>
+            </div>
           )}
 
           <div
@@ -187,9 +366,10 @@ const NoteHistory = () => {
                     <div
                       key={note.note_id}
                       ref={(el) => (noteRefs.current[note.note_id] = el)}
-                      className={`w-full flex ${
-                        isMyNote ? 'justify-end' : 'justify-start'
-                      }`} // 내 노트면 오른쪽 정렬, 남의 노트면 왼쪽 정렬
+                      className={`p-2 w-full flex 
+                          ${searchTargetId === note.note_id ? 'bg-yellow-200' : ''} 
+                          ${isMyNote ? 'justify-end' : 'justify-start'}
+                        `} // 내 노트면 오른쪽 정렬, 남의 노트면 왼쪽 정렬
                     >
                       <NoteButton
                         note={note}

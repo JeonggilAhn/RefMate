@@ -1,12 +1,11 @@
 import React, { useState } from 'react';
 import { useSetRecoilState } from 'recoil';
 import { modalState } from '../recoil/common/modal';
-import { Link } from 'react-router-dom';
 import Header from '../components/common/Header';
 import BackButton from '../components/common/BackButton';
-import Login from '../components/main/Login';
 import TextButton from '../components/common/TextButton';
 import Icon from '../components/common/Icon';
+import LoginContent from '../components/main/LoginContent';
 
 // 버튼별 컴포넌트 import
 import Button1 from '../components/main/Button1';
@@ -15,7 +14,6 @@ import Button3 from '../components/main/Button3';
 import Button4 from '../components/main/Button4';
 
 const MainPage = () => {
-  const [isLoginVisible, setIsLoginVisible] = useState(false);
   const setModal = useSetRecoilState(modalState);
 
   // 현재 선택된 버튼 (기본값: 첫 번째 버튼)
@@ -54,7 +52,15 @@ const MainPage = () => {
           <div className="flex flex-col items-center text-center">
             <h1 className="text-2xl mb-2">Ref Mate</h1>
             <p className="text-lg mb-4">서비스 설명</p>
-            <TextButton type="start" onClick={() => setIsLoginVisible(true)}>
+            <TextButton
+              type="start"
+              onClick={() =>
+                setModal({
+                  type: 'modal',
+                  content: <LoginContent />,
+                })
+              }
+            >
               시작하기
             </TextButton>
           </div>
@@ -83,10 +89,6 @@ const MainPage = () => {
 
         <BackButton />
       </div>
-      <Login
-        isVisible={isLoginVisible}
-        onClose={() => setIsLoginVisible(false)}
-      />
     </>
   );
 };

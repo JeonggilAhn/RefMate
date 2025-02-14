@@ -6,6 +6,7 @@ import PinPopup from './PinPopup';
 import { useRecoilState } from 'recoil';
 import { pinState } from '../../recoil/blueprint';
 import { useParams } from 'react-router-dom';
+import { modalState } from '../../recoil/common/modal';
 
 const A3_WIDTH = 1587;
 const A3_HEIGHT = 1123;
@@ -25,13 +26,13 @@ const BlueprintCanvas = ({
   const [dragging, setDragging] = useState(false);
   const [startPos, setStartPos] = useState({ x: 0, y: 0 });
   const [pendingPin, setPendingPin] = useState(null);
-  const [isPopupOpen, setIsPopupOpen] = useState(false);
   const imgRef = useRef(new Image());
   const overlayImgRef = useRef(new Image());
 
   const { blueprint_id, blueprint_version_id } = useParams();
 
   const [pins, setPins] = useRecoilState(pinState);
+  const [modal, setModal] = useRecoilState(modalState);
 
   const adjustImagePosition = () => {
     const canvas = canvasRef.current;
@@ -179,7 +180,7 @@ const BlueprintCanvas = ({
     const x = (e.clientX - rect.left - position.x) / scale;
     const y = (e.clientY - rect.top - position.y) / scale;
 
-    setPendingPin({
+    const pin = {
       has_unread_note: false,
       is_active: false,
       pin_group: {
@@ -198,34 +199,39 @@ const BlueprintCanvas = ({
       is_open_image: false,
       pinDetailNotes: [],
       pinDetailImages: [],
-    });
+    };
 
-    setIsPopupOpen(true);
+    setPendingPin(pin);
+
+    setModal({
+      type: 'modal',
+      title: '핀 생성',
+      content: (
+        <PinPopup
+          isCreate={true}
+          blueprintId={blueprint_id}
+          blueprintVersion={blueprint_version_id}
+          initialPin={pin}
+          onConfirm={handleConfirmPin}
+        />
+      ),
+    });
   };
 
-  const handleConfirmPin = (name, groupId, groupColor, pinId) => {
-    if (!pendingPin) return;
-
+  const handleConfirmPin = (pin) => {
     const newPin = {
-      ...pendingPin,
-      pin_name: name,
-      pin_group: {
-        pin_group_id: groupId,
-        pin_group_color: groupColor,
-      },
-      pin_id: pinId,
+      ...pin,
+      is_visible: true,
+      is_open_note: false,
+      is_open_image: false,
+      pinDetailNotes: [],
+      pinDetailImages: [],
     };
 
     setPins((prevPins) => {
       return [...prevPins, newPin];
     });
-    setPendingPin(null);
-    setIsPopupOpen(false);
-  };
-
-  const handleCancelPin = () => {
-    setPendingPin(null);
-    setIsPopupOpen(false);
+    setModal(null);
   };
 
   useEffect(() => {
@@ -277,17 +283,6 @@ const BlueprintCanvas = ({
           height: '100%',
         }}
       />
-      {isPopupOpen && (
-        <div style={{ zIndex: 50 }}>
-          <PinPopup
-            blueprintId={blueprint_id}
-            blueprintVersion={blueprint_version_id}
-            initialPin={pendingPin}
-            onConfirm={handleConfirmPin}
-            onCancel={handleCancelPin}
-          />
-        </div>
-      )}
     </div>
   );
 };

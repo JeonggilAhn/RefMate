@@ -1,7 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { patch } from '../../api';
+import { useRecoilState } from 'recoil';
+import { modalState } from '../../recoil/common/modal';
+import TextButton from '../common/TextButton';
 
-const UpdateName = ({ projectId, projectTitle, setProjectName, setModal }) => {
+const UpdateName = ({ projectId, projectTitle, setProjectName }) => {
+  const [modal, setModal] = useRecoilState(modalState);
   const [newTitle, setNewTitle] = useState('');
 
   useEffect(() => {
@@ -25,21 +29,20 @@ const UpdateName = ({ projectId, projectTitle, setProjectName, setModal }) => {
   };
 
   return (
-    <div className="p-4">
-      <div className="p-2 text-lg">이름</div>
-      <input
-        type="text"
-        className="border p-2 w-full"
-        value={newTitle} // value를 newTitle로 바인딩
-        onChange={(e) => setNewTitle(e.target.value)} // 입력값을 newTitle에 저장
-      />
+    <div className="pt-8 p-4">
+      <div className="mb-2">이름</div>
+      <div className="border border-gray-200 mb-8 rounded-md p-2 flex flex-wrap gap-2 min-h-[40px] items-center">
+        <input
+          type="text"
+          value={newTitle} // value를 newTitle로 바인딩
+          onChange={(e) => setNewTitle(e.target.value)} // 입력값을 newTitle에 저장
+          className="w-auto flex-grow border-none focus:ring-0 outline-none text-sm p-1"
+        />
+      </div>
       <div className="flex justify-end">
-        <button
-          onClick={updateProjectTitle}
-          className="px-4 py-2 mt-2 bg-blue-500 text-white rounded"
-        >
+        <TextButton type="start" onClick={updateProjectTitle}>
           완료
-        </button>
+        </TextButton>
       </div>
     </div>
   );

@@ -9,15 +9,15 @@ import {
   SelectContent,
   SelectItem,
 } from '@/components/ui/select';
+import TextButton from '../common/TextButton';
 
 const PinPopup = ({
+  isCreate,
   blueprintId,
   blueprintVersion,
   initialPin,
   onConfirm,
-  onCancel,
 }) => {
-  const [isEditing, setIsEditing] = useState(false);
   const [pinId, setPinId] = useState(null);
   const [pinName, setPinName] = useState('');
   const [pinGroup, setPinGroup] = useState('');
@@ -37,7 +37,6 @@ const PinPopup = ({
   // 초기 핀 데이터 설정
   useEffect(() => {
     if (initialPin) {
-      setIsEditing(initialPin.pin_id !== null);
       setPinId(initialPin.pin_id);
       setPinName(initialPin.pin_name || '');
       setPinGroup(initialPin.pin_group?.pin_group_id || '');
@@ -51,8 +50,6 @@ const PinPopup = ({
     if (!pinName.trim() || !pinGroup) return;
 
     try {
-      const groupColor =
-        groupOptions.find((g) => g.id === pinGroup)?.color || 'gray';
       post(`blueprints/${blueprintId}/${blueprintVersion}/pins`, {
         pin_name: pinName,
         pin_group_id: pinGroup,
@@ -60,14 +57,11 @@ const PinPopup = ({
         pin_y: initialPin.pin_y,
       }).then((res) => {
         const {
-          data: { content },
+          data: {
+            content: { pin },
+          },
         } = res;
-        onConfirm(
-          content.pin.pin_name,
-          content.pin.pin_group.pin_group_id,
-          content.pin.pin_group.pin_group_color,
-          content.pin.pin_id,
-        );
+        onConfirm({ ...pin, pin_x: initialPin.pin_x, pin_y: initialPin.pin_y });
       });
     } catch (error) {
       console.error('핀 생성 실패:', error);
@@ -81,40 +75,55 @@ const PinPopup = ({
     try {
       const groupColor =
         groupOptions.find((g) => g.id === pinGroup)?.color || 'gray';
-      await patch(`pins/${pinId}/name`, { name: pinName });
-      await patch(`pins/${pinId}/${blueprintVersion}/group`, {
+      const resName = await patch(`pins/${pinId}/name`, { name: pinName });
+      const resGroup = await patch(`pins/${pinId}/${blueprintVersion}/group`, {
         group: pinGroup,
       });
-      onConfirm(pinName, pinGroup, groupColor);
+
+      let newPin = initialPin;
+
+      if (resName.status) {
+        newPin = { ...newPin, ...resName.data.content };
+      }
+
+      if (resGroup.status === 200) {
+        newPin = {
+          ...newPin,
+          pin_group: { ...newPin.pin_group, ...resGroup.data.content },
+        };
+      }
+
+      if (resName.status == 200 && resGroup.status === 200) {
+        onConfirm(newPin);
+      }
     } catch (error) {
       console.error('핀 수정 실패:', error);
     }
   };
 
   return (
-    <div className="fixed top-0 left-0 w-full h-full flex justify-center items-center z-50">
+    <div className="w-full h-full flex flex-col z-50">
       {/* ColorInitializer 제거됨 (Blueprint.jsx에서 실행됨) */}
-      <div className="bg-white rounded-lg p-6 w-96 border border-black">
-        <h2 className="text-xl font-bold mb-4">
-          {isEditing ? '핀 수정' : '핀 생성'}
-        </h2>
+      {/* 이름 입력 */}
+      <div className="mt-5 mb-4">
+        <label className="block mb-1">이름</label>
+        <input
+          type="text"
+          value={pinName}
+          onChange={(e) => setPinName(e.target.value)}
+          placeholder="핀 이름 입력"
+          className="w-full px-3 py-2 my-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+        />
+      </div>
 
-        {/* 이름 입력 */}
-        <div className="mb-4">
-          <label className="block font-bold mb-1">이름:</label>
-          <input
-            type="text"
-            value={pinName}
-            onChange={(e) => setPinName(e.target.value)}
-            placeholder="핀 이름 입력"
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
-          />
-        </div>
-
-        {/* 그룹 선택 */}
-        <div className="mb-4">
-          <label className="block font-bold mb-1">그룹:</label>
-          <Select onValueChange={(value) => setPinGroup(value)}>
+      {/* 그룹 선택 */}
+      <div className="mb-4">
+        <label className="block mb-1">그룹</label>
+        <div className="my-2">
+          <Select
+            value={isCreate ? null : initialPin.pin_group.pin_group_id}
+            onValueChange={(value) => setPinGroup(value)}
+          >
             <SelectTrigger className="w-full border border-gray-300 rounded-md px-3 py-2 flex items-center gap-2 bg-white">
               {pinGroup ? (
                 <>
@@ -151,27 +160,17 @@ const PinPopup = ({
             </SelectContent>
           </Select>
         </div>
+      </div>
 
-        {/* 기존 버튼 UI 유지 (삭제된 버튼 복구) */}
-        <div className="flex justify-end gap-2">
-          <button
-            className={`px-4 py-2 rounded-md ${
-              pinName.trim() && pinGroup
-                ? 'bg-blue-500 text-white hover:bg-blue-600'
-                : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-            }`}
-            disabled={!pinName.trim() || !pinGroup}
-            onClick={isEditing ? handleEditPin : handleCreatePin}
-          >
-            완료
-          </button>
-          <button
-            className="px-4 py-2 rounded-md bg-gray-500 text-white hover:bg-gray-600"
-            onClick={onCancel}
-          >
-            닫기
-          </button>
-        </div>
+      {/* 기존 버튼 UI 유지 (삭제된 버튼 복구) */}
+      <div className="flex justify-end gap-2">
+        <TextButton
+          type="start"
+          disabled={!pinName.trim() || !pinGroup}
+          onClick={isCreate ? handleCreatePin : handleEditPin}
+        >
+          완료
+        </TextButton>
       </div>
     </div>
   );

@@ -7,9 +7,15 @@ const TextButton = ({
   isSelected = false,
   onClick,
   children,
+  disabled = false,
 }) => {
   return (
-    <StyledButton type={type} $isSelected={isSelected} onClick={onClick}>
+    <StyledButton
+      disabled={disabled}
+      type={type}
+      $isSelected={isSelected}
+      onClick={onClick}
+    >
       {children}
     </StyledButton>
   );
@@ -39,7 +45,7 @@ const StyledButton = styled.button`
   white-space: nowrap;
 
   ${(props) =>
-    props.type === 'start' &&
+    (props.type === 'start' || props.type === 'submit') &&
     css`
       background-color: ${props.$isSelected ? '#6589BF' : '#7BA8EC'};
       color: white;
@@ -53,10 +59,22 @@ const StyledButton = styled.button`
     props.type === 'content' &&
     css`
       background-color: ${props.$isSelected ? '#D9D9D9' : '#FFFFFF'};
-      color: ${props.$isSelected ? '#111827' : '#374151'};
+      color: ${props.$isSelected ? '#111827' : '#414141'};
       border: 1px solid ${props.$isSelected ? '#A3A3A3' : '#D1D5DB'};
       &:hover {
         background-color: #d9d9d9;
+      }
+    `}
+
+    ${(props) =>
+    props.disabled === true &&
+    css`
+      background-color: #cbcbcb;
+      color: #ffffff;
+      border: 1px solid F5F5F5;
+      cursor: not-allowed;
+      &:hover {
+        background-color: #cbcbcb;
       }
     `}
 `;

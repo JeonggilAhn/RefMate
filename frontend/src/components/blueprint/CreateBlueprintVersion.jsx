@@ -2,15 +2,17 @@ import React, { useState } from 'react';
 import { post } from '../../api';
 import ImageUploader from '../common/ImageUploader';
 import { useParams } from 'react-router-dom';
+import TextButton from '../common/TextButton';
+import { useSetRecoilState } from 'recoil';
+import { modalState } from '../../recoil/common/modal';
 
 const CreateBlueprintVersion = ({
-  setModal,
-  projectId,
-  blueprintId,
   blueprints,
   setBlueprints,
   refetchBlueprints,
 }) => {
+  const setModal = useSetRecoilState(modalState);
+  const { projectId, blueprint_id, blueprint_version_id } = useParams();
   const [blueprintTitle, setBlueprintTitle] = useState('');
   const [selectedImage, setSelectedImage] = useState(null);
 
@@ -28,7 +30,7 @@ const CreateBlueprintVersion = ({
         formData.append('origin_file', selectedImage);
       }
 
-      const response = await post(`blueprints/${blueprintId}`, {
+      const response = await post(`blueprints/${blueprint_id}`, {
         blueprint_version_name: blueprintTitle,
         origin_file: selectedImage,
       });
@@ -53,7 +55,7 @@ const CreateBlueprintVersion = ({
   };
 
   return (
-    <div className="p-4 w-150">
+    <div className="p-4 w-full">
       <form onSubmit={handleSubmit}>
         <div>
           <div className="mb-2">
@@ -74,17 +76,12 @@ const CreateBlueprintVersion = ({
         <ImageUploader onImageSelect={setSelectedImage} projectId={projectId} />
 
         <div className="flex justify-end">
-          <button
+          <TextButton
             type="submit"
-            className={`px-4 py-2 mt-2 text-white rounded ${
-              blueprintTitle.trim() && selectedImage
-                ? 'bg-blue-500 hover:bg-blue-600'
-                : 'bg-gray-300 cursor-not-allowed opacity-50'
-            }`}
             disabled={!blueprintTitle.trim() || !selectedImage}
           >
             완료
-          </button>
+          </TextButton>
         </div>
       </form>
     </div>

@@ -266,6 +266,7 @@ const PinNotes = ({
                     <div
                       key={note.note_id}
                       ref={(el) => (noteRefs.current[note.note_id] = el)}
+                      className={`p-2 ${searchTargetId === note.note_id ? 'bg-yellow-200' : ''}`}
                     >
                       <NoteButton
                         note={note}

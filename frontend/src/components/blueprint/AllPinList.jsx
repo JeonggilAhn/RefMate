@@ -32,11 +32,7 @@ const AllPinList = ({
         <span className="w-[13.8rem] text-sm font-medium">{pin.pin_name}</span>
       </div>
       <EditOption
-        actions={
-          isActiveTab
-            ? pinActiveActions(pin.pin_id)
-            : pinInactiveActions(pin.pin_id)
-        }
+        actions={isActiveTab ? pinActiveActions(pin) : pinInactiveActions(pin)}
       />
     </div>
   ));
