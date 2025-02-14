@@ -142,27 +142,23 @@ const BlueprintCanvas = ({
   };
 
   const handleWheel = (e) => {
-    if (!isPinButtonEnaled) {
-      const zoomSpeed = 0.1;
-      setScale((prev) => {
-        const newScale = Math.max(
-          0.5,
-          prev + (e.deltaY > 0 ? -zoomSpeed : zoomSpeed),
-        );
-        return newScale;
-      });
-    }
+    const zoomSpeed = 0.1;
+    setScale((prev) => {
+      const newScale = Math.max(
+        0.5,
+        prev + (e.deltaY > 0 ? -zoomSpeed : zoomSpeed),
+      );
+      return newScale;
+    });
   };
 
   const handleMouseDown = (e) => {
-    if (!isPinButtonEnaled) {
-      setDragging(true);
-      setStartPos({ x: e.clientX - position.x, y: e.clientY - position.y });
-    }
+    setDragging(true);
+    setStartPos({ x: e.clientX - position.x, y: e.clientY - position.y });
   };
 
   const handleMouseMove = (e) => {
-    if (!isPinButtonEnaled && dragging) {
+    if (dragging) {
       setPosition({ x: e.clientX - startPos.x, y: e.clientY - startPos.y });
     }
   };
@@ -172,7 +168,7 @@ const BlueprintCanvas = ({
   };
 
   const handleCanvasClick = (e) => {
-    if (!isPinButtonEnaled) {
+    if (!e.ctrlKey) {
       return;
     }
 
@@ -274,11 +270,7 @@ const BlueprintCanvas = ({
         onMouseLeave={handleMouseUp}
         onClick={handleCanvasClick}
         style={{
-          cursor: !isPinButtonEnaled
-            ? dragging
-              ? 'grabbing'
-              : 'grab'
-            : 'default',
+          cursor: dragging ? 'grabbing' : 'grab',
           width: '100%',
           height: '100%',
         }}
