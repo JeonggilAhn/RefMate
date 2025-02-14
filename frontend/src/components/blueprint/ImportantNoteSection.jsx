@@ -10,15 +10,13 @@ const ImportantNoteSection = ({ detailPin, pinId, setDetailNote }) => {
   const [notes, setNotes] = useRecoilState(importantNotesState); // 전역 상태 사용
   const [loading, setLoading] = useState(true);
 
-  console.log('hahaha', detailPin);
-
   useEffect(() => {
-    console.log('ImportantNoteSection - Received pinId:', pinId); // pinId 값 확인
+    console.log('ImportantNoteSection - Received pinId:', detailPin.pin_id); // pinId 값 확인
 
     const fetchNotes = async () => {
       try {
         setLoading(true);
-        const response = await get(`pins/${pinId}/notes/bookmark`);
+        const response = await get(`pins/${detailPin.pin_id}/notes/bookmark`);
         if (response.data?.content?.note_list) {
           setNotes(response.data.content.note_list.reverse()); // 전역 상태 업데이트
         } else {
@@ -33,7 +31,7 @@ const ImportantNoteSection = ({ detailPin, pinId, setDetailNote }) => {
     };
 
     fetchNotes();
-  }, [pinId]);
+  }, [detailPin.pin_id]);
 
   const handleNoteClick = (note) => {
     setDetailNote((prevNote) =>
