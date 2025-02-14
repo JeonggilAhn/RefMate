@@ -482,30 +482,20 @@ public class NoteService {
 			blueprintVersionId, nextId, lastId
 		);
 
-		System.out.println(noteDtos.size());
-
 		if (noteDtos.isEmpty()) {
 			return new GetNotesByRangeResponseDto(Collections.emptyList());
 		}
-//		Map<Long, NoteWithPinAndPinGroupDto> noteMap = new HashMap<>();
-//		for (NoteWithPinAndPinGroupDto dto : noteDtos) {
-//			noteMap.put(dto.noteId(), dto);
-//		}
-//
-//		List<Long> noteIds = new ArrayList<>(noteMap.keySet());
-//		System.out.println(noteIds.toString());
-//		// 확인여부 테이블에서 note_id에 맞는 모든 데이터 긁어오기
-//		List<UserNoteCheck> noteChecks = noteCheckRepository.findByNoteIdIn(noteIds);
-//		Map<Long, List<UserNoteCheck>> noteCheckMap = noteChecks.stream()
-//			.collect(Collectors.groupingBy(nc -> nc.getNote().getNoteId()));
 
 		List<ChatItemDto> chatItems = new ArrayList<>();
+		LocalDateTime prevDate = null;
 
 		for (NoteWithPinAndPinGroupDto dto : noteDtos) {
+			LocalDateTime currentDate = dto.noteCreatedAt().toLocalDate().atStartOfDay();
 
-//			List<UserNoteCheck> readUsers = noteCheckMap.getOrDefault(
-//				dto.noteId(), Collections.emptyList()
-//			);
+			if (prevDate == null || !currentDate.equals(prevDate)) {
+				chatItems.add(DateSeparatorDto.from(currentDate));
+				prevDate = currentDate;
+			}
 
 			BlueprintNoteItemDto blueprintNoteItemDto = BlueprintNoteItemDto.from(dto);
 			chatItems.add(blueprintNoteItemDto);

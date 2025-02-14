@@ -16,7 +16,8 @@ public interface NoteRepository extends JpaRepository<Note, Long> {
 
 	@Query("""
 		SELECT new com.dawn.backend.domain.note.dto.NoteWithPinAndPinGroupDto(
-		n.noteId, u.userId, n.noteTitle, n.bookmark, n.createdAt,
+		u.userId, u.userEmail, u.profileImage,
+		n.noteId, n.noteTitle, n.bookmark, n.createdAt,
 		n.blueprintVersion.blueprint.blueprintId,
 		n.blueprintVersion.blueprint.blueprintTitle,
 		n.blueprintVersion.blueprintVersionId,
@@ -41,7 +42,8 @@ public interface NoteRepository extends JpaRepository<Note, Long> {
 			AND n.noteId < :lastId
 			AND n.noteId >= :nextId
 			AND n.isDeleted = false
-		GROUP BY n.noteId, u.userId, n.noteTitle, n.bookmark, n.createdAt,
+		GROUP BY u.userId, u.userEmail, u.profileImage,
+				n.noteId, u.userId, n.noteTitle, n.bookmark, n.createdAt,
 				n.blueprintVersion.blueprint.blueprintId,
 				n.blueprintVersion.blueprint.blueprintTitle,
 				n.blueprintVersion.blueprintVersionId,

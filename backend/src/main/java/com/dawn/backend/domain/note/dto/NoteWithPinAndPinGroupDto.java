@@ -3,8 +3,10 @@ package com.dawn.backend.domain.note.dto;
 import java.time.LocalDateTime;
 
 public record NoteWithPinAndPinGroupDto(
-	Long noteId,
 	Long writerId,
+	String writerEmail,
+	String writerProfileImage,
+	Long noteId,
 	String noteTitle,
 	Boolean isBookmarked,
 	LocalDateTime noteCreatedAt,
