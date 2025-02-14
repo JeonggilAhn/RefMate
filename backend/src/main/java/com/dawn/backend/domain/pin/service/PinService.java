@@ -271,15 +271,21 @@ public class PinService {
 		pinGroupRepository.saveAll(pinGroupList);
 	}
 
+	@Transactional
 	public void copyPreVersionPins(BlueprintVersion preVersion, BlueprintVersion postVersion) {
 		List<PinVersion> pinVersionList =
 			pinVersionRepository.findAllByBlueprintVersionBlueprintVersionId(preVersion.getBlueprintVersionId());
 
-		pinVersionList.forEach(pinVersion -> {
-			pinVersion.setBlueprintVersion(postVersion);
-			pinVersion.setPinVersionId(null);
-		});
+		List<PinVersion> newPinVersions = pinVersionList.stream()
+			.map(oldVersion -> PinVersion.builder()
+				.pin(oldVersion.getPin())
+				.blueprintVersion(postVersion)
+				.pinGroup(oldVersion.getPinGroup())
+				.pinGroupName(oldVersion.getPinGroupName())
+				.isActive(oldVersion.getIsActive())
+				.build())
+			.toList();
 
-		pinVersionRepository.saveAll(pinVersionList);
+		pinVersionRepository.saveAll(newPinVersions);
 	}
 }
