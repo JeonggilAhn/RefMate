@@ -4,7 +4,9 @@ import Icon from '../common/Icon';
 const ImportantNoteList = ({ notes, onNoteClick }) => {
   console.log('ImportantNoteList - Received notes:', notes); // notes 배열 확인
 
-  if (notes.length === 0) {
+  const safeNotes = Array.isArray(notes) ? notes : [];
+
+  if (safeNotes.length === 0) {
     return (
       <div className="text-sm text-left text-gray-500">
         등록된 노트가 없습니다.
@@ -14,7 +16,7 @@ const ImportantNoteList = ({ notes, onNoteClick }) => {
 
   return (
     <div className="flex flex-col gap-2 max-h-60 overflow-y-auto p-2 box-border">
-      {notes.map((note) => (
+      {safeNotes.map((note) => (
         <div
           key={note.note_id}
           onClick={() => onNoteClick(note)}

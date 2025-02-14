@@ -21,7 +21,7 @@ const PinComponent = ({
   const [pinInfo, setPinInfo] = useState(pin);
   const [hoveredPin, setHoveredPin] = useState(null);
   const [recentNotes, setRecentNotes] = useState(null);
-  const [unreadNotes, setUnreadNotes] = useState(false);
+  // const [unreadNotes, setUnreadNotes] = useState(false);
   const [isClicked, setIsClicked] = useState(false);
   const pinRef = useRef(null);
 
@@ -72,7 +72,7 @@ const PinComponent = ({
   };
 
   // SSE를 통한 실시간 읽음 상태 업데이트
-  useEffect(() => {
+  /*useEffect(() => {
     if (!API_BASE_URL || !blueprintId) return; // 백엔드 미연결 방지
 
     const accessToken = sessionStorage.getItem('access_token');
@@ -109,7 +109,7 @@ const PinComponent = ({
     return () => {
       eventSource.close(); // 언마운트 시 SSE 연결 종료
     };
-  }, [API_BASE_URL, blueprintId, pinInfo.pin_id]);
+  }, [API_BASE_URL, blueprintId, pinInfo.pin_id]);*/
 
   // 최근 노트 데이터를 가져오기
   const fetchRecentNote = useCallback(async () => {
@@ -176,9 +176,9 @@ const PinComponent = ({
         />
 
         {/* 읽지 않은 경우 빨간 점 표시 */}
-        {unreadNotes && (
+        {/*unreadNotes && (
           <div className="absolute top-[-4px] right-[-4px] w-2 h-2 bg-red-500 rounded-full" />
-        )}
+        )*/}
       </div>
 
       {/* 호버 시 최근 노트 표시 (기능 유지) */}
