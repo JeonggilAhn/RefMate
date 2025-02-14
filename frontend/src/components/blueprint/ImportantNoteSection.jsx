@@ -3,16 +3,12 @@ import { get } from '../../api';
 import ImportantNoteList from './ImportantNoteList';
 import { Skeleton } from '@/components/ui/skeleton';
 
-import { useRecoilState } from 'recoil';
+import { useRecoilState, useSetRecoilState } from 'recoil';
 import { importantNotesState } from '../../recoil/blueprint';
 
-const ImportantNoteSection = ({
-  detailPin,
-  pinId,
-  setDetailNote,
-  projectId,
-}) => {
-  const [notes, setNotes] = useRecoilState(importantNotesState); // 전역 상태 사용
+const ImportantNoteSection = ({ detailPin, setDetailNote, projectId }) => {
+  const notes = useRecoilState(importantNotesState); // 전역 상태 사용
+  const setNotes = useSetRecoilState(importantNotesState); // 전역 상태 사용
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -38,7 +34,7 @@ const ImportantNoteSection = ({
         if (response.data?.content?.note_list) {
           setNotes(response.data.content.note_list.reverse());
         } else {
-          setNotes([]);
+          setNotes([]); // 새로운 핀 클릭 시 초기화
         }
       } catch (error) {
         console.error('데이터 로드 실패:', error);
@@ -49,7 +45,7 @@ const ImportantNoteSection = ({
     };
 
     fetchNotes();
-  }, [detailPin, projectId]);
+  }, [detailPin, projectId, setNotes]);
 
   const handleNoteClick = (note) => {
     setDetailNote((prevNote) =>

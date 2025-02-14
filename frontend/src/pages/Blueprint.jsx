@@ -925,7 +925,6 @@ const Blueprint = () => {
             <PinImages pinId={detailPin.pin_id} onClickImage={onClickImage} />
             <ImportantNoteSection
               detailPin={detailPin}
-              pinId={detailPin.pin_id}
               setDetailNote={setDetailNote}
               projectId={projectId}
             />
