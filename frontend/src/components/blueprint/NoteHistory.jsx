@@ -65,6 +65,8 @@ const NoteHistory = () => {
       return; // 빈 검색어 방지
     }
 
+    setIsSearched(true);
+
     try {
       const searchApiUrl = `${projectId}/blueprints/${blueprint_id}/${blueprint_version_id}/notes/search`;
       const searchParams = { keyword: keyword };
@@ -79,7 +81,6 @@ const NoteHistory = () => {
 
       // 아예 일치하는 노트들이 없다면
       if (searchResults.length === 0) {
-        alert('일치하는 노트가 없습니다.');
         return;
       }
 
@@ -148,34 +149,29 @@ const NoteHistory = () => {
   }, [searchTargetId]);
 
   const goToPreviousNote = () => {
-    if (currentIndex <= 0) return; // 이미 첫 번째 노트면 종료
-
-    const newIndex = currentIndex - 1;
+    const newIndex =
+      currentIndex - 1 < 0 ? searchedNotes.length - 1 : currentIndex - 1; // 처음이면 마지막으로 이동
     setCurrentIndex(newIndex);
 
     const targetNoteId = searchedNotes[newIndex];
-    if (!targetNoteId) return; // 유효한 노트 ID가 없으면 종료
+    if (!targetNoteId) return;
 
-    // 현재 노트 목록에 존재하는지 확인
     if (!notes.some((note) => note.note_id === targetNoteId)) {
-      fetchRangeNotes(targetNoteId); // 존재하지 않으면 노트 불러오기
+      fetchRangeNotes(targetNoteId);
     }
 
     setSearchTargetId(targetNoteId);
   };
 
   const goToNextNote = () => {
-    if (currentIndex >= searchedNotes.length - 1) return; // 이미 마지막 노트면 종료
-
-    const newIndex = currentIndex + 1;
+    const newIndex = (currentIndex + 1) % searchedNotes.length; // 마지막이면 처음으로 이동
     setCurrentIndex(newIndex);
 
     const targetNoteId = searchedNotes[newIndex];
-    if (!targetNoteId) return; // 유효한 노트 ID가 없으면 종료
+    if (!targetNoteId) return;
 
-    // 현재 노트 목록에 존재하는지 확인
     if (!notes.some((note) => note.note_id === targetNoteId)) {
-      fetchRangeNotes(targetNoteId); // 존재하지 않으면 노트 불러오기
+      fetchRangeNotes(targetNoteId);
     }
 
     setSearchTargetId(targetNoteId);
@@ -185,6 +181,14 @@ const NoteHistory = () => {
     if (e.key === 'Enter') {
       fetchSearchNotes();
     }
+  };
+
+  const clearSearch = () => {
+    setIsSearching(false);
+    setIsSearched(false);
+    setKeyword('');
+    setCurrentIndex(0);
+    setSearchTargetId(null);
   };
 
   // NoteDetail 이동 시 스크롤 저장/복원
@@ -357,12 +361,12 @@ const NoteHistory = () => {
                   onChange={(e) => setKeyword(e.target.value)}
                   onKeyDown={handleKeyDown}
                   placeholder="search"
-                  className="w-35 focus:outline-none focus:ring-0 border-none"
+                  className="w-40 focus:outline-none focus:ring-0 border-none"
                 />
 
                 <div className="flex gap-2">
                   {/* 검색 버튼 눌렀는데 검색 결과도 없을 때 */}
-                  {isSearched && searchedNotes.length == 0 && (
+                  {isSearched && searchedNotes.length === 0 && (
                     <div className="text-center text-gray-500">결과 없음</div>
                   )}
 
@@ -399,7 +403,7 @@ const NoteHistory = () => {
                       </button>
                     </>
                   )}
-                  <button onClick={() => setIsSearching(false)}>
+                  <button onClick={clearSearch}>
                     <Icon name="IconCgClose" width={20} height={20} />
                   </button>
                   <button onClick={fetchSearchNotes}>
