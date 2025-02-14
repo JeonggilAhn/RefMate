@@ -1,18 +1,18 @@
 import React, { useState } from 'react';
 import { post } from '../../api';
 import ImageUploader from '../common/ImageUploader';
-import { useParams } from 'react-router-dom';
 import TextButton from '../common/TextButton';
 import { useSetRecoilState } from 'recoil';
 import { modalState } from '../../recoil/common/modal';
 
 const CreateBlueprintVersion = ({
+  projectId,
+  blueprintId,
   blueprints,
   setBlueprints,
   refetchBlueprints,
 }) => {
   const setModal = useSetRecoilState(modalState);
-  const { projectId, blueprint_id, blueprint_version_id } = useParams();
   const [blueprintTitle, setBlueprintTitle] = useState('');
   const [selectedImage, setSelectedImage] = useState(null);
 
@@ -30,7 +30,7 @@ const CreateBlueprintVersion = ({
         formData.append('origin_file', selectedImage);
       }
 
-      const response = await post(`blueprints/${blueprint_id}`, {
+      const response = await post(`blueprints/${blueprintId}`, {
         blueprint_version_name: blueprintTitle,
         origin_file: selectedImage,
       });
