@@ -71,7 +71,7 @@ function NoteSearch({ onSelect, onClose }) {
           onChange={(e) => setKeyword(e.target.value)}
           onKeyDown={handleKeyDown}
           placeholder="search"
-          className="w-35 focus:outline-none focus:ring-0 border-none"
+          className="w-40 focus:outline-none focus:ring-0 border-none"
         />
 
         <div className="flex gap-2">
