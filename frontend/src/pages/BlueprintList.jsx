@@ -89,17 +89,21 @@ function BlueprintList() {
           setProjectTitle={setProjectTitle}
           nonMember={nonMember}
         />
-        <BlueprintListTabs
-          actions={[{ name: '모든 블루프린트', type: 'all' }]}
-          setFilterType={setFilterType}
-          setSearchQuery={setSearchQuery}
-        ></BlueprintListTabs>
-        <BlueprintThumbnail
-          projectId={projectId}
-          blueprints={searchedBlueprints}
-          setBlueprints={setBlueprints}
-          nonMember={nonMember}
-        />
+        <div className="w-full mt-10">
+          <div className="w-full px-5">
+            <BlueprintListTabs
+              actions={[{ name: '모든 블루프린트', type: 'all' }]}
+              setFilterType={setFilterType}
+              setSearchQuery={setSearchQuery}
+            ></BlueprintListTabs>
+          </div>
+          <BlueprintThumbnail
+            projectId={projectId}
+            blueprints={searchedBlueprints}
+            setBlueprints={setBlueprints}
+            nonMember={nonMember}
+          />
+        </div>
       </ContentWrapper>
       <BackButton />
     </Wrapper>

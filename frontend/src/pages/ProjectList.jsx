@@ -43,16 +43,20 @@ function ProjectList() {
       <Header />
       <ContentWrapper>
         <ProjectSubHeader setProjects={setProjects} />
-        <ProjectTabs
-          actions={[
-            { name: '모든 프로젝트', type: 'all' },
-            { name: '내 프로젝트', type: 'mine' },
-            { name: '공유 프로젝트', type: 'shared' },
-          ]}
-          setFilterType={setFilterType}
-          setSearchQuery={setSearchQuery}
-        />
-        <Thumbnail projects={filteredProjects} setProjects={setProjects} />
+        <div className="w-full mt-10">
+          <div className="w-full px-5">
+            <ProjectTabs
+              actions={[
+                { name: '모든 프로젝트', type: 'all' },
+                { name: '내 프로젝트', type: 'mine' },
+                { name: '공유 프로젝트', type: 'shared' },
+              ]}
+              setFilterType={setFilterType}
+              setSearchQuery={setSearchQuery}
+            />
+          </div>
+          <Thumbnail projects={filteredProjects} setProjects={setProjects} />
+        </div>
       </ContentWrapper>
       <BackButton />
     </Wrapper>

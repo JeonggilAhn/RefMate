@@ -53,7 +53,6 @@ const BlueprintThumbnail = ({
               ),
             );
           }}
-          setModal={setModal}
         />
       ),
     });
@@ -146,7 +145,7 @@ const Image = styled.img`
 `;
 
 const CreatedAt = styled.div`
-  font-size: 0.5rem;
+  font-size: 13px;
   color: #888;
   text-align: left;
   padding: 5px;
@@ -159,7 +158,7 @@ const Footer = styled.div`
 `;
 
 const Title = styled.h3`
-  font-size: 0.8rem;
+  font-size: 20px;
   margin-bottom: 5px;
   display: flex;
   align-items: center;

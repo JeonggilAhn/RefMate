@@ -37,7 +37,6 @@ const Thumbnail = ({ projects, setProjects }) => {
               ),
             );
           }}
-          setModal={setModal}
         />
       ),
     });
@@ -64,7 +63,10 @@ const Thumbnail = ({ projects, setProjects }) => {
   return (
     <Components>
       {projects.map((project) => (
-        <ProjectCard key={project.project_id}>
+        <ProjectCard
+          key={project.project_id}
+          onClick={() => handleProjectClick(project.project_id)}
+        >
           <ImageContainer>
             {project.preview_images.slice(0, 4).map((image, index) => (
               <ImageWrapper key={index}>
@@ -90,9 +92,7 @@ const Thumbnail = ({ projects, setProjects }) => {
           </ImageContainer>
           <ProjectDetails>
             <ProjectFooter>
-              <Title onClick={() => handleProjectClick(project.project_id)}>
-                {project.project_title}
-              </Title>
+              <Title>{project.project_title}</Title>
               <EditOption
                 actions={[
                   {
@@ -111,7 +111,10 @@ const Thumbnail = ({ projects, setProjects }) => {
               />
             </ProjectFooter>
             <FileInfoWrapper>
-              <FileCount>{project.blueprints_count} blueprints ·</FileCount>
+              <FileCount>
+                {project.blueprints_count} blueprints{' '}
+                <span className="px-2">·</span>
+              </FileCount>
               <CreatedAt>
                 {new Date(project.created_at).toLocaleDateString()}
               </CreatedAt>
@@ -155,7 +158,6 @@ const ImageContainer = styled.div`
 
 const BlueprintTitle = styled.div`
   position: absolute;
-  font-size: 0.8rem;
   top: 0;
   left: 0;
   width: 100%;
@@ -206,8 +208,8 @@ const PlaceholderImage = styled.div`
   justify-content: center;
   align-items: center;
   color: white;
-  font-size: 1.2rem;
   text-align: center;
+  word-break: break-all;
   visibility: ${(props) => (props.$isImageLoaded ? 'hidden' : 'visible')};
 `;
 
@@ -218,7 +220,6 @@ const MoreImages = styled.div`
   background-color: rgba(0, 0, 0, 0.5);
   color: white;
   border-radius: 4px;
-  font-size: 0.8rem;
   padding: 5px;
   position: absolute;
   top: 50%;
@@ -234,7 +235,7 @@ const ProjectDetails = styled.div`
 `;
 
 const Title = styled.h3`
-  font-size: 0.8rem;
+  font-size: 20px;
   margin-bottom: 5px;
 `;
 
@@ -242,16 +243,15 @@ const ProjectFooter = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-size: 0.8rem;
 `;
 
 const FileCount = styled.span`
   color: #888;
-  font-size: 0.5rem;
+  font-size: 13px;
 `;
 
 const CreatedAt = styled.div`
-  font-size: 0.5rem;
+  font-size: 13px;
   color: #888;
 `;
 

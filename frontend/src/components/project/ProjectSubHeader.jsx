@@ -13,7 +13,7 @@ const SubHeader = ({ setProjects }) => {
     setModal({
       type: 'modal',
       title: '새 프로젝트',
-      content: <CreateProject setProjects={setProjects} setModal={setModal} />,
+      content: <CreateProject setProjects={setProjects} />,
     });
   };
 

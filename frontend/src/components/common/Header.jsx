@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import Login from '../main/Login';
 import { get } from '../../api';
 import Profile from './Profile';
 import TextButton from '../common/TextButton';
@@ -14,10 +13,13 @@ import {
 } from '@/components/ui/dropdown-menu';
 
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
+import { useRecoilState } from 'recoil';
+import { modalState } from '../../recoil/common/modal';
+import LoginContent from '../main/LoginContent';
 
 function Header() {
   const navigate = useNavigate();
-  const [isLoginVisible, setIsLoginVisible] = useState(false);
+  const [modal, setModal] = useRecoilState(modalState);
   const [userId, setUserId] = useState(null);
   const [profileUrl, setProfileUrl] = useState('');
   const [userEmail, setUserEmail] = useState('');
@@ -113,7 +115,15 @@ function Header() {
             </div>
           </div>
         ) : (
-          <TextButton type="start" onClick={() => setIsLoginVisible(true)}>
+          <TextButton
+            type="start"
+            onClick={() =>
+              setModal({
+                type: 'modal',
+                content: <LoginContent />,
+              })
+            }
+          >
             시작하기
           </TextButton>
         )}
@@ -128,16 +138,6 @@ function Header() {
           setIsLoggedIn={setIsLoggedIn}
         />
       )}
-
-      <Login
-        isVisible={isLoginVisible}
-        onClose={() => setIsLoginVisible(false)}
-        onSuccess={(id) => {
-          sessionStorage.setItem('access_token', 'sample-token');
-          setIsLoggedIn(true);
-          setUserId(id);
-        }}
-      />
     </>
   );
 }

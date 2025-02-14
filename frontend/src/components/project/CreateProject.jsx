@@ -1,8 +1,12 @@
 import React, { useState } from 'react';
 import { post } from '../../api';
 import InviteUsers from './InviteUsers';
+import TextButton from '../common/TextButton';
+import { useRecoilState } from 'recoil';
+import { modalState } from '../../recoil/common/modal';
 
-const CreateProject = ({ setProjects, setModal }) => {
+const CreateProject = ({ setProjects }) => {
+  const [modal, setModal] = useRecoilState(modalState);
   const [projectTitle, setProjectTitle] = useState('');
   const [validEmails, setValidEmails] = useState([]);
 
@@ -74,7 +78,7 @@ const CreateProject = ({ setProjects, setModal }) => {
   };
 
   return (
-    <div className="p-4 w-150">
+    <div className="p-4 w-full">
       <form onSubmit={handleSubmit}>
         <div>
           <div className="mb-2">
@@ -97,17 +101,9 @@ const CreateProject = ({ setProjects, setModal }) => {
           />
         </div>
         <div className="flex justify-end">
-          <button
-            type="submit"
-            className={`px-4 py-2 mt-2 text-white rounded ${
-              projectTitle.trim()
-                ? 'bg-blue-500 hover:bg-blue-600'
-                : 'bg-gray-300 cursor-not-allowed opacity-50'
-            }`}
-            disabled={!projectTitle.trim()}
-          >
+          <TextButton type="submit" disabled={!projectTitle.trim()}>
             완료
-          </button>
+          </TextButton>
         </div>
       </form>
     </div>
