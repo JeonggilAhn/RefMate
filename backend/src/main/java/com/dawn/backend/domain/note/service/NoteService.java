@@ -214,15 +214,15 @@ public class NoteService {
 			.user(user)
 			.build();
 		creatorNoteCheck.updateNoteCheck(true);
-		noteCheckRepository.save(creatorNoteCheck);
+//		noteCheckRepository.save(creatorNoteCheck);
 
-		projectUsers.stream()
-			.filter(projectUser -> !projectUser.getUserId().equals(user.getUserId()))
-			.map(projectUser -> UserNoteCheck.builder()
-				.note(savedNote)
-				.user(projectUser)
-				.build())
-			.forEach(noteCheckRepository::save);
+//		projectUsers.stream()
+//			.filter(projectUser -> !projectUser.getUserId().equals(user.getUserId()))
+//			.map(projectUser -> UserNoteCheck.builder()
+//				.note(savedNote)
+//				.user(projectUser)
+//				.build())
+//			.forEach(noteCheckRepository::save);
 
 
 		UserProject userWithRole = userProjectRepository.findByUserIdAndProjectId(

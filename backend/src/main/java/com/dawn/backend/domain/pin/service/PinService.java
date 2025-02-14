@@ -108,10 +108,10 @@ public class PinService {
 				);
 
 				boolean hasUnreadNote = false;
-				if (!(user instanceof UnauthorizeUser)) {
-					hasUnreadNote =
-						noteCheckRepository.hasUnreadNoteByPin(user, pinVersion.getPin());
-				}
+//				if (!(user instanceof UnauthorizeUser)) {
+//					hasUnreadNote =
+//						noteCheckRepository.hasUnreadNoteByPin(user, pinVersion.getPin());
+//				}
 
 				return new PinItem(
 					pinVersion.getPin().getPinId(),

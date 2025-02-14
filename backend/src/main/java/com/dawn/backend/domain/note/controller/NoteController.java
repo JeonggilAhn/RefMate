@@ -136,7 +136,7 @@ public class NoteController {
 		@AuthenticationPrincipal User user
 	) throws Exception {
 		NoteDetailResponseDto responseDto = noteService.findDetailNote(noteId, user);
-		readCheckService.sendEvent(noteId, user);
+//		readCheckService.sendEvent(noteId, user);
 		return ResponseWrapperFactory.setResponse(HttpStatus.OK, null, responseDto);
 	}
 
@@ -149,11 +149,11 @@ public class NoteController {
 		return ResponseWrapperFactory.setResponse(HttpStatus.OK, null, responseDto);
 	}
 
-	@GetMapping("/blueprints/{blueprintId}/task/read")
-	@PreAuthorize("@authExpression.hasBlueprintPermission(#blueprintId)")
-	public SseEmitter readNoteTasks(@PathVariable Long blueprintId) {
-		return readCheckService.getSseEmitter(blueprintId);
-	}
+//	@GetMapping("/blueprints/{blueprintId}/task/read")
+//	@PreAuthorize("@authExpression.hasBlueprintPermission(#blueprintId)")
+//	public SseEmitter readNoteTasks(@PathVariable Long blueprintId) {
+//		return readCheckService.getSseEmitter(blueprintId);
+//	}
 
 	/**
 	 * 검색어(keyword)에 해당하는 노트들 중에서
