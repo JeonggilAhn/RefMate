@@ -11,7 +11,38 @@ import { modalState } from '../../recoil/common/modal';
 const A3_WIDTH = 1587;
 const A3_HEIGHT = 1123;
 
-const PIN_CURSOR = `url("data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M12.5 3.75L9.16671 7.08333L5.83337 8.33333L4.58337 9.58333L10.4167 15.4167L11.6667 14.1667L12.9167 10.8333L16.25 7.5' stroke='black' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M7.5 12.5L3.75 16.25' stroke='black' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M12.0834 3.33325L16.6667 7.91658' stroke='black' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E"), crosshair`;
+const CURSOR_SVG = `
+<svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <g filter="url(#shadow)">
+    <path d="M20 6L14.6667 11.3333L9.33337 13.3333L7.33337 15.3333L16.6667 24.6667L18.6667 22.6667L20.6667 17.3333L26 12L20 6Z" fill="white"/>
+    <path d="M12 20L4 28" fill="white" stroke="white" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M20 6L14.6667 11.3333L9.33337 13.3333L7.33337 15.3333L16.6667 24.6667L18.6667 22.6667L20.6667 17.3333L26 12L20 6Z" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M12 20L4 28" stroke="black" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+  <defs>
+    <filter id="shadow" x="-2" y="-2" width="36" height="36" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+      <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0"/>
+      <feOffset/>
+      <feGaussianBlur stdDeviation="1.5"/>
+      <feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.3 0"/>
+      <feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow"/>
+      <feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow" result="shape"/>
+    </filter>
+  </defs>
+</svg>
+`;
+
+// SVG 커서가 지원되지 않을 경우를 대비한 fallback 처리
+const getCustomCursor = () => {
+  try {
+    return `url('data:image/svg+xml;base64,${btoa(CURSOR_SVG)}') 4 28, crosshair`;
+  } catch (e) {
+    return 'crosshair';
+  }
+};
+
+const PIN_CURSOR = getCustomCursor();
 
 const BlueprintCanvas = ({
   projectId,
