@@ -447,16 +447,22 @@ const NoteHistory = () => {
                           ${isMyNote ? 'justify-end' : 'justify-start'}
                         `} // 내 노트면 오른쪽 정렬, 남의 노트면 왼쪽 정렬
                     >
-                      {note.type === 'note' && (
+                      {note.type === 'note' && note.pin_name && (
                         <div
-                          className="flex items-center px-2 py-1 rounded-md text-sm font-semibold"
+                          className="px-2 py-0.5 rounded-md text-xs font-semibold mb-1"
                           style={{
                             backgroundColor: note.pin_group_color || '#D1D5DB',
+                            maxWidth: '8rem', // 8글자 정도만 표시
+                            height: '1.5rem', // 글자 크기보다 살짝만 높게
+                            overflow: 'hidden',
+                            whiteSpace: 'nowrap',
+                            textOverflow: 'ellipsis',
                           }}
                         >
                           <span className="text-white">{note.pin_name}</span>
                         </div>
                       )}
+
                       <NoteButton
                         note={note}
                         onClick={() => handleNoteClick(note)}
