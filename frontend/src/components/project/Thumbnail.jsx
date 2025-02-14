@@ -93,22 +93,24 @@ const Thumbnail = ({ projects, setProjects }) => {
           <ProjectDetails>
             <ProjectFooter>
               <Title>{project.project_title}</Title>
-              <EditOption
-                actions={[
-                  {
-                    name: '수정',
-                    handler: () =>
-                      handleUpdateProjectName(
-                        project.project_id,
-                        project.project_title,
-                      ),
-                  },
-                  {
-                    name: '삭제',
-                    handler: () => handleRemoveProject(project.project_id),
-                  },
-                ]}
-              />
+              <div onClick={(event) => event.stopPropagation()}>
+                <EditOption
+                  actions={[
+                    {
+                      name: '수정',
+                      handler: () =>
+                        handleUpdateProjectName(
+                          project.project_id,
+                          project.project_title,
+                        ),
+                    },
+                    {
+                      name: '삭제',
+                      handler: () => handleRemoveProject(project.project_id),
+                    },
+                  ]}
+                />
+              </div>
             </ProjectFooter>
             <FileInfoWrapper>
               <FileCount>
