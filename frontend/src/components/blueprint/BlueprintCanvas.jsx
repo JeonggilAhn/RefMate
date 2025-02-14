@@ -28,6 +28,7 @@ const BlueprintCanvas = ({
   const [pendingPin, setPendingPin] = useState(null);
   const imgRef = useRef(new Image());
   const overlayImgRef = useRef(new Image());
+  const [isCtrlPressed, setIsCtrlPressed] = useState(false);
 
   const { blueprint_id, blueprint_version_id } = useParams();
 
@@ -95,6 +96,28 @@ const BlueprintCanvas = ({
 
     return () => window.removeEventListener('resize', resizeCanvas);
   }, [imageUrl, overlayImageUrl]);
+
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Control') {
+        setIsCtrlPressed(true);
+      }
+    };
+
+    const handleKeyUp = (e) => {
+      if (e.key === 'Control') {
+        setIsCtrlPressed(false);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    window.addEventListener('keyup', handleKeyUp);
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('keyup', handleKeyUp);
+    };
+  }, []);
 
   const drawImage = (ctx) => {
     const canvas = canvasRef.current;
@@ -276,11 +299,12 @@ const BlueprintCanvas = ({
         onMouseLeave={handleMouseUp}
         onClick={handleCanvasClick}
         style={{
-          cursor: isPinButtonEnaled
-            ? 'url("/pin-cursor.png"), crosshair'
-            : dragging
-              ? 'grabbing'
-              : 'grab',
+          cursor:
+            isPinButtonEnaled || isCtrlPressed
+              ? 'url("/icons/IconTbPinFill.svg"), crosshair'
+              : dragging
+                ? 'grabbing'
+                : 'grab',
           width: '100%',
           height: '100%',
         }}
