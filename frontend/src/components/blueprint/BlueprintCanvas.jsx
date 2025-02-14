@@ -168,7 +168,7 @@ const BlueprintCanvas = ({
   };
 
   const handleCanvasClick = (e) => {
-    if (!e.ctrlKey) {
+    if (!isPinButtonEnaled && !e.ctrlKey) {
       return;
     }
 

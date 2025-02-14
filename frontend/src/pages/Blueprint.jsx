@@ -735,13 +735,17 @@ const Blueprint = () => {
           {/* toolbar */}
           <div className="flex justify-between border w-[5.5rem] border-[#CBCBCB] absolute left-[50%] bottom-4 p-[0.2rem] bg-white rounded-md">
             <button
-              className="w-[2.4rem] h-[2.4rem] flex justify-center items-center cursor-pointer hover:bg-[#F1F1F1] rounded-md"
+              className={`w-[2.4rem] h-[2.4rem] flex justify-center items-center cursor-pointer hover:bg-[#F1F1F1] rounded-md ${
+                isPinButtonEnaled ? 'bg-[#E3E3E3]' : ''
+              }`}
               onClick={onClickPinButton}
             >
               <Icon name="IconTbPinStroke" width={30} height={30} />
             </button>
             <button
-              className="w-[2.4rem] h-[2.4rem] flex justify-center items-center cursor-pointer hover:bg-[#F1F1F1] rounded-md"
+              className={`w-[2.4rem] h-[2.4rem] flex justify-center items-center cursor-pointer hover:bg-[#F1F1F1] rounded-md ${
+                !isPinButtonEnaled ? 'bg-[#E3E3E3]' : ''
+              }`}
               onClick={onClickMouseButon}
             >
               <Icon name="IconBsCursor" width={25} height={25} />
