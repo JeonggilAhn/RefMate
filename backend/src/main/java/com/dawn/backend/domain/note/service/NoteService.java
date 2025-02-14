@@ -28,6 +28,7 @@ import com.dawn.backend.domain.note.dto.response.CreateNoteResponseDto;
 import com.dawn.backend.domain.note.dto.response.DeleteNoteResponseDto;
 import com.dawn.backend.domain.note.dto.response.GetBookmarkNotesResponseDto;
 import com.dawn.backend.domain.note.dto.response.GetNotesByBlueprintResponseDto;
+import com.dawn.backend.domain.note.dto.response.GetNotesByKewordByPinResponseDto;
 import com.dawn.backend.domain.note.dto.response.GetNotesByKeywordResponseDto;
 import com.dawn.backend.domain.note.dto.response.GetNotesByPinResponseDto;
 import com.dawn.backend.domain.note.dto.response.NoteDetailResponseDto;
@@ -460,5 +461,10 @@ public class NoteService {
 	) {
 		List<Long> matchesNoteIds = noteRepository.findNoteByKeyword(blueprintVersionId, keyword);
 		return GetNotesByKeywordResponseDto.from(matchesNoteIds);
+	}
+
+	public GetNotesByKewordByPinResponseDto getNotesByKeywordByPin(Long projectId, Long pinId, String keyword) {
+		List<Long> matchesnoteIds = noteRepository.findNoteByKeywordByPin(pinId, keyword);
+		return GetNotesByKewordByPinResponseDto.from(matchesnoteIds);
 	}
 }

@@ -20,7 +20,6 @@ import lombok.RequiredArgsConstructor;
 import com.dawn.backend.domain.note.dto.request.BookmarkImageRequestDto;
 import com.dawn.backend.domain.note.dto.request.BookmarkNoteRequestDto;
 import com.dawn.backend.domain.note.dto.request.CreateNoteRequestDto;
-import com.dawn.backend.domain.note.dto.request.GetBookmarkNotesRequestDto;
 import com.dawn.backend.domain.note.dto.request.UpdateNoteRequestDto;
 import com.dawn.backend.domain.note.dto.response.BookmarkImageResponseDto;
 import com.dawn.backend.domain.note.dto.response.BookmarkNoteResponseDto;
@@ -28,6 +27,7 @@ import com.dawn.backend.domain.note.dto.response.CreateNoteResponseDto;
 import com.dawn.backend.domain.note.dto.response.DeleteNoteResponseDto;
 import com.dawn.backend.domain.note.dto.response.GetBookmarkNotesResponseDto;
 import com.dawn.backend.domain.note.dto.response.GetNotesByBlueprintResponseDto;
+import com.dawn.backend.domain.note.dto.response.GetNotesByKewordByPinResponseDto;
 import com.dawn.backend.domain.note.dto.response.GetNotesByKeywordResponseDto;
 import com.dawn.backend.domain.note.dto.response.GetNotesByPinResponseDto;
 import com.dawn.backend.domain.note.dto.response.NoteDetailResponseDto;
@@ -175,6 +175,20 @@ public class NoteController {
 	) {
 		GetNotesByKeywordResponseDto responseDto = noteService.getNotesByKeyword(
 			projectId, blueprintId, blueprintVersionId, keyword
+		);
+		return ResponseWrapperFactory.setResponse(HttpStatus.OK, null, responseDto);
+	}
+
+	@GetMapping("/{projectId}/pin/{pinId}/notes/search")
+	@PreAuthorize("@authExpression.hasProjectPermissionByPinId(#pinId)"
+		+ "AND @authExpression.hasProjectPermissionByPinId(#pinId)")
+	public ResponseEntity<ResponseWrapper<GetNotesByKewordByPinResponseDto>> getNotesByKeywordByPin(
+		@PathVariable Long projectId,
+		@PathVariable Long pinId,
+		@RequestParam String keyword
+	) {
+		GetNotesByKewordByPinResponseDto responseDto = noteService.getNotesByKeywordByPin(
+			projectId, pinId, keyword
 		);
 		return ResponseWrapperFactory.setResponse(HttpStatus.OK, null, responseDto);
 	}
