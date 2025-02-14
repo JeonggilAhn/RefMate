@@ -142,6 +142,8 @@ const BlueprintCanvas = ({
   };
 
   const handleWheel = (e) => {
+    if (isPinButtonEnaled) return;
+
     const zoomSpeed = 0.1;
     setScale((prev) => {
       const newScale = Math.max(
@@ -153,11 +155,15 @@ const BlueprintCanvas = ({
   };
 
   const handleMouseDown = (e) => {
+    if (isPinButtonEnaled) return;
+
     setDragging(true);
     setStartPos({ x: e.clientX - position.x, y: e.clientY - position.y });
   };
 
   const handleMouseMove = (e) => {
+    if (isPinButtonEnaled) return;
+
     if (dragging) {
       setPosition({ x: e.clientX - startPos.x, y: e.clientY - startPos.y });
     }
@@ -270,7 +276,11 @@ const BlueprintCanvas = ({
         onMouseLeave={handleMouseUp}
         onClick={handleCanvasClick}
         style={{
-          cursor: dragging ? 'grabbing' : 'grab',
+          cursor: isPinButtonEnaled
+            ? 'url("/pin-cursor.png"), crosshair'
+            : dragging
+              ? 'grabbing'
+              : 'grab',
           width: '100%',
           height: '100%',
         }}

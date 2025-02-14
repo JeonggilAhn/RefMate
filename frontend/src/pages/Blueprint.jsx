@@ -62,7 +62,7 @@ const Blueprint = () => {
   const [isDetailSidebarOpen, setIsDetailSidebarOpen] = useState(false);
 
   // sidebar tool bar
-  const [isPinButtonEnaled, setIsPinButtonEnaled] = useState(true);
+  const [isPinButtonEnaled, setIsPinButtonEnaled] = useState(false);
 
   // version tool bar
   const [blueprints, setBlueprints] = useState([]);
