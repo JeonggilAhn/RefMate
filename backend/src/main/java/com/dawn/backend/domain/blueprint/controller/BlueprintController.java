@@ -68,7 +68,7 @@ public class BlueprintController {
 		@PathVariable("blueprintId") Long blueprintId,
 		@PathVariable("versionId") Long versionId
 	) {
-		readCheckService.startSseEmitter(blueprintId);
+//		readCheckService.startSseEmitter(blueprintId);
 		return ResponseWrapperFactory.setResponse(
 			HttpStatus.OK,
 			null,
