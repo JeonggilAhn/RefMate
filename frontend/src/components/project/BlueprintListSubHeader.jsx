@@ -9,6 +9,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import EditOption from './EditOption';
 import CreateBlueprint from './CreateBlueprint';
 import InviteUsersModal from './InviteUsersModal';
+import { useToast } from '@/hooks/use-toast';
 
 const BlueprintListSubHeader = ({
   projectTitle,
@@ -19,6 +20,7 @@ const BlueprintListSubHeader = ({
 }) => {
   const navigate = useNavigate();
   const [modal, setModal] = useRecoilState(modalState);
+  const { toast } = useToast(20);
 
   const handleCreateBlueprint = () => {
     setModal({
@@ -62,15 +64,23 @@ const BlueprintListSubHeader = ({
           const response = await del(`projects/${projectId}`);
 
           if (response.status === 200) {
-            alert('삭제 완료');
-
+            toast({
+              title: '프로젝트 삭제가 완료되었습니다.',
+              description: String(new Date()),
+            });
             navigate('/projects');
             setModal(null);
           } else {
-            alert('삭제 실패');
+            toast({
+              title: '프로젝트 삭제에 실패했습니다.',
+              description: String(new Date()),
+            });
           }
         } catch (error) {
-          alert('삭제 중 오류가 발생했습니다.');
+          toast({
+            title: '프로젝트 삭제 중 오류가 발생했습니다.',
+            description: String(new Date()),
+          });
           console.error('삭제 오류:', error);
         }
       },

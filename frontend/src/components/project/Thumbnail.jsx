@@ -6,11 +6,13 @@ import { useSetRecoilState } from 'recoil';
 import { modalState } from '../../recoil/common/modal';
 import EditOption from './EditOption';
 import { del } from '../../api';
+import { useToast } from '@/hooks/use-toast';
 
 const Thumbnail = ({ projects, setProjects }) => {
   const [imageLoaded, setImageLoaded] = useState({});
   const navigate = useNavigate();
   const setModal = useSetRecoilState(modalState);
+  const { toast } = useToast(20);
 
   const handleImageLoad = (id) => {
     setImageLoaded((prevState) => ({ ...prevState, [id]: true }));
@@ -49,11 +51,17 @@ const Thumbnail = ({ projects, setProjects }) => {
       onConfirm: async () => {
         try {
           await del(`projects/${projectId}`);
-          alert('삭제 완료');
+          toast({
+            title: '프로젝트가 삭제되었습니다.',
+            description: String(new Date()),
+          });
           setProjects((prev) => prev.filter((p) => p.project_id !== projectId));
           setModal(null);
         } catch (error) {
-          alert('삭제 중 오류 발생');
+          toast({
+            title: '프로젝트가 삭제 중 오류가 발생했습니다.',
+            description: String(new Date()),
+          });
           console.error(error);
         }
       },

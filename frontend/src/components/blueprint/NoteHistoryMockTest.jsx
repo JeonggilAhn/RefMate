@@ -6,6 +6,7 @@ import Icon from '../common/Icon';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useParams } from 'react-router-dom';
 import { processNotes } from '../../utils/temp';
+import { useToast } from '@/hooks/use-toast';
 
 const NoteHistory = () => {
   const { blueprint_id, blueprint_version_id, projectId } = useParams(); // 컴포넌트 내부로 이동
@@ -19,6 +20,7 @@ const NoteHistory = () => {
   const [cursorId, setCursorId] = useState(null); // 페이지네이션을 위한 커서 ID
   const [lastDate, setLastDate] = useState(''); // 마지막 날짜 구분선 날짜
   const noteRefs = useRef({}); // 노트별 ref 저장
+  const { toast } = useToast(20);
 
   // 추가된 부분: 스크롤 컨테이너 ref 및 저장된 스크롤 위치
   const scrollContainerRef = useRef(null);
@@ -253,7 +255,9 @@ const NoteHistory = () => {
   // 검색 -> 스크롤 & 하이라이트
   const fetchSearchNotes = async () => {
     if (!keyword.trim()) {
-      alert('검색어를 입력하세요');
+      toast({
+        title: '검색어를 입력하세요.',
+      });
       return; // 빈 검색어 방지
     }
 
@@ -276,7 +280,9 @@ const NoteHistory = () => {
 
       // 아예 일치하는 노트들이 없다면
       if (mockIds.length === 0) {
-        alert('일치하는 노트가 없습니다.');
+        toast({
+          title: '일치하는 노트가 없습니다.',
+        });
         return;
       }
 

@@ -4,16 +4,20 @@ import InviteUsers from './InviteUsers';
 import TextButton from '../common/TextButton';
 import { useRecoilState } from 'recoil';
 import { modalState } from '../../recoil/common/modal';
+import { useToast } from '@/hooks/use-toast';
 
 const InviteUsersModal = ({ projectId }) => {
   const [modal, setModal] = useRecoilState(modalState);
   const [validEmails, setValidEmails] = useState([]); // 이메일 리스트 관리
+  const { toast } = useToast(20);
 
   const handleAddEmail = (email, isValid) => {
     setValidEmails((prevEmails) => {
       // 중복 이메일 체크
       if (prevEmails.some((emailObj) => emailObj.email === email)) {
-        alert('이미 추가된 이메일입니다.');
+        toast({
+          title: '이미 추가된 이메일입니다.',
+        });
         return prevEmails;
       }
       return [...prevEmails, { email, isValid }];
@@ -35,7 +39,9 @@ const InviteUsersModal = ({ projectId }) => {
       .map((emailObj) => emailObj.email);
 
     if (inviteEmailList.length === 0) {
-      alert('유효한 이메일을 입력해주세요.');
+      toast({
+        title: '유효한 이메일을 입력해주세요.',
+      });
       return;
     }
 
@@ -45,11 +51,17 @@ const InviteUsersModal = ({ projectId }) => {
       });
 
       console.log('초대한 이메일:', inviteEmailList);
-      alert('사용자 초대 성공');
+      toast({
+        title: '사용자 초대에 성공했습니다.',
+        description: String(new Date()),
+      });
       setModal(null);
     } catch (error) {
       console.error('사용자 초대 실패:', error);
-      alert('사용자 초대 실패');
+      toast({
+        title: '사용자 초대에 실패했습니다.',
+        description: String(new Date()),
+      });
     }
   };
 

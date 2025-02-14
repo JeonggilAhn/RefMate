@@ -3,10 +3,12 @@ import { patch } from '../../api';
 import { useRecoilState } from 'recoil';
 import { modalState } from '../../recoil/common/modal';
 import TextButton from '../common/TextButton';
+import { useToast } from '@/hooks/use-toast';
 
 const UpdateName = ({ projectId, projectTitle, setProjectName }) => {
   const [modal, setModal] = useRecoilState(modalState);
   const [newTitle, setNewTitle] = useState('');
+  const { toast } = useToast(20);
 
   useEffect(() => {
     // projectTitle이 변경될 때마다 newTitle을 업데이트
@@ -20,11 +22,17 @@ const UpdateName = ({ projectId, projectTitle, setProjectName }) => {
       });
 
       console.log(response);
-      alert('수정 완료');
+      toast({
+        title: '프로젝트 제목 수정이 완료되었습니다.',
+        description: String(new Date()),
+      });
       setProjectName(newTitle);
       setModal(null);
     } catch (error) {
-      alert(error.message);
+      toast({
+        title: '프로젝트 제목 수정에 실패했습니다.',
+        description: String(new Date()),
+      });
     }
   };
 
