@@ -4,6 +4,7 @@ import ImageUploader from '../common/ImageUploader';
 import TextButton from '../common/TextButton';
 import { useSetRecoilState } from 'recoil';
 import { modalState } from '../../recoil/common/modal';
+import { useToast } from '@/hooks/use-toast';
 
 const CreateBlueprintVersion = ({
   projectId,
@@ -15,6 +16,7 @@ const CreateBlueprintVersion = ({
   const setModal = useSetRecoilState(modalState);
   const [blueprintTitle, setBlueprintTitle] = useState('');
   const [selectedImage, setSelectedImage] = useState(null);
+  const { toast } = useToast(20);
 
   const handleInputChange = (event) => {
     setBlueprintTitle(event.target.value);
@@ -47,7 +49,10 @@ const CreateBlueprintVersion = ({
       console.log('블루프린트 버전 생성 성공:', response.data);
       await refetchBlueprints();
 
-      alert('생성 완료');
+      toast({
+        title: '블루프린트 버전 생성에 성공했습니다.',
+        description: String(new Date()),
+      });
       setModal(null);
     } catch (error) {
       console.error('블루프린트 생성 실패:', error);

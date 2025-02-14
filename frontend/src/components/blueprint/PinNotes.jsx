@@ -19,6 +19,7 @@ import ImageUploader from '../common/ImageUploader';
 import { useRecoilState } from 'recoil';
 import { pinState } from '../../recoil/blueprint';
 import { processNotes } from '../../utils/temp';
+import { useToast } from '@/hooks/use-toast';
 
 const PinNotes = ({
   pinInfo,
@@ -40,6 +41,7 @@ const PinNotes = ({
   const [data, setData] = useState({
     pinDetailNotes: [],
   });
+  const { toast } = useToast(20);
 
   useEffect(() => {
     const pin = pins.find((item) => item.pin_id === pinId) || {
@@ -108,7 +110,7 @@ const PinNotes = ({
 
   // 노트 생성 로직
   const handleSubmit = async () => {
-    if (!noteTitle.trim() || !noteContent.trim()) return;
+    if (!noteTitle.trim()) return;
 
     try {
       const response = await post(`pins/${pinInfo.pin_id}/notes`, {
@@ -140,16 +142,25 @@ const PinNotes = ({
       });
 
       if (response.status === 201) {
-        alert('노트 생성 성공');
+        toast({
+          title: '노트 생성에 성공했습니다.',
+          description: String(new Date()),
+        });
         setOpen(false);
         setNoteTitle('');
         setNoteContent('');
       } else {
-        alert('노트 생성 실패');
+        toast({
+          title: '노트 생성에 실패했습니다.',
+          description: String(new Date()),
+        });
       }
     } catch (error) {
       console.error('노트 생성 중 오류 발생:', error);
-      alert('노트 생성 실패');
+      toast({
+        title: '노트 생성에 실패했습니다.',
+        description: String(new Date()),
+      });
     }
   };
 
@@ -224,11 +235,11 @@ const PinNotes = ({
                       <button
                         onClick={handleSubmit}
                         className={`px-4 py-2 text-white rounded-md ${
-                          noteTitle.trim() && noteContent.trim()
+                          noteTitle.trim()
                             ? 'bg-blue-500 hover:bg-blue-600'
                             : 'bg-gray-300 cursor-not-allowed opacity-50'
                         }`}
-                        disabled={!noteTitle.trim() || !noteContent.trim()}
+                        disabled={!noteTitle.trim()}
                       >
                         저장
                       </button>
