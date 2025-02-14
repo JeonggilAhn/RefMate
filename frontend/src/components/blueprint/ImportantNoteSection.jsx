@@ -6,21 +6,35 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { useRecoilState } from 'recoil';
 import { importantNotesState } from '../../recoil/blueprint';
 
-const ImportantNoteSection = ({ detailPin, pinId, setDetailNote }) => {
+const ImportantNoteSection = ({
+  detailPin,
+  pinId,
+  setDetailNote,
+  projectId,
+}) => {
   const [notes, setNotes] = useRecoilState(importantNotesState); // 전역 상태 사용
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    console.log('ImportantNoteSection - Received pinId:', detailPin); // pinId 값 확인
-    console.log('ImportantNoteSection - Received pinId:', detailPin.pin_id); // pinId 값 확인
+    if (!detailPin?.pin_id || !projectId) {
+      console.warn('필수 데이터 누락: detailPin 또는 projectId가 없습니다.');
+      return;
+    }
+
+    console.log('ImportantNoteSection - Received pinId:', detailPin.pin_id);
+    console.log('ImportantNoteSection - Received projectId:', projectId);
 
     const fetchNotes = async () => {
       try {
         setLoading(true);
-        const response = await get(`pins/${detailPin.pin_id}/notes/bookmark`);
-        console.log('ImportantNoteSection - Response:', response.data);
+        const response = await get(`pins/${detailPin.pin_id}/notes/bookmark`, {
+          project_id: projectId, // 쿼리 파라미터 추가
+        });
+
+        console.log('API 응답:', response.data);
+
         if (response.data?.content?.note_list) {
-          setNotes(response.data.content.note_list.reverse()); // 전역 상태 업데이트
+          setNotes(response.data.content.note_list.reverse());
         } else {
           setNotes([]);
         }
@@ -33,7 +47,7 @@ const ImportantNoteSection = ({ detailPin, pinId, setDetailNote }) => {
     };
 
     fetchNotes();
-  }, [detailPin]);
+  }, [detailPin, projectId]);
 
   const handleNoteClick = (note) => {
     setDetailNote((prevNote) =>

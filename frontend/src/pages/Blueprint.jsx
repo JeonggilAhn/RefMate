@@ -927,6 +927,7 @@ const Blueprint = () => {
               detailPin={detailPin}
               pinId={detailPin.pin_id}
               setDetailNote={setDetailNote}
+              projectId={projectId}
             />
             <PinNotes
               pinInfo={detailPin}
