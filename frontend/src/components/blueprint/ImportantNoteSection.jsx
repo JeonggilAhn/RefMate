@@ -11,12 +11,14 @@ const ImportantNoteSection = ({ detailPin, pinId, setDetailNote }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    console.log('ImportantNoteSection - Received pinId:', detailPin); // pinId 값 확인
     console.log('ImportantNoteSection - Received pinId:', detailPin.pin_id); // pinId 값 확인
 
     const fetchNotes = async () => {
       try {
         setLoading(true);
         const response = await get(`pins/${detailPin.pin_id}/notes/bookmark`);
+        console.log('ImportantNoteSection - Response:', response.data);
         if (response.data?.content?.note_list) {
           setNotes(response.data.content.note_list.reverse()); // 전역 상태 업데이트
         } else {
@@ -31,7 +33,7 @@ const ImportantNoteSection = ({ detailPin, pinId, setDetailNote }) => {
     };
 
     fetchNotes();
-  }, [detailPin.pin_id]);
+  }, [detailPin]);
 
   const handleNoteClick = (note) => {
     setDetailNote((prevNote) =>
