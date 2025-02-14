@@ -24,7 +24,7 @@ function Header() {
   const [signupDate, setSignupDate] = useState('');
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(
-    !!localStorage.getItem('access_token'),
+    !!sessionStorage.getItem('access_token'),
   );
 
   useEffect(() => {
@@ -57,7 +57,7 @@ function Header() {
   // }, []);
 
   const handleLogout = () => {
-    localStorage.removeItem('access_token'); // access_token 삭제
+    sessionStorage.removeItem('access_token'); // access_token 삭제
     setIsLoggedIn(false);
     setUserId(null);
     setProfileUrl('');
@@ -133,7 +133,7 @@ function Header() {
         isVisible={isLoginVisible}
         onClose={() => setIsLoginVisible(false)}
         onSuccess={(id) => {
-          localStorage.setItem('access_token', 'sample-token');
+          sessionStorage.setItem('access_token', 'sample-token');
           setIsLoggedIn(true);
           setUserId(id);
         }}

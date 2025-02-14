@@ -18,13 +18,13 @@ const getHeaders = () => {
   let accessToken = null;
 
   if (typeof window !== 'undefined') {
-    accessToken = window.localStorage.getItem('access_token');
+    accessToken = window.sessionStorage.getItem('access_token');
   }
 
   const presignedToken = getPresignedTokenFromUrl();
   if (typeof window !== 'undefined' && presignedToken) {
     accessToken = presignedToken;
-    window.localStorage.setItem('access_token', accessToken);
+    window.sessionStorage.setItem('access_token', accessToken);
   }
 
   if (accessToken) {
