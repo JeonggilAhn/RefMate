@@ -1,16 +1,17 @@
-export const processNotes = (noteList) => {
+export const processNotes = (noteList, prevLastDate = '') => {
   if (!Array.isArray(noteList))
-    return { notesWithSeparators: [], lastDate: '' };
-
-  const sortedNotes = [...noteList].sort(
-    (a, b) => new Date(a.created_at) - new Date(b.created_at),
-  );
+    return { notesWithSeparators: [], lastDate: prevLastDate };
 
   const notesWithSeparators = [];
-  let lastDate = '';
+  let lastDate = prevLastDate;
 
-  sortedNotes.forEach((note) => {
-    const noteDate = new Date(note.created_at).toLocaleDateString('ko-KR', {
+  noteList.forEach((note) => {
+    if (!note.created_at) return; // created_at이 없는 경우 제외
+
+    const dateObj = new Date(note.created_at);
+    if (isNaN(dateObj.getTime())) return; // 유효하지 않은 날짜 필터링
+
+    const noteDate = dateObj.toLocaleDateString('ko-KR', {
       year: 'numeric',
       month: 'long',
       day: 'numeric',
