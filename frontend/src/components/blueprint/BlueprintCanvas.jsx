@@ -250,7 +250,7 @@ const BlueprintCanvas = ({
             position: 'absolute',
             left: `${position.x + item.pin_x * scale}px`,
             top: `${position.y + item.pin_y * scale}px`,
-            zIndex: 3,
+            zIndex: 1,
             pointerEvents: 'auto',
             visibility: item.is_visible ? 'visible' : 'hidden',
             transform: `translate(-50%, -50%) scale(${scale})`, // 핀 크기 자동 확대/축소
