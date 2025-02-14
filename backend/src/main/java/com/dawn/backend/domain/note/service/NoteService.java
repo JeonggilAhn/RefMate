@@ -3,7 +3,10 @@ package com.dawn.backend.domain.note.service;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -14,10 +17,14 @@ import lombok.RequiredArgsConstructor;
 import com.dawn.backend.domain.blueprint.entity.BlueprintVersion;
 import com.dawn.backend.domain.blueprint.exception.BlueprintNotFoundException;
 import com.dawn.backend.domain.blueprint.repository.BlueprintVersionRepository;
+import com.dawn.backend.domain.note.dto.BlueprintNoteItemDto;
 import com.dawn.backend.domain.note.dto.ChatItemDto;
 import com.dawn.backend.domain.note.dto.DateSeparatorDto;
+import com.dawn.backend.domain.note.dto.GetNotesByRangeResponseDto;
 import com.dawn.backend.domain.note.dto.NoteDto;
 import com.dawn.backend.domain.note.dto.NoteItemWithTypeDto;
+import com.dawn.backend.domain.note.dto.NoteWithPinAndPinGroupDto;
+import com.dawn.backend.domain.note.dto.UserNoteCheckDto;
 import com.dawn.backend.domain.note.dto.request.BookmarkImageRequestDto;
 import com.dawn.backend.domain.note.dto.request.BookmarkNoteRequestDto;
 import com.dawn.backend.domain.note.dto.request.CreateNoteRequestDto;
@@ -466,5 +473,44 @@ public class NoteService {
 	public GetNotesByKewordByPinResponseDto getNotesByKeywordByPin(Long projectId, Long pinId, String keyword) {
 		List<Long> matchesnoteIds = noteRepository.findNoteByKeywordByPin(pinId, keyword);
 		return GetNotesByKewordByPinResponseDto.from(matchesnoteIds);
+	}
+
+	public GetNotesByRangeResponseDto getNotesByRange(
+		Long projectId, Long blueprintId, Long blueprintVersionId, Long nextId, Long lastId
+	) {
+		List<NoteWithPinAndPinGroupDto> noteDtos = noteRepository.findNotesWithPinAndPinGroupsByRange(
+			blueprintVersionId, nextId, lastId
+		);
+
+		System.out.println(noteDtos.size());
+
+		if (noteDtos.isEmpty()) {
+			return new GetNotesByRangeResponseDto(Collections.emptyList());
+		}
+//		Map<Long, NoteWithPinAndPinGroupDto> noteMap = new HashMap<>();
+//		for (NoteWithPinAndPinGroupDto dto : noteDtos) {
+//			noteMap.put(dto.noteId(), dto);
+//		}
+//
+//		List<Long> noteIds = new ArrayList<>(noteMap.keySet());
+//		System.out.println(noteIds.toString());
+//		// 확인여부 테이블에서 note_id에 맞는 모든 데이터 긁어오기
+//		List<UserNoteCheck> noteChecks = noteCheckRepository.findByNoteIdIn(noteIds);
+//		Map<Long, List<UserNoteCheck>> noteCheckMap = noteChecks.stream()
+//			.collect(Collectors.groupingBy(nc -> nc.getNote().getNoteId()));
+
+		List<ChatItemDto> chatItems = new ArrayList<>();
+
+		for (NoteWithPinAndPinGroupDto dto : noteDtos) {
+
+//			List<UserNoteCheck> readUsers = noteCheckMap.getOrDefault(
+//				dto.noteId(), Collections.emptyList()
+//			);
+
+			BlueprintNoteItemDto blueprintNoteItemDto = BlueprintNoteItemDto.from(dto);
+			chatItems.add(blueprintNoteItemDto);
+		}
+		return new GetNotesByRangeResponseDto(chatItems);
+
 	}
 }
