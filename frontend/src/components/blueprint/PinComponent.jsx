@@ -7,6 +7,7 @@ import PinNotes from './PinNotes';
 import NoteImageDetail from './NoteImageDetail';
 import { useRecoilState } from 'recoil';
 import { pinState } from '../../recoil/blueprint';
+import { EventSourcePolyfill, NativeEventSource } from 'event-source-polyfill';
 
 const PinComponent = ({
   blueprintId,
@@ -75,6 +76,8 @@ const PinComponent = ({
     if (!API_BASE_URL || !blueprintId) return; // 백엔드 미연결 방지
 
     const accessToken = localStorage.getItem('access_token');
+
+    const EventSource = EventSourcePolyfill || NativeEventSource;
 
     const eventSource = new EventSource(
       `${API_BASE_URL}/api/blueprints/${blueprintId}/task/read`,
