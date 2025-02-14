@@ -449,11 +449,13 @@ const NoteHistory = () => {
                     >
                       {note.type === 'note' && note.pin_name && (
                         <div
-                          className="px-2 py-0.5 rounded-md text-xs font-semibold mb-1"
+                          className={`px-2 py-0.5 rounded-md text-xs font-semibold mb-1 
+        ${isMyNote ? 'self-end' : 'self-start'}
+      `}
                           style={{
                             backgroundColor: note.pin_group_color || '#D1D5DB',
                             maxWidth: '8rem', // 8글자 정도만 표시
-                            height: '1.5rem', // 글자 크기보다 살짝만 높게
+                            height: '1.5rem',
                             overflow: 'hidden',
                             whiteSpace: 'nowrap',
                             textOverflow: 'ellipsis',
@@ -462,7 +464,7 @@ const NoteHistory = () => {
                           <span className="text-white">{note.pin_name}</span>
                         </div>
                       )}
-
+                      {}
                       <NoteButton
                         note={note}
                         onClick={() => handleNoteClick(note)}
