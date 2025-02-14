@@ -826,7 +826,7 @@ const Blueprint = () => {
       </div>
       {isVersionOpen && (
         <BlueprintVersions
-          blueprintId={blueprint_id}
+          blueprint_id={blueprint_id}
           blueprints={blueprints}
           setBlueprints={setBlueprints}
           closeModal={closeBlueprintVersion}
