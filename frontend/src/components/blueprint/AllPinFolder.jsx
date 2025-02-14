@@ -63,9 +63,9 @@ const AllPinFolder = ({
                   {item.image_id && item.is_bookmark && (
                     <div className="absolute top-0 right-0 w-4 h-4 bg-[#87B5FA] clip-triangle"></div>
                   )}
-                  {idx === 3 && pin.image_list.length > 4 && (
+                  {idx === 3 && pin.preview_image_list.length > 4 && (
                     <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center text-white text-sm font-semibold rounded-md">
-                      +{pin.image_list.length - 4}
+                      +{pin.preview_image_list.length - 4}
                     </div>
                   )}
                 </div>
