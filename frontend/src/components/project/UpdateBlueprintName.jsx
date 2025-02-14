@@ -3,6 +3,7 @@ import { patch } from '../../api';
 import { useRecoilState } from 'recoil';
 import { modalState } from '../../recoil/common/modal';
 import TextButton from '../../components/common/TextButton';
+import { useToast } from '@/hooks/use-toast';
 
 const UpdateBlueprintName = ({
   blueprintId,
@@ -11,6 +12,7 @@ const UpdateBlueprintName = ({
 }) => {
   const [modal, setModal] = useRecoilState(modalState);
   const [newTitle, setNewTitle] = useState('');
+  const { toast } = useToast(20);
 
   useEffect(() => {
     setNewTitle(blueprintTitle);
@@ -23,7 +25,10 @@ const UpdateBlueprintName = ({
       });
 
       console.log(response);
-      alert('수정 완료');
+      toast({
+        title: '블루프린트 이름 수정에 성공했습니다.',
+        description: String(new Date()),
+      });
       setBlueprintName(newTitle);
       setModal(null);
     } catch (error) {

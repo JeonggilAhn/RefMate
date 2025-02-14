@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { put } from '../../api';
+import { useToast } from '@/hooks/use-toast';
 
 const EditNote = ({
   noteId,
@@ -10,7 +11,7 @@ const EditNote = ({
 }) => {
   const [noteTitle, setNoteTitle] = useState(initialTitle);
   const [noteContent, setNoteContent] = useState(initialContent || '');
-
+  const { toast } = useToast(20);
   const handleUpdate = async () => {
     if (!noteTitle.trim()) {
       return;
@@ -27,10 +28,16 @@ const EditNote = ({
 
         closeModal(); // 수정 완료 후 창 닫기
       } else {
-        alert('노트 수정에 실패했습니다.');
+        toast({
+          title: '노트 수정에 실패했습니다.',
+          description: String(new Date()),
+        });
       }
     } catch (error) {
-      alert('노트 수정 중 문제가 발생했습니다.');
+      toast({
+        title: '노트 수정에 문제가 발생했습니다다.',
+        description: String(new Date()),
+      });
     }
   };
 
