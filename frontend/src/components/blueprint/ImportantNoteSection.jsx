@@ -27,9 +27,11 @@ const ImportantNoteSection = ({
     const fetchNotes = async () => {
       try {
         setLoading(true);
-        const response = await get(`pins/${detailPin.pin_id}/notes/bookmark`, {
-          project_id: projectId, // 쿼리 파라미터 추가
-        });
+        const apiUrl = `pins/${detailPin.pin_id}/notes/bookmark`;
+        const params = {
+          project_id: projectId,
+        };
+        const response = await get(apiUrl, params);
 
         console.log('API 응답:', response.data);
 
