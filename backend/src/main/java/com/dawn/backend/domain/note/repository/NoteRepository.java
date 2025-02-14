@@ -1,7 +1,6 @@
 package com.dawn.backend.domain.note.repository;
 
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -25,6 +24,20 @@ public interface NoteRepository extends JpaRepository<Note, Long> {
 		""")
 	List<Long> findNoteByKeyword(
 		@Param("blueprintVersionId") Long blueprintVersionId,
+		@Param("keyword") String keyword
+	);
+
+	@Query("""
+		SELECT n.noteId FROM Note n
+		WHERE n.pin.pinId = :pinId
+			AND n.isDeleted = false
+			AND (
+				LOWER(n.noteTitle) LIKE LOWER(CONCAT('%', :keyword, '%'))
+				OR LOWER(n.noteContent) LIKE LOWER(CONCAT('%', :keyword, '%'))
+			)
+		""")
+	List<Long> findNoteByKeywordByPin(
+		@Param("pinId") Long pinId,
 		@Param("keyword") String keyword
 	);
 
