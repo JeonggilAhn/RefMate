@@ -301,7 +301,7 @@ const BlueprintCanvas = ({
         style={{
           cursor:
             isPinButtonEnaled || isCtrlPressed
-              ? 'url("/icons/IconTbPinFill.svg"), crosshair'
+              ? 'url("/icons/cursor-pin.svg"), crosshair'
               : dragging
                 ? 'grabbing'
                 : 'grab',
