@@ -11,6 +11,8 @@ import { modalState } from '../../recoil/common/modal';
 const A3_WIDTH = 1587;
 const A3_HEIGHT = 1123;
 
+const PIN_CURSOR = `url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHZpZXdCb3g9IjAgMCAyMCAyMCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cGF0aCBkPSJNMTIuNSAzLjc1TDkuMTY2NzEgNy4wODMzM0w1LjgzMzM3IDguMzMzMzNMNC41ODMzNyA5LjU4MzMzTDEwLjQxNjcgMTUuNDE2N0wxMS42NjY3IDE0LjE2NjdMMTIuOTE2NyAxMC44MzMzTDE2LjI1IDcuNSIgc3Ryb2tlPSJibGFjayIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PHBhdGggZD0iTTcuNSAxMi41TDMuNzUgMTYuMjUiIHN0cm9rZT0iYmxhY2siIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPjxwYXRoIGQ9Ik0xMi4wODM0IDMuMzMzMjVMMTYuNjY2NyA3LjkxNjU4IiBzdHJva2U9ImJsYWNrIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz48L3N2Zz4='), crosshair`;
+
 const BlueprintCanvas = ({
   projectId,
   imageUrl,
@@ -301,7 +303,7 @@ const BlueprintCanvas = ({
         style={{
           cursor:
             isPinButtonEnaled || isCtrlPressed
-              ? 'url("/icons/cursor-pin.svg"), crosshair'
+              ? PIN_CURSOR
               : dragging
                 ? 'grabbing'
                 : 'grab',
