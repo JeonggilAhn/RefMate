@@ -252,7 +252,9 @@ public class PinService {
 
 		return new UpdatePinGroupResponseDto(
 			savedPinVersion.getPinVersionId(),
-			savedPinVersion.getPinGroup().getPinGroupId()
+			savedPinVersion.getPinGroup().getPinGroupId(),
+			savedPinVersion.getPinGroup().getPinGroupName(),
+			savedPinVersion.getPinGroup().getPinGroupColor()
 		);
 	}
 
