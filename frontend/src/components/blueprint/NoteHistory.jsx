@@ -46,13 +46,14 @@ const NoteHistory = () => {
 
       // cursorIdRef는 가장 오래된 note_id로 설정
       cursorIdRef.current = rawNotes.at(-1)?.note_id || null;
-      console.log('초기 cursorId 설정:', cursorIdRef.current);
+      //  console.log('초기 cursorId 설정:', cursorIdRef.current);
 
       // 스크롤 위치를 맨 아래로 설정
       setTimeout(() => {
         if (scrollContainerRef.current) {
           scrollContainerRef.current.scrollTop =
-            scrollContainerRef.current.scrollHeight;
+            currentScrollTop +
+            (scrollContainerRef.current.scrollHeight - currentScrollHeight);
         }
       }, 0);
     }
@@ -120,6 +121,8 @@ const NoteHistory = () => {
       };
       const rangeResponse = await get(rangeApiUrl, rangeParams);
       const newNotes = rangeResponse.data.content.note_list || [];
+
+      console.log('범위 노트 요청 결과:', newNotes.created_at);
 
       if (newNotes.length > 0) {
         setNotes((prevNotes) => [...prevNotes, ...newNotes]); // 노트 추가
@@ -218,7 +221,7 @@ const NoteHistory = () => {
     setIsFetching(true); // 요청 중에는 중복 호출하지 않음음
 
     try {
-      console.log('현재 cursorId:', cursorIdRef.current);
+      //  console.log('현재 cursorId:', cursorIdRef.current);
 
       const apiUrl = `blueprints/${blueprint_id}/${blueprint_version_id}/notes`;
       const params = {
@@ -228,14 +231,15 @@ const NoteHistory = () => {
       };
       const response = await get(apiUrl, params);
 
-      console.log('API 응답 확인:', response.data);
+      // console.log('API 응답 확인:', response.data);
 
       const newNotes = response.data?.content?.note_list || [];
+      console.log(`정보 : `, newNotes);
       if (response.status === 200 && newNotes.length > 0) {
-        console.log(
+        /*  console.log(
           'API 응답 받은 note_id 리스트:',
           newNotes.map((note) => note.note_id),
-        );
+        );*/
 
         // 현재 스크롤 위치 저장
         const currentScrollHeight = scrollContainerRef.current.scrollHeight;
@@ -262,7 +266,7 @@ const NoteHistory = () => {
 
         // cursorId 업데이트 (가장 오래된 note_id로 설정)
         cursorIdRef.current = newNotes.at(-1)?.note_id || cursorIdRef.current;
-        console.log('업데이트된 cursorId:', cursorIdRef.current);
+        // console.log('업데이트된 cursorId:', cursorIdRef.current);
 
         // 새로운 노트가 추가된 후 스크롤 위치 복원
         setTimeout(() => {
@@ -290,16 +294,16 @@ const NoteHistory = () => {
     const { scrollTop, scrollHeight, clientHeight } =
       scrollContainerRef.current;
 
-    console.log('handleScroll 실행됨', {
+    /*console.log('handleScroll 실행됨', {
       scrollTop,
       scrollHeight,
       clientHeight,
       cursorId: cursorIdRef.current,
-    });
+    });*/
 
     // 스크롤이 최상단 도달했을 때만 실행
     if (scrollTop <= 10 && cursorIdRef.current !== null) {
-      console.log('최상단 도달! 노트 추가 요청');
+      // console.log('최상단 도달! 노트 추가 요청');
       fetchMoreNotes(); // 추가 노트 불러오기기
     }
   }, [isFetching, fetchMoreNotes]);

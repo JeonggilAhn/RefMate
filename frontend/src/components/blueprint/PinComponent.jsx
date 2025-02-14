@@ -192,7 +192,7 @@ const PinComponent = ({
 
       {/* 클릭 시 버튼 목록 표시 (버튼 리스트 유지) */}
       {isClicked && (
-        <div className="absolute top-6 left-8 z-10">
+        <div className="absolute top-6 left-8 z-5">
           <ButtonList
             onNoteClick={handleNoteClick}
             onImgClick={handleImgClick}

@@ -35,7 +35,7 @@ const EditNote = ({
   };
 
   return (
-    <div className="fixed right-80 w-80 bg-white border border-gray-300 rounded-md shadow-md p-4">
+    <div className="fixed right-80 w-80 bg-white border border-gray-300 z-1 rounded-md shadow-md p-4">
       {/* 헤더 */}
       <div className="flex justify-between items-center border-b pb-2 mb-3">
         <div className="text-lg font-semibold">노트 수정</div>
