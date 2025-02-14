@@ -1,15 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { get } from '../../api';
 import Icon from '../common/Icon';
-import { useParams } from 'react-router-dom';
+// import { useParams } from 'react-router-dom';
+import { useRecoilState } from 'recoil';
+import { projectState } from '../../recoil/common/project';
 
-function NoteSearch({ onSelect, onClose }) {
+function NoteSearch({ pinId, onSelect, onClose }) {
   const [keyword, setKeyword] = useState('');
   const [searchedNotes, setSearchedNotes] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isSearched, setIsSearched] = useState(false);
+  const [project, setProject] = useRecoilState(projectState);
 
-  const { project_id, pin_id } = useParams();
+  // const { project_id, pin_id } = useParams();
 
   // 노트 검색 함수
   const searchNotes = async () => {
@@ -18,10 +21,10 @@ function NoteSearch({ onSelect, onClose }) {
       alert('검색어를 입력하세요!');
       return;
     }
-
+    console.log('프로젝트 아이디: ', project.projectId);
     try {
       const response = await get(
-        `${project_id}/pin/${pin_id}/notes/search?keyword=${keyword}`,
+        `${project.projectId}/pin/${pinId}/notes/search?keyword=${keyword}`,
       );
       const noteList = response.data.content.note_id_list || [];
 
