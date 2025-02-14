@@ -3,12 +3,11 @@ import { get } from '../../api';
 import ImportantNoteList from './ImportantNoteList';
 import { Skeleton } from '@/components/ui/skeleton';
 
-import { useRecoilState, useSetRecoilState } from 'recoil';
+import { useRecoilState } from 'recoil';
 import { importantNotesState } from '../../recoil/blueprint';
 
 const ImportantNoteSection = ({ detailPin, setDetailNote, projectId }) => {
-  const notes = useRecoilState(importantNotesState); // 전역 상태 사용
-  const setNotes = useSetRecoilState(importantNotesState); // 전역 상태 사용
+  const [notes, setNotes] = useRecoilState(importantNotesState); // ✅ 올바른 방식
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -19,6 +18,8 @@ const ImportantNoteSection = ({ detailPin, setDetailNote, projectId }) => {
 
     console.log('ImportantNoteSection - Received pinId:', detailPin.pin_id);
     console.log('ImportantNoteSection - Received projectId:', projectId);
+
+    setNotes([]); // 새로운 핀 클릭 시 초기화
 
     const fetchNotes = async () => {
       try {
@@ -32,7 +33,11 @@ const ImportantNoteSection = ({ detailPin, setDetailNote, projectId }) => {
         console.log('API 응답:', response.data);
 
         if (response.data?.content?.note_list) {
-          setNotes(response.data.content.note_list.reverse());
+          const fetchedNotes = response.data.content.note_list.reverse() || [];
+
+          console.log('정렬된된 Notes:', fetchedNotes); // 여기서 확인
+
+          setNotes(fetchedNotes);
         } else {
           setNotes([]); // 새로운 핀 클릭 시 초기화
         }
@@ -45,7 +50,7 @@ const ImportantNoteSection = ({ detailPin, setDetailNote, projectId }) => {
     };
 
     fetchNotes();
-  }, [detailPin, projectId, setNotes]);
+  }, [detailPin.pin_id, projectId, setNotes]);
 
   const handleNoteClick = (note) => {
     setDetailNote((prevNote) =>
