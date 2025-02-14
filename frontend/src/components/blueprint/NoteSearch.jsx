@@ -2,15 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { get } from '../../api';
 import Icon from '../common/Icon';
 // import { useParams } from 'react-router-dom';
-import { useRecoilState } from 'recoil';
-import { projectState } from '../../recoil/common/project';
+import { useToast } from '@/hooks/use-toast';
 
-function NoteSearch({ pinId, onSelect, onClose }) {
+function NoteSearch({ projectId, pinId, onSelect, onClose }) {
   const [keyword, setKeyword] = useState('');
   const [searchedNotes, setSearchedNotes] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isSearched, setIsSearched] = useState(false);
-  const [project, setProject] = useRecoilState(projectState);
+  const { toast } = useToast(20);
 
   // const { project_id, pin_id } = useParams();
 
@@ -18,19 +17,23 @@ function NoteSearch({ pinId, onSelect, onClose }) {
   const searchNotes = async () => {
     // 검색어가 비어있는지 확인
     if (!keyword.trim()) {
-      alert('검색어를 입력하세요!');
+      toast({
+        title: '검색어를 입력하세요.',
+      });
       return;
     }
-    console.log('프로젝트 아이디: ', project.projectId);
+    console.log('프로젝트 아이디: ', projectId);
     try {
       const response = await get(
-        `${project.projectId}/pin/${pinId}/notes/search?keyword=${keyword}`,
+        `${projectId}/pin/${pinId}/notes/search?keyword=${keyword}`,
       );
       const noteList = response.data.content.note_id_list || [];
 
       setSearchedNotes(noteList);
       console.log(noteList);
       setCurrentIndex(0);
+      onSelect(noteList[0]);
+      console.log('////////', noteList[0]);
       setIsSearched(true);
     } catch (error) {
       console.error('API 호출 오류:', error);

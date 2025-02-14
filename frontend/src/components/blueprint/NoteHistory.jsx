@@ -9,6 +9,7 @@ import { noteState } from '../../recoil/blueprint';
 import { userState } from '../../recoil/common/user';
 import { useParams } from 'react-router-dom';
 import { get } from '../../api/index';
+import { useToast } from '@/hooks/use-toast';
 
 const NoteHistory = () => {
   const rawNotes = useRecoilValue(noteState); // Blueprint에서 받은 전역 상태 사용
@@ -22,6 +23,7 @@ const NoteHistory = () => {
   const noteRefs = useRef({});
   const scrollContainerRef = useRef(null);
   const scrollPositionRef = useRef(0);
+  const { toast } = useToast(20);
 
   // 검색 기능
   const [keyword, setKeyword] = useState('');
@@ -62,7 +64,9 @@ const NoteHistory = () => {
   // 검색 -> 스크롤 & 하이라이트
   const fetchSearchNotes = async () => {
     if (!keyword.trim()) {
-      alert('검색어를 입력하세요');
+      toast({
+        title: '검색어를 입력하세요.',
+      });
       return; // 빈 검색어 방지
     }
 

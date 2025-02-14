@@ -293,6 +293,7 @@ const PinNotes = ({
             {isSearching && (
               <div className="absolute h-auto w-full top-10 bg-white z-20 flex flex-col">
                 <NoteSearch
+                  projectId={project_id}
                   pinId={pinId}
                   onSelect={handleSearchSelect}
                   onClose={() => {
