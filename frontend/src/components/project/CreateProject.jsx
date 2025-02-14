@@ -4,11 +4,14 @@ import InviteUsers from './InviteUsers';
 import TextButton from '../common/TextButton';
 import { useRecoilState } from 'recoil';
 import { modalState } from '../../recoil/common/modal';
+import { useToast } from '@/hooks/use-toast';
 
 const CreateProject = ({ setProjects }) => {
   const [modal, setModal] = useRecoilState(modalState);
   const [projectTitle, setProjectTitle] = useState('');
   const [validEmails, setValidEmails] = useState([]);
+
+  const { toast } = useToast();
 
   const handleInputChange = (event) => {
     setProjectTitle(event.target.value);
@@ -65,15 +68,25 @@ const CreateProject = ({ setProjects }) => {
           console.log('초대한 이메일:', inviteEmailList);
         } catch (inviteError) {
           console.error('사용자 초대 실패:', inviteError);
-          alert('사용자 초대 중 오류 발생');
+          toast({
+            title: '사용자 초대 중 오류가 발생했습니다.',
+            description: String(new Date()),
+          });
         }
       }
 
-      alert('생성 완료');
+      toast({
+        title: '프로젝트가 생성되었습니다.',
+        description: String(new Date()),
+      });
+
       setModal(null);
     } catch (error) {
       console.error('프로젝트 생성 실패:', error);
-      alert('프로젝트 생성 중 오류 발생');
+      toast({
+        title: '프로젝트가 생성 중 오류가 발생했습니다.',
+        description: String(new Date()),
+      });
     }
   };
 
