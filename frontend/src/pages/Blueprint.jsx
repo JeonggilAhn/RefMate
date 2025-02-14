@@ -35,6 +35,7 @@ const Blueprint = () => {
 
   // common
   const [colors, setColors] = useRecoilState(colorState);
+  const [pinColors, setPinColors] = useState([]);
   const { toast } = useToast(20);
 
   // pins
@@ -66,16 +67,17 @@ const Blueprint = () => {
 
   // version tool bar
   const [blueprints, setBlueprints] = useState([]);
-  const [selectedBlueprint, setSelectedBlueprint] = useState({});
+  const [selectedBlueprintIndex, setSelectedBlueprintIndex] = useState(0);
   const [isOverlayVisible, setIsOverlayVisible] = useState(false);
   const [isVersionOpen, setIsVersionOpen] = useState(false);
-  const [overlayOpacity, setOverlayOpacity] = useState(0);
+  const [overlayOpacity, setOverlayOpacity] = useState(0.5);
 
   // sidebar detail
   const [detailPin, setDetailPin] = useState({
     pinDetailNotes: [],
     pinDetailImages: [],
   });
+  const [selectedColor, setSelectedColor] = useState(null);
 
   const [modal, setModal] = useRecoilState(modalState);
   const [isDetailPopupOpen, setIsDetailPopupOpen] = useState(false);
@@ -162,16 +164,19 @@ const Blueprint = () => {
     fetchNoteHistory();
   }, [blueprint_id, blueprint_version_id]);
 
-  // todo : 고장남 ㅋ
   const toggleOverlayVisible = () => {
     setIsOverlayVisible((prev) => {
       if (prev === false) {
-        setOverlayOpacity(0.8);
+        setOverlayOpacity(0.5);
       } else {
         setOverlayOpacity(0);
       }
 
       return !prev;
+    });
+
+    setOverlayBlueprint((prev) => {
+      return { ...prev };
     });
   };
 
@@ -213,8 +218,6 @@ const Blueprint = () => {
               pinDetailImages: pinImgRes.data.content,
             };
             setDetailPin(newItem);
-            console.log('pin info button');
-            console.log('핀 정보: ', newItem);
             return newItem;
           }
 
@@ -232,8 +235,6 @@ const Blueprint = () => {
               pinDetailNotes: pinNotRes.data.content.note_list,
             };
             setDetailPin(newItem);
-            console.log('pin info button');
-            console.log('핀 정보: ', newItem);
             return newItem;
           }
 
@@ -254,9 +255,11 @@ const Blueprint = () => {
       get(`blueprints/${blueprint_id}/${blueprint_version_id}`),
       get(`blueprints/${blueprint_id}/${blueprint_version_id}/pins`, {
         is_active: true,
+        pin_group_id: null,
       }),
       get(`blueprints/${blueprint_id}/${blueprint_version_id}/pins`, {
         is_active: false,
+        pin_group_id: null,
       }),
       get(`blueprints/${blueprint_id}`),
     ]);
@@ -319,11 +322,12 @@ const Blueprint = () => {
       setBlueprintTitle(bpRes.data.content.blueprint_version_title);
       setOverlayBlueprint(bpRes.data.content);
 
-      const print = tmpBlueprints.find(
+      const index = tmpBlueprints.findIndex(
         (item) =>
           item.blueprint_version_id === bpRes.data.content.blueprint_version_id,
       );
-      setSelectedBlueprint(print ? print : tmpBlueprints[0]);
+
+      setSelectedBlueprintIndex(index || 0);
     }
   };
 
@@ -344,13 +348,32 @@ const Blueprint = () => {
     });
   };
 
+  useEffect(() => {
+    const def = {
+      color: 'white',
+      id: 0,
+      name: '전체',
+    };
+
+    const data = [def, ...colors];
+
+    setSelectedColor(def);
+    setPinColors(data);
+  }, [colors]);
+
   const tabActions = [
     {
       name: '진행중',
       handler: async () => {
         const psRes = await get(
           `blueprints/${blueprint_id}/${blueprint_version_id}/pins`,
-          { is_active: true },
+          {
+            is_active: true,
+            pin_group_id:
+              selectedColor.id && selectedColor.id !== 0
+                ? selectedColor.id
+                : null,
+          },
         );
 
         // (진행중인) 모든 핀 데이터터 조회
@@ -373,7 +396,13 @@ const Blueprint = () => {
       handler: async () => {
         const dpsRes = await get(
           `blueprints/${blueprint_id}/${blueprint_version_id}/pins`,
-          { is_active: false },
+          {
+            is_active: false,
+            pin_group_id:
+              selectedColor.id && selectedColor.id !== 0
+                ? selectedColor.id
+                : null,
+          },
         );
 
         // (완료된된) 모든 핀 데이터터 조회
@@ -425,7 +454,6 @@ const Blueprint = () => {
             } = res;
 
             if (status === 200) {
-              // 해당 pin pins 에서 제거 (is_active : false)
               setPins((prev) => {
                 return prev.filter((item) => {
                   if (item.pin_id === pinId) {
@@ -479,8 +507,6 @@ const Blueprint = () => {
             } = res;
 
             if (status === 200) {
-              // 여기서 처리 따로 해줘야함
-              // 해당 pin donePins 에서 제거 (is_active : true)
               setDonePins((prev) => {
                 return prev.filter((item) => {
                   if (item.pin_id === pinId) {
@@ -511,9 +537,28 @@ const Blueprint = () => {
   };
 
   const onClickPrevBlueprintButton = () => {
-    setSelectedBlueprint((prev) => {
-      if (prev.index > 0) {
-        return { ...blueprints[prev.index - 1] };
+    setSelectedBlueprintIndex((prev) => {
+      if (prev > 0) {
+        const blueprint = blueprints.find((item, idx) => idx === prev - 1);
+
+        if (!blueprint) {
+          console.log('index와 일치하는 도면이 없습니다');
+        }
+
+        get(
+          `blueprints/${blueprint_id}/${blueprint.blueprint_version_id}`,
+        ).then((res) => {
+          const {
+            status,
+            data: { content },
+          } = res;
+
+          if (status === 200) {
+            setOverlayBlueprint({ ...content });
+          }
+        });
+
+        return prev - 1;
       }
 
       return prev;
@@ -521,18 +566,44 @@ const Blueprint = () => {
   };
 
   const onClickNextBlueprintButton = () => {
-    setSelectedBlueprint((prev) => {
-      if (prev.index < blueprints.length - 1) {
-        return { ...blueprints[prev.index + 1] };
+    setSelectedBlueprintIndex((prev) => {
+      if (prev < blueprints.length - 1) {
+        const blueprint = blueprints.find((item, idx) => idx === prev + 1);
+
+        if (!blueprint) {
+          console.log('index와 일치하는 도면이 없습니다');
+        }
+
+        get(
+          `blueprints/${blueprint_id}/${blueprint.blueprint_version_id}`,
+        ).then((res) => {
+          const {
+            status,
+            data: { content },
+          } = res;
+
+          if (status === 200) {
+            setOverlayBlueprint({ ...content });
+          }
+        });
+
+        return prev + 1;
       }
 
       return prev;
     });
   };
 
-  const onSelectBlueprintVersion = (blueprint) => {
+  const onSelectBlueprintVersion = (index) => {
     // 개별 블루프린트 조회
-    setSelectedBlueprint(blueprint);
+    setSelectedBlueprintIndex(index);
+
+    const blueprint = blueprints.find((item, idx) => idx === index);
+
+    if (!blueprint) {
+      console.log('index와 일치하는 도면이 없습니다');
+    }
+
     get(`blueprints/${blueprint_id}/${blueprint.blueprint_version_id}`).then(
       (res) => {
         const {
@@ -562,10 +633,13 @@ const Blueprint = () => {
   };
 
   const onSelectColor = async (value) => {
-    // todo : 색상별 전체 핀 리스트 조회
+    setSelectedColor(value);
     const psRes = await get(
       `blueprints/${blueprint_id}/${blueprint_version_id}/pins`,
-      { is_active: isActiveTab, pin_group_id: value.id },
+      {
+        is_active: isActiveTab,
+        pin_group_id: value.id === 0 ? null : value.id,
+      },
     );
 
     // (진행중인) 모든 핀 데이터
@@ -674,33 +748,32 @@ const Blueprint = () => {
                 <Icon name="IconBsLayers" />
               </button>
               <div className="flex items-center gap-1">
-                {/* <button
-                  disabled={selectedBlueprint.index === 0}
-                  className={`w-[2.4rem] h-[2.4rem] flex justify-center items-center border border-[#CBCBCB] bg-[#F5F5F5] rounded-md ${selectedBlueprint.index === 0 ? 'cursor-not-allowed' : 'cursor-pointer'}`}
+                <button
+                  disabled={selectedBlueprintIndex < 0}
+                  className={`w-[2.4rem] h-[2.4rem] flex justify-center items-center border border-[#CBCBCB] bg-[#F5F5F5] rounded-md ${selectedBlueprintIndex < 0 ? 'cursor-not-allowed' : 'cursor-pointer'}`}
                   onClick={onClickPrevBlueprintButton}
                 >
                   <Icon name="IconGoChevronPrev" width={20} height={20} />
-                </button> */}
+                </button>
                 <SelectBox
-                  value={selectedBlueprint}
+                  value={selectedBlueprintIndex}
                   onValueChange={onSelectBlueprintVersion}
-                  placeholder={`[${blueprint.blueprint_version_seq}] ${blueprint.blueprint_version_name}`}
                 >
                   {blueprints.map((print, index) => (
-                    <SelectItem key={print.blueprint_version_id} value={print}>
+                    <SelectItem key={print.blueprint_version_id} value={index}>
                       [{print.blueprint_version_seq}]{' '}
                       {print.blueprint_version_name}
                     </SelectItem>
                   ))}
                 </SelectBox>
 
-                {/* <button
-                  disabled={selectedBlueprint.index === blueprints.length - 1}
-                  className={`w-[2.4rem] h-[2.4rem] flex justify-center items-center border border-[#CBCBCB] bg-[#F5F5F5] rounded-md ${selectedBlueprint.index === blueprints.length - 1 ? 'cursor-not-allowed' : 'cursor-pointer'}`}
+                <button
+                  disabled={selectedBlueprintIndex === blueprints.length - 1}
+                  className={`w-[2.4rem] h-[2.4rem] flex justify-center items-center border border-[#CBCBCB] bg-[#F5F5F5] rounded-md ${selectedBlueprintIndex === blueprints.length - 1 ? 'cursor-not-allowed' : 'cursor-pointer'}`}
                   onClick={onClickNextBlueprintButton}
                 >
                   <Icon name="IconGoChevronNext" width={20} height={20} />
-                </button> */}
+                </button>
               </div>
             </div>
             <div className="flex justify-between items-center gap-2">
@@ -777,10 +850,10 @@ const Blueprint = () => {
                     {/* todo : API 연동 */}
                     <SelectBox
                       width={35}
-                      placeholder={'전체'}
+                      value={selectedColor}
                       onValueChange={onSelectColor}
                     >
-                      {colors.map((item, index) => {
+                      {pinColors.map((item, index) => {
                         return (
                           <SelectItem key={item.id} value={item}>
                             <div className="flex items-center gap-2">
