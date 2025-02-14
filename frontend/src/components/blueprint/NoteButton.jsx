@@ -45,7 +45,7 @@ const NoteButton = ({ note, onClick }) => {
   return (
     <div className="flex items-center gap-4 p-2 bg-transp">
       {/* 작성자 프로필 이미지 (로그인한 유저와 다를 때만 표시) */}
-      {user?.email !== note_writer.user_email && (
+      {user?.user_email !== note_writer.user_email && (
         <img
           src={note_writer.profile_url}
           alt="프로필"

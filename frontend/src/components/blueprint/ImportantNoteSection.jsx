@@ -11,6 +11,8 @@ const ImportantNoteSection = ({ pinId, setDetailNote }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    console.log('ImportantNoteSection - Received pinId:', pinId); // pinId 값 확인
+
     const fetchNotes = async () => {
       try {
         setLoading(true);
@@ -66,6 +68,7 @@ const ImportantNoteSection = ({ pinId, setDetailNote }) => {
         중요한 노트
       </h2>
       <div className="h-40 overflow-y-auto">
+        {console.log('ImportantNoteSection - Notes:', notes)}{' '}
         <ImportantNoteList notes={notes} onNoteClick={handleNoteClick} />
       </div>
     </div>
