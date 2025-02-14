@@ -92,6 +92,7 @@ const PinComponent = ({
     eventSource.onmessage = (event) => {
       try {
         const data = JSON.parse(event.data);
+        console.log('data', data);
         if (data.pin_id === pinInfo.pin_id) {
           setUnreadNotes(false);
         }
@@ -109,25 +110,6 @@ const PinComponent = ({
       eventSource.close(); // 언마운트 시 SSE 연결 종료
     };
   }, [API_BASE_URL, blueprintId, pinInfo.pin_id]);
-
-  // 읽음 여부 판단
-  const fetchUnreadStatus = useCallback(async () => {
-    try {
-      const response = await get(`pins/${pinInfo.pin_id}/notes`, {
-        project_id: projectId,
-      });
-      const notes = response.data?.content?.note_list || [];
-
-      // // 내 user_id(TEST_USER_ID)가 read_users에 없으면 unreadNotes = true
-      // const isUnread = notes.some((note) =>
-      //   note.read_users.every((user) => user.user_id !== TEST_USER_ID),
-      // );
-
-      setUnreadNotes(isUnread);
-    } catch (error) {
-      console.error(`핀 ${pinInfo.pin_id}의 읽음 여부 조회 실패:`, error);
-    }
-  }, [pinInfo]);
 
   // 최근 노트 데이터를 가져오기
   const fetchRecentNote = useCallback(async () => {
@@ -152,9 +134,8 @@ const PinComponent = ({
     if (!pin) return;
 
     setPinInfo(pin);
-    fetchUnreadStatus();
     fetchRecentNote();
-  }, [pin, fetchUnreadStatus, fetchRecentNote]);
+  }, [pin, fetchRecentNote]);
 
   if (!pin) return null;
 
