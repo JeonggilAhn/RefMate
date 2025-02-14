@@ -3,12 +3,14 @@ import { post } from '../../api';
 import Icon from '../common/Icon';
 import ImageUploader from '../common/ImageUploader';
 import { useParams } from 'react-router-dom';
+import { useToast } from '@/hooks/use-toast';
 
 const CreateNote = ({ pinId, isSidebar, closeModal }) => {
   const [noteTitle, setNoteTitle] = useState('');
   const [noteContent, setNoteContent] = useState('');
   const [imageUrls, setImageUrls] = useState([]);
   const [notes, setNotes] = useRecoilState(NoteState);
+  const { toast } = useToast();
 
   const { projectId, blueprint_version_id } = useParams(); // projectId 가져오기
 
@@ -39,14 +41,23 @@ const CreateNote = ({ pinId, isSidebar, closeModal }) => {
       });
 
       if (response.status === 201) {
-        alert('노트 생성 성공');
+        toast({
+          title: '노트 생성에 성공했습니다.',
+          description: String(new Date()),
+        });
         closeModal();
       } else {
-        alert('노트 생성 실패');
+        toast({
+          title: '노트 생성에 실패했습니다.',
+          description: String(new Date()),
+        });
       }
     } catch (error) {
       console.error('노트 생성 중 오류 발생:', error);
-      alert('노트 생성 실패');
+      toast({
+        title: '노트 생성에 실패했습니다.',
+        description: String(new Date()),
+      });
     }
   };
 

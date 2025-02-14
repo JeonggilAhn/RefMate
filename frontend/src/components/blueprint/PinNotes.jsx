@@ -19,6 +19,7 @@ import ImageUploader from '../common/ImageUploader';
 import { useRecoilState } from 'recoil';
 import { pinState } from '../../recoil/blueprint';
 import { processNotes } from '../../utils/temp';
+import { useToast } from '@/hooks/use-toast';
 
 const PinNotes = ({
   pinInfo,
@@ -40,6 +41,7 @@ const PinNotes = ({
   const [data, setData] = useState({
     pinDetailNotes: [],
   });
+  const { toast } = useToast(20);
 
   useEffect(() => {
     const pin = pins.find((item) => item.pin_id === pinId) || {
@@ -140,16 +142,25 @@ const PinNotes = ({
       });
 
       if (response.status === 201) {
-        alert('노트 생성 성공');
+        toast({
+          title: '노트 생성에 성공했습니다.',
+          description: String(new Date()),
+        });
         setOpen(false);
         setNoteTitle('');
         setNoteContent('');
       } else {
-        alert('노트 생성 실패');
+        toast({
+          title: '노트 생성에 실패했습니다.',
+          description: String(new Date()),
+        });
       }
     } catch (error) {
       console.error('노트 생성 중 오류 발생:', error);
-      alert('노트 생성 실패');
+      toast({
+        title: '노트 생성에 실패했습니다.',
+        description: String(new Date()),
+      });
     }
   };
 
