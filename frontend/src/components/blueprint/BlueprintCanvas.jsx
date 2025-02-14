@@ -11,7 +11,7 @@ import { modalState } from '../../recoil/common/modal';
 const A3_WIDTH = 1587;
 const A3_HEIGHT = 1123;
 
-const PIN_CURSOR = `url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHZpZXdCb3g9IjAgMCAyMCAyMCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cGF0aCBkPSJNMTIuNSAzLjc1TDkuMTY2NzEgNy4wODMzM0w1LjgzMzM3IDguMzMzMzNMNC41ODMzNyA5LjU4MzMzTDEwLjQxNjcgMTUuNDE2N0wxMS42NjY3IDE0LjE2NjdMMTIuOTE2NyAxMC44MzMzTDE2LjI1IDcuNSIgc3Ryb2tlPSJibGFjayIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PHBhdGggZD0iTTcuNSAxMi41TDMuNzUgMTYuMjUiIHN0cm9rZT0iYmxhY2siIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPjxwYXRoIGQ9Ik0xMi4wODM0IDMuMzMzMjVMMTYuNjY2NyA3LjkxNjU4IiBzdHJva2U9ImJsYWNrIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz48L3N2Zz4='), crosshair`;
+const PIN_CURSOR = `url("data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M12.5 3.75L9.16671 7.08333L5.83337 8.33333L4.58337 9.58333L10.4167 15.4167L11.6667 14.1667L12.9167 10.8333L16.25 7.5' stroke='black' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M7.5 12.5L3.75 16.25' stroke='black' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M12.0834 3.33325L16.6667 7.91658' stroke='black' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E"), crosshair`;
 
 const BlueprintCanvas = ({
   projectId,
