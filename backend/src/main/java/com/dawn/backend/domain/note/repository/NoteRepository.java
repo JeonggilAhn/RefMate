@@ -8,10 +8,53 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import com.dawn.backend.domain.note.dto.NoteWithPinAndPinGroupDto;
 import com.dawn.backend.domain.note.entity.Note;
 
 @Repository
 public interface NoteRepository extends JpaRepository<Note, Long> {
+
+	@Query("""
+		SELECT new com.dawn.backend.domain.note.dto.NoteWithPinAndPinGroupDto(
+		n.noteId, u.userId, n.noteTitle, n.bookmark, n.createdAt,
+		n.blueprintVersion.blueprint.blueprintId,
+		n.blueprintVersion.blueprint.blueprintTitle,
+		n.blueprintVersion.blueprintVersionId,
+		n.blueprintVersion.previewImg,
+		p.pinId, p.pinName, p.pinX, p.pinY,
+		pg.pinGroupId, pg.pinGroupName, pg.pinGroupColor,
+		(CASE WHEN COUNT(ni) > 0 THEN true ELSE false END)
+		)
+		FROM Note n
+		JOIN n.user u
+		JOIN n.blueprintVersion bv
+		JOIN BlueprintVersion currentVersion
+			ON currentVersion.blueprintVersionId = :blueprintVersionId
+		JOIN n.pin p
+		JOIN PinVersion pv ON pv.pin = p
+			AND pv.blueprintVersion = n.blueprintVersion
+			AND pv.isActive = true
+		JOIN pv.pinGroup pg
+		LEFT JOIN NoteImage ni ON ni.note = n
+		WHERE bv.blueprint = currentVersion.blueprint
+			AND bv.blueprintVersionSeq <= currentVersion.blueprintVersionSeq
+			AND n.noteId < :lastId
+			AND n.noteId >= :nextId
+			AND n.isDeleted = false
+		GROUP BY n.noteId, u.userId, n.noteTitle, n.bookmark, n.createdAt,
+				n.blueprintVersion.blueprint.blueprintId,
+				n.blueprintVersion.blueprint.blueprintTitle,
+				n.blueprintVersion.blueprintVersionId,
+				n.blueprintVersion.previewImg,
+				p.pinId, p.pinName, p.pinX, p.pinY,
+				pg.pinGroupId, pg.pinGroupName, pg.pinGroupColor
+		ORDER BY n.noteId ASC
+		""")
+	List<NoteWithPinAndPinGroupDto> findNotesWithPinAndPinGroupsByRange(
+		@Param("blueprintVersionId") Long blueprintVersionId,
+		@Param("nextId") Long nextId,
+		@Param("lastId") Long lastId
+		);
 
 	@Query("""
 		SELECT n.noteId FROM Note n

@@ -17,9 +17,11 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import lombok.RequiredArgsConstructor;
 
+import com.dawn.backend.domain.note.dto.GetNotesByRangeResponseDto;
 import com.dawn.backend.domain.note.dto.request.BookmarkImageRequestDto;
 import com.dawn.backend.domain.note.dto.request.BookmarkNoteRequestDto;
 import com.dawn.backend.domain.note.dto.request.CreateNoteRequestDto;
+import com.dawn.backend.domain.note.dto.request.GetBookmarkNotesRequestDto;
 import com.dawn.backend.domain.note.dto.request.UpdateNoteRequestDto;
 import com.dawn.backend.domain.note.dto.response.BookmarkImageResponseDto;
 import com.dawn.backend.domain.note.dto.response.BookmarkNoteResponseDto;
@@ -189,6 +191,21 @@ public class NoteController {
 	) {
 		GetNotesByKewordByPinResponseDto responseDto = noteService.getNotesByKeywordByPin(
 			projectId, pinId, keyword
+		);
+		return ResponseWrapperFactory.setResponse(HttpStatus.OK, null, responseDto);
+	}
+
+	@GetMapping("/blueprints/{blueprintId}/{blueprintVersionId}/notes/range")
+	@PreAuthorize("@authExpression.hasProjectPermissionByProjectId(#projectId)")
+	public ResponseEntity<ResponseWrapper<GetNotesByRangeResponseDto>> getNotesByRange(
+		@PathVariable Long blueprintId,
+		@PathVariable Long blueprintVersionId,
+		@RequestParam(value = "project_id") Long projectId,
+		@RequestParam(value = "next_id") Long nextId,
+		@RequestParam(value = "last_id") Long lastId
+	) {
+		GetNotesByRangeResponseDto responseDto = noteService.getNotesByRange(
+			projectId, blueprintId, blueprintVersionId, nextId, lastId
 		);
 		return ResponseWrapperFactory.setResponse(HttpStatus.OK, null, responseDto);
 	}

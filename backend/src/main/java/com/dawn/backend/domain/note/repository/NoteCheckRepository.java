@@ -1,8 +1,11 @@
 package com.dawn.backend.domain.note.repository;
 
+import java.util.List;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import com.dawn.backend.domain.note.entity.Note;
@@ -24,4 +27,12 @@ public interface NoteCheckRepository extends JpaRepository<UserNoteCheck, Long> 
 	boolean existsByUserAndNote(User user, Note note);
 
 	UserNoteCheck findByNoteNoteIdAndUser(Long noteId, User user);
+
+	@Query("""
+		SELECT DISTINCT unc
+		FROM UserNoteCheck unc
+		JOIN FETCH unc.user
+		WHERE unc.note.noteId IN (:noteIds)
+		""")
+	List<UserNoteCheck> findByNoteIdIn(@Param("noteIds") List<Long> noteIds);
 }
