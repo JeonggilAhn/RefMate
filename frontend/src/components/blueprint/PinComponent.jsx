@@ -115,7 +115,7 @@ const PinComponent = ({
   const fetchRecentNote = useCallback(async () => {
     try {
       const response = await get(`pins/${pinInfo.pin_id}/notes/recent`);
-      const note = response.data?.content;
+      const note = response.data?.content.note;
 
       if (note) {
         setRecentNotes({
