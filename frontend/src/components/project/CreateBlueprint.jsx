@@ -4,13 +4,13 @@ import ImageUploader from '../common/ImageUploader';
 import TextButton from '../common/TextButton';
 import { useRecoilState } from 'recoil';
 import { modalState } from '../../recoil/common/modal';
-import { useParams } from 'react-router-dom';
 
-const CreateBlueprint = ({ setBlueprints }) => {
+const CreateBlueprint = ({ setBlueprints, projectId }) => {
   const [modal, setModal] = useRecoilState(modalState);
-  const { projectId } = useParams();
   const [blueprintTitle, setBlueprintTitle] = useState('');
   const [selectedImage, setSelectedImage] = useState(null);
+
+  console.log('create blueprint', projectId);
 
   const handleInputChange = (event) => {
     setBlueprintTitle(event.target.value);
