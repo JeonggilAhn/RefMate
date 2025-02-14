@@ -122,6 +122,7 @@ const PinNotes = ({
       setPins((prev) => {
         return prev.map((item) => {
           if (item.pin_id === pinInfo.pin_id) {
+            console.log(response);
             return {
               ...item,
               pinDetailNotes: [

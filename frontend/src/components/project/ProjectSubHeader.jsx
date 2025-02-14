@@ -37,7 +37,7 @@ const SubHeader = ({ setProjects }) => {
       <div className="flex gap-4">
         <div className="text-xl font-semibold">{`${userName} 님의 공간`}</div>
       </div>
-      <TextButton onClick={handleCreateProject}>
+      <TextButton type="start" onClick={handleCreateProject}>
         새 프로젝트 만들기 +
       </TextButton>
     </div>

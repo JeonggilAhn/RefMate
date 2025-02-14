@@ -4,6 +4,7 @@ import ImageUploader from '../common/ImageUploader';
 import TextButton from '../common/TextButton';
 import { useRecoilState } from 'recoil';
 import { modalState } from '../../recoil/common/modal';
+import { useParams } from 'react-router-dom';
 
 const CreateBlueprint = ({ setBlueprints }) => {
   const [modal, setModal] = useRecoilState(modalState);
@@ -64,34 +65,28 @@ const CreateBlueprint = ({ setBlueprints }) => {
 
   return (
     <div className="p-4 w-full">
-      <form onSubmit={handleSubmit}>
-        <div>
-          <div className="mb-2">
-            <label htmlFor="blueprintTitle">이름</label>
-          </div>
-          <div className="border border-gray-200 mb-8 rounded-md p-2 flex flex-wrap gap-2 min-h-[40px] items-center">
-            <input
-              type="text"
-              id="blueprintTitle"
-              value={blueprintTitle}
-              onChange={handleInputChange}
-              placeholder="블루프린트 이름을 입력하세요."
-              className="w-auto flex-grow border-none focus:ring-0 outline-none text-sm p-1"
-            />
-          </div>
+      <div>
+        <div className="mb-2">이름</div>
+        <div className="border border-gray-200 mb-8 rounded-md p-2 flex flex-wrap gap-2 min-h-[40px] items-center">
+          <input
+            type="text"
+            value={blueprintTitle}
+            onChange={handleInputChange}
+            placeholder="블루프린트 이름을 입력하세요."
+            className="w-auto flex-grow border-none focus:ring-0 outline-none text-sm p-1"
+          />
         </div>
-
-        <ImageUploader onImageSelect={setSelectedImage} projectId={projectId} />
-
-        <div className="flex justify-end">
-          <TextButton
-            type="submit"
-            disabled={!blueprintTitle.trim() || !selectedImage}
-          >
-            완료
-          </TextButton>
-        </div>
-      </form>
+      </div>
+      <ImageUploader onImageSelect={setSelectedImage} projectId={projectId} />
+      <div className="flex justify-end">
+        <TextButton
+          type="submit"
+          disabled={!blueprintTitle.trim() || !selectedImage}
+          onClick={handleSubmit}
+        >
+          완료
+        </TextButton>
+      </div>
     </div>
   );
 };
