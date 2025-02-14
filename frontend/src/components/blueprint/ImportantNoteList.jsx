@@ -2,6 +2,8 @@ import React from 'react';
 import Icon from '../common/Icon';
 
 const ImportantNoteList = ({ notes, onNoteClick }) => {
+  console.log('ImportantNoteList - Received notes:', notes); // notes 배열 확인
+
   if (notes.length === 0) {
     return (
       <div className="text-sm text-left text-gray-500">
