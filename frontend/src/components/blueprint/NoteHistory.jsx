@@ -82,7 +82,7 @@ const NoteHistory = () => {
       console.log(searchResults);
 
       // 노트 아이디들 저장
-      setSearchedNotes(searchResults);
+      setSearchedNotes(searchResults.reverse());
 
       // 아예 일치하는 노트들이 없다면
       if (searchResults.length === 0) {

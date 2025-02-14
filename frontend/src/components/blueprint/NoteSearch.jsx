@@ -29,7 +29,7 @@ function NoteSearch({ projectId, pinId, onSelect, onClose }) {
       );
       const noteList = response.data.content.note_id_list || [];
 
-      setSearchedNotes(noteList);
+      setSearchedNotes(noteList.reverse());
       console.log(noteList);
       setCurrentIndex(0);
       onSelect(noteList[0]);
