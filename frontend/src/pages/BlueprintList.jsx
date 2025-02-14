@@ -20,9 +20,6 @@ function BlueprintList() {
     const presigned = query.get('presigned');
     if (presigned) {
       setNonMember(true);
-
-      // 로컬 스토리지에 저장
-      localStorage.setItem('presigned', presigned);
     } else {
       setNonMember(false);
     }

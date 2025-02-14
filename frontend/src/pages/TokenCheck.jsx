@@ -18,7 +18,7 @@ const TokenCheck = () => {
         console.log(accessToken);
         if (accessToken) {
           setToken(accessToken);
-          localStorage.setItem('access_token', accessToken);
+          sessionStorage.setItem('access_token', accessToken);
 
           navigate('/projects');
         } else {

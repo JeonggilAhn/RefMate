@@ -75,7 +75,7 @@ const PinComponent = ({
   useEffect(() => {
     if (!API_BASE_URL || !blueprintId) return; // 백엔드 미연결 방지
 
-    const accessToken = localStorage.getItem('access_token');
+    const accessToken = sessionStorage.getItem('access_token');
 
     const EventSource = EventSourcePolyfill || NativeEventSource;
 

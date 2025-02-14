@@ -29,7 +29,7 @@ function Profile({
         del(`users/me`)
           .then(() => {
             // 회원 탈퇴 성공 시 로그아웃 처리
-            localStorage.removeItem('access_token');
+            sessionStorage.removeItem('access_token');
             setIsLoggedIn(false);
 
             // / 회원 탈퇴 후 알림 표시
