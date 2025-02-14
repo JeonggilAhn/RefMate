@@ -68,6 +68,7 @@ const PinNotes = ({
   const [selectedNote, setSelectedNote] = useState(null);
   const [searchTargetId, setSearchTargetId] = useState(null); // 검색된 노트 ID 저장
   const noteRefs = useRef({}); // 노트별 ref 저장
+  const [highlightedNoteId, setHighlightedNoteId] = useState(null);
 
   const handleIconClick = () => {
     setIsSearching((prev) => !prev);
@@ -96,6 +97,8 @@ const PinNotes = ({
         behavior: 'smooth',
         block: 'center',
       });
+
+      setHighlightedNoteId(searchTargetId);
     }
   }, [searchTargetId]);
 
@@ -278,7 +281,7 @@ const PinNotes = ({
                     <div
                       key={note.note_id}
                       ref={(el) => (noteRefs.current[note.note_id] = el)}
-                      className={`p-2 ${searchTargetId === note.note_id ? 'bg-yellow-200' : ''}`}
+                      className={`p-2 ${highlightedNoteId === note.note_id || searchTargetId === note.note_id ? 'bg-yellow-200' : ''}`}
                     >
                       <NoteButton
                         note={note}
