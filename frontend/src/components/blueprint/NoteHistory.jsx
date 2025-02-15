@@ -58,7 +58,7 @@ const NoteHistory = () => {
             currentScrollTop +
             (scrollContainerRef.current.scrollHeight - currentScrollHeight);
         }
-      }, 0);
+      }, 1000);
     }
   }, [rawNotes]);
 
