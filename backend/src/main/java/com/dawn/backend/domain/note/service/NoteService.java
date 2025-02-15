@@ -367,7 +367,11 @@ public class NoteService {
 				note.getBlueprintVersion(),
 				note.getPin(),
 				true
-			).orElseThrow(PinVersionNotFoundException::new);
+			).orElse(null);
+
+			if (pinVersion == null) {
+				continue;
+			}
 
 			Pin pin = note.getPin();
 			PinGroup pinGroup = pinVersion.getPinGroup();
