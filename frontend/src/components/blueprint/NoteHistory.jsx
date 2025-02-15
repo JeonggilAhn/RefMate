@@ -40,23 +40,28 @@ const NoteHistory = () => {
   // 날짜별 구분선 추가하여 상태 저장
   useEffect(() => {
     if (rawNotes.length) {
-      const { notesWithSeparators, lastDate: newLastDate } = processNotes(
-        rawNotes,
-        lastDate,
-      );
-      setNotes(notesWithSeparators.reverse()); // 최신 데이터가 아래로 가도록 reverse()
-      setLastDate(newLastDate);
+      setNotes((prevNotes) => {
+        const existingNoteIds = new Set(prevNotes.map((note) => note.note_id));
+        const newNotes = rawNotes.filter(
+          (note) => !existingNoteIds.has(note.note_id),
+        );
 
-      // cursorIdRef는 가장 오래된 note_id로 설정
-      cursorIdRef.current = rawNotes.at(-1)?.note_id || null;
-      //  console.log('초기 cursorId 설정:', cursorIdRef.current);
+        if (newNotes.length === 0) return prevNotes;
 
-      // 스크롤 위치를 맨 아래로 설정
+        const mergedNotes = [...newNotes, ...prevNotes];
+        const { notesWithSeparators, lastDate: newLastDate } = processNotes(
+          mergedNotes,
+          lastDate,
+        );
+        setLastDate(newLastDate);
+
+        cursorIdRef.current = rawNotes.at(-1)?.note_id || null;
+        return notesWithSeparators;
+      });
+
       setTimeout(() => {
         if (scrollContainerRef.current) {
-          scrollContainerRef.current.scrollTop =
-            currentScrollTop +
-            (scrollContainerRef.current.scrollHeight - currentScrollHeight);
+          scrollContainerRef.current.scrollTop = scrollPositionRef.current;
         }
       }, 0);
     }
@@ -221,65 +226,43 @@ const NoteHistory = () => {
 
   // 페이지네이션 추가 노트 불러오기
   const fetchMoreNotes = useCallback(async () => {
-    if (isFetching || cursorIdRef.current === null) {
-      console.log('요청 중이거나, 불러올 데이터 없음. 요청 중단.');
-      return;
-    }
-    setIsFetching(true); // 요청 중에는 중복 호출하지 않음음
+    if (isFetching || cursorIdRef.current === null) return;
+    setIsFetching(true);
 
     try {
-      //  console.log('현재 cursorId:', cursorIdRef.current);
-
       const apiUrl = `blueprints/${blueprint_id}/${blueprint_version_id}/notes`;
-      const params = {
+      const response = await get(apiUrl, {
         project_id: projectId,
-        cursor_id: cursorIdRef.current, // 호출한 가장 오래된 노트 ID
-        size: 5, // 가져올 data 수
-      };
-      const response = await get(apiUrl, params);
-
-      // console.log('API 응답 확인:', response.data);
-
+        cursor_id: cursorIdRef.current,
+        size: 5,
+      });
       const newNotes = response.data?.content?.note_list || [];
-      console.log(`정보 : `, newNotes);
-      if (response.status === 200 && newNotes.length > 0) {
-        /*  console.log(
-          'API 응답 받은 note_id 리스트:',
-          newNotes.map((note) => note.note_id),
-        );*/
 
-        // 현재 스크롤 위치 저장
-        const currentScrollHeight = scrollContainerRef.current.scrollHeight;
-        const currentScrollTop = scrollContainerRef.current.scrollTop;
+      if (newNotes.length > 0) {
+        const currentScrollHeight =
+          scrollContainerRef.current?.scrollHeight || 0;
+        const currentScrollTop = scrollContainerRef.current?.scrollTop || 0;
 
         setNotes((prevNotes) => {
-          // 기존 데이터와 합쳐 중복 제거
           const existingNoteIds = new Set(
             prevNotes.map((note) => note.note_id),
           );
           const filteredNotes = newNotes.filter(
             (note) => !existingNoteIds.has(note.note_id),
           );
-          // 새로운 노트 기존 노트 앞에 추가.
-          const mergedNotes = [...prevNotes, ...filteredNotes];
+          const mergedNotes = [...filteredNotes, ...prevNotes];
 
-          // 날짜 구분선 추가 및 LastDate 업데이트
           const { notesWithSeparators, lastDate: newLastDate } = processNotes(
             mergedNotes,
             lastDate,
           );
           setLastDate(newLastDate);
+
           return notesWithSeparators;
         });
 
-        // cursorId 업데이트 (가장 오래된 note_id로 설정)
         cursorIdRef.current = newNotes.at(-1)?.note_id || cursorIdRef.current;
-        // console.log('업데이트된 cursorId:', cursorIdRef.current);
 
-        // 검색 시 범위 요청을 위해 현재까지 불러온 노트 아이디 저장
-        setLastId(cursorIdRef.current);
-
-        // 새로운 노트가 추가된 후 스크롤 위치 복원
         setTimeout(() => {
           if (scrollContainerRef.current) {
             scrollContainerRef.current.scrollTop =
@@ -289,44 +272,32 @@ const NoteHistory = () => {
           }
         }, 0);
       } else {
-        console.log('응답은 정상이나, 불러올 데이터 없음.');
         cursorIdRef.current = null;
       }
     } catch (error) {
-      console.error('노트 히스토리 로딩 실패:', error);
+      console.error('페이지네이션 실패:', error);
     } finally {
       setIsFetching(false);
     }
-  }, [isFetching, blueprint_id, blueprint_version_id, projectId, lastDate]);
+  }, [isFetching, blueprint_id, blueprint_version_id, projectId]);
 
   // 최상단 도달 시 추가 노트 요청청
   const handleScroll = useCallback(() => {
-    // 스크롤 컨테이너 or API 요청 중이면 실행X
     if (!scrollContainerRef.current || isFetching) return;
-    const { scrollTop, scrollHeight, clientHeight } =
-      scrollContainerRef.current;
-
-    /*console.log('handleScroll 실행됨', {
-      scrollTop,
-      scrollHeight,
-      clientHeight,
-      cursorId: cursorIdRef.current,
-    });*/
-
-    // 스크롤이 최상단 도달했을 때만 실행
-    if (scrollTop <= 10 && cursorIdRef.current !== null) {
-      // console.log('최상단 도달! 노트 추가 요청');
-      fetchMoreNotes(); // 추가 노트 불러오기기
+    if (
+      scrollContainerRef.current.scrollTop <= 10 &&
+      cursorIdRef.current !== null
+    ) {
+      fetchMoreNotes();
     }
   }, [isFetching, fetchMoreNotes]);
 
   //
   useEffect(() => {
-    const scrollContainer = scrollContainerRef.current;
-    if (scrollContainer) {
-      scrollContainer.addEventListener('scroll', handleScroll); // 스크롤 이벤트 등록
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.addEventListener('scroll', handleScroll);
       return () => {
-        scrollContainer.removeEventListener('scroll', handleScroll); // 컴포넌트 언마운트시 제거
+        scrollContainerRef.current.removeEventListener('scroll', handleScroll);
       };
     }
   }, [handleScroll]);
@@ -456,7 +427,7 @@ const NoteHistory = () => {
                     >
                       {note.type === 'note' && note.pin_name && (
                         <div
-                          className="px-2 py-1 rounded-md text-xs font-semibold mb-1"
+                          className="px-6 py-1 rounded-md text-sm font-semibold mb-1"
                           style={{
                             backgroundColor: note.pin_group_color || '#D1D5DB', // 배경색 강제 적용
                             color: '#FFFFFF', // 글씨색 강제 적용
