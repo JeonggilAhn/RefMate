@@ -7,6 +7,7 @@ import { modalState } from '../../recoil/common/modal';
 import { useToast } from '@/hooks/use-toast';
 
 const CreateBlueprintVersion = ({
+  blueprintVersionNumber,
   projectId,
   blueprintId,
   blueprints,
@@ -14,7 +15,10 @@ const CreateBlueprintVersion = ({
   refetchBlueprints,
 }) => {
   const setModal = useSetRecoilState(modalState);
-  const [blueprintTitle, setBlueprintTitle] = useState('');
+  const [blueprintTitle, setBlueprintTitle] = useState(
+    `시안 ${Number(blueprintVersionNumber) + 1}`,
+  );
+
   const [selectedImage, setSelectedImage] = useState(null);
   const { toast } = useToast(20);
 
