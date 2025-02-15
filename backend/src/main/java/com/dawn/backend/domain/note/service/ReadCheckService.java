@@ -14,6 +14,7 @@ import com.dawn.backend.domain.blueprint.repository.BlueprintRepository;
 import com.dawn.backend.domain.note.entity.UserNoteCheck;
 import com.dawn.backend.domain.note.repository.NoteCheckRepository;
 import com.dawn.backend.domain.user.dto.UserDto;
+import com.dawn.backend.domain.user.entity.UnauthorizeUser;
 import com.dawn.backend.domain.user.entity.User;
 
 @Service
@@ -60,7 +61,8 @@ public class ReadCheckService {
 						user.getUserId(),
 						user.getUserEmail(),
 						user.getProfileImage(),
-						user.getCreatedAt()
+						user.getCreatedAt(),
+						user instanceof UnauthorizeUser
 					)
 				),
 				MediaType.APPLICATION_JSON

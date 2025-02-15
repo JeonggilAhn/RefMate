@@ -108,7 +108,9 @@ public class ProjectServiceImpl implements ProjectService {
 							BlueprintVersion latestVersion = versions.get(0);
 							return new ProjectItemDto.PreviewImage(
 								bp.getBlueprintTitle(),
-								latestVersion.getPreviewImg()
+								latestVersion.getPreviewImg(),
+								bp.getBlueprintId(),
+								latestVersion.getBlueprintVersionId()
 							);
 						}
 						return null;

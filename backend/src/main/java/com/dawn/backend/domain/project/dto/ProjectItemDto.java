@@ -31,7 +31,9 @@ public record ProjectItemDto(
 
 	public record PreviewImage(
 		String blueprintTitle,
-		String previewImage
+		String previewImage,
+		Long blueprintId,
+		Long blueprintVersionId
 	) {
 	}
 }
