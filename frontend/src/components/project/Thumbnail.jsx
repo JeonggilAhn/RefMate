@@ -8,6 +8,8 @@ import EditOption from './EditOption';
 import { del } from '../../api';
 import { useToast } from '@/hooks/use-toast';
 
+const SCROLL_AMOUNT = 400; // 한 번에 스크롤할 픽셀 양
+
 const Thumbnail = ({ projects, setProjects }) => {
   const [imageLoaded, setImageLoaded] = useState({});
   const [expandedProjects, setExpandedProjects] = useState({});
@@ -97,6 +99,23 @@ const Thumbnail = ({ projects, setProjects }) => {
     }));
   };
 
+  const checkScrollable = (containerId) => {
+    const container = document.getElementById(containerId);
+    if (container) {
+      return container.scrollWidth > container.clientWidth;
+    }
+    return false;
+  };
+
+  const handleScroll = (containerId, direction) => {
+    const container = document.getElementById(containerId);
+    if (container) {
+      const scrollAmount =
+        direction === 'left' ? -SCROLL_AMOUNT : SCROLL_AMOUNT;
+      container.scrollLeft += scrollAmount;
+    }
+  };
+
   return (
     <Components>
       {projects.map((project) => (
@@ -149,27 +168,59 @@ const Thumbnail = ({ projects, setProjects }) => {
             </ProjectInfo>
           </ProjectDetails>
 
-          <ImageContainer $isExpanded={expandedProjects[project.project_id]}>
-            {project.preview_images.map((image, index) => (
-              <ImageWrapper
-                key={index}
-                onClick={() =>
-                  handleBlueprintClick(
-                    project.project_id,
-                    image.blueprint_id,
-                    image.blueprint_version_id,
-                  )
-                }
-              >
-                <PreviewImage
-                  src={image.preview_image}
-                  alt={image.blueprint_title}
-                  onLoad={() => handleImageLoad(index)}
-                />
-                <BlueprintTitle>{image.blueprint_title}</BlueprintTitle>
-              </ImageWrapper>
-            ))}
-          </ImageContainer>
+          <ImageContainerWrapper>
+            <ImageContainer
+              id={`image-container-${project.project_id}`}
+              $isExpanded={expandedProjects[project.project_id]}
+            >
+              {project.preview_images.map((image, index) => (
+                <ImageWrapper
+                  key={index}
+                  onClick={() =>
+                    handleBlueprintClick(
+                      project.project_id,
+                      image.blueprint_id,
+                      image.blueprint_version_id,
+                    )
+                  }
+                >
+                  <PreviewImage
+                    src={image.preview_image}
+                    alt={image.blueprint_title}
+                    onLoad={() => handleImageLoad(index)}
+                  />
+                  <BlueprintTitle>{image.blueprint_title}</BlueprintTitle>
+                </ImageWrapper>
+              ))}
+            </ImageContainer>
+            {expandedProjects[project.project_id] &&
+              checkScrollable(`image-container-${project.project_id}`) && (
+                <>
+                  <ScrollButton
+                    $direction="left"
+                    onClick={() =>
+                      handleScroll(
+                        `image-container-${project.project_id}`,
+                        'left',
+                      )
+                    }
+                  >
+                    ◀
+                  </ScrollButton>
+                  <ScrollButton
+                    $direction="right"
+                    onClick={() =>
+                      handleScroll(
+                        `image-container-${project.project_id}`,
+                        'right',
+                      )
+                    }
+                  >
+                    ▶
+                  </ScrollButton>
+                </>
+              )}
+          </ImageContainerWrapper>
         </ProjectCard>
       ))}
     </Components>
@@ -199,16 +250,30 @@ const ProjectCard = styled.div`
   cursor: pointer;
 `;
 
+const ImageContainerWrapper = styled.div`
+  position: relative;
+  width: 100%;
+  padding: 0; // 패딩 제거
+`;
+
 const ImageContainer = styled.div`
   width: 100%;
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  display: flex;
   gap: 1rem;
-  transition: max-height 0.3s ease-in-out;
-  overflow: hidden;
-  max-height: ${(props) => (props.$isExpanded ? '2000px' : '0')};
-  opacity: ${(props) => (props.$isExpanded ? 1 : 0)};
   transition: all 0.3s ease-in-out;
+  overflow-y: hidden;
+  overflow-x: auto;
+  max-height: ${(props) => (props.$isExpanded ? '200px' : '0')};
+  opacity: ${(props) => (props.$isExpanded ? 1 : 0)};
+  padding: 0 2rem 0.5rem 2rem; // 좌우 패딩 추가
+  scroll-behavior: smooth;
+
+  /* 스크롤바 숨기기 */
+  &::-webkit-scrollbar {
+    display: none;
+  }
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 `;
 
 const BlueprintTitle = styled.div`
@@ -231,13 +296,15 @@ const BlueprintTitle = styled.div`
 
 const ImageWrapper = styled.div`
   position: relative;
-  width: 100%;
+  min-width: 200px;
+  width: 200px;
   aspect-ratio: 4 / 3;
   transition: background-color 0.3s ease;
+  border-radius: 4px;
+  overflow: hidden; // 이미지가 border-radius를 따르도록
 
   &:hover {
     background-color: rgba(0, 0, 0, 0.5);
-    border-radius: 4px;
     ${BlueprintTitle} {
       opacity: 1;
     }
@@ -317,5 +384,43 @@ const FileInfoWrapper = styled.div`
 
   &:hover {
     background-color: #eeeeee;
+  }
+`;
+
+const ScrollButton = styled.button`
+  position: absolute;
+  top: 0;
+  height: 100%;
+  z-index: 2;
+  background-color: rgba(0, 0, 0, 0.5);
+  color: white;
+  border: none;
+  width: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+
+  &:hover {
+    opacity: 1;
+  }
+
+  ${(props) =>
+    props.$direction === 'left'
+      ? `
+    left: 0;
+    border-top-left-radius: 4px;
+    border-bottom-left-radius: 4px;
+  `
+      : `
+    right: 0;
+    border-top-right-radius: 4px;
+    border-bottom-right-radius: 4px;
+  `}
+
+  ${ImageContainerWrapper}:hover & {
+    opacity: 0.7;
   }
 `;
