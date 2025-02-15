@@ -314,7 +314,7 @@ const NoteHistory = () => {
     });*/
 
     // 스크롤이 최상단 도달했을 때만 실행
-    if (scrollTop <= 100000 && cursorIdRef.current !== null) {
+    if (scrollTop <= 1 && cursorIdRef.current !== null) {
       // console.log('최상단 도달! 노트 추가 요청');
       fetchMoreNotes(); // 추가 노트 불러오기기
     }
