@@ -115,7 +115,6 @@ public class ProjectServiceImpl implements ProjectService {
 						return null;
 					})
 					.filter(Objects::nonNull)
-					.limit(4)
 					.collect(Collectors.toList());
 
 			return new ProjectItemDto(
