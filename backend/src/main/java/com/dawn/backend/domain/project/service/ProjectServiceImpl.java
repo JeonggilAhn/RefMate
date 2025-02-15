@@ -80,7 +80,6 @@ public class ProjectServiceImpl implements ProjectService {
 					Collectors.toList(),
 					list -> list.stream()
 						.sorted(Comparator.comparing(Blueprint::getCreatedAt).reversed())
-						.limit(4)
 						.collect(Collectors.toList())
 				)
 			));
