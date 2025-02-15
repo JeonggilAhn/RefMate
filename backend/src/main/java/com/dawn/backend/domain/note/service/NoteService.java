@@ -3,21 +3,29 @@ package com.dawn.backend.domain.note.service;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 import com.dawn.backend.domain.blueprint.entity.BlueprintVersion;
 import com.dawn.backend.domain.blueprint.exception.BlueprintNotFoundException;
 import com.dawn.backend.domain.blueprint.repository.BlueprintVersionRepository;
+import com.dawn.backend.domain.note.dto.BlueprintNoteItemDto;
 import com.dawn.backend.domain.note.dto.ChatItemDto;
 import com.dawn.backend.domain.note.dto.DateSeparatorDto;
+import com.dawn.backend.domain.note.dto.GetNotesByRangeResponseDto;
 import com.dawn.backend.domain.note.dto.NoteDto;
 import com.dawn.backend.domain.note.dto.NoteItemWithTypeDto;
+import com.dawn.backend.domain.note.dto.NoteWithPinAndPinGroupDto;
+import com.dawn.backend.domain.note.dto.UserNoteCheckDto;
 import com.dawn.backend.domain.note.dto.request.BookmarkImageRequestDto;
 import com.dawn.backend.domain.note.dto.request.BookmarkNoteRequestDto;
 import com.dawn.backend.domain.note.dto.request.CreateNoteRequestDto;
@@ -67,6 +75,7 @@ import com.dawn.backend.domain.user.repository.UserRepository;
 import com.dawn.backend.global.util.uploader.dto.ImagePathDto;
 import com.dawn.backend.global.util.uploader.service.UploadService;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class NoteService {
@@ -317,6 +326,7 @@ public class NoteService {
 		PageRequest pageRequest = PageRequest.of(0, size + 1);
 
 		List<Note> notes = noteRepository.findNotesByBlueprintVersionAfterCursor(
+			blueprintId,
 			blueprintVersion,
 			cursorId,
 			pageRequest
@@ -466,5 +476,34 @@ public class NoteService {
 	public GetNotesByKewordByPinResponseDto getNotesByKeywordByPin(Long projectId, Long pinId, String keyword) {
 		List<Long> matchesnoteIds = noteRepository.findNoteByKeywordByPin(pinId, keyword);
 		return GetNotesByKewordByPinResponseDto.from(matchesnoteIds);
+	}
+
+	public GetNotesByRangeResponseDto getNotesByRange(
+		Long projectId, Long blueprintId, Long blueprintVersionId, Long nextId, Long lastId
+	) {
+		List<NoteWithPinAndPinGroupDto> noteDtos = noteRepository.findNotesWithPinAndPinGroupsByRange(
+			blueprintVersionId, nextId, lastId
+		);
+
+		if (noteDtos.isEmpty()) {
+			return new GetNotesByRangeResponseDto(Collections.emptyList());
+		}
+
+		List<ChatItemDto> chatItems = new ArrayList<>();
+		LocalDateTime prevDate = null;
+
+		for (NoteWithPinAndPinGroupDto dto : noteDtos) {
+			LocalDateTime currentDate = dto.noteCreatedAt().toLocalDate().atStartOfDay();
+
+			if (prevDate == null || !currentDate.equals(prevDate)) {
+				chatItems.add(DateSeparatorDto.from(currentDate));
+				prevDate = currentDate;
+			}
+
+			BlueprintNoteItemDto blueprintNoteItemDto = BlueprintNoteItemDto.from(dto);
+			chatItems.add(blueprintNoteItemDto);
+		}
+		return new GetNotesByRangeResponseDto(chatItems);
+
 	}
 }
