@@ -198,7 +198,7 @@ const PinNotes = ({
                   side="left"
                   align="start"
                   sideOffset={30}
-                  className="w-80 bg-white border border-gray-300 rounded-md shadow-md z-10"
+                  className="w-80 bg-white border border-gray-300 rounded-md shadow-md z-10 p-3"
                 >
                   {/* 헤더 */}
                   <div className="flex justify-between items-center border-b pb-2 mb-3">
@@ -344,7 +344,7 @@ const NotesContainer = styled.div`
   overflow-y: auto;
   display: flex;
   flex-direction: column;
-  padding: 1rem;
+  padding: rem;
   gap: 0.75rem;
   max-height: calc(100% - 3rem);
   box-sizing: border-box;
