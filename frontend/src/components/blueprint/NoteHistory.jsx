@@ -80,8 +80,9 @@ const NoteHistory = () => {
       console.log(searchResponse.data.content);
       console.log(searchResults);
 
-      // 노트 아이디들 저장
-      setSearchedNotes(searchResults.reverse());
+      // 검색된 노트 ID 리스트 저장 (역순)
+      const reversedResults = [...searchResults].reverse();
+      setSearchedNotes(reversedResults);
       setIsSearched(true);
 
       // 아예 일치하는 노트들이 없다면
@@ -90,25 +91,20 @@ const NoteHistory = () => {
       }
 
       // 일치하는 노트 아이디들 중에서도 가장 최신 노트 아이디 저장
-      setNextId(searchResults[0]);
+      const firstMatchId = reversedResults[0];
+      setNextId(firstMatchId);
       console.log(nextId);
 
-      const existingNote = (note_id) => {
-        return notes.some((note) => note.note_id === note_id);
-      };
+      const existingNote = notes.some((note) => note.note_id === firstMatchId);
 
       // 이미 존재하면 해당 노트로 이동
-      if (existingNote(nextId)) {
-        setSearchTargetId(nextId);
-        setHighlightedNoteId(nextId);
+      if (existingNote) {
+        // 있으면 바로 스크롤 및 하이라이트
+        setSearchTargetId(firstMatchId);
+        setHighlightedNoteId(firstMatchId);
       } else {
-        // 없으면 범위 노트 요청 API 호출 (검색된 노트를 가져오기 위해)
-        await fetchRangeNotes(searchResults);
-      }
-
-      // next_id 갱신
-      if (searchResults.length >= 2) {
-        setNextId(searchResults[searchResults.length - 2]);
+        // 없으면 범위 노트 요청
+        await fetchRangeNotes(reversedResults);
       }
     } catch (error) {
       console.error('검색 실패:', error.message);
@@ -121,8 +117,8 @@ const NoteHistory = () => {
       const rangeApiUrl = `blueprints/${blueprint_id}/${blueprint_version_id}/notes/range`;
       const rangeParams = {
         project_id: projectId,
-        next_id: nextId,
-        last_id: lastId,
+        next_id: nextId, // 다음 찾을 노트 ID
+        last_id: lastId, // 현재까지 있는 노트들 중 가장 오래된 ID
       };
       const rangeResponse = await get(rangeApiUrl, rangeParams);
       const newNotes = rangeResponse.data.content.note_list || [];
@@ -140,6 +136,7 @@ const NoteHistory = () => {
 
         if (foundNote) {
           setSearchTargetId(foundNote.note_id);
+          setHighlightedNoteId(foundNote.note_id);
         }
       }
     } catch (error) {
