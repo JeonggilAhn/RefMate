@@ -6,6 +6,7 @@ public record UserDto(
 	Long userId,
 	String userEmail,
 	String profileUrl,
-	LocalDateTime signupDate
+	LocalDateTime signupDate,
+	Boolean isUnauthorizedUser
 ) {
 }

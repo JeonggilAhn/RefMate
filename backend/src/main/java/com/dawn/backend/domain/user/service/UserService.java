@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.dawn.backend.domain.user.dto.UserDto;
+import com.dawn.backend.domain.user.entity.UnauthorizeUser;
 import com.dawn.backend.domain.user.entity.User;
 import com.dawn.backend.domain.user.exception.UserNotFoundException;
 import com.dawn.backend.domain.user.repository.UserRepository;
@@ -27,7 +28,8 @@ public class UserService {
 			user.getUserId(),
 			user.getUserEmail(),
 			user.getProfileImage(),
-			user.getCreatedAt()
+			user.getCreatedAt(),
+			user instanceof UnauthorizeUser
 		);
 	}
 
