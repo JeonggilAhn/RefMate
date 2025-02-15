@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
 import UpdateProjectName from './UpdateProjectName';
@@ -10,9 +10,24 @@ import { useToast } from '@/hooks/use-toast';
 
 const Thumbnail = ({ projects, setProjects }) => {
   const [imageLoaded, setImageLoaded] = useState({});
+  const [expandedProjects, setExpandedProjects] = useState({});
   const navigate = useNavigate();
   const setModal = useSetRecoilState(modalState);
   const { toast } = useToast(20);
+
+  // projects가 로드되면 모든 프로젝트를 펼친 상태로 설정
+  useEffect(() => {
+    if (projects.length > 0) {
+      const initialExpandedState = projects.reduce(
+        (acc, project) => ({
+          ...acc,
+          [project.project_id]: true,
+        }),
+        {},
+      );
+      setExpandedProjects(initialExpandedState);
+    }
+  }, [projects]);
 
   const handleImageLoad = (id) => {
     setImageLoaded((prevState) => ({ ...prevState, [id]: true }));
@@ -20,6 +35,12 @@ const Thumbnail = ({ projects, setProjects }) => {
 
   const handleProjectClick = (projectId) => {
     navigate(`/projects/${projectId}/blueprints`);
+  };
+
+  const handleBlueprintClick = (projectId, blueprintId, blueprintVersionId) => {
+    navigate(
+      `/projects/${projectId}/blueprints/${blueprintId}/${blueprintVersionId}`,
+    );
   };
 
   const handleUpdateProjectName = (projectId, projectTitle) => {
@@ -68,38 +89,22 @@ const Thumbnail = ({ projects, setProjects }) => {
     });
   };
 
+  const toggleProject = (projectId, event) => {
+    event.stopPropagation();
+    setExpandedProjects((prev) => ({
+      ...prev,
+      [projectId]: !prev[projectId],
+    }));
+  };
+
   return (
     <Components>
       {projects.map((project) => (
-        <ProjectCard
-          key={project.project_id}
-          onClick={() => handleProjectClick(project.project_id)}
-        >
-          <ImageContainer>
-            {project.preview_images.slice(0, 4).map((image, index) => (
-              <ImageWrapper key={index}>
-                <PreviewImage
-                  src={image.preview_image}
-                  alt={image.blueprint_title}
-                  onLoad={() => handleImageLoad(index)}
-                />
-                <BlueprintTitle>{image.blueprint_title}</BlueprintTitle>
-                {index === 3 && project.preview_images.length > 4 && (
-                  <MoreImages>+{project.preview_images.length - 4}</MoreImages>
-                )}
-              </ImageWrapper>
-            ))}
-            {project.preview_images.length < 4 &&
-              Array.from({ length: 4 - project.preview_images.length }).map(
-                (_, idx) => (
-                  <ImageWrapper key={idx}>
-                    <PlaceholderImage $isImageLoaded={imageLoaded[idx]} />
-                  </ImageWrapper>
-                ),
-              )}
-          </ImageContainer>
+        <ProjectCard key={project.project_id}>
           <ProjectDetails>
-            <ProjectFooter>
+            <ProjectHeader
+              onClick={() => handleProjectClick(project.project_id)}
+            >
               <Title>{project.project_title}</Title>
               <div onClick={(event) => event.stopPropagation()}>
                 <EditOption
@@ -119,17 +124,52 @@ const Thumbnail = ({ projects, setProjects }) => {
                   ]}
                 />
               </div>
-            </ProjectFooter>
-            <FileInfoWrapper>
-              <FileCount>
-                {project.blueprints_count} blueprints{' '}
-                <span className="px-2">·</span>
-              </FileCount>
-              <CreatedAt>
-                {new Date(project.created_at).toLocaleDateString()}
-              </CreatedAt>
-            </FileInfoWrapper>
+            </ProjectHeader>
+            <ProjectInfo>
+              <FileInfoWrapper
+                onClick={(e) => toggleProject(project.project_id, e)}
+              >
+                <div
+                  style={{ display: 'flex', alignItems: 'center', gap: '2px' }}
+                >
+                  <FileCount>
+                    {project.blueprints_count} blueprints{' '}
+                    <span className="px-2">·</span>
+                  </FileCount>
+                  <CreatedAt>
+                    {new Date(project.created_at).toLocaleDateString()}
+                  </CreatedAt>
+                </div>
+                <ToggleButton
+                  $isExpanded={expandedProjects[project.project_id]}
+                >
+                  {expandedProjects[project.project_id] ? '접기' : '펼치기'}
+                </ToggleButton>
+              </FileInfoWrapper>
+            </ProjectInfo>
           </ProjectDetails>
+
+          <ImageContainer $isExpanded={expandedProjects[project.project_id]}>
+            {project.preview_images.map((image, index) => (
+              <ImageWrapper
+                key={index}
+                onClick={() =>
+                  handleBlueprintClick(
+                    project.project_id,
+                    image.blueprint_id,
+                    image.blueprint_version_id,
+                  )
+                }
+              >
+                <PreviewImage
+                  src={image.preview_image}
+                  alt={image.blueprint_title}
+                  onLoad={() => handleImageLoad(index)}
+                />
+                <BlueprintTitle>{image.blueprint_title}</BlueprintTitle>
+              </ImageWrapper>
+            ))}
+          </ImageContainer>
         </ProjectCard>
       ))}
     </Components>
@@ -142,8 +182,8 @@ const Components = styled.div`
   width: 100%;
   overflow-y: auto;
   max-height: calc(100vh - 200px);
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  display: flex;
+  flex-direction: column;
   gap: 1rem;
   padding: 1.5rem;
   box-sizing: border-box;
@@ -155,15 +195,20 @@ const ProjectCard = styled.div`
   padding: 0.8rem;
   display: flex;
   flex-direction: column;
-  align-items: center;
+  gap: 1rem;
+  cursor: pointer;
 `;
 
 const ImageContainer = styled.div`
   width: 100%;
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 0.5rem;
-  margin-bottom: 0.8rem;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+  transition: max-height 0.3s ease-in-out;
+  overflow: hidden;
+  max-height: ${(props) => (props.$isExpanded ? '2000px' : '0')};
+  opacity: ${(props) => (props.$isExpanded ? 1 : 0)};
+  transition: all 0.3s ease-in-out;
 `;
 
 const BlueprintTitle = styled.div`
@@ -206,53 +251,49 @@ const PreviewImage = styled.img`
   border-radius: 4px;
 `;
 
-const PlaceholderImage = styled.div`
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgb(124, 124, 124);
-  border-radius: 4px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  color: white;
-  text-align: center;
-  word-break: break-all;
-  visibility: ${(props) => (props.$isImageLoaded ? 'hidden' : 'visible')};
-`;
-
-const MoreImages = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: rgba(0, 0, 0, 0.5);
-  color: white;
-  border-radius: 4px;
-  padding: 5px;
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 100%;
-  height: 100%;
-`;
-
 const ProjectDetails = styled.div`
   width: 100%;
-  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+`;
+
+const ProjectHeader = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+`;
+
+const ProjectInfo = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
 `;
 
 const Title = styled.h3`
   font-size: 20px;
   margin-bottom: 5px;
+  display: flex;
+  align-items: center;
 `;
 
-const ProjectFooter = styled.div`
+const ToggleButton = styled.button`
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 5px 10px;
+  color: #666;
+  font-size: 14px;
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  gap: 5px;
+
+  &::after {
+    content: '▼';
+    transform: ${(props) =>
+      props.$isExpanded ? 'rotate(180deg)' : 'rotate(0)'};
+    transition: transform 0.3s ease;
+  }
 `;
 
 const FileCount = styled.span`
@@ -267,7 +308,14 @@ const CreatedAt = styled.div`
 
 const FileInfoWrapper = styled.div`
   display: flex;
+  justify-content: space-between;
   align-items: center;
-  justify-content: flex-start;
-  gap: 2px;
+  padding: 0.5rem;
+  border-radius: 8px;
+  background-color: #f5f5f5;
+  cursor: pointer;
+
+  &:hover {
+    background-color: #eeeeee;
+  }
 `;
