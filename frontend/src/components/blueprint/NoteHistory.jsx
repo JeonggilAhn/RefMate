@@ -458,7 +458,7 @@ const NoteHistory = () => {
                     >
                       {note.type === 'note' && note.pin_name && (
                         <div
-                          className={`px-2 py-0.5 rounded-md text-xs font-semibold mb-1 
+                          className={`absolute top-0 left-0 transform -translate-y-full px-2 py-1 rounded-md text-xs font-semibold 
                           ${isMyNote ? 'self-end' : 'self-start'}
                         `}
                           style={{
@@ -474,10 +474,12 @@ const NoteHistory = () => {
                         </div>
                       )}
                       {}
-                      <NoteButton
-                        note={note}
-                        onClick={() => handleNoteClick(note)}
-                      />
+                      <div className="relative">
+                        <NoteButton
+                          note={note}
+                          onClick={() => handleNoteClick(note)}
+                        />
+                      </div>
                     </div>
                   )}
                 </React.Fragment>
