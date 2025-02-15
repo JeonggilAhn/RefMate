@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 import com.dawn.backend.domain.blueprint.entity.BlueprintVersion;
 import com.dawn.backend.domain.blueprint.exception.BlueprintNotFoundException;
@@ -74,6 +75,7 @@ import com.dawn.backend.domain.user.repository.UserRepository;
 import com.dawn.backend.global.util.uploader.dto.ImagePathDto;
 import com.dawn.backend.global.util.uploader.service.UploadService;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class NoteService {
@@ -324,6 +326,7 @@ public class NoteService {
 		PageRequest pageRequest = PageRequest.of(0, size + 1);
 
 		List<Note> notes = noteRepository.findNotesByBlueprintVersionAfterCursor(
+			blueprintId,
 			blueprintVersion,
 			cursorId,
 			pageRequest
