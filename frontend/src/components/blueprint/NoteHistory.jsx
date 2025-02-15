@@ -229,9 +229,6 @@ const NoteHistory = () => {
 
     try {
       //  console.log('현재 cursorId:', cursorIdRef.current);
-      const scrollContainer = scrollContainerRef.current;
-      const previousScrollHeight = scrollContainer?.scrollHeight;
-      const previousScrollTop = scrollContainer?.scrollTop;
 
       const apiUrl = `blueprints/${blueprint_id}/${blueprint_version_id}/notes`;
       const params = {
@@ -252,8 +249,8 @@ const NoteHistory = () => {
         );*/
 
         // 현재 스크롤 위치 저장
-        // const currentScrollHeight = scrollContainerRef.current.scrollHeight;
-        // const currentScrollTop = scrollContainerRef.current.scrollTop;
+        const currentScrollHeight = scrollContainerRef.current.scrollHeight;
+        const currentScrollTop = scrollContainerRef.current.scrollTop;
 
         setNotes((prevNotes) => {
           // 기존 데이터와 합쳐 중복 제거
@@ -284,11 +281,11 @@ const NoteHistory = () => {
 
         // 새로운 노트가 추가된 후 스크롤 위치 복원
         setTimeout(() => {
-          if (scrollContainer) {
-            scrollContainer.scrollTop =
-              scrollContainer.scrollHeight -
-              previousScrollHeight +
-              previousScrollTop;
+          if (scrollContainerRef.current) {
+            scrollContainerRef.current.scrollTop =
+              scrollContainerRef.current.scrollHeight -
+              currentScrollHeight +
+              currentScrollTop;
           }
         }, 0);
       } else {
@@ -317,7 +314,7 @@ const NoteHistory = () => {
     });*/
 
     // 스크롤이 최상단 도달했을 때만 실행
-    if (scrollTop <= 50 && cursorIdRef.current !== null) {
+    if (scrollTop <= 100000 && cursorIdRef.current !== null) {
       // console.log('최상단 도달! 노트 추가 요청');
       fetchMoreNotes(); // 추가 노트 불러오기기
     }
