@@ -50,7 +50,13 @@ const CreateBlueprintVersion = ({
         ];
       });
 
-      console.log('블루프린트 버전 생성 성공:', response.data);
+      // console.log(
+      //   '블루프린트 버전 생성 성공:',
+      //   response.data.content.blueprint_version.blueprint_version_id,
+      // );
+      const newVersionId =
+        response.data.content.blueprint_version.blueprint_version_id;
+
       await refetchBlueprints();
 
       toast({
@@ -58,6 +64,8 @@ const CreateBlueprintVersion = ({
         description: String(new Date()),
       });
       setModal(null);
+
+      window.location.href = `/projects/${projectId}/blueprints/${blueprintId}/${newVersionId}`;
     } catch (error) {
       console.error('블루프린트 생성 실패:', error);
     }

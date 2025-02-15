@@ -26,6 +26,7 @@ const BlueprintVersions = ({
       `/projects/${projectId}/blueprints/${blueprint_id}/${blueprint_version_id}`,
       { replace: true },
     );
+    window.location.reload(); // 이동 후 새로고침
   };
 
   const refetchBlueprints = async () => {
@@ -44,6 +45,7 @@ const BlueprintVersions = ({
     (a, b) => new Date(b.created_at) - new Date(a.created_at),
   );
 
+  console.log(sortedVersions[0].blueprint_version_seq);
   setBlueprints(sortedVersions);
 
   // 블루프린트 생성 로직 추가
@@ -54,7 +56,7 @@ const BlueprintVersions = ({
       title: '새 블루프린트',
       content: (
         <CreateBlueprintVersion
-          blueprintVersionNumber={sortedVersions[0].blueprint_version_id}
+          blueprintVersionNumber={sortedVersions[0].blueprint_version_seq}
           projectId={projectId}
           blueprintId={blueprint_id}
           blueprints={blueprints}
