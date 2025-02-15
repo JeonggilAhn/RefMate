@@ -35,6 +35,7 @@ const NoteHistory = () => {
   const cursorIdRef = useRef(null);
   const [isFetching, setIsFetching] = useState(false);
   const { blueprint_id, blueprint_version_id, projectId } = useParams();
+  const [highlightedNoteId, setHighlightedNoteId] = useState(null);
 
   // 날짜별 구분선 추가하여 상태 저장
   useEffect(() => {
@@ -70,8 +71,6 @@ const NoteHistory = () => {
       return; // 빈 검색어 방지
     }
 
-    setIsSearched(true);
-
     try {
       const searchApiUrl = `${projectId}/blueprints/${blueprint_id}/${blueprint_version_id}/notes/search`;
       const searchParams = { keyword: keyword };
@@ -83,6 +82,7 @@ const NoteHistory = () => {
 
       // 노트 아이디들 저장
       setSearchedNotes(searchResults.reverse());
+      setIsSearched(true);
 
       // 아예 일치하는 노트들이 없다면
       if (searchResults.length === 0) {
@@ -153,6 +153,8 @@ const NoteHistory = () => {
         block: 'center',
       });
     }
+
+    setHighlightedNoteId(searchTargetId);
   }, [searchTargetId]);
 
   const goToPreviousNote = () => {
@@ -197,6 +199,7 @@ const NoteHistory = () => {
     setCurrentIndex(0);
     setSearchTargetId(null);
     setSearchedNotes([]);
+    setHighlightedNoteId(null);
   };
 
   // NoteDetail 이동 시 스크롤 저장/복원
@@ -443,7 +446,7 @@ const NoteHistory = () => {
                       key={note.note_id}
                       ref={(el) => (noteRefs.current[note.note_id] = el)}
                       className={`p-2 w-full flex 
-                          ${searchTargetId === note.note_id ? 'bg-yellow-200' : ''} 
+                          ${highlightedNoteId === note.note_id || searchTargetId === note.note_id ? 'bg-yellow-200' : ''} 
                           ${isMyNote ? 'justify-end' : 'justify-start'}
                         `} // 내 노트면 오른쪽 정렬, 남의 노트면 왼쪽 정렬
                     >

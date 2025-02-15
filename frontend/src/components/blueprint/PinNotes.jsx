@@ -302,6 +302,7 @@ const PinNotes = ({
                   onClose={() => {
                     setIsSearching(false); // 검색 상태를 false로 설정
                     setSearchTargetId(null); // 하이라이트를 제거하기 위해 searchTargetId를 null로 설정
+                    setHighlightedNoteId(null);
                   }}
                 />
               </div>
