@@ -35,13 +35,7 @@ const NoteHistory = () => {
   const cursorIdRef = useRef(null);
   const [isFetching, setIsFetching] = useState(false);
   const { blueprint_id, blueprint_version_id, projectId } = useParams();
-
-  // 상태 초기화 (뒤로 가기 시 중복 방지)
-  useEffect(() => {
-    setNotes([]);
-    setLastDate('');
-    cursorIdRef.current = null;
-  }, []);
+  const [highlightedNoteId, setHighlightedNoteId] = useState(null);
 
   // 날짜별 구분선 추가하여 상태 저장
   useEffect(() => {
@@ -77,8 +71,6 @@ const NoteHistory = () => {
       return; // 빈 검색어 방지
     }
 
-    setIsSearched(true);
-
     try {
       const searchApiUrl = `${projectId}/blueprints/${blueprint_id}/${blueprint_version_id}/notes/search`;
       const searchParams = { keyword: keyword };
@@ -90,6 +82,7 @@ const NoteHistory = () => {
 
       // 노트 아이디들 저장
       setSearchedNotes(searchResults.reverse());
+      setIsSearched(true);
 
       // 아예 일치하는 노트들이 없다면
       if (searchResults.length === 0) {
@@ -97,7 +90,7 @@ const NoteHistory = () => {
       }
 
       // 일치하는 노트 아이디들 중에서도 가장 최신 노트 아이디 저장
-      setNextId(searchResults[searchResults.length - 1]);
+      setNextId(searchResults[0]);
       console.log(nextId);
 
       const existingNote = (note_id) => {
@@ -106,7 +99,8 @@ const NoteHistory = () => {
 
       // 이미 존재하면 해당 노트로 이동
       if (existingNote(nextId)) {
-        setSearchTargetId(existingNote.note_id);
+        setSearchTargetId(nextId);
+        setHighlightedNoteId(nextId);
       } else {
         // 없으면 범위 노트 요청 API 호출 (검색된 노트를 가져오기 위해)
         await fetchRangeNotes(searchResults);
@@ -124,7 +118,7 @@ const NoteHistory = () => {
   // 노트 범위 요청
   const fetchRangeNotes = async (searchResults) => {
     try {
-      const rangeApiUrl = `${blueprint_id}/${blueprint_version_id}/notes`;
+      const rangeApiUrl = `blueprints/${blueprint_id}/${blueprint_version_id}/notes/range`;
       const rangeParams = {
         project_id: projectId,
         next_id: nextId,
@@ -160,6 +154,8 @@ const NoteHistory = () => {
         block: 'center',
       });
     }
+
+    setHighlightedNoteId(searchTargetId);
   }, [searchTargetId]);
 
   const goToPreviousNote = () => {
@@ -171,7 +167,7 @@ const NoteHistory = () => {
     if (!targetNoteId) return;
 
     if (!notes.some((note) => note.note_id === targetNoteId)) {
-      fetchRangeNotes(targetNoteId);
+      fetchRangeNotes(searchedNotes);
     }
 
     setSearchTargetId(targetNoteId);
@@ -185,7 +181,7 @@ const NoteHistory = () => {
     if (!targetNoteId) return;
 
     if (!notes.some((note) => note.note_id === targetNoteId)) {
-      fetchRangeNotes(targetNoteId);
+      fetchRangeNotes(searchedNotes);
     }
 
     setSearchTargetId(targetNoteId);
@@ -193,6 +189,7 @@ const NoteHistory = () => {
 
   const handleKeyDown = (e) => {
     if (e.key === 'Enter') {
+      e.preventDefault();
       fetchSearchNotes();
     }
   };
@@ -204,6 +201,7 @@ const NoteHistory = () => {
     setCurrentIndex(0);
     setSearchTargetId(null);
     setSearchedNotes([]);
+    setHighlightedNoteId(null);
   };
 
   // NoteDetail 이동 시 스크롤 저장/복원
@@ -267,11 +265,6 @@ const NoteHistory = () => {
           // 새로운 노트 기존 노트 앞에 추가.
           const mergedNotes = [...prevNotes, ...filteredNotes];
 
-          // 마지막 날짜 업데이트
-          const oldestNewNoteDate =
-            filteredNotes.at(-1)?.created_at || lastDate;
-          setLastDate(oldestNewNoteDate);
-
           // 날짜 구분선 추가 및 LastDate 업데이트
           const { notesWithSeparators, lastDate: newLastDate } = processNotes(
             mergedNotes,
@@ -285,14 +278,16 @@ const NoteHistory = () => {
         cursorIdRef.current = newNotes.at(-1)?.note_id || cursorIdRef.current;
         // console.log('업데이트된 cursorId:', cursorIdRef.current);
 
+        // 검색 시 범위 요청을 위해 현재까지 불러온 노트 아이디 저장
+        setLastId(cursorIdRef.current);
+
         // 새로운 노트가 추가된 후 스크롤 위치 복원
         setTimeout(() => {
           if (scrollContainerRef.current) {
-            const newScrollHeight = scrollContainerRef.current.scrollHeight;
-
-            // 기존 높이 대비 증가한 만큼 스크롤 위치 유지
-            scrollContainerRef.current.scrollTop +=
-              newScrollHeight - currentScrollHeight;
+            scrollContainerRef.current.scrollTop =
+              scrollContainerRef.current.scrollHeight -
+              currentScrollHeight +
+              currentScrollTop;
           }
         }, 0);
       } else {
@@ -457,13 +452,15 @@ const NoteHistory = () => {
                       key={note.note_id}
                       ref={(el) => (noteRefs.current[note.note_id] = el)}
                       className={`p-2 w-full flex 
-                          ${searchTargetId === note.note_id ? 'bg-yellow-200' : ''} 
+                         ${highlightedNoteId === note.note_id || searchTargetId === note.note_id ? 'bg-yellow-200' : ''}} 
                           ${isMyNote ? 'justify-end' : 'justify-start'}
                         `} // 내 노트면 오른쪽 정렬, 남의 노트면 왼쪽 정렬
                     >
                       {note.type === 'note' && note.pin_name && (
                         <div
-                          className="absolute -top-5 left-0 px-2 py-0.5 rounded-md text-xs font-semibold bg-red-500 text-white"
+                          className={`px-2 py-0.5 rounded-md text-xs font-semibold mb-1 
+                          ${isMyNote ? 'self-end' : 'self-start'}
+                        `}
                           style={{
                             backgroundColor: note.pin_group_color || '#D1D5DB',
                             maxWidth: '8rem', // 8글자 정도만 표시
@@ -473,7 +470,7 @@ const NoteHistory = () => {
                             textOverflow: 'ellipsis',
                           }}
                         >
-                          {note.pin_name}
+                          <span className="text-white">{note.pin_name}</span>
                         </div>
                       )}
                       {}
