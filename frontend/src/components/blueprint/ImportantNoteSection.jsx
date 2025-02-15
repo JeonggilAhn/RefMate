@@ -15,12 +15,12 @@ const ImportantNoteSection = ({ detailPin, setDetailNote, projectId }) => {
 
   useEffect(() => {
     if (!pinId || !validProjectId) {
-      console.warn('필수 데이터 누락: detailPin 또는 projectId가 없습니다.');
+      // console.warn('필수 데이터 누락: detailPin 또는 projectId가 없습니다.');
       return;
     }
 
-    console.log('ImportantNoteSection - Received pinId:', detailPin.pin_id);
-    console.log('ImportantNoteSection - Received projectId:', projectId);
+    //  console.log('ImportantNoteSection - Received pinId:', detailPin.pin_id);
+    // console.log('ImportantNoteSection - Received projectId:', projectId);
 
     setNotes([]); // 새로운 핀 클릭 시 초기화
 
@@ -33,7 +33,7 @@ const ImportantNoteSection = ({ detailPin, setDetailNote, projectId }) => {
         };
         const response = await get(apiUrl, params);
 
-        console.log('API 응답:', response.data);
+        // console.log('API 응답:', response.data);
 
         if (response.data?.content?.note_list) {
           const fetchedNotes =
@@ -41,7 +41,7 @@ const ImportantNoteSection = ({ detailPin, setDetailNote, projectId }) => {
               .filter((note) => note.type === 'note')
               .reverse() || [];
 
-          console.log('정렬된된 Notes:', fetchedNotes); // 여기서 확인
+          // console.log('정렬된된 Notes:', fetchedNotes); // 여기서 확인
 
           setNotes(fetchedNotes);
         } else {
