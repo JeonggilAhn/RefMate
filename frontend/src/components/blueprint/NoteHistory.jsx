@@ -303,8 +303,9 @@ const NoteHistory = () => {
   const handleScroll = useCallback(() => {
     // 스크롤 컨테이너 or API 요청 중이면 실행X
     if (!scrollContainerRef.current || isFetching) return;
-    const { scrollTop, scrollHeight, clientHeight } =
-      scrollContainerRef.current;
+    const { scrollTop } = scrollContainerRef.current;
+
+    const isAtTop = scrollTop <= 5; // 최상단 도달 여부 판단 (0 ~ 5 범위)
 
     /*console.log('handleScroll 실행됨', {
       scrollTop,
@@ -314,9 +315,16 @@ const NoteHistory = () => {
     });*/
 
     // 스크롤이 최상단 도달했을 때만 실행
-    if (scrollTop <= 1 && cursorIdRef.current !== null) {
+    if (isAtTop && cursorIdRef.current !== null) {
       // console.log('최상단 도달! 노트 추가 요청');
-      fetchMoreNotes(); // 추가 노트 불러오기기
+      if (scrollTimeoutRef.current) {
+        clearTimeout(scrollTimeoutRef.current);
+      }
+      scrollTimeoutRef.current = setTimeout(() => {
+        requestAnimationFrame(() => {
+          fetchMoreNotes();
+        });
+      }, 150); // 150ms 딜레이 후 실행
     }
   }, [isFetching, fetchMoreNotes]);
 
