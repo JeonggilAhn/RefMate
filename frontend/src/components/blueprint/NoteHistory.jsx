@@ -211,8 +211,19 @@ const NoteHistory = () => {
 
   // 페이지네이션 추가 노트 불러오기
   const fetchMoreNotes = useCallback(async () => {
-    if (isFetching || !cursorIdRef.current) return;
+    if (isFetching || !cursorIdRef.current) {
+      console.log(
+        'fetchMoreNotes 요청 중단 - cursorIdRef:',
+        cursorIdRef.current,
+      );
+      return;
+    }
     setIsFetching(true);
+
+    console.log(
+      'fetchMoreNotes 요청 시작 - cursorIdRef.current before API call:',
+      cursorIdRef.current,
+    );
 
     try {
       const apiUrl = `blueprints/${blueprint_id}/${blueprint_version_id}/notes`;
@@ -224,6 +235,8 @@ const NoteHistory = () => {
       const response = await get(apiUrl, params);
 
       const newNotes = response.data?.content?.note_list || [];
+      console.log('API 응답 받은 노트들:', newNotes);
+
       if (newNotes.length > 0) {
         setNotes((prevNotes) => {
           const existingNoteIds = new Set(
@@ -235,10 +248,14 @@ const NoteHistory = () => {
           return [...prevNotes, ...filteredNotes];
         });
 
-        // ✅ cursorId 업데이트
-        cursorIdRef.current = newNotes.at(-1)?.note_id || cursorIdRef.current;
+        // cursorId 업데이트 (가장 오래된 노트의 ID로 변경)
+        const lastFetchedNoteId = newNotes.at(-1)?.note_id;
+        cursorIdRef.current = lastFetchedNoteId || cursorIdRef.current;
+
+        console.log('업데이트된 cursorIdRef.current:', cursorIdRef.current);
       } else {
-        cursorIdRef.current = null;
+        console.log('더 이상 불러올 노트 없음. cursorIdRef 초기화.');
+        cursorIdRef.current = null; // 더 이상 불러올 데이터가 없음을 표시
       }
     } catch (error) {
       console.error('노트 불러오기 실패:', error);
@@ -252,13 +269,19 @@ const NoteHistory = () => {
     if (!scrollContainerRef.current || isFetching) return;
 
     const { scrollTop } = scrollContainerRef.current;
-    const isAtTop = scrollTop === 0; // 범위 확대 (기존 5 → 20)
+    console.log('handleScroll 이벤트 발생 - scrollTop:', scrollTop);
+    console.log('현재 cursorIdRef.current:', cursorIdRef.current);
+    console.log('현재 isFetching:', isFetching);
 
-    if (isAtTop && cursorIdRef.current) {
+    const isAtTop = scrollTop === 0;
+
+    if (isAtTop && cursorIdRef.current !== null && !isFetching) {
+      console.log('최상단 도달! 노트 추가 요청...');
+
       if (scrollTimeoutRef.current) clearTimeout(scrollTimeoutRef.current);
       scrollTimeoutRef.current = setTimeout(() => {
         requestAnimationFrame(fetchMoreNotes);
-      }, 150);
+      }, 50);
     }
   }, [isFetching, fetchMoreNotes]);
 
