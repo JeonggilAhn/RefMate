@@ -40,25 +40,26 @@ const NoteHistory = () => {
   // 날짜별 구분선 추가하여 상태 저장
   useEffect(() => {
     if (rawNotes.length) {
-      const { notesWithSeparators, lastDate: newLastDate } = processNotes(
-        rawNotes,
-        lastDate,
+      const existingNoteIds = new Set(notes.map((note) => note.note_id)); // 기존 노트 ID 저장
+
+      // 기존에 없는 새로운 노트만 필터링
+      const newNotes = rawNotes.filter(
+        (note) => !existingNoteIds.has(note.note_id),
       );
-      setNotes(notesWithSeparators.reverse()); // 최신 데이터가 아래로 가도록 reverse()
-      setLastDate(newLastDate);
 
-      // cursorIdRef는 가장 오래된 note_id로 설정
-      cursorIdRef.current = rawNotes.at(-1)?.note_id || null;
-      //  console.log('초기 cursorId 설정:', cursorIdRef.current);
+      if (newNotes.length > 0) {
+        const mergedNotes = [...notes, ...newNotes]; // 기존 노트 + 새로운 노트
+        const { notesWithSeparators, lastDate: newLastDate } = processNotes(
+          mergedNotes,
+          lastDate,
+        );
 
-      // 스크롤 위치를 맨 아래로 설정
-      setTimeout(() => {
-        if (scrollContainerRef.current) {
-          scrollContainerRef.current.scrollTop =
-            currentScrollTop +
-            (scrollContainerRef.current.scrollHeight - currentScrollHeight);
-        }
-      }, 0);
+        setNotes(notesWithSeparators.reverse()); // 최신 데이터가 아래로 가도록 reverse()
+        setLastDate(newLastDate);
+
+        // cursorIdRef 업데이트 (페이지네이션을 위해 가장 오래된 note_id 저장)
+        cursorIdRef.current = newNotes.at(-1)?.note_id || cursorIdRef.current;
+      }
     }
   }, [rawNotes]);
 
@@ -211,11 +212,12 @@ const NoteHistory = () => {
 
   const handleBack = () => {
     setSelectedNote(null);
-    setTimeout(() => {
-      if (scrollContainerRef.current) {
-        scrollContainerRef.current.scrollTop = scrollPositionRef.current;
-      }
-    }, 0);
+    setSearchTargetId(null);
+    setHighlightedNoteId(null);
+
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollTop = scrollPositionRef.current;
+    }
   };
 
   // 페이지네이션 추가 노트 불러오기
