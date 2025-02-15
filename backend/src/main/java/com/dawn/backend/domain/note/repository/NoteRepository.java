@@ -115,12 +115,16 @@ public interface NoteRepository extends JpaRepository<Note, Long> {
 	 */
 	@Query("""
 		SELECT n FROM Note n
-		WHERE n.blueprintVersion.blueprintVersionId = :blueprintVersionId
+		JOIN n.blueprintVersion bv
+		JOIN bv.blueprint b
+		WHERE b.blueprintId = :blueprintId
+			AND bv.blueprintVersionId <= :blueprintVersionId
 			AND n.isDeleted = false
 			AND n.noteId < :cursorId
 		ORDER BY n.noteId DESC
 		""")
 	List<Note> findNotesByBlueprintVersionAfterCursor(
+		@Param("blueprintId") Long blueprintId,
 		@Param("blueprintVersionId") Long blueprintVersionId,
 		@Param("cursorId") Long cursorId,
 		Pageable pageable
