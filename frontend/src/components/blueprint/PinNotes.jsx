@@ -16,8 +16,9 @@ import {
 import { post } from '../../api';
 import { useParams } from 'react-router-dom';
 import ImageUploader from '../common/ImageUploader';
-import { useRecoilState } from 'recoil';
+import { useRecoilState, useRecoilValue } from 'recoil';
 import { pinState } from '../../recoil/blueprint';
+import { userState } from '../../recoil/common/user';
 import { processNotes } from '../../utils/temp';
 import { useToast } from '@/hooks/use-toast';
 
@@ -37,6 +38,7 @@ const PinNotes = ({
       />
     );
   }
+  const user = useRecoilValue(userState); // 로그인한 유저 정보 가져오기
   const [pins, setPins] = useRecoilState(pinState);
   const [data, setData] = useState({
     pinDetailNotes: [],
@@ -274,22 +276,31 @@ const PinNotes = ({
               {processedNotes.notesWithSeparators.length === 0 ? (
                 <NoData>등록된 노트가 없습니다.</NoData>
               ) : (
-                processedNotes.notesWithSeparators.map((note, index) =>
-                  note.type === 'date-separator' ? (
+                processedNotes.notesWithSeparators.map((note, index) => {
+                  const isMyNote =
+                    note.type === 'note' &&
+                    user?.user_email === note.note_writer?.user_email;
+
+                  return note.type === 'date-separator' ? (
                     <DateSeparator key={index}>{note.date}</DateSeparator>
                   ) : (
                     <div
                       key={note.note_id}
                       ref={(el) => (noteRefs.current[note.note_id] = el)}
-                      className={`p-2 ${highlightedNoteId === note.note_id || searchTargetId === note.note_id ? 'bg-yellow-200' : ''}`}
+                      className={`p-2 flex ${
+                        highlightedNoteId === note.note_id ||
+                        searchTargetId === note.note_id
+                          ? 'bg-yellow-200'
+                          : ''
+                      } ${isMyNote ? 'justify-end' : 'justify-start'}`}
                     >
                       <NoteButton
                         note={note}
                         onClick={() => handleNoteClick(note)}
                       />
                     </div>
-                  ),
-                )
+                  );
+                })
               )}
             </NotesContainer>
 
