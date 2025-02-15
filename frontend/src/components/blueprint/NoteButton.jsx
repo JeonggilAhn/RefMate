@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import Icon from '../common/Icon';
-import NoteReaders from './NoteReaders';
+// import NoteReaders from './NoteReaders';
 import { useRecoilValue } from 'recoil';
 import { userState } from '../../recoil/common/user';
 
@@ -10,12 +10,12 @@ const NoteButton = ({ note, onClick }) => {
   const user = useRecoilValue(userState);
 
   // 읽은 사용자 목록 표시 여부 상태
-  const [showReaders, setShowReaders] = useState(false);
+  // const [showReaders, setShowReaders] = useState(false);
 
   // 읽은 사용자 목록 토글 함수
-  const handleShowReaders = () => {
-    setShowReaders((prevState) => !prevState);
-  };
+  // const handleShowReaders = () => {
+  //   setShowReaders((prevState) => !prevState);
+  // };
 
   // 작성 시간 포맷팅 함수
   const formatCreatedAt = (time) => {
@@ -86,13 +86,13 @@ const NoteButton = ({ note, onClick }) => {
           {/* 작성 시간 (포맷팅된 시간 표시) */}
           <span>{formatCreatedAt(created_at)}</span>
           {/* 읽은 사용자 목록 버튼 */}
-          <button onClick={handleShowReaders} className="ml-2">
+          {/* <button onClick={handleShowReaders} className="ml-2">
             😶
-          </button>
+          </button> */}
         </div>
       </div>
       {/* 읽은 사용자 목록 표시 (showReaders가 true일 경우) */}
-      {showReaders && <NoteReaders read_users={read_users} />}
+      {/* {showReaders && <NoteReaders read_users={read_users} />} */}
     </div>
   );
 };
