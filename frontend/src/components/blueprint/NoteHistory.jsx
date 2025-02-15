@@ -24,6 +24,7 @@ const NoteHistory = () => {
   const scrollContainerRef = useRef(null);
   const scrollPositionRef = useRef(0);
   const { toast } = useToast(20);
+  const scrollTimeoutRef = useRef(null); // scrollTimeoutRef 추가
 
   // 검색 기능
   const [keyword, setKeyword] = useState('');
@@ -44,21 +45,10 @@ const NoteHistory = () => {
         rawNotes,
         lastDate,
       );
-      setNotes(notesWithSeparators.reverse()); // 최신 데이터가 아래로 가도록 reverse()
+      setNotes(notesWithSeparators.reverse());
       setLastDate(newLastDate);
 
-      // cursorIdRef는 가장 오래된 note_id로 설정
       cursorIdRef.current = rawNotes.at(-1)?.note_id || null;
-      //  console.log('초기 cursorId 설정:', cursorIdRef.current);
-
-      // 스크롤 위치를 맨 아래로 설정
-      setTimeout(() => {
-        if (scrollContainerRef.current) {
-          scrollContainerRef.current.scrollTop =
-            currentScrollTop +
-            (scrollContainerRef.current.scrollHeight - currentScrollHeight);
-        }
-      }, 1000);
     }
   }, [rawNotes]);
 
@@ -221,110 +211,54 @@ const NoteHistory = () => {
 
   // 페이지네이션 추가 노트 불러오기
   const fetchMoreNotes = useCallback(async () => {
-    if (isFetching || cursorIdRef.current === null) {
-      console.log('요청 중이거나, 불러올 데이터 없음. 요청 중단.');
-      return;
-    }
-    setIsFetching(true); // 요청 중에는 중복 호출하지 않음음
+    if (isFetching || !cursorIdRef.current) return;
+    setIsFetching(true);
 
     try {
-      //  console.log('현재 cursorId:', cursorIdRef.current);
-
       const apiUrl = `blueprints/${blueprint_id}/${blueprint_version_id}/notes`;
       const params = {
         project_id: projectId,
-        cursor_id: cursorIdRef.current, // 호출한 가장 오래된 노트 ID
-        size: 5, // 가져올 data 수
+        cursor_id: cursorIdRef.current,
+        size: 5,
       };
       const response = await get(apiUrl, params);
 
-      // console.log('API 응답 확인:', response.data);
-
       const newNotes = response.data?.content?.note_list || [];
-      console.log(`정보 : `, newNotes);
-      if (response.status === 200 && newNotes.length > 0) {
-        /*  console.log(
-          'API 응답 받은 note_id 리스트:',
-          newNotes.map((note) => note.note_id),
-        );*/
-
-        // 현재 스크롤 위치 저장
-        const currentScrollHeight = scrollContainerRef.current.scrollHeight;
-        const currentScrollTop = scrollContainerRef.current.scrollTop;
-
+      if (newNotes.length > 0) {
         setNotes((prevNotes) => {
-          // 기존 데이터와 합쳐 중복 제거
           const existingNoteIds = new Set(
             prevNotes.map((note) => note.note_id),
           );
           const filteredNotes = newNotes.filter(
             (note) => !existingNoteIds.has(note.note_id),
           );
-          // 새로운 노트 기존 노트 앞에 추가.
-          const mergedNotes = [...prevNotes, ...filteredNotes];
-
-          // 날짜 구분선 추가 및 LastDate 업데이트
-          const { notesWithSeparators, lastDate: newLastDate } = processNotes(
-            mergedNotes,
-            lastDate,
-          );
-          setLastDate(newLastDate);
-          return notesWithSeparators;
+          return [...prevNotes, ...filteredNotes];
         });
 
-        // cursorId 업데이트 (가장 오래된 note_id로 설정)
+        // ✅ cursorId 업데이트
         cursorIdRef.current = newNotes.at(-1)?.note_id || cursorIdRef.current;
-        // console.log('업데이트된 cursorId:', cursorIdRef.current);
-
-        // 검색 시 범위 요청을 위해 현재까지 불러온 노트 아이디 저장
-        setLastId(cursorIdRef.current);
-
-        // 새로운 노트가 추가된 후 스크롤 위치 복원
-        setTimeout(() => {
-          if (scrollContainerRef.current) {
-            scrollContainerRef.current.scrollTop =
-              scrollContainerRef.current.scrollHeight -
-              currentScrollHeight +
-              currentScrollTop;
-          }
-        }, 0);
       } else {
-        console.log('응답은 정상이나, 불러올 데이터 없음.');
         cursorIdRef.current = null;
       }
     } catch (error) {
-      console.error('노트 히스토리 로딩 실패:', error);
+      console.error('노트 불러오기 실패:', error);
     } finally {
       setIsFetching(false);
     }
-  }, [isFetching, blueprint_id, blueprint_version_id, projectId, lastDate]);
+  }, [isFetching, blueprint_id, blueprint_version_id, projectId]);
 
   // 최상단 도달 시 추가 노트 요청청
   const handleScroll = useCallback(() => {
-    // 스크롤 컨테이너 or API 요청 중이면 실행X
     if (!scrollContainerRef.current || isFetching) return;
+
     const { scrollTop } = scrollContainerRef.current;
+    const isAtTop = scrollTop === 0; // 범위 확대 (기존 5 → 20)
 
-    const isAtTop = scrollTop <= 5; // 최상단 도달 여부 판단 (0 ~ 5 범위)
-
-    /*console.log('handleScroll 실행됨', {
-      scrollTop,
-      scrollHeight,
-      clientHeight,
-      cursorId: cursorIdRef.current,
-    });*/
-
-    // 스크롤이 최상단 도달했을 때만 실행
-    if (isAtTop && cursorIdRef.current !== null) {
-      // console.log('최상단 도달! 노트 추가 요청');
-      if (scrollTimeoutRef.current) {
-        clearTimeout(scrollTimeoutRef.current);
-      }
+    if (isAtTop && cursorIdRef.current) {
+      if (scrollTimeoutRef.current) clearTimeout(scrollTimeoutRef.current);
       scrollTimeoutRef.current = setTimeout(() => {
-        requestAnimationFrame(() => {
-          fetchMoreNotes();
-        });
-      }, 150); // 150ms 딜레이 후 실행
+        requestAnimationFrame(fetchMoreNotes);
+      }, 150);
     }
   }, [isFetching, fetchMoreNotes]);
 
@@ -332,10 +266,8 @@ const NoteHistory = () => {
   useEffect(() => {
     const scrollContainer = scrollContainerRef.current;
     if (scrollContainer) {
-      scrollContainer.addEventListener('scroll', handleScroll); // 스크롤 이벤트 등록
-      return () => {
-        scrollContainer.removeEventListener('scroll', handleScroll); // 컴포넌트 언마운트시 제거
-      };
+      scrollContainer.addEventListener('scroll', handleScroll);
+      return () => scrollContainer.removeEventListener('scroll', handleScroll);
     }
   }, [handleScroll]);
 
