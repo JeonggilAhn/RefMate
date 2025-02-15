@@ -288,9 +288,18 @@ const NoteHistory = () => {
   //
   useEffect(() => {
     const scrollContainer = scrollContainerRef.current;
+    console.log('scrollContainerRef.current:', scrollContainer);
+
     if (scrollContainer) {
       scrollContainer.addEventListener('scroll', handleScroll);
-      return () => scrollContainer.removeEventListener('scroll', handleScroll);
+      console.log('Scroll 이벤트 바인딩 완료!');
+
+      return () => {
+        scrollContainer.removeEventListener('scroll', handleScroll);
+        console.log('Scroll 이벤트 제거됨');
+      };
+    } else {
+      console.log('scrollContainerRef.current가 NULL입니다. 확인 필요!');
     }
   }, [handleScroll]);
 
