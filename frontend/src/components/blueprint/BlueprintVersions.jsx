@@ -54,6 +54,7 @@ const BlueprintVersions = ({
       title: '새 블루프린트',
       content: (
         <CreateBlueprintVersion
+          blueprintVersionNumber={sortedVersions[0].blueprint_version_id}
           projectId={projectId}
           blueprintId={blueprint_id}
           blueprints={blueprints}
