@@ -90,7 +90,7 @@ const NoteHistory = () => {
       }
 
       // 일치하는 노트 아이디들 중에서도 가장 최신 노트 아이디 저장
-      setNextId(searchResults[searchResults.length - 1]);
+      setNextId(searchResults[0]);
       console.log(nextId);
 
       const existingNote = (note_id) => {
@@ -99,7 +99,8 @@ const NoteHistory = () => {
 
       // 이미 존재하면 해당 노트로 이동
       if (existingNote(nextId)) {
-        setSearchTargetId(existingNote.note_id);
+        setSearchTargetId(nextId);
+        setHighlightedNoteId(nextId);
       } else {
         // 없으면 범위 노트 요청 API 호출 (검색된 노트를 가져오기 위해)
         await fetchRangeNotes(searchResults);
@@ -117,7 +118,7 @@ const NoteHistory = () => {
   // 노트 범위 요청
   const fetchRangeNotes = async (searchResults) => {
     try {
-      const rangeApiUrl = `${blueprint_id}/${blueprint_version_id}/notes`;
+      const rangeApiUrl = `blueprints/${blueprint_id}/${blueprint_version_id}/notes/range`;
       const rangeParams = {
         project_id: projectId,
         next_id: nextId,
@@ -166,7 +167,7 @@ const NoteHistory = () => {
     if (!targetNoteId) return;
 
     if (!notes.some((note) => note.note_id === targetNoteId)) {
-      fetchRangeNotes(targetNoteId);
+      fetchRangeNotes(searchedNotes);
     }
 
     setSearchTargetId(targetNoteId);
@@ -180,7 +181,7 @@ const NoteHistory = () => {
     if (!targetNoteId) return;
 
     if (!notes.some((note) => note.note_id === targetNoteId)) {
-      fetchRangeNotes(targetNoteId);
+      fetchRangeNotes(searchedNotes);
     }
 
     setSearchTargetId(targetNoteId);
@@ -188,6 +189,7 @@ const NoteHistory = () => {
 
   const handleKeyDown = (e) => {
     if (e.key === 'Enter') {
+      e.preventDefault();
       fetchSearchNotes();
     }
   };
@@ -274,6 +276,9 @@ const NoteHistory = () => {
         // cursorId 업데이트 (가장 오래된 note_id로 설정)
         cursorIdRef.current = newNotes.at(-1)?.note_id || cursorIdRef.current;
         // console.log('업데이트된 cursorId:', cursorIdRef.current);
+
+        // 검색 시 범위 요청을 위해 현재까지 불러온 노트 아이디 저장
+        setLastId(cursorIdRef.current);
 
         // 새로운 노트가 추가된 후 스크롤 위치 복원
         setTimeout(() => {
