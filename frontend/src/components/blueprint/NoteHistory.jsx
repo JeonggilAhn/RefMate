@@ -451,14 +451,13 @@ const NoteHistory = () => {
                     <div
                       key={note.note_id}
                       ref={(el) => (noteRefs.current[note.note_id] = el)}
-                      className={`relative p-2 w-full flex 
-                         ${highlightedNoteId === note.note_id || searchTargetId === note.note_id ? 'bg-yellow-200' : ''}} 
-                          ${isMyNote ? 'justify-end' : 'justify-start'}
-                        `} // 내 노트면 오른쪽 정렬, 남의 노트면 왼쪽 정렬
+                      className={`p-2 w-full flex flex-col 
+    ${highlightedNoteId === note.note_id || searchTargetId === note.note_id ? 'bg-yellow-200' : ''} 
+    ${isMyNote ? 'items-end' : 'items-start'}`}
                     >
                       {note.type === 'note' && note.pin_name && (
                         <div
-                          className="absolute top-0 left-0 transform -translate-y-full px-2 py-1 rounded-md text-xs font-semibold z-10"
+                          className="px-2 py-1 rounded-md text-xs font-semibold mb-1"
                           style={{
                             backgroundColor: note.pin_group_color || '#D1D5DB', // 배경색 강제 적용
                             color: '#FFFFFF', // 글씨색 강제 적용
@@ -471,13 +470,11 @@ const NoteHistory = () => {
                           {note.pin_name}
                         </div>
                       )}
-                      {}
-                      <div className="relative">
-                        <NoteButton
-                          note={note}
-                          onClick={() => handleNoteClick(note)}
-                        />
-                      </div>
+
+                      <NoteButton
+                        note={note}
+                        onClick={() => handleNoteClick(note)}
+                      />
                     </div>
                   )}
                 </React.Fragment>
