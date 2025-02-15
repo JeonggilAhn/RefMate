@@ -451,26 +451,24 @@ const NoteHistory = () => {
                     <div
                       key={note.note_id}
                       ref={(el) => (noteRefs.current[note.note_id] = el)}
-                      className={`p-2 w-full flex 
+                      className={`relative p-2 w-full flex 
                          ${highlightedNoteId === note.note_id || searchTargetId === note.note_id ? 'bg-yellow-200' : ''}} 
                           ${isMyNote ? 'justify-end' : 'justify-start'}
                         `} // 내 노트면 오른쪽 정렬, 남의 노트면 왼쪽 정렬
                     >
                       {note.type === 'note' && note.pin_name && (
                         <div
-                          className={`absolute top-0 left-0 transform -translate-y-full px-2 py-1 rounded-md text-xs font-semibold 
-                          ${isMyNote ? 'self-end' : 'self-start'}
-                        `}
+                          className="absolute top-0 left-0 transform -translate-y-full px-2 py-1 rounded-md text-xs font-semibold z-10"
                           style={{
-                            backgroundColor: note.pin_group_color || '#D1D5DB',
-                            maxWidth: '8rem', // 8글자 정도만 표시
-                            height: '1.5rem',
-                            overflow: 'hidden',
+                            backgroundColor: note.pin_group_color || '#D1D5DB', // 배경색 강제 적용
+                            color: '#FFFFFF', // 글씨색 강제 적용
+                            maxWidth: '8rem',
                             whiteSpace: 'nowrap',
                             textOverflow: 'ellipsis',
+                            overflow: 'hidden',
                           }}
                         >
-                          <span className="text-white">{note.pin_name}</span>
+                          {note.pin_name}
                         </div>
                       )}
                       {}
