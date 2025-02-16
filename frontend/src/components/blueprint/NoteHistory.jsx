@@ -81,10 +81,9 @@ const NoteHistory = () => {
       }
 
       // 일치하는 노트 아이디들 중에서도 가장 최신 노트 아이디 저장
-      const firstMatchId = reversedResults[reversedResults.length - 1];
+      const firstMatchId = reversedResults[0];
       setNextId(firstMatchId);
       console.log('첫 노트 아이디 : ', firstMatchId);
-      console.log('첫 노트 아이디 반영되었나?: ', nextId);
 
       const existingNote = notes.some((note) => note.note_id === firstMatchId);
 
@@ -95,7 +94,7 @@ const NoteHistory = () => {
         setHighlightedNoteId(firstMatchId);
       } else {
         // 없으면 범위 노트 요청
-        await fetchRangeNotes(reversedResults);
+        await fetchRangeNotes(reversedResults, firstMatchId);
       }
     } catch (error) {
       console.error('검색 실패:', error.message);
@@ -103,13 +102,13 @@ const NoteHistory = () => {
   };
 
   // 노트 범위 요청
-  const fetchRangeNotes = async (searchResults) => {
+  const fetchRangeNotes = async (searchResults, nextMatchId) => {
     try {
       const rangeApiUrl = `blueprints/${blueprint_id}/${blueprint_version_id}/notes/range`;
       const rangeParams = {
         project_id: projectId,
-        next_id: nextId, // 다음 찾을 노트 ID
-        last_id: lastId, // 현재까지 있는 노트들 중 가장 오래된 ID
+        next_id: nextMatchId, // 다음 찾을 노트 ID
+        last_id: cursorIdRef.current, // 현재까지 있는 노트들 중 가장 오래된 ID
       };
       const rangeResponse = await get(rangeApiUrl, rangeParams);
       const newNotes = rangeResponse.data.content.note_list || [];
@@ -118,7 +117,10 @@ const NoteHistory = () => {
 
       if (newNotes.length > 0) {
         setNotes((prevNotes) => [...prevNotes, ...newNotes]); // 노트 추가
-        setLastId(nextId); // 마지막 노트 아이디
+        // cursorId 업데이트 (가장 오래된 노트의 ID로 변경)
+        const lastFetchedNoteId = newNotes.at(-1)?.note_id;
+        cursorIdRef.current = lastFetchedNoteId || cursorIdRef.current;
+        console.log('변경되었는지 확인: ', cursorIdRef.current);
 
         // 추가된 노트 중 검색된 노트가 있는지 확인 후 스크롤
         const foundNote = newNotes.find((note) =>
@@ -252,10 +254,6 @@ const NoteHistory = () => {
         // cursorId 업데이트 (가장 오래된 노트의 ID로 변경)
         const lastFetchedNoteId = newNotes.at(-1)?.note_id;
         cursorIdRef.current = lastFetchedNoteId || cursorIdRef.current;
-
-        // 검색을 위해 지금까지 있는 노트들 중 가장 오래된 노트 Id 저장
-        setLastId(cursorIdRef.current);
-        console.log('지금 있는 노트 id 중 가장 오래됨 : ', cursorIdRef.current);
 
         console.log('업데이트된 cursorIdRef.current:', cursorIdRef.current);
       } else {
