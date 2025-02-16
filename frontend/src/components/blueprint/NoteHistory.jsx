@@ -457,7 +457,8 @@ const NoteHistory = () => {
             {notes.map((note, index) => {
               const isMyNote =
                 note.type === 'note' &&
-                user?.user_email === note.note_writer.user_email; // 내 노트인지 확인
+                (user?.user_email === note.note_writer?.user_email ||
+                  user?.user_email === note.user_email); // 내 노트인지 확인
 
               return (
                 <React.Fragment key={index}>
