@@ -64,6 +64,7 @@ const PinPopup = ({
         onConfirm({ ...pin, pin_x: initialPin.pin_x, pin_y: initialPin.pin_y });
         ws.send(
           `/api/blueprints/${blueprintId}/${blueprintVersion}/pins`,
+          {},
           pin.pin_id,
         );
       });
