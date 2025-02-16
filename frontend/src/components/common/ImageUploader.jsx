@@ -315,7 +315,7 @@ const ImageUploader = ({ onImageSelect, projectId, type = 'blueprint' }) => {
               </div>
             </div>
           )}
-          <div className="inline-block">
+          <div className="inline-block bg-[#ffffff]">
             <label className="cursor-pointer">
               <span className="w-8 h-8 flex items-center justify-center border border-gray-300 rounded-md text-gray-500 hover:bg-gray-50">
                 <Icon name="IconTbPhoto" width={20} height={20} />
