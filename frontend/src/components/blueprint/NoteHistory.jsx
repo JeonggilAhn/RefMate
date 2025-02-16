@@ -318,13 +318,8 @@ const NoteHistory = () => {
       // console.log('API 응답 확인:', response.data);
 
       const newNotes = response.data?.content?.note_list || [];
-      console.log(`정보 : `, newNotes);
-      if (response.status === 200 && newNotes.length > 0) {
-        /*  console.log(
-          'API 응답 받은 note_id 리스트:',
-          newNotes.map((note) => note.note_id),
-        );*/
 
+      if (response.status === 200 && newNotes.length > 0) {
         setNotes((prevNotes) => {
           // 기존 데이터와 합쳐 중복 제거
           const existingNoteIds = new Set(
@@ -347,20 +342,9 @@ const NoteHistory = () => {
 
         // cursorId 업데이트 (가장 오래된 note_id로 설정)
         cursorIdRef.current = newNotes.at(-1)?.note_id || cursorIdRef.current;
-        // console.log('업데이트된 cursorId:', cursorIdRef.current);
 
         // 검색 시 범위 요청을 위해 현재까지 불러온 노트 아이디 저장
         setLastId(cursorIdRef.current);
-
-        // 새로운 노트가 추가된 후 스크롤 위치 복원
-        setTimeout(() => {
-          if (scrollContainerRef.current) {
-            scrollContainerRef.current.scrollTop =
-              scrollContainerRef.current.scrollHeight -
-              currentScrollHeight +
-              currentScrollTop;
-          }
-        }, 0);
       } else {
         console.log('응답은 정상이나, 불러올 데이터 없음.');
         cursorIdRef.current = null;
@@ -372,19 +356,26 @@ const NoteHistory = () => {
     }
   }, [isFetching, blueprint_id, blueprint_version_id, projectId, lastDate]);
 
+  const prevScrollTopRef = useRef(0);
+
   // 최상단 도달 시 추가 노트 요청청
   const handleScroll = useCallback(
     throttle(() => {
       if (!scrollContainerRef.current || isFetching) return;
 
-      const { scrollTop, scrollHeight, clientHeight } =
-        scrollContainerRef.current;
+      const { scrollTop } = scrollContainerRef.current;
 
       // 최상단 도달 감지
-      if (scrollTop <= 5 && !isFetching) {
+      if (
+        scrollTop < prevScrollTopRef.current &&
+        scrollTop <= 5 &&
+        !isFetching
+      ) {
         console.log('최상단 도달! 페이지네이션 실행');
         fetchMoreNotes();
       }
+
+      prevScrollTopRef.current = scrollTop;
     }, 200), // 200ms마다 실행 (반응 속도 조정 가능)
     [isFetching, fetchMoreNotes],
   );
