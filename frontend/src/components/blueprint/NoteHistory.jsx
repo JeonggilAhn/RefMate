@@ -73,6 +73,12 @@ const NoteHistory = () => {
 
   // 검색 -> 스크롤 & 하이라이트
   const fetchSearchNotes = async () => {
+    setCurrentIndex(0);
+    setSearchTargetId(null);
+    setSearchedNotes([]);
+    setHighlightedNoteId(null);
+    nextIdRef.current = null;
+
     if (!keyword.trim()) {
       toast({
         title: '검색어를 입력하세요.',
@@ -214,7 +220,7 @@ const NoteHistory = () => {
     if (searchTargetId && noteRefs.current[searchTargetId]) {
       noteRefs.current[searchTargetId].scrollIntoView({
         behavior: 'smooth',
-        block: 'center',
+        block: 'start', // 최상단으로 스크롤
       });
     }
 
