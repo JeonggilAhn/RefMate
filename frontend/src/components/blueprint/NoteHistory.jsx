@@ -263,15 +263,10 @@ const NoteHistory = () => {
       console.log('요청 중이거나, 불러올 데이터 없음. 요청 중단.');
       return;
     }
-    setIsFetching(true); // 요청 중에는 중복 호출하지 않음
+    setIsFetching(true); // 요청 중에는 중복 호출하지 않음음
 
     try {
-      const scrollContainer = scrollContainerRef.current;
-      if (!scrollContainer) return;
-
-      // 기존 스크롤 높이 저장
-      const prevScrollHeight = scrollContainer.scrollHeight;
-      const prevScrollTop = scrollContainer.scrollTop;
+      //  console.log('현재 cursorId:', cursorIdRef.current);
 
       const apiUrl = `blueprints/${blueprint_id}/${blueprint_version_id}/notes`;
       const params = {
@@ -281,17 +276,25 @@ const NoteHistory = () => {
       };
       const response = await get(apiUrl, params);
 
-      const newNotes = response.data?.content?.note_list || [];
-      console.log(`새로 불러온 노트 : `, newNotes);
+      // console.log('API 응답 확인:', response.data);
 
+      const newNotes = response.data?.content?.note_list || [];
+      console.log(`정보 : `, newNotes);
       if (response.status === 200 && newNotes.length > 0) {
+        /*  console.log(
+          'API 응답 받은 note_id 리스트:',
+          newNotes.map((note) => note.note_id),
+        );*/
+
         setNotes((prevNotes) => {
+          // 기존 데이터와 합쳐 중복 제거
           const existingNoteIds = new Set(
             prevNotes.map((note) => note.note_id),
           );
           const filteredNotes = newNotes.filter(
             (note) => !existingNoteIds.has(note.note_id),
           );
+          // 새로운 노트 기존 노트 앞에 추가.
           const mergedNotes = [...prevNotes, ...filteredNotes];
 
           // 날짜 구분선 추가 및 LastDate 업데이트
@@ -303,16 +306,20 @@ const NoteHistory = () => {
           return notesWithSeparators;
         });
 
-        // 2cursorId 업데이트
+        // cursorId 업데이트 (가장 오래된 note_id로 설정)
         cursorIdRef.current = newNotes.at(-1)?.note_id || cursorIdRef.current;
-        console.log('업데이트된 cursorId:', cursorIdRef.current);
+        // console.log('업데이트된 cursorId:', cursorIdRef.current);
 
-        // 3새로운 노트가 추가된 후 스크롤 위치 복원
+        // 검색 시 범위 요청을 위해 현재까지 불러온 노트 아이디 저장
+        setLastId(cursorIdRef.current);
+
+        // 새로운 노트가 추가된 후 스크롤 위치 복원
         setTimeout(() => {
-          if (scrollContainer) {
-            const newScrollHeight = scrollContainer.scrollHeight;
-            scrollContainer.scrollTop =
-              prevScrollTop + (newScrollHeight - prevScrollHeight);
+          if (scrollContainerRef.current) {
+            scrollContainerRef.current.scrollTop =
+              scrollContainerRef.current.scrollHeight -
+              currentScrollHeight +
+              currentScrollTop;
           }
         }, 0);
       } else {
