@@ -48,7 +48,7 @@ const NoteHistory = () => {
       rawNotes,
       lastDate,
     );
-    setNotes(notesWithSeparators); // 최신 데이터가 아래로 가도록 reverse()
+    setNotes(notesWithSeparators.reverse()); // 최신 데이터가 아래로 가도록 reverse()
     setLastDate(newLastDate);
 
     // cursorIdRef는 가장 오래된 note_id로 설정
@@ -338,21 +338,21 @@ const NoteHistory = () => {
     throttle(() => {
       if (!scrollContainerRef.current || isFetching) return;
 
-      const { scrollTop } = scrollContainerRef.current;
+      const { scrollTop, scrollHeight, clientHeight } =
+        scrollContainerRef.current;
 
-      // 최상단에 도달하면 isAtTop을 true로 설정
-      if (scrollTop === 0) {
-        setIsAtTop(true);
+      // 최상단 도달 감지
+      if (scrollTop <= 10) {
+        console.log('최상단 도달! 페이지네이션 실행');
+        fetchMoreNotes();
       }
 
-      // 최상단에서 살짝 내렸다가 다시 올릴 때 작동
-      if (isAtTop && scrollTop <= 30 && cursorIdRef.current !== null) {
-        console.log('최상단 도달 후 다시 올라옴! 노트 추가 요청 실행');
-        fetchMoreNotes();
-        setIsAtTop(false); // 다시 내려갈 수 있도록 상태 초기화
+      // 최하단 도달 감지 (이게 필요 없다면 제거 가능)
+      if (scrollTop + clientHeight >= scrollHeight - 10) {
+        console.log('최하단 도달!');
       }
     }, 200), // 200ms마다 실행 (반응 속도 조정 가능)
-    [isFetching, fetchMoreNotes, isAtTop],
+    [isFetching, fetchMoreNotes],
   );
 
   // 스크롤 이벤트 체크
