@@ -189,7 +189,7 @@ const NoteHistory = () => {
         });
 
         // 변환된 데이터를 상태에 저장
-        setNotes((prevNotes) => [...prevNotes, ...transformedNotes]);
+        // setNotes((prevNotes) => [...prevNotes, ...transformedNotes]);
 
         // setNotes((prevNotes) => [...prevNotes, ...newNotes]); // 노트 추가
 
@@ -235,6 +235,8 @@ const NoteHistory = () => {
     const targetNoteId = searchedNotes[newIndex];
     nextIdRef.current = searchedNotes[newIndex];
 
+    console.log('현재 노트 id', targetNoteId);
+
     if (!targetNoteId) return;
 
     if (!notes.some((note) => note.note_id === targetNoteId)) {
@@ -250,6 +252,8 @@ const NoteHistory = () => {
 
     const targetNoteId = searchedNotes[newIndex];
     nextIdRef.current = searchedNotes[newIndex];
+
+    console.log('현재 노트 id', targetNoteId);
 
     if (!targetNoteId) return;
 
