@@ -87,11 +87,11 @@ const PinNoteSection = ({
       // 현재 노트 스크롤
       noteRefs.current[searchTargetId].scrollIntoView({
         behavior: 'smooth',
-        block: 'start',
+        block: 'center',
       });
-    }
 
-    setHighlightedNoteId(searchTargetId);
+      setHighlightedNoteId(searchTargetId);
+    }
   }, [searchTargetId]);
 
   // pin_id가 현재 null
