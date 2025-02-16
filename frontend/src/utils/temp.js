@@ -1,10 +1,9 @@
-export const processNotes = (noteList, prevLastDate = '') => {
+export const processNotes = (noteList) => {
   if (!Array.isArray(noteList))
-    return { notesWithSeparators: [], lastDate: prevLastDate };
+    return { notesWithSeparators: [], lastDate: '' };
 
   const notesWithSeparators = [];
-  let lastDate = prevLastDate;
-  let lastInsertedDateIndex = -1; // 마지막으로 추가된 날짜 구분선 인덱스 저장
+  let lastDate = '';
 
   noteList.forEach((note) => {
     if (!note.created_at) return; // created_at이 없는 경우 제외
@@ -19,29 +18,14 @@ export const processNotes = (noteList, prevLastDate = '') => {
       weekday: 'short',
     });
 
-    // 날짜 변경 감지
+    // 새로운 날짜가 등장하면, 구분선을 삽입
     if (noteDate !== lastDate) {
-      // 새로운 날짜가 나오면, 이전 날짜가 아직 구분선으로 추가되지 않았다면 추가
-      if (lastInsertedDateIndex !== -1) {
-        notesWithSeparators.splice(lastInsertedDateIndex, 0, {
-          type: 'date-separator',
-          date: lastDate,
-        });
-      }
-      lastInsertedDateIndex = notesWithSeparators.length; // 새로운 날짜 구분선이 들어갈 위치
+      notesWithSeparators.push({ type: 'date-separator', date: noteDate });
       lastDate = noteDate;
     }
 
     notesWithSeparators.push(note);
   });
-
-  // 마지막 구분선 추가
-  if (lastInsertedDateIndex !== -1) {
-    notesWithSeparators.splice(lastInsertedDateIndex, 0, {
-      type: 'date-separator',
-      date: lastDate,
-    });
-  }
 
   return { notesWithSeparators, lastDate };
 };
