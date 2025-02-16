@@ -340,6 +340,8 @@ const NoteHistory = () => {
             mergedNotes,
             lastDate,
           );
+
+          setNotes(notesWithSeparators);
           setLastDate(newLastDate);
           return notesWithSeparators;
         });
