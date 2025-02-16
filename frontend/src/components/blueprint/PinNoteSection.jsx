@@ -60,10 +60,9 @@ const PinNoteSection = ({
   const [selectedNote, setSelectedNote] = useState(null);
   const [searchTargetId, setSearchTargetId] = useState(null); // 검색된 노트 ID 저장
   const noteRefs = useRef({}); // 노트별 ref 저장
+  const [highlightedNoteId, setHighlightedNoteId] = useState(null);
 
   const handleIconClick = () => {
-    console.log(1111);
-    console.log(isSearching);
     setIsSearching((prev) => !prev);
   };
 
@@ -88,9 +87,11 @@ const PinNoteSection = ({
       // 현재 노트 스크롤
       noteRefs.current[searchTargetId].scrollIntoView({
         behavior: 'smooth',
-        block: 'center',
+        block: 'start',
       });
     }
+
+    setHighlightedNoteId(searchTargetId);
   }, [searchTargetId]);
 
   // pin_id가 현재 null
@@ -163,7 +164,12 @@ const PinNoteSection = ({
                   <div
                     key={note.note_id}
                     ref={(el) => (noteRefs.current[note.note_id] = el)}
-                    className={`p-2 ${searchTargetId === note.note_id ? 'bg-yellow-200' : ''}`}
+                    className={`p-2 ${
+                      highlightedNoteId === note.note_id ||
+                      searchTargetId === note.note_id
+                        ? 'bg-yellow-200'
+                        : ''
+                    }`}
                   >
                     <NoteButton
                       note={note}
@@ -183,6 +189,7 @@ const PinNoteSection = ({
                 onClose={() => {
                   setIsSearching(false); // 검색 상태를 false로 설정
                   setSearchTargetId(null); // 하이라이트를 제거하기 위해 searchTargetId를 null로 설정
+                  setHighlightedNoteId(null);
                 }}
               />
             </div>
