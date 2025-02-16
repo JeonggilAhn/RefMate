@@ -3,10 +3,7 @@ package com.dawn.backend.domain.note.service;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -25,7 +22,6 @@ import com.dawn.backend.domain.note.dto.GetNotesByRangeResponseDto;
 import com.dawn.backend.domain.note.dto.NoteDto;
 import com.dawn.backend.domain.note.dto.NoteItemWithTypeDto;
 import com.dawn.backend.domain.note.dto.NoteWithPinAndPinGroupDto;
-import com.dawn.backend.domain.note.dto.UserNoteCheckDto;
 import com.dawn.backend.domain.note.dto.request.BookmarkImageRequestDto;
 import com.dawn.backend.domain.note.dto.request.BookmarkNoteRequestDto;
 import com.dawn.backend.domain.note.dto.request.CreateNoteRequestDto;
@@ -497,7 +493,7 @@ public class NoteService {
 		LocalDateTime prevDate = null;
 
 		for (NoteWithPinAndPinGroupDto dto : noteDtos) {
-			LocalDateTime currentDate = dto.noteCreatedAt().toLocalDate().atStartOfDay();
+			LocalDateTime currentDate = dto.createdAt().toLocalDate().atStartOfDay();
 
 			if (prevDate == null || !currentDate.equals(prevDate)) {
 				chatItems.add(DateSeparatorDto.from(currentDate));
