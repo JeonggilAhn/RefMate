@@ -136,7 +136,56 @@ const NoteHistory = () => {
       console.log('범위 노트 요청 결과:', newNotes);
 
       if (newNotes.length > 0) {
-        setNotes((prevNotes) => [...prevNotes, ...newNotes]); // 노트 추가
+        const transformedNotes = newNotes.map((note) => {
+          if (note.type === 'note') {
+            // note 타입일 경우
+            return {
+              type: note.type,
+              note_id: note.note_id,
+              note_writer: {
+                user_id: note.user_id,
+                user_email: note.user_email,
+                profile_url: note.profile_url,
+                signup_date: note.created_at,
+                role: 'ROLE_OWNER',
+              },
+              note_title: note.note_title,
+              note_content: '',
+              is_bookmark: note.is_bookmark,
+              created_at: note.created_at,
+              is_present_image: note.is_present_image,
+              read_users: [
+                {
+                  user_id: note.user_id,
+                  user_email: note.user_email,
+                  profile_url: note.profile_url,
+                  signup_date: note.created_at,
+                  role: 'ROLE_OWNER',
+                },
+              ],
+              blueprint_id: note.blueprint_id,
+              blueprint_title: note.blueprint_title,
+              blueprint_version_id: note.blueprint_version_id,
+              pin_id: note.pin_id,
+              pin_name: note.pin_name,
+              pin_x: note.pin_x,
+              pin_y: note.pin_y,
+              pin_group_id: note.pin_group_id,
+              pin_group_name: note.pin_group_name,
+              pin_group_color: note.pin_group_color,
+            };
+          } else if (note.type === 'date-separator') {
+            // date-separator 타입일 경우 그대로 반환
+            return note;
+          }
+          // 그 외의 경우는 원래대로 처리
+          return note;
+        });
+
+        // 변환된 데이터를 상태에 저장
+        setNotes((prevNotes) => [...prevNotes, ...transformedNotes]);
+
+        // setNotes((prevNotes) => [...prevNotes, ...newNotes]); // 노트 추가
 
         // cursorId 업데이트 (가장 오래된 노트의 ID로 변경)
         console.log('변경 전: ', cursorIdRef.current);
