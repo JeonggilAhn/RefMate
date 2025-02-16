@@ -334,7 +334,7 @@ const NoteHistory = () => {
             (note) => !existingNoteIds.has(note.note_id),
           );
           // 새로운 노트 기존 노트 앞에 추가.
-          const mergedNotes = [...filteredNotes, ...prevNotes];
+          const mergedNotes = [...prevNotes, ...filteredNotes];
 
           // 날짜 구분선 추가 및 LastDate 업데이트
           const { notesWithSeparators, lastDate: newLastDate } = processNotes(
