@@ -135,7 +135,7 @@ const NoteHistory = () => {
 
       // console.log('범위 노트 요청 결과:', newNotes);
 
-      const newNotes = rangeResponse.content.note_list.map((note) => {
+      const newNotes = rangeResponse.data.content.note_list.map((note) => {
         if (note.type === 'note') {
           return {
             ...note,
