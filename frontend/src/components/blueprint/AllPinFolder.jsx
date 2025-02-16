@@ -14,12 +14,12 @@ const AllPinFolder = ({
     return (
       <div
         key={pin.pin_id}
-        className="border border-[#CBCBCB] rounded-md p-2 shadow-sm"
+        className="border border-[#CBCBCB] rounded-md p-2 shadow-sm cursor-pointer hover:bg-[#F1F1F1]"
       >
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-1">
             <button onClick={() => togglePinVisible(pin.pin_id)}>
-              {pin.is_visible ? (
+              {!isActiveTab ? null : pin.is_visible ? (
                 <Icon name="IconTbEye" width={19} />
               ) : (
                 <Icon name="IconTbEyeClosed" width={19} />

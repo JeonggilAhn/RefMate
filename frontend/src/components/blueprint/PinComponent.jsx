@@ -3,8 +3,8 @@ import styled from 'styled-components';
 import ButtonList from './ButtonList';
 import { get } from '../../api';
 import Icon from '../common/Icon';
-import PinNotes from './PinNotes';
-import NoteImageDetail from './NoteImageDetail';
+import PinNotePopup from './PinNotePopup';
+import PinImagePopup from './PinImagePopup';
 import { useRecoilState } from 'recoil';
 import { pinState } from '../../recoil/blueprint';
 import { EventSourcePolyfill, NativeEventSource } from 'event-source-polyfill';
@@ -69,6 +69,10 @@ const PinComponent = ({
         });
       });
     }
+  };
+
+  const handleInfoClick = () => {
+    onClickPin(pinInfo);
   };
 
   // SSE를 통한 실시간 읽음 상태 업데이트
@@ -147,10 +151,7 @@ const PinComponent = ({
         className="absolute w-8 h-8 flex items-center justify-center"
         onMouseEnter={() => !isClicked && setHoveredPin(pinInfo)}
         onMouseLeave={() => setHoveredPin(null)}
-        onClick={() => {
-          setIsClicked((prev) => !prev);
-          onClickPin(pinInfo);
-        }}
+        onClick={() => setIsClicked((prev) => !prev)}
         style={{
           position: 'relative',
         }}
@@ -194,17 +195,20 @@ const PinComponent = ({
       {isClicked && (
         <div className="absolute top-6 left-8 z-5">
           <ButtonList
+            isNoteOpen={pin.is_open_note}
+            isImageOpen={pin.is_open_image}
             onNoteClick={handleNoteClick}
             onImgClick={handleImgClick}
+            onInfoClick={handleInfoClick}
           />
         </div>
       )}
 
-      <div className="absolute min-w-fit top-20 flex justify-center gap-4">
-        {/* 노트 상세 보기 유지 */}
+      {/* 노트 상세 보기 유지 */}
+      <div className="absolute top-20 -right-10">
         {pin.is_open_note && (
           <div>
-            <PinNotes
+            <PinNotePopup
               pinInfo={pinInfo}
               isSidebar={false}
               pinId={pinInfo.pin_id}
@@ -225,10 +229,13 @@ const PinComponent = ({
             />
           </div>
         )}
+      </div>
+
+      <div className="absolute top-20 left-20">
         {/* 이미지들 상세 보기 유지 */}
         {pin.is_open_image && (
           <div>
-            <NoteImageDetail
+            <PinImagePopup
               onClose={() =>
                 setPins((prev) => {
                   return prev.map((item) => {

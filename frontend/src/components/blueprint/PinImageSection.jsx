@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import { useRecoilState } from 'recoil';
 import { pinState } from '../../recoil/blueprint';
 
-const PinImages = ({ pinId, onClickImage }) => {
+const PinImageSection = ({ pinId, onClickImage }) => {
   const bottomRef = useRef(null);
   const [pins, setPins] = useRecoilState(pinState);
   const [data, setData] = useState({ pinDetailImages: [] });
@@ -61,4 +61,4 @@ const PinImages = ({ pinId, onClickImage }) => {
   );
 };
 
-export default PinImages;
+export default PinImageSection;

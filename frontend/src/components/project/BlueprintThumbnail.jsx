@@ -156,6 +156,7 @@ const CreatedAt = styled.div`
 const Footer = styled.div`
   display: flex;
   justify-content: space-between;
+  align-items: center;
   font-size: 0.8rem;
 `;
 
