@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useState, useRef } from 'react';
 import { get, patch } from '../api/index';
 import { useRecoilState } from 'recoil';
+import SockJS from 'sockjs-client';
+import Stomp from 'stompjs';
 
 import BlueprintLayout from '../layouts/BlueprintLayout';
 import BlueprintCanvas from '../components/blueprint/BlueprintCanvas';
@@ -30,6 +32,7 @@ import PinNoteSection from '../components/blueprint/PinNoteSection';
 import Toolbar from '../components/blueprint/Toolbar';
 import ToolbarSide from '../components/blueprint/ToolbarSide';
 import ToolbarOpacity from '../components/blueprint/ToolbarOpacity';
+import { websocketState } from '../recoil/common/websocket';
 
 const Blueprint = () => {
   const { blueprint_id, blueprint_version_id, projectId } = useParams();
@@ -84,6 +87,9 @@ const Blueprint = () => {
   const [isDetailPopupOpen, setIsDetailPopupOpen] = useState(false);
   const [detailPopupImages, setDetailPopupImages] = useState([]);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+
+  // ws state를 recoil state로 변경
+  const [ws, setWs] = useRecoilState(websocketState);
 
   const filterNoImageList = (data) => {
     return data.filter((item) => {
@@ -473,6 +479,11 @@ const Blueprint = () => {
                 });
               });
 
+              ws.send(
+                `/api/blueprints/${blueprint_id}/${blueprint_version_id}/pins`,
+                pinId,
+              );
+
               toast({
                 title: '해당 핀의 상태가 완료로 변경되었습니다.',
                 description: String(new Date()),
@@ -708,6 +719,43 @@ const Blueprint = () => {
       },
     },
   ];
+
+  // 웹소켓 연결 함수
+  const connectWebSocket = () => {
+    // 기존 연결이 있다면 닫기
+    if (ws) {
+      ws.close();
+    }
+
+    // 새로운 웹소켓 연결 생성
+    const socket = new SockJS(`${process.env.REACT_APP_API_URL}/api/websocket`);
+
+    const stompClient = Stomp.over(socket);
+    stompClient.connect({}, (frame) => {
+      console.log('웹소켓 연결됨');
+
+      stompClient.subscribe(
+        `/api/topic/${blueprint_id}/${blueprint_version_id}`,
+        (pinItem) => {
+          console.log('웹소켓 메시지 수신:', pinItem);
+        },
+      );
+    });
+
+    setWs(stompClient);
+  };
+
+  // 컴포넌트 마운트 시 웹소켓 연결
+  useEffect(() => {
+    connectWebSocket();
+
+    // 컴포넌트 언마운트 시 웹소켓 연결 종료
+    return () => {
+      if (ws) {
+        ws.close();
+      }
+    };
+  }, [blueprint_id]);
 
   return (
     <BlueprintLayout>

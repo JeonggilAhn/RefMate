@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { post, patch } from '../../api';
 import { useRecoilValue } from 'recoil';
 import { colorState } from '../../recoil/common/color';
+import { websocketState } from '../../recoil/common/websocket';
 import {
   Select,
   SelectTrigger,
@@ -23,6 +24,7 @@ const PinPopup = ({
   const [pinGroup, setPinGroup] = useState('');
 
   const groupOptions = useRecoilValue(colorState); // Recoil에서 컬러 데이터 가져오기
+  const ws = useRecoilValue(websocketState);
 
   // blueprintId가 올바르게 전달되는지 확인
   useEffect(() => {
@@ -60,6 +62,10 @@ const PinPopup = ({
           },
         } = res;
         onConfirm({ ...pin, pin_x: initialPin.pin_x, pin_y: initialPin.pin_y });
+        ws.send(
+          `/api/blueprints/${blueprintId}/${blueprintVersion}/pins`,
+          pin.pin_id,
+        );
       });
     } catch (error) {
       console.error('핀 생성 실패:', error);
