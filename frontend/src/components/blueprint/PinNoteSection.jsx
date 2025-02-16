@@ -62,6 +62,8 @@ const PinNoteSection = ({
   const noteRefs = useRef({}); // 노트별 ref 저장
 
   const handleIconClick = () => {
+    console.log(1111);
+    console.log(isSearching);
     setIsSearching((prev) => !prev);
   };
 
@@ -172,10 +174,11 @@ const PinNoteSection = ({
               )
             )}
           </NotesContainer>
-
           {isSearching && (
             <div className="absolute h-auto w-full top-10 bg-white z-20 flex flex-col">
               <NoteSearch
+                projectId={project_id}
+                pinId={pinId}
                 onSelect={handleSearchSelect}
                 onClose={() => {
                   setIsSearching(false); // 검색 상태를 false로 설정
@@ -200,6 +203,7 @@ const Container = styled.div`
   z-index: 99;
   border-radius: 8px;
   box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 12px;
+  position: relative;
 `;
 
 const Header = styled.div`
