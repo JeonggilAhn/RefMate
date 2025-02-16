@@ -48,7 +48,7 @@ const NoteHistory = () => {
       rawNotes,
       lastDate,
     );
-    setNotes(notesWithSeparators.reverse()); // 최신 데이터가 아래로 가도록 reverse()
+    setNotes(notesWithSeparators); // 최신 데이터가 아래로 가도록 reverse()
     setLastDate(newLastDate);
 
     // cursorIdRef는 가장 오래된 note_id로 설정
