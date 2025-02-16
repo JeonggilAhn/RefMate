@@ -131,9 +131,25 @@ const NoteHistory = () => {
         last_id: cursorIdRef.current, // 현재까지 있는 노트들 중 가장 오래된 ID
       };
       const rangeResponse = await get(rangeApiUrl, rangeParams);
-      const newNotes = rangeResponse.data.content.note_list || [];
+      // const newNotes = rangeResponse.data.content.note_list || [];
 
-      console.log('범위 노트 요청 결과:', newNotes);
+      // console.log('범위 노트 요청 결과:', newNotes);
+
+      const newNotes = response.content.note_list.map((note) => {
+        if (note.type === 'note') {
+          return {
+            ...note,
+            user_email: note.writer_email,
+            user_id: note.note_writer_id,
+            profile_url: note.writer_profile_image,
+            is_bookmark: note.is_bookmarked,
+            created_at: note.note_created_at,
+          };
+        }
+        return note; // type이 "note"가 아닌 경우 그대로 유지
+      });
+
+      console.log(newNotes);
 
       if (newNotes.length > 0) {
         setNotes((prevNotes) => [...prevNotes, ...newNotes]); // 노트 추가
