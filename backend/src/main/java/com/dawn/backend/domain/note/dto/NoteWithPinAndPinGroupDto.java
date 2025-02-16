@@ -3,13 +3,13 @@ package com.dawn.backend.domain.note.dto;
 import java.time.LocalDateTime;
 
 public record NoteWithPinAndPinGroupDto(
-	Long writerId,
-	String writerEmail,
-	String writerProfileImage,
+	Long userId,
+	String userEmail,
+	String profileUrl,
 	Long noteId,
 	String noteTitle,
-	Boolean isBookmarked,
-	LocalDateTime noteCreatedAt,
+	Boolean isBookmark,
+	LocalDateTime createdAt,
 	Long blueprintId,
 	String blueprintTitle,
 	Long blueprintVersionId,
