@@ -24,7 +24,6 @@ const NoteHistory = () => {
   const scrollContainerRef = useRef(null);
   const scrollPositionRef = useRef(0);
   const { toast } = useToast(20);
-  const scrollTimeoutRef = useRef(null); // scrollTimeoutRef 추가
 
   // 검색 기능
   const [keyword, setKeyword] = useState('');
@@ -45,10 +44,21 @@ const NoteHistory = () => {
         rawNotes,
         lastDate,
       );
-      setNotes(notesWithSeparators.reverse());
+      setNotes(notesWithSeparators.reverse()); // 최신 데이터가 아래로 가도록 reverse()
       setLastDate(newLastDate);
 
+      // cursorIdRef는 가장 오래된 note_id로 설정
       cursorIdRef.current = rawNotes.at(-1)?.note_id || null;
+      //  console.log('초기 cursorId 설정:', cursorIdRef.current);
+
+      // 스크롤 위치를 맨 아래로 설정
+      setTimeout(() => {
+        if (scrollContainerRef.current) {
+          scrollContainerRef.current.scrollTop =
+            currentScrollTop +
+            (scrollContainerRef.current.scrollHeight - currentScrollHeight);
+        }
+      }, 0);
     }
   }, [rawNotes]);
 
@@ -214,109 +224,113 @@ const NoteHistory = () => {
 
   // 페이지네이션 추가 노트 불러오기
   const fetchMoreNotes = useCallback(async () => {
-    if (isFetching || !cursorIdRef.current) {
-      console.log(
-        'fetchMoreNotes 요청 중단 - cursorIdRef:',
-        cursorIdRef.current,
-      );
+    if (isFetching || cursorIdRef.current === null) {
+      console.log('요청 중이거나, 불러올 데이터 없음. 요청 중단.');
       return;
     }
-    setIsFetching(true);
-
-    console.log(
-      'fetchMoreNotes 요청 시작 - cursorIdRef.current before API call:',
-      cursorIdRef.current,
-    );
+    setIsFetching(true); // 요청 중에는 중복 호출하지 않음음
 
     try {
+      //  console.log('현재 cursorId:', cursorIdRef.current);
+
       const apiUrl = `blueprints/${blueprint_id}/${blueprint_version_id}/notes`;
       const params = {
         project_id: projectId,
-        cursor_id: cursorIdRef.current,
-        size: 5,
+        cursor_id: cursorIdRef.current, // 호출한 가장 오래된 노트 ID
+        size: 5, // 가져올 data 수
       };
       const response = await get(apiUrl, params);
 
-      const newNotes = response.data?.content?.note_list || [];
-      console.log('API 응답 받은 노트들:', newNotes);
+      // console.log('API 응답 확인:', response.data);
 
-      if (newNotes.length > 0) {
+      const newNotes = response.data?.content?.note_list || [];
+      console.log(`정보 : `, newNotes);
+      if (response.status === 200 && newNotes.length > 0) {
+        /*  console.log(
+          'API 응답 받은 note_id 리스트:',
+          newNotes.map((note) => note.note_id),
+        );*/
+
+        // 현재 스크롤 위치 저장
+        const currentScrollHeight = scrollContainerRef.current.scrollHeight;
+        const currentScrollTop = scrollContainerRef.current.scrollTop;
+
         setNotes((prevNotes) => {
+          // 기존 데이터와 합쳐 중복 제거
           const existingNoteIds = new Set(
             prevNotes.map((note) => note.note_id),
           );
           const filteredNotes = newNotes.filter(
             (note) => !existingNoteIds.has(note.note_id),
           );
-          return [...prevNotes, ...filteredNotes];
+          // 새로운 노트 기존 노트 앞에 추가.
+          const mergedNotes = [...prevNotes, ...filteredNotes];
+
+          // 날짜 구분선 추가 및 LastDate 업데이트
+          const { notesWithSeparators, lastDate: newLastDate } = processNotes(
+            mergedNotes,
+            lastDate,
+          );
+          setLastDate(newLastDate);
+          return notesWithSeparators;
         });
 
-        // cursorId 업데이트 (가장 오래된 노트의 ID로 변경)
-        const lastFetchedNoteId = newNotes.at(-1)?.note_id;
-        cursorIdRef.current = lastFetchedNoteId || cursorIdRef.current;
+        // cursorId 업데이트 (가장 오래된 note_id로 설정)
+        cursorIdRef.current = newNotes.at(-1)?.note_id || cursorIdRef.current;
+        // console.log('업데이트된 cursorId:', cursorIdRef.current);
 
-        console.log('업데이트된 cursorIdRef.current:', cursorIdRef.current);
+        // 검색 시 범위 요청을 위해 현재까지 불러온 노트 아이디 저장
+        setLastId(cursorIdRef.current);
+
+        // 새로운 노트가 추가된 후 스크롤 위치 복원
+        setTimeout(() => {
+          if (scrollContainerRef.current) {
+            scrollContainerRef.current.scrollTop =
+              scrollContainerRef.current.scrollHeight -
+              currentScrollHeight +
+              currentScrollTop;
+          }
+        }, 0);
       } else {
-        console.log('더 이상 불러올 노트 없음. cursorIdRef 초기화.');
-        cursorIdRef.current = null; // 더 이상 불러올 데이터가 없음을 표시
+        console.log('응답은 정상이나, 불러올 데이터 없음.');
+        cursorIdRef.current = null;
       }
     } catch (error) {
-      console.error('노트 불러오기 실패:', error);
+      console.error('노트 히스토리 로딩 실패:', error);
     } finally {
       setIsFetching(false);
     }
-  }, [isFetching, blueprint_id, blueprint_version_id, projectId]);
+  }, [isFetching, blueprint_id, blueprint_version_id, projectId, lastDate]);
 
-  // 최상단 도달 시 추가 노트 요청
+  // 최상단 도달 시 추가 노트 요청청
   const handleScroll = useCallback(() => {
+    // 스크롤 컨테이너 or API 요청 중이면 실행X
     if (!scrollContainerRef.current || isFetching) return;
+    const { scrollTop, scrollHeight, clientHeight } =
+      scrollContainerRef.current;
 
-    const { scrollTop } = scrollContainerRef.current;
-    console.log('handleScroll 이벤트 발생 - scrollTop:', scrollTop);
-    console.log('현재 cursorIdRef.current:', cursorIdRef.current);
-    console.log('현재 isFetching:', isFetching);
-
-    const isAtTop = scrollTop === 0;
-
-    if (isAtTop && cursorIdRef.current !== null && !isFetching) {
-      console.log('최상단 도달! 노트 추가 요청...');
-
-      if (scrollTimeoutRef.current) clearTimeout(scrollTimeoutRef.current);
-      scrollTimeoutRef.current = setTimeout(() => {
-        requestAnimationFrame(fetchMoreNotes);
-      }, 50);
+    /*console.log('handleScroll 실행됨', {
+        scrollTop,
+        scrollHeight,
+        clientHeight,
+        cursorId: cursorIdRef.current,
+      });*/
+    // 스크롤이 최상단 도달했을 때만 실행
+    if (scrollTop <= 10 && cursorIdRef.current !== null) {
+      // console.log('최상단 도달! 노트 추가 요청');
+      fetchMoreNotes(); // 추가 노트 불러오기기
     }
   }, [isFetching, fetchMoreNotes]);
 
   // 스크롤 이벤트 체크
   useEffect(() => {
-    setTimeout(() => {
-      console.log(
-        'useEffect 실행됨 - scrollContainerRef:',
-        scrollContainerRef.current,
-      );
-
-      if (scrollContainerRef.current) {
-        console.log(
-          'scrollContainerRef가 정상적으로 연결됨:',
-          scrollContainerRef.current,
-        );
-
-        scrollContainerRef.current.addEventListener('scroll', handleScroll);
-        console.log('scroll 이벤트 바인딩 완료!');
-
-        return () => {
-          console.log('scroll 이벤트 해제 중...');
-          scrollContainerRef.current.removeEventListener(
-            'scroll',
-            handleScroll,
-          );
-          console.log('scroll 이벤트 해제 완료!');
-        };
-      } else {
-        console.error('scrollContainerRef.current가 NULL입니다. 확인 필요!');
-      }
-    }, 100); // 100ms 후 실행
+    const scrollContainer = scrollContainerRef.current;
+    if (scrollContainer) {
+      scrollContainer.addEventListener('scroll', handleScroll); // 스크롤 이벤트 등록
+      return () => {
+        scrollContainer.removeEventListener('scroll', handleScroll); // 컴포넌트 언마운트시 제거
+      };
+    }
   }, [handleScroll]);
 
   if (!notes.length) {
