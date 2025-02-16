@@ -500,7 +500,9 @@ public class NoteService {
 				prevDate = currentDate;
 			}
 
-			BlueprintNoteItemDto blueprintNoteItemDto = BlueprintNoteItemDto.from(dto);
+			List<ProjectUserDto> readUsers = userRepository.findCheckedUsersWithRolesByNoteId(dto.noteId(), projectId);
+
+			BlueprintNoteItemDto blueprintNoteItemDto = BlueprintNoteItemDto.from(dto, readUsers);
 			chatItems.add(blueprintNoteItemDto);
 		}
 		return new GetNotesByRangeResponseDto(chatItems);

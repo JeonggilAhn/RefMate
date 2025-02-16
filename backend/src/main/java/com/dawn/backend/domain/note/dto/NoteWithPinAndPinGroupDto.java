@@ -18,6 +18,7 @@ public record NoteWithPinAndPinGroupDto(
 	String pinName,
 	Float pinX,
 	Float pinY,
+	Boolean isActive,
 	Long pinGroupId,
 	String pinGroupName,
 	String pinGroupColor,

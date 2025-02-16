@@ -1,6 +1,9 @@
 package com.dawn.backend.domain.note.dto;
 
 import java.time.LocalDateTime;
+import java.util.List;
+
+import com.dawn.backend.domain.user.dto.ProjectUserDto;
 
 public record BlueprintNoteItemDto(
 	String type,
@@ -20,12 +23,15 @@ public record BlueprintNoteItemDto(
 	String pinName,
 	Float pinX,
 	Float pinY,
+	Boolean isActive,
 	Long pinGroupId,
 	String pinGroupName,
-	String pinGroupColor
+	String pinGroupColor,
+	List<ProjectUserDto> readUsers
 ) implements ChatItemDto {
 	public static BlueprintNoteItemDto from(
-		NoteWithPinAndPinGroupDto dto
+		NoteWithPinAndPinGroupDto dto,
+		List<ProjectUserDto> readUsers
 	) {
 		return new BlueprintNoteItemDto(
 			"note",
@@ -45,9 +51,11 @@ public record BlueprintNoteItemDto(
 			dto.pinName(),
 			dto.pinX(),
 			dto.pinY(),
+			dto.isActive(),
 			dto.pinGroupId(),
 			dto.pinGroupName(),
-			dto.pinGroupColor()
+			dto.pinGroupColor(),
+			readUsers
 		);
 	}
 }
