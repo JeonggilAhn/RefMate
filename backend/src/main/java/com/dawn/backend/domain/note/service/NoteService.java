@@ -53,7 +53,6 @@ import com.dawn.backend.domain.note.repository.NoteCheckRepository;
 import com.dawn.backend.domain.note.repository.NoteRepository;
 import com.dawn.backend.domain.pin.dto.PinGroupDto;
 import com.dawn.backend.domain.pin.entity.Pin;
-import com.dawn.backend.domain.pin.entity.PinGroup;
 import com.dawn.backend.domain.pin.entity.PinVersion;
 import com.dawn.backend.domain.pin.exception.PinNotFoundException;
 import com.dawn.backend.domain.pin.exception.PinVersionNotFoundException;
@@ -321,67 +320,39 @@ public class NoteService {
 
 		PageRequest pageRequest = PageRequest.of(0, size + 1);
 
-		List<Note> notes = noteRepository.findNotesByBlueprintVersionAfterCursor(
+		List<NoteWithPinAndPinGroupDto> noteDtos =
+			noteRepository.findNotesWithPinAndPinGroupsByBlueprintVersionAfterCursor(
 			blueprintId,
 			blueprintVersion,
 			cursorId,
 			pageRequest
 		);
 
-		boolean hasMore = notes.size() == size + 1;
+		boolean hasMore = noteDtos.size() == size + 1;
 		if (hasMore) {
-			notes = notes.subList(0, size);
+			noteDtos = noteDtos.subList(0, size);
 		}
 
-		Collections.reverse(notes);
+		Collections.reverse(noteDtos);
 
-		List<ChatItemDto> resultList = convertNotesToChatItemsForBlueprint(notes, projectId);
-
-
-		return new GetNotesByBlueprintResponseDto(resultList, hasMore);
-	}
-
-	private List<ChatItemDto> convertNotesToChatItemsForBlueprint(List<Note> notes, Long projectId) {
-		List<ChatItemDto> items = new ArrayList<>();
+		List<ChatItemDto> chatItems = new ArrayList<>();
 		LocalDateTime prevDate = null;
 
-		for (Note note : notes) {
-			LocalDateTime currentDate = note.getCreatedAt().toLocalDate().atStartOfDay();
+		for (NoteWithPinAndPinGroupDto dto : noteDtos) {
+			LocalDateTime currentDate = dto.createdAt().toLocalDate().atStartOfDay();
+
 			if (prevDate == null || !currentDate.equals(prevDate)) {
-				items.add(DateSeparatorDto.from(note.getCreatedAt()));
+				chatItems.add(DateSeparatorDto.from(currentDate));
 				prevDate = currentDate;
 			}
 
-			ProjectUserDto noteWriter = userRepository.findUserWithRoleByUserIdAndProjectId(
-				note.getUser().getUserId(), projectId
-			);
-			boolean isPresentImage = imageRepository.existsByNoteNoteId(note.getNoteId());
-			List<ProjectUserDto> readUsers = userRepository.findCheckedUsersWithRolesByNoteId(
-				note.getNoteId(), projectId
-			);
-			PinVersion pinVersion = pinVersionRepository.findByBlueprintVersionAndPinAndIsActive(
-				note.getBlueprintVersion(),
-				note.getPin(),
-				true
-			).orElse(null);
+			List<ProjectUserDto> readUsers = userRepository.findCheckedUsersWithRolesByNoteId(dto.noteId(), projectId);
 
-			if (pinVersion == null) {
-				continue;
-			}
-
-			Pin pin = note.getPin();
-			PinGroup pinGroup = pinVersion.getPinGroup();
-			ChatItemDto noteItemDto = NoteItemWithTypeDto.fromForBlueprint(
-				note,
-				noteWriter,
-				isPresentImage,
-				readUsers,
-				pin,
-				pinGroup
-			);
-			items.add(noteItemDto);
+			chatItems.add(BlueprintNoteItemDto.from(dto, readUsers));
 		}
-		return items;
+
+		return new GetNotesByBlueprintResponseDto(chatItems, hasMore);
+
 	}
 
 	@Transactional
