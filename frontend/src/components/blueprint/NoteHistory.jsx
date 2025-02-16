@@ -68,7 +68,7 @@ const NoteHistory = () => {
       const searchResults =
         searchResponse.data.content.matched_note_id_list || [];
       console.log(searchResponse.data.content);
-      console.log(searchResults);
+      console.log('검색된 노트들 : ', searchResults);
 
       // 검색된 노트 ID 리스트 저장 (역순)
       const reversedResults = [...searchResults].reverse();
@@ -81,9 +81,10 @@ const NoteHistory = () => {
       }
 
       // 일치하는 노트 아이디들 중에서도 가장 최신 노트 아이디 저장
-      const firstMatchId = reversedResults[0];
+      const firstMatchId = reversedResults[reversedResults.length - 1];
       setNextId(firstMatchId);
-      console.log(nextId);
+      console.log('첫 노트 아이디 : ', firstMatchId);
+      console.log('첫 노트 아이디 반영되었나?: ', nextId);
 
       const existingNote = notes.some((note) => note.note_id === firstMatchId);
 
@@ -113,7 +114,7 @@ const NoteHistory = () => {
       const rangeResponse = await get(rangeApiUrl, rangeParams);
       const newNotes = rangeResponse.data.content.note_list || [];
 
-      console.log('범위 노트 요청 결과:', newNotes.created_at);
+      console.log('범위 노트 요청 결과:', newNotes);
 
       if (newNotes.length > 0) {
         setNotes((prevNotes) => [...prevNotes, ...newNotes]); // 노트 추가
@@ -252,6 +253,10 @@ const NoteHistory = () => {
         const lastFetchedNoteId = newNotes.at(-1)?.note_id;
         cursorIdRef.current = lastFetchedNoteId || cursorIdRef.current;
 
+        // 검색을 위해 지금까지 있는 노트들 중 가장 오래된 노트 Id 저장
+        setLastId(cursorIdRef.current);
+        console.log('지금 있는 노트 id 중 가장 오래됨 : ', cursorIdRef.current);
+
         console.log('업데이트된 cursorIdRef.current:', cursorIdRef.current);
       } else {
         console.log('더 이상 불러올 노트 없음. cursorIdRef 초기화.');
@@ -264,7 +269,7 @@ const NoteHistory = () => {
     }
   }, [isFetching, blueprint_id, blueprint_version_id, projectId]);
 
-  // 최상단 도달 시 추가 노트 요청청
+  // 최상단 도달 시 추가 노트 요청
   const handleScroll = useCallback(() => {
     if (!scrollContainerRef.current || isFetching) return;
 
