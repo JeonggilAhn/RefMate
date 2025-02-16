@@ -140,7 +140,7 @@ const NoteHistory = () => {
 
         // cursorId 업데이트 (가장 오래된 노트의 ID로 변경)
         console.log('변경 전: ', cursorIdRef.current);
-        const firstNote = noteList.find((item) => item.type === 'note');
+        const firstNote = newNotes.find((item) => item.type === 'note');
         cursorIdRef.current = firstNote
           ? firstNote.note_id
           : cursorIdRef.current;
