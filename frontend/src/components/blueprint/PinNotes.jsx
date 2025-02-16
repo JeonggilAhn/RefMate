@@ -97,7 +97,7 @@ const PinNotes = ({
       // 현재 노트 스크롤
       noteRefs.current[searchTargetId].scrollIntoView({
         behavior: 'smooth',
-        block: 'start',
+        block: 'center',
       });
 
       setHighlightedNoteId(searchTargetId);
