@@ -4,12 +4,13 @@ export const processNotes = (noteList, prevLastDate = '') => {
 
   const notesWithSeparators = [];
   let lastDate = prevLastDate;
+  let lastInsertedIndex = null; // 날짜 구분선이 들어갈 위치 저장
 
   noteList.forEach((note) => {
-    if (!note.created_at) return; // created_at이 없는 경우 제외
+    if (!note.created_at) return;
 
     const dateObj = new Date(note.created_at);
-    if (isNaN(dateObj.getTime())) return; // 유효하지 않은 날짜 필터링
+    if (isNaN(dateObj.getTime())) return;
 
     const noteDate = dateObj.toLocaleDateString('ko-KR', {
       year: 'numeric',
@@ -18,15 +19,26 @@ export const processNotes = (noteList, prevLastDate = '') => {
       weekday: 'short',
     });
 
-    // **날짜 변경 감지 → 해당 노트 위에 구분선 추가**
-    if (noteDate !== lastDate) {
-      notesWithSeparators.push({ type: 'date-separator', date: noteDate });
-      lastDate = noteDate;
+    // 날짜가 바뀌었으면, 이전 날짜 구분선 추가 (최초 노트는 제외)
+    if (noteDate !== lastDate && lastInsertedIndex !== null) {
+      notesWithSeparators.splice(lastInsertedIndex, 0, {
+        type: 'date-separator',
+        date: lastDate,
+      });
     }
 
-    // 노트 추가 (구분선 이후에 들어감)
+    lastInsertedIndex = notesWithSeparators.length; // 현재 노트의 위치 저장
+    lastDate = noteDate;
     notesWithSeparators.push(note);
   });
+
+  // 마지막 남은 날짜 구분선 추가
+  if (lastInsertedIndex !== null) {
+    notesWithSeparators.splice(lastInsertedIndex, 0, {
+      type: 'date-separator',
+      date: lastDate,
+    });
+  }
 
   return { notesWithSeparators, lastDate };
 };
