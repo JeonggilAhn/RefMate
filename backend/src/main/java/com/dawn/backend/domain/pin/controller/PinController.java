@@ -5,6 +5,9 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.Message;
+import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -53,6 +56,16 @@ public class PinController {
 			null,
 			pinService.pins(versionId, isActive, pinGroupId, user)
 		);
+	}
+
+	@MessageMapping("/blueprints/{blueprintId}/{versionId}/pins")
+	@SendTo("/api/topic/{blueprintId}/{versionId}")
+	public PinItem handleWebSocketMessage(
+		@PathVariable("blueprintId") Long blueprintId,
+		@PathVariable("versionId") Long versionId,
+		Long pinId
+	) {
+		return pinService.getPin(versionId, pinId);
 	}
 
 	@GetMapping("/pins/{pinId}/images")
