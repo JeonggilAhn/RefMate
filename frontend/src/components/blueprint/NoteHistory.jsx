@@ -10,6 +10,7 @@ import { userState } from '../../recoil/common/user';
 import { useParams } from 'react-router-dom';
 import { get } from '../../api/index';
 import { useToast } from '@/hooks/use-toast';
+import { throttle } from 'lodash'; // lodash의 throttle 사용
 
 const NoteHistory = () => {
   const rawNotes = useRecoilValue(noteState); // Blueprint에서 받은 전역 상태 사용
@@ -308,24 +309,19 @@ const NoteHistory = () => {
   }, [isFetching, blueprint_id, blueprint_version_id, projectId, lastDate]);
 
   // 최상단 도달 시 추가 노트 요청청
-  const handleScroll = useCallback(() => {
-    // 스크롤 컨테이너 or API 요청 중이면 실행X
-    if (!scrollContainerRef.current || isFetching) return;
-    const { scrollTop, scrollHeight, clientHeight } =
-      scrollContainerRef.current;
+  const handleScroll = useCallback(
+    throttle(() => {
+      if (!scrollContainerRef.current || isFetching) return;
 
-    /*console.log('handleScroll 실행됨', {
-        scrollTop,
-        scrollHeight,
-        clientHeight,
-        cursorId: cursorIdRef.current,
-      });*/
-    // 스크롤이 최상단 도달했을 때만 실행
-    if (scrollTop <= 10 && cursorIdRef.current !== null) {
-      // console.log('최상단 도달! 노트 추가 요청');
-      fetchMoreNotes(); // 추가 노트 불러오기기
-    }
-  }, [isFetching, fetchMoreNotes]);
+      const { scrollTop } = scrollContainerRef.current;
+
+      if (scrollTop === 0 && cursorIdRef.current !== null) {
+        console.log('최상단 도달! 노트 추가 요청 실행');
+        fetchMoreNotes();
+      }
+    }, 300), // 300ms마다 실행 (너무 자주 실행되지 않도록 방지)
+    [isFetching, fetchMoreNotes],
+  );
 
   // 스크롤 이벤트 체크
   useEffect(() => {
