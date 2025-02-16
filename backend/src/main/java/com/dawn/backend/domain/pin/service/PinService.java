@@ -253,6 +253,7 @@ public class PinService {
 		pinVersionRepository.saveAll(newPinVersions);
 	}
 
+	@Transactional
 	public PinItem getPin(Long versionId, Long pinId) {
 		log.info(versionId + ":" + pinId);
 		PinVersion pinVersion =
@@ -260,7 +261,8 @@ public class PinService {
 		return convertPinVersionToPinItem(pinVersion);
 	}
 
-	private PinItem convertPinVersionToPinItem(PinVersion pinVersion) {
+	@Transactional
+	public PinItem convertPinVersionToPinItem(PinVersion pinVersion) {
 		List<NoteImage> noteImages =
 			imageRepository.findAllByPinOrderByBookmark(pinVersion.getPin());
 
