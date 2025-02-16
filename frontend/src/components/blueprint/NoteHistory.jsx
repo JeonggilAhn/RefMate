@@ -290,21 +290,29 @@ const NoteHistory = () => {
     }
   }, [isFetching, fetchMoreNotes]);
 
-  //
+  // 스크롤 이벤트 체크
   useEffect(() => {
-    const scrollContainer = scrollContainerRef.current;
-    console.log('scrollContainerRef.current:', scrollContainer);
+    console.log(
+      'useEffect 실행됨 - scrollContainerRef:',
+      scrollContainerRef.current,
+    );
 
-    if (scrollContainer) {
-      scrollContainer.addEventListener('scroll', handleScroll);
-      console.log('Scroll 이벤트 바인딩 완료!');
+    if (scrollContainerRef.current) {
+      console.log(
+        'scrollContainerRef가 정상적으로 연결됨:',
+        scrollContainerRef.current,
+      );
+
+      scrollContainerRef.current.addEventListener('scroll', handleScroll);
+      console.log('scroll 이벤트 바인딩 완료!');
 
       return () => {
-        scrollContainer.removeEventListener('scroll', handleScroll);
-        console.log('Scroll 이벤트 제거됨');
+        console.log('scroll 이벤트 해제 중...');
+        scrollContainerRef.current.removeEventListener('scroll', handleScroll);
+        console.log('scroll 이벤트 해제 완료!');
       };
     } else {
-      console.log('scrollContainerRef.current가 NULL입니다. 확인 필요!');
+      console.error('scrollContainerRef.current가 NULL입니다. 확인 필요!');
     }
   }, [handleScroll]);
 
