@@ -333,11 +333,13 @@ const NoteHistory = () => {
             (note) => !existingNoteIds.has(note.note_id),
           );
           // 새로운 노트 기존 노트 앞에 추가.
-          const mergedNotes = [...filteredNotes, ...prevNotes];
+          const mergedNotes = [...prevNotes, ...filteredNotes];
 
           // 날짜 구분선 추가 및 LastDate 업데이트
-          const { notesWithSeparators, lastDate: newLastDate } =
-            processNotes(mergedNotes);
+          const { notesWithSeparators, lastDate: newLastDate } = processNotes(
+            mergedNotes,
+            lastDate,
+          );
           setLastDate(newLastDate);
           return notesWithSeparators;
         });
@@ -370,7 +372,7 @@ const NoteHistory = () => {
       // 최상단 도달 감지
       if (
         scrollTop < prevScrollTopRef.current &&
-        scrollTop <= 1 &&
+        scrollTop <= 5 &&
         !isFetching
       ) {
         console.log('최상단 도달! 페이지네이션 실행');
@@ -378,7 +380,7 @@ const NoteHistory = () => {
       }
 
       prevScrollTopRef.current = scrollTop;
-    }, 500), // 500ms마다 실행 (반응 속도 조정 가능)
+    }, 200), // 200ms마다 실행 (반응 속도 조정 가능)
     [isFetching, fetchMoreNotes],
   );
 
