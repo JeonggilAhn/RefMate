@@ -22,7 +22,7 @@ public interface NoteRepository extends JpaRepository<Note, Long> {
 		n.blueprintVersion.blueprint.blueprintTitle,
 		n.blueprintVersion.blueprintVersionId,
 		n.blueprintVersion.previewImg,
-		p.pinId, p.pinName, p.pinX, p.pinY,
+		p.pinId, p.pinName, p.pinX, p.pinY, pv.isActive,
 		pg.pinGroupId, pg.pinGroupName, pg.pinGroupColor,
 		(CASE WHEN COUNT(ni) > 0 THEN true ELSE false END)
 		)
@@ -34,7 +34,6 @@ public interface NoteRepository extends JpaRepository<Note, Long> {
 		JOIN n.pin p
 		JOIN PinVersion pv ON pv.pin = p
 			AND pv.blueprintVersion = n.blueprintVersion
-			AND pv.isActive = true
 		JOIN pv.pinGroup pg
 		LEFT JOIN NoteImage ni ON ni.note = n
 		WHERE bv.blueprint = currentVersion.blueprint
