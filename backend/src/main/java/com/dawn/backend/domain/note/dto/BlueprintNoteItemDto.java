@@ -1,19 +1,16 @@
 package com.dawn.backend.domain.note.dto;
 
 import java.time.LocalDateTime;
-import java.util.List;
-
-import com.dawn.backend.domain.note.entity.UserNoteCheck;
 
 public record BlueprintNoteItemDto(
 	String type,
-	Long noteWriterId,
-	String writerEmail,
-	String writerProfileImage,
+	Long userId,
+	String userEmail,
+	String profileUrl,
 	Long noteId,
 	String noteTitle,
-	Boolean isBookmarked,
-	LocalDateTime noteCreatedAt,
+	Boolean isBookmark,
+	LocalDateTime createdAt,
 	Boolean isPresentImage,
 	Long blueprintId,
 	String blueprintTitle,
@@ -32,13 +29,13 @@ public record BlueprintNoteItemDto(
 	) {
 		return new BlueprintNoteItemDto(
 			"note",
-			dto.writerId(),
-			dto.writerEmail(),
-			dto.writerProfileImage(),
+			dto.userId(),
+			dto.userEmail(),
+			dto.profileUrl(),
 			dto.noteId(),
 			dto.noteTitle(),
-			dto.isBookmarked(),
-			dto.noteCreatedAt(),
+			dto.isBookmark(),
+			dto.createdAt(),
 			dto.isPresentImage(),
 			dto.blueprintId(),
 			dto.blueprintTitle(),
