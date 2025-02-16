@@ -483,6 +483,7 @@ const Blueprint = () => {
 
               ws.send(
                 `/api/blueprints/${blueprint_id}/${blueprint_version_id}/pins`,
+                {},
                 pinId,
               );
 
