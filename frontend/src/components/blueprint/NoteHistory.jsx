@@ -27,12 +27,11 @@ const NoteHistory = () => {
 
   // 검색 기능
   const [keyword, setKeyword] = useState('');
-  const [nextId, setNextId] = useState(0);
-  const [lastId, setLastId] = useState(0);
   const [searchedNotes, setSearchedNotes] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isSearched, setIsSearched] = useState(false);
   const cursorIdRef = useRef(null);
+  const nextIdRef = useRef(null);
   const [isFetching, setIsFetching] = useState(false);
   const { blueprint_id, blueprint_version_id, projectId } = useParams();
   const [highlightedNoteId, setHighlightedNoteId] = useState(null);
@@ -92,7 +91,8 @@ const NoteHistory = () => {
 
       // 일치하는 노트 아이디들 중에서도 가장 최신 노트 아이디 저장
       const firstMatchId = reversedResults[0];
-      setNextId(firstMatchId);
+      nextIdRef.current = firstMatchId;
+
       console.log('첫 노트 아이디 : ', firstMatchId);
 
       const existingNote = notes.some((note) => note.note_id === firstMatchId);
@@ -104,7 +104,7 @@ const NoteHistory = () => {
         setHighlightedNoteId(firstMatchId);
       } else {
         // 없으면 범위 노트 요청
-        await fetchRangeNotes(reversedResults, firstMatchId);
+        await fetchRangeNotes(reversedResults);
       }
     } catch (error) {
       console.error('검색 실패:', error.message);
@@ -112,12 +112,12 @@ const NoteHistory = () => {
   };
 
   // 노트 범위 요청
-  const fetchRangeNotes = async (searchResults, nextMatchId) => {
+  const fetchRangeNotes = async (searchResults) => {
     try {
       const rangeApiUrl = `blueprints/${blueprint_id}/${blueprint_version_id}/notes/range`;
       const rangeParams = {
         project_id: projectId,
-        next_id: nextMatchId, // 다음 찾을 노트 ID
+        next_id: nextIdRef.current, // 다음 찾을 노트 ID
         last_id: cursorIdRef.current, // 현재까지 있는 노트들 중 가장 오래된 ID
       };
       const rangeResponse = await get(rangeApiUrl, rangeParams);
@@ -128,7 +128,7 @@ const NoteHistory = () => {
       if (newNotes.length > 0) {
         setNotes((prevNotes) => [...prevNotes, ...newNotes]); // 노트 추가
         // cursorId 업데이트 (가장 오래된 노트의 ID로 변경)
-        const lastFetchedNoteId = newNotes.at(-1)?.note_id;
+        const lastFetchedNoteId = newNotes.at(0)?.note_id;
         cursorIdRef.current = lastFetchedNoteId || cursorIdRef.current;
         console.log('변경되었는지 확인: ', cursorIdRef.current);
 
@@ -164,6 +164,8 @@ const NoteHistory = () => {
     setCurrentIndex(newIndex);
 
     const targetNoteId = searchedNotes[newIndex];
+    nextIdRef.current = searchedNotes[newIndex];
+
     if (!targetNoteId) return;
 
     if (!notes.some((note) => note.note_id === targetNoteId)) {
@@ -178,6 +180,8 @@ const NoteHistory = () => {
     setCurrentIndex(newIndex);
 
     const targetNoteId = searchedNotes[newIndex];
+    nextIdRef.current = searchedNotes[newIndex];
+
     if (!targetNoteId) return;
 
     if (!notes.some((note) => note.note_id === targetNoteId)) {
@@ -202,6 +206,7 @@ const NoteHistory = () => {
     setSearchTargetId(null);
     setSearchedNotes([]);
     setHighlightedNoteId(null);
+    nextIdRef.current = null;
   };
 
   // NoteDetail 이동 시 스크롤 저장/복원
