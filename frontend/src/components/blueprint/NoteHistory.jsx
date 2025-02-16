@@ -137,9 +137,13 @@ const NoteHistory = () => {
 
       if (newNotes.length > 0) {
         setNotes((prevNotes) => [...prevNotes, ...newNotes]); // 노트 추가
+
         // cursorId 업데이트 (가장 오래된 노트의 ID로 변경)
-        const lastFetchedNoteId = newNotes.at(0)?.note_id;
-        cursorIdRef.current = lastFetchedNoteId || cursorIdRef.current;
+        console.log('변경 전: ', cursorIdRef.current);
+        const firstNote = noteList.find((item) => item.type === 'note');
+        cursorIdRef.current = firstNote
+          ? firstNote.note_id
+          : cursorIdRef.current;
         console.log('변경되었는지 확인: ', cursorIdRef.current);
 
         // 추가된 노트 중 검색된 노트가 있는지 확인 후 스크롤
