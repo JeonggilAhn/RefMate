@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import jakarta.transaction.Transactional;
+import lombok.extern.slf4j.Slf4j;
 
 import com.dawn.backend.domain.blueprint.entity.Blueprint;
 import com.dawn.backend.domain.blueprint.entity.BlueprintVersion;
@@ -40,6 +41,7 @@ import com.dawn.backend.domain.pin.repository.PinVersionRepository;
 import com.dawn.backend.domain.user.entity.UnauthorizeUser;
 import com.dawn.backend.domain.user.entity.User;
 
+@Slf4j
 @Service
 public class PinService {
 	private final PinRepository pinRepository;
@@ -252,6 +254,7 @@ public class PinService {
 	}
 
 	public PinItem getPin(Long versionId, Long pinId) {
+		log.info(versionId + ":" + pinId);
 		PinVersion pinVersion =
 			pinVersionRepository.findFirstByBlueprintVersionBlueprintVersionIdAndPinPinId(versionId, pinId);
 		return convertPinVersionToPinItem(pinVersion);
