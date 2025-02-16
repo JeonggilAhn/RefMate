@@ -189,7 +189,7 @@ const NoteHistory = () => {
         });
 
         // 변환된 데이터를 상태에 저장
-        // setNotes((prevNotes) => [...prevNotes, ...transformedNotes]);
+        setNotes((prevNotes) => [...prevNotes, ...transformedNotes]);
 
         // setNotes((prevNotes) => [...prevNotes, ...newNotes]); // 노트 추가
 
@@ -220,7 +220,7 @@ const NoteHistory = () => {
     if (searchTargetId && noteRefs.current[searchTargetId]) {
       noteRefs.current[searchTargetId].scrollIntoView({
         behavior: 'smooth',
-        block: 'start', // 최상단으로 스크롤
+        block: 'center', // 최상단으로 스크롤
       });
     }
 
