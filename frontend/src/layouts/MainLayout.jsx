@@ -13,6 +13,8 @@ import Button2 from '../components/main/Button2';
 import Button3 from '../components/main/Button3';
 import Button4 from '../components/main/Button4';
 
+import MainAnimation from '../pages/MainAnimation';
+
 const MainPage = () => {
   const setModal = useSetRecoilState(modalState);
 
@@ -46,9 +48,10 @@ const MainPage = () => {
   return (
     <>
       <Header />
-      <div className="flex flex-col h-screen p-4 box-border">
+      <main className="absolute top-[47px] left-0 w-full h-[calc(100vh-47px)] overflow-y-auto bg-gray-100">
+        <MainAnimation />
+        {/* todo : scroll 이벤트로 변경 */}
         <div className="flex justify-center items-center h-full gap-40">
-          {/* 왼쪽 섹션 */}
           <div className="flex flex-col items-center text-center">
             <h1 className="text-2xl mb-2">Ref Mate</h1>
             <p className="text-lg mb-4">서비스 설명</p>
@@ -65,13 +68,11 @@ const MainPage = () => {
             </TextButton>
           </div>
 
-          {/* 이미지 영역 */}
           <div className="w-[830px] h-[520px] flex items-center justify-center border border-gray-300 rounded-md">
             {buttons[selectedButtonIndex].component}
           </div>
         </div>
 
-        {/* 버튼 섹션 */}
         <div className="flex gap-4 mt-4 mx-auto w-4/5 max-w-[800px]">
           {buttons.map(({ text, iconName }, index) => (
             <TextButton
@@ -88,7 +89,7 @@ const MainPage = () => {
         </div>
 
         <BackButton />
-      </div>
+      </main>
     </>
   );
 };

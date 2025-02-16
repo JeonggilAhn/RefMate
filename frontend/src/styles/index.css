@@ -17,3 +17,14 @@ body {
   white-space: nowrap;
   text-overflow: ellipsis;
 }
+
+.no_scroll {
+  /* IE and Edge */
+  -ms-overflow-style: none;
+  /* Firefox */
+  scrollbar-width: none;
+}
+/* Chrome, Safari,Opera */
+.no_scroll::-webkit-scrollbar {
+  display: none !important;
+}
