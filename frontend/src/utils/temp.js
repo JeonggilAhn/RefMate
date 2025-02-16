@@ -3,7 +3,7 @@ export const processNotes = (noteList, prevLastDate = '') => {
     return { notesWithSeparators: [], lastDate: prevLastDate };
 
   const notesWithSeparators = [];
-  let lastInsertedDate = null; // 마지막으로 추가된 날짜 구분선 확인
+  let lastDate = prevLastDate;
 
   noteList.forEach((note) => {
     if (!note.created_at) return; // created_at이 없는 경우 제외
@@ -18,14 +18,15 @@ export const processNotes = (noteList, prevLastDate = '') => {
       weekday: 'short',
     });
 
-    notesWithSeparators.push(note);
-
-    // 날짜가 변경되었고, 새로운 날짜라면 해당 노트에 구분선 추가
-    if (noteDate !== lastInsertedDate) {
+    // **날짜 변경 감지 → 해당 노트 위에 구분선 추가**
+    if (noteDate !== lastDate) {
       notesWithSeparators.push({ type: 'date-separator', date: noteDate });
-      lastInsertedDate = noteDate;
+      lastDate = noteDate;
     }
+
+    // 노트 추가 (구분선 이후에 들어감)
+    notesWithSeparators.push(note);
   });
 
-  return { notesWithSeparators, lastDate: lastInsertedDate };
+  return { notesWithSeparators, lastDate };
 };
