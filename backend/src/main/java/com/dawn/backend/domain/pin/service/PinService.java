@@ -85,46 +85,7 @@ public class PinService {
 		}
 
 		return pinlist.stream()
-			.map(pinVersion -> {
-
-				List<NoteImage> noteImages =
-					imageRepository.findAllByPinOrderByBookmark(pinVersion.getPin());
-
-				List<ImageItem> previewImages = noteImages.stream()
-					.map(noteImage -> new ImageItem(
-						noteImage.getImageId(),
-						noteImage.getImageOrigin(),
-						noteImage.getImagePreview(),
-						noteImage.getBookmark()
-					))
-					.toList();
-
-				PinGroupDto pinGroupDto = new PinGroupDto(
-					pinVersion.getPinGroup().getPinGroupId(),
-					pinVersion.getPinGroupName() != null
-						? pinVersion.getPinGroupName()
-						: pinVersion.getPinGroup().getPinGroupName(),
-					pinVersion.getPinGroup().getPinGroupColor()
-				);
-
-				boolean hasUnreadNote = false;
-//				if (!(user instanceof UnauthorizeUser)) {
-//					hasUnreadNote =
-//						noteCheckRepository.hasUnreadNoteByPin(user, pinVersion.getPin());
-//				}
-
-				return new PinItem(
-					pinVersion.getPin().getPinId(),
-					pinVersion.getPin().getPinName(),
-					pinVersion.getPin().getPinX(),
-					pinVersion.getPin().getPinY(),
-					previewImages,
-					previewImages.size(),
-					pinGroupDto,
-					hasUnreadNote,
-					pinVersion.getIsActive()
-				);
-			})
+			.map(this::convertPinVersionToPinItem)
 			.toList();
 	}
 
@@ -288,5 +249,51 @@ public class PinService {
 			.toList();
 
 		pinVersionRepository.saveAll(newPinVersions);
+	}
+
+	public PinItem getPin(Long versionId, Long pinId) {
+		PinVersion pinVersion =
+			pinVersionRepository.findFirstByBlueprintVersionBlueprintVersionIdAndPinPinId(versionId, pinId);
+		return convertPinVersionToPinItem(pinVersion);
+	}
+
+	private PinItem convertPinVersionToPinItem(PinVersion pinVersion) {
+		List<NoteImage> noteImages =
+			imageRepository.findAllByPinOrderByBookmark(pinVersion.getPin());
+
+		List<ImageItem> previewImages = noteImages.stream()
+			.map(noteImage -> new ImageItem(
+				noteImage.getImageId(),
+				noteImage.getImageOrigin(),
+				noteImage.getImagePreview(),
+				noteImage.getBookmark()
+			))
+			.toList();
+
+		PinGroupDto pinGroupDto = new PinGroupDto(
+			pinVersion.getPinGroup().getPinGroupId(),
+			pinVersion.getPinGroupName() != null
+				? pinVersion.getPinGroupName()
+				: pinVersion.getPinGroup().getPinGroupName(),
+			pinVersion.getPinGroup().getPinGroupColor()
+		);
+
+		boolean hasUnreadNote = false;
+//				if (!(user instanceof UnauthorizeUser)) {
+//					hasUnreadNote =
+//						noteCheckRepository.hasUnreadNoteByPin(user, pinVersion.getPin());
+//				}
+
+		return new PinItem(
+			pinVersion.getPin().getPinId(),
+			pinVersion.getPin().getPinName(),
+			pinVersion.getPin().getPinX(),
+			pinVersion.getPin().getPinY(),
+			previewImages,
+			previewImages.size(),
+			pinGroupDto,
+			hasUnreadNote,
+			pinVersion.getIsActive()
+		);
 	}
 }
