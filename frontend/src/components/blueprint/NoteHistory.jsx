@@ -37,6 +37,8 @@ const NoteHistory = () => {
   const { blueprint_id, blueprint_version_id, projectId } = useParams();
   const [highlightedNoteId, setHighlightedNoteId] = useState(null);
 
+  const [isAtTop, setIsAtTop] = useState(false); // 최상단 여부 상태 추가
+
   // 날짜별 구분선 추가하여 상태 저장
   useEffect(() => {
     if (rawNotes.length) {
@@ -315,12 +317,19 @@ const NoteHistory = () => {
 
       const { scrollTop } = scrollContainerRef.current;
 
-      if (scrollTop === 0 && cursorIdRef.current !== null) {
-        console.log('최상단 도달! 노트 추가 요청 실행');
-        fetchMoreNotes();
+      // 최상단에 도달하면 isAtTop을 true로 설정
+      if (scrollTop === 0) {
+        setIsAtTop(true);
       }
-    }, 300), // 300ms마다 실행 (너무 자주 실행되지 않도록 방지)
-    [isFetching, fetchMoreNotes],
+
+      // 최상단에서 살짝 내렸다가 다시 올릴 때 작동
+      if (isAtTop && scrollTop <= 30 && cursorIdRef.current !== null) {
+        console.log('최상단 도달 후 다시 올라옴! 노트 추가 요청 실행');
+        fetchMoreNotes();
+        setIsAtTop(false); // 다시 내려갈 수 있도록 상태 초기화
+      }
+    }, 200), // 200ms마다 실행 (반응 속도 조정 가능)
+    [isFetching, fetchMoreNotes, isAtTop],
   );
 
   // 스크롤 이벤트 체크
