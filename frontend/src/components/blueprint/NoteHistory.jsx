@@ -302,6 +302,11 @@ const NoteHistory = () => {
       console.log('요청 중이거나, 불러올 데이터 없음. 요청 중단.');
       return;
     }
+
+    if (notes.length < 5) {
+      console.log('노트 개수가 5개 미만이라 페이지네이션 중단.');
+      return;
+    }
     setIsFetching(true); // 요청 중에는 중복 호출하지 않음음
 
     try {
@@ -334,7 +339,7 @@ const NoteHistory = () => {
             (note) => !existingNoteIds.has(note.note_id),
           );
           // 새로운 노트 기존 노트 앞에 추가.
-          const mergedNotes = [...prevNotes, ...filteredNotes];
+          const mergedNotes = [...filteredNotes, ...prevNotes];
 
           // 날짜 구분선 추가 및 LastDate 업데이트
           const { notesWithSeparators, lastDate: newLastDate } = processNotes(
@@ -342,7 +347,7 @@ const NoteHistory = () => {
             lastDate,
           );
           setLastDate(newLastDate);
-          return notesWithSeparators;
+          return notesWithSeparators.reverse();
         });
 
         // cursorId 업데이트 (가장 오래된 note_id로 설정)
