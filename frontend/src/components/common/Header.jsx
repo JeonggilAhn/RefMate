@@ -69,7 +69,7 @@ function Header() {
 
   return (
     <>
-      <header className="flex justify-between items-center w-full h-12 px-5 bg-white border-b border-gray-300 fixed top-0 left-0 z-10">
+      <header className="flex justify-between items-center w-full h-12 px-5 bg-white border-b border-gray-300 fixed top-0 left-0 z-20">
         <Link
           to={isLoggedIn ? '/projects' : '/'}
           className="flex items-center text-gray-800"
