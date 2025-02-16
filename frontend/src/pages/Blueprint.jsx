@@ -34,6 +34,8 @@ import ToolbarSide from '../components/blueprint/ToolbarSide';
 import ToolbarOpacity from '../components/blueprint/ToolbarOpacity';
 import { websocketState } from '../recoil/common/websocket';
 
+const API_BASE_URL = import.meta.env.VITE_APP_API_BASE_URL;
+
 const Blueprint = () => {
   const { blueprint_id, blueprint_version_id, projectId } = useParams();
 
@@ -728,7 +730,7 @@ const Blueprint = () => {
     }
 
     // 새로운 웹소켓 연결 생성
-    const socket = new SockJS(`${process.env.REACT_APP_API_URL}/api/websocket`);
+    const socket = new SockJS(`${API_BASE_URL}/api/websocket`);
 
     const stompClient = Stomp.over(socket);
     stompClient.connect({}, (frame) => {
