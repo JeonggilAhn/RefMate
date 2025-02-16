@@ -298,7 +298,7 @@ const BlueprintCanvas = ({
   }, [scale, position, pins, overlayOpacity]);
 
   return (
-    <div className="relative w-full h-full">
+    <div className="relative w-full h-full" onWheel={handleWheel}>
       {pins.map((item, index) => (
         <div
           key={index}
@@ -325,7 +325,7 @@ const BlueprintCanvas = ({
 
       <canvas
         ref={canvasRef}
-        onWheel={handleWheel}
+        // onWheel={handleWheel}
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}

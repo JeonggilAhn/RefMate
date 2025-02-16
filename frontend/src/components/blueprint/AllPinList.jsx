@@ -8,16 +8,17 @@ const AllPinList = ({
   pinActiveActions,
   pinInactiveActions,
   togglePinVisible,
+  onClickPin,
 }) => {
   return data.map((pin) => (
     <div
       key={pin.pin_id}
-      className="flex items-center justify-between bg-gray-100 rounded-md p-2 shadow-sm"
+      className="w-full flex items-center justify-between bg-[#F1F1F1] rounded-md p-2 shadow-sm cursor-pointer hover:bg-black/10"
+      onClick={() => onClickPin(pin)}
     >
       <div className="flex items-center gap-2">
-        <span className="text-gray-600">{pin.icon}</span>
         <button onClick={() => togglePinVisible(pin.pin_id)}>
-          {pin.is_visible ? (
+          {!isActiveTab ? null : pin.is_visible ? (
             <Icon name="IconTbEye" width={19} />
           ) : (
             <Icon name="IconTbEyeClosed" width={19} />

@@ -6,17 +6,14 @@ import BlueprintLayout from '../layouts/BlueprintLayout';
 import BlueprintCanvas from '../components/blueprint/BlueprintCanvas';
 import ImportantNoteSection from '../components/blueprint/ImportantNoteSection';
 import NoteHistory from '../components/blueprint/NoteHistory';
-import PinNotes from '../components/blueprint/PinNotes';
 import { SelectItem } from '@/components/ui/select';
 import BlueprintVersions from '../components/blueprint/BlueprintVersions';
 
 import Icon from '../components/common/Icon';
 
-import DropDown from '../components/common/DropDown';
 import SelectBox from '../components/common/SelectBox';
 import { pinState, noteState } from '../recoil/blueprint';
 import PinTabs from '../components/blueprint/PinTabs';
-import Slider from '../components/common/Slider';
 import { modalState } from '../recoil/common/modal';
 import ImageCarouselPopup from '../components/blueprint/ImageCarouselPopup';
 import ColorInitializer from '../components/common/ColorInitializer';
@@ -25,10 +22,14 @@ import { useParams } from 'react-router-dom';
 import AllPinFolder from '../components/blueprint/AllPinFolder';
 import AllPinList from '../components/blueprint/AllPinList';
 import { useToast } from '@/hooks/use-toast';
-import PinImages from '../components/blueprint/PinImages';
+import PinImageSection from '../components/blueprint/PinImageSection';
 import EditOption from '../components/project/EditOption';
 import UpdateProjectName from '../components/project/UpdateProjectName';
 import PinPopup from '../components/blueprint/PinPopup';
+import PinNoteSection from '../components/blueprint/PinNoteSection';
+import Toolbar from '../components/blueprint/Toolbar';
+import ToolbarSide from '../components/blueprint/ToolbarSide';
+import ToolbarOpacity from '../components/blueprint/ToolbarOpacity';
 
 const Blueprint = () => {
   const { blueprint_id, blueprint_version_id, projectId } = useParams();
@@ -83,6 +84,12 @@ const Blueprint = () => {
   const [isDetailPopupOpen, setIsDetailPopupOpen] = useState(false);
   const [detailPopupImages, setDetailPopupImages] = useState([]);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+
+  const filterNoImageList = (data) => {
+    return data.filter((item) => {
+      return item.image_list.length !== 0;
+    });
+  };
 
   const onClickPinButton = () => {
     setIsPinButtonEnaled(true);
@@ -215,7 +222,7 @@ const Blueprint = () => {
           if (item.pin_id === pin.pin_id) {
             const newItem = {
               ...item,
-              pinDetailImages: pinImgRes.data.content,
+              pinDetailImages: filterNoImageList(pinImgRes.data.content),
             };
             setDetailPin(newItem);
             return newItem;
@@ -286,7 +293,9 @@ const Blueprint = () => {
             pinDetailNotes:
               pinNotRes.status === 200 ? pinNotRes.data.content.note_list : [],
             pinDetailImages:
-              pinImgRes.status === 200 ? pinImgRes.data.content : [],
+              pinImgRes.status === 200
+                ? filterNoImageList(pinImgRes.data.content)
+                : [],
           };
         }),
       );
@@ -672,7 +681,7 @@ const Blueprint = () => {
         if (pinImgRes.status === 200) {
           item.pinDetailImages = [
             ...item.pinDetailImages,
-            ...pinImgRes.data.content,
+            ...filterNoImageList(pinImgRes.data.content),
           ];
         }
       }
@@ -704,98 +713,27 @@ const Blueprint = () => {
     <BlueprintLayout>
       <ColorInitializer blueprintId={blueprint_id} />
       <div className="relative overflow-hidden">
-        {/* 사이드바 컨트롤 버튼 */}
-        <div
-          className={`fixed top-[48px] ${isSidebarOpen ? 'w-[21.2rem]' : 'w-[12.3rem]'} right-0 z-10 p-1 flex justify-between items-center border border-[#CBCBCB] rounded-md m-1.5 bg-white`}
-        >
-          <button
-            onClick={toggleSidebar}
-            className="w-[2.4rem] h-[2.4rem] flex justify-center items-center rounded-md cursor-pointer hover:bg-[#F1F1F1]"
-          >
-            <Icon name="IconLuPanelRight" width={24} height={24} />
-          </button>
-          <div className="flex gap-2">
-            <button
-              onClick={toggleAllPinVisible}
-              className="w-[2.4rem] h-[2.4rem] flex justify-center items-center rounded-md cursor-pointer hover:bg-[#F1F1F1] pr-1"
-            >
-              <Icon name="IconTbPinStroke" width={28} height={28} />
-            </button>
-            <button
-              onClick={closeAllNotePopup}
-              className="w-[2.4rem] h-[2.4rem] flex justify-center items-center rounded-md cursor-pointer hover:bg-[#F1F1F1]"
-            >
-              <Icon name="IconTbNote" width={26} height={26} />
-            </button>
-            <button
-              onClick={closeAllImagePopup}
-              className="w-[2.4rem] h-[2.4rem] flex justify-center items-center rounded-md cursor-pointer hover:bg-[#F1F1F1]"
-            >
-              <Icon name="IconTbPhoto" width={24} height={24} />
-            </button>
-          </div>
-        </div>
-
+        <ToolbarSide
+          isSidebarOpen={isSidebarOpen}
+          toggleSidebar={toggleSidebar}
+          toggleAllPinVisible={toggleAllPinVisible}
+          closeAllNotePopup={closeAllNotePopup}
+          closeAllImagePopup={closeAllImagePopup}
+        />
         {/* todo : canvas resize 기능 develop */}
-        <div className={`w-full h-screen pt-[48px]`}>
-          {/* <div className="w-full h-screen pt-[48px] border border-black"> */}
-          <div className="border border-[#CBCBCB] rounded-sm absolute left-2 top-[58px] z-6 px-2 py-2 bg-[#ffffff]">
-            <div className="flex justify-between items-center gap-2">
-              <button
-                className="w-[2.4rem] h-[2.4rem] flex justify-center items-center rounded-md cursor-pointer hover:bg-[#F1F1F1]"
-                onClick={openBlueprintVersion}
-              >
-                <Icon name="IconBsLayers" />
-              </button>
-              <div className="flex items-center gap-1">
-                <button
-                  disabled={selectedBlueprintIndex < 0}
-                  className={`w-[2.4rem] h-[2.4rem] flex justify-center items-center border border-[#CBCBCB] bg-[#F5F5F5] rounded-md ${selectedBlueprintIndex < 0 ? 'cursor-not-allowed' : 'cursor-pointer'}`}
-                  onClick={onClickPrevBlueprintButton}
-                >
-                  <Icon name="IconGoChevronPrev" width={20} height={20} />
-                </button>
-                <SelectBox
-                  value={selectedBlueprintIndex}
-                  onValueChange={onSelectBlueprintVersion}
-                >
-                  {blueprints.map((print, index) => (
-                    <SelectItem key={print.blueprint_version_id} value={index}>
-                      [{print.blueprint_version_seq}]{' '}
-                      {print.blueprint_version_name}
-                    </SelectItem>
-                  ))}
-                </SelectBox>
-
-                <button
-                  disabled={selectedBlueprintIndex === blueprints.length - 1}
-                  className={`w-[2.4rem] h-[2.4rem] flex justify-center items-center border border-[#CBCBCB] bg-[#F5F5F5] rounded-md ${selectedBlueprintIndex === blueprints.length - 1 ? 'cursor-not-allowed' : 'cursor-pointer'}`}
-                  onClick={onClickNextBlueprintButton}
-                >
-                  <Icon name="IconGoChevronNext" width={20} height={20} />
-                </button>
-              </div>
-            </div>
-            <div className="flex justify-between items-center gap-2">
-              <button
-                className="w-[2.9rem] h-[2.4rem] flex justify-center items-center rounded-md cursor-pointer hover:bg-[#F1F1F1]"
-                onClick={toggleOverlayVisible}
-              >
-                {isOverlayVisible ? (
-                  <Icon name="IconTbEye" />
-                ) : (
-                  <Icon name="IconTbEyeClosed" />
-                )}
-              </button>
-              <Slider
-                defaultValue={[overlayOpacity]}
-                max={1}
-                step={0.01}
-                disabled={isOverlayVisible ? false : true}
-                onChangeSlider={onChangeSlider}
-              />
-            </div>
-          </div>
+        <div className={`w-full h-screen pt-[48px] relative`}>
+          {isOverlayVisible ? (
+            <ToolbarOpacity
+              blueprints={blueprints}
+              overlayOpacity={overlayOpacity}
+              isOverlayVisible={isOverlayVisible}
+              selectedBlueprintIndex={selectedBlueprintIndex}
+              onChangeSlider={onChangeSlider}
+              onClickPrevBlueprintButton={onClickPrevBlueprintButton}
+              onSelectBlueprintVersion={onSelectBlueprintVersion}
+              onClickNextBlueprintButton={onClickNextBlueprintButton}
+            />
+          ) : null}
           <BlueprintCanvas
             projectId={projectId}
             imageUrl={blueprint.blueprint_image}
@@ -805,25 +743,16 @@ const Blueprint = () => {
             isPinButtonEnaled={isPinButtonEnaled}
             onClickPin={onClickPin}
           />
-          {/* toolbar */}
-          <div className="flex justify-between border w-[5.5rem] border-[#CBCBCB] absolute left-[50%] bottom-4 p-[0.2rem] bg-white rounded-md">
-            <button
-              className={`w-[2.4rem] h-[2.4rem] flex justify-center items-center cursor-pointer hover:bg-[#F1F1F1] rounded-md ${
-                isPinButtonEnaled ? 'bg-[#E3E3E3]' : ''
-              }`}
-              onClick={onClickPinButton}
-            >
-              <Icon name="IconTbPinStroke" width={30} height={30} />
-            </button>
-            <button
-              className={`w-[2.4rem] h-[2.4rem] flex justify-center items-center cursor-pointer hover:bg-[#F1F1F1] rounded-md ${
-                !isPinButtonEnaled ? 'bg-[#E3E3E3]' : ''
-              }`}
-              onClick={onClickMouseButon}
-            >
-              <Icon name="IconBsCursor" width={25} height={25} />
-            </button>
-          </div>
+          <Toolbar
+            isSidebarOpen={isSidebarOpen}
+            isDetailSidebarOpen={isDetailSidebarOpen}
+            isOverlayVisible={isOverlayVisible}
+            isPinButtonEnaled={isPinButtonEnaled}
+            onClickPinButton={onClickPinButton}
+            onClickMouseButon={onClickMouseButon}
+            toggleOverlayVisible={toggleOverlayVisible}
+            openBlueprintVersion={openBlueprintVersion}
+          />
         </div>
         {/* sidebar */}
         <div
@@ -870,7 +799,7 @@ const Blueprint = () => {
                   </div>
                   <div className="relative w-full h-full">
                     <div
-                      className={`absolute h-78 grid grid-cols-2 grid-rows-[12rem] gap-2 overflow-y-auto overflow-x-hidden ${isViewFolder ? 'visible' : 'invisible'}`}
+                      className={`absolute w-full h-78 grid grid-cols-2 grid-rows-[12rem] gap-2 overflow-y-auto overflow-x-hidden ${isViewFolder ? 'visible' : 'invisible'}`}
                     >
                       <AllPinFolder
                         data={isActiveTab ? pins : donePins}
@@ -882,7 +811,7 @@ const Blueprint = () => {
                       />
                     </div>
                     <div
-                      className={`absolute h-78 grid grid-cols-1 grid-rows-8 gap-2 overflow-y-auto overflow-x-hidden ${isViewFolder ? 'invisible' : 'visible'}`}
+                      className={`absolute w-full h-78 grid grid-cols-1 grid-rows-8 gap-2 overflow-y-auto overflow-x-hidden ${isViewFolder ? 'invisible' : 'visible'}`}
                     >
                       <AllPinList
                         data={isActiveTab ? pins : donePins}
@@ -890,6 +819,7 @@ const Blueprint = () => {
                         togglePinVisible={togglePinVisible}
                         pinActiveActions={pinActiveActions}
                         pinInactiveActions={pinInactiveActions}
+                        onClickPin={onClickPin}
                       />
                     </div>
                   </div>
@@ -922,13 +852,16 @@ const Blueprint = () => {
                 <EditOption actions={projectActions} />
               </div>
             </div>
-            <PinImages pinId={detailPin.pin_id} onClickImage={onClickImage} />
+            <PinImageSection
+              pinId={detailPin.pin_id}
+              onClickImage={onClickImage}
+            />
             <ImportantNoteSection
               detailPin={detailPin}
               setDetailNote={setDetailNote}
               projectId={projectId}
             />
-            <PinNotes
+            <PinNoteSection
               pinInfo={detailPin}
               isSidebar={true}
               pinId={detailPin.pin_id}

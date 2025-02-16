@@ -36,14 +36,12 @@ const PinPopup = ({
 
   // 초기 핀 데이터 설정
   useEffect(() => {
-    if (initialPin) {
+    if (!isCreate) {
       setPinId(initialPin.pin_id);
       setPinName(initialPin.pin_name || '');
       setPinGroup(initialPin.pin_group?.pin_group_id || '');
-    } else if (groupOptions.length > 0) {
-      setPinGroup(groupOptions[0].id); // 그룹 목록이 있으면 첫 번째 항목을 기본값으로 설정
     }
-  }, [initialPin, groupOptions]);
+  }, [isCreate]);
 
   // 핀 생성 핸들러
   const handleCreatePin = async () => {
@@ -121,25 +119,11 @@ const PinPopup = ({
         <label className="block mb-1">그룹</label>
         <div className="my-2">
           <Select
-            value={isCreate ? null : initialPin.pin_group.pin_group_id}
+            value={isCreate ? undefined : pinGroup}
             onValueChange={(value) => setPinGroup(value)}
           >
             <SelectTrigger className="w-full border border-gray-300 rounded-md px-3 py-2 flex items-center gap-2 bg-white">
-              {pinGroup ? (
-                <>
-                  <span
-                    className="w-4 h-4 rounded-full"
-                    style={{
-                      backgroundColor:
-                        groupOptions.find((g) => g.id === pinGroup)?.color ||
-                        'transparent',
-                    }}
-                  />
-                  <SelectValue placeholder="그룹 선택" />
-                </>
-              ) : (
-                <SelectValue placeholder="그룹 선택" />
-              )}
+              <SelectValue placeholder="핀의 그룹을 선택해주세요" />
             </SelectTrigger>
             <SelectContent className="bg-white border border-gray-300 rounded-md shadow-md">
               {groupOptions.length > 0 ? (
@@ -150,7 +134,9 @@ const PinPopup = ({
                         className="w-4 h-4 rounded-full"
                         style={{ backgroundColor: option.color }}
                       />
-                      {option.name}
+                      <div className="w-96 flex justify-center">
+                        {option.name}
+                      </div>
                     </div>
                   </SelectItem>
                 ))
