@@ -342,14 +342,9 @@ const NoteHistory = () => {
         scrollContainerRef.current;
 
       // 최상단 도달 감지
-      if (scrollTop <= 10) {
+      if (scrollTop <= 5 && !isFetching) {
         console.log('최상단 도달! 페이지네이션 실행');
         fetchMoreNotes();
-      }
-
-      // 최하단 도달 감지 (이게 필요 없다면 제거 가능)
-      if (scrollTop + clientHeight >= scrollHeight - 10) {
-        console.log('최하단 도달!');
       }
     }, 200), // 200ms마다 실행 (반응 속도 조정 가능)
     [isFetching, fetchMoreNotes],
