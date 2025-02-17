@@ -170,7 +170,7 @@ const PinComponent = ({
 
         {/* 아이콘 */}
         <Icon
-          name="IconTbPinFill"
+          name="IconTbPin"
           width={40}
           height={40}
           color={pinInfo.pin_group?.pin_group_color || 'gray'}
