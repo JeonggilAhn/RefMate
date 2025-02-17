@@ -527,13 +527,18 @@ const NoteHistory = ({ setIsNoteHistoryOpen }) => {
                     </div>
                   );
                 }
-                console.log('노트 타입 트: ', note);
-                console.log('작성자 : ', note.user_email);
-                console.log('로그인 유저 : ', user?.user_email);
 
+                // 작성자 확인 (user_email이 없으면 note_writer에서 가져옴)
+                const authorEmail =
+                  note.user_email || note.note_writer?.user_email;
+
+                // 내 노트인지 판별
                 const isMyNote =
-                  note.type === 'note' && // note 타입일 때만 계산
-                  user?.user_email === note?.user_email;
+                  note.type === 'note' && user?.user_email === authorEmail;
+
+                console.log('노트 타입: ', note);
+                console.log('작성자 : ', authorEmail);
+                console.log('로그인 유저 : ', user?.user_email);
 
                 return (
                   <div
