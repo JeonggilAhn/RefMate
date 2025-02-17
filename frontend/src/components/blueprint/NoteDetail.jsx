@@ -9,12 +9,14 @@ import Icon from '../common/Icon';
 import EditNote from './EditNote';
 import ImageCarouselPopup from '../blueprint/ImageCarouselPopup';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
+import { useToast } from '@/hooks/use-toast';
 
 const NoteDetail = ({ noteId, onBack }) => {
   const [noteData, setNoteData] = useState(null);
   const [modal, setModal] = useRecoilState(modalState);
   const [isBookmark, setIsBookmark] = useState(false);
   const [editModal, setEditModal] = useState(false);
+  const { toast } = useToast(20);
   const [importantNotes, setImportantNotes] =
     useRecoilState(importantNotesState); // 전역 상태 사용
 
@@ -58,17 +60,23 @@ const NoteDetail = ({ noteId, onBack }) => {
         try {
           const response = await del(`notes/${noteId}`);
           if (response.status === 200) {
-            setModal({ type: 'alert', message: '노트가 삭제되었습니다.' });
+            toast({
+              title: '노트가 삭제되었습니다.',
+              description: String(new Date()),
+            });
             setNoteData(null);
             onBack();
           } else {
-            setModal({ type: 'alert', message: '노트 삭제에 실패했습니다.' });
+            toast({
+              title: '노트 삭제에 실패했습니다.',
+              description: String(new Date()),
+            });
           }
         } catch (error) {
           console.error('노트 삭제 중 에러 발생:', error);
-          setModal({
-            type: 'alert',
-            message: '노트 삭제 중 문제가 발생했습니다.',
+          toast({
+            title: '노트 삭제 중 에러가 발생했습니다.',
+            description: String(new Date()),
           });
         }
       },
@@ -93,22 +101,22 @@ const NoteDetail = ({ noteId, onBack }) => {
             return prevNotes.filter((note) => note.note_id !== noteId); // 북마크 해제
           }
         });
-        setModal({
-          type: 'alert',
-          message: !isBookmark
+        toast({
+          title: !isBookmark
             ? '중요 노트로 등록했습니다!'
             : '중요 노트를 해제했습니다!',
+          description: '',
         });
       } else {
-        setModal({
-          type: 'alert',
-          message: '북마크 상태 변경에 실패했습니다.',
+        toast({
+          title: '북마크 상태 변경에 실패했습니다.',
+          description: '',
         });
       }
     } catch (error) {
-      setModal({
-        type: 'alert',
-        message: '북마크 상태 변경 중 문제가 발생했습니다.',
+      toast({
+        title: '북마크 상태 변경 중 문제가 발생했습니다.',
+        description: '',
       });
     }
   };
