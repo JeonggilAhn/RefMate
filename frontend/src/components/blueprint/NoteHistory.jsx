@@ -48,6 +48,7 @@ const NoteHistory = () => {
     const { notesWithSeparators, lastDate: newLastDate } = processNotes(
       rawNotes,
       lastDate,
+      false,
     );
     setNotes(notesWithSeparators.reverse()); // 최신 데이터가 아래로 가도록 reverse()
     setLastDate(newLastDate);
@@ -340,6 +341,7 @@ const NoteHistory = () => {
           const { notesWithSeparators, lastDate: newLastDate } = processNotes(
             mergedNotes,
             lastDate,
+            true,
           );
 
           setNotes(notesWithSeparators);
