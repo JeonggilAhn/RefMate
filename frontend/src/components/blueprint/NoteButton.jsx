@@ -21,15 +21,29 @@ const NoteButton = ({ note, onClick }) => {
   const formatCreatedAt = (time) => {
     const now = new Date();
     const created = new Date(time);
-    const diffMs = now - created;
 
-    if (diffMs < 3600000) {
-      return `${Math.floor(diffMs / 60000)}분 전`; // 1시간 미만
-    } else if (diffMs < 86400000) {
-      return `${Math.floor(diffMs / 3600000)}시간 전`; // 1일 미만
-    } else {
-      return `${Math.floor(diffMs / 86400000)}일 전`; // 1일 이상
+    // 날짜(YYYY-MM-DD) 추출
+    const nowDate = now.toISOString().split('T')[0];
+    const createdDate = created.toISOString().split('T')[0];
+
+    // 오늘 작성된 노트라면 시간/분으로 표시
+    if (nowDate === createdDate) {
+      const diffMs = now - created;
+      const diffMinutes = Math.floor(diffMs / 60000);
+
+      if (diffMinutes < 1) return '방금';
+      if (diffMinutes < 60) return `${diffMinutes}분 전`;
+
+      const diffHours = Math.floor(diffMinutes / 60);
+      return `${diffHours}시간 전`;
     }
+
+    // 날짜 차이 계산 (자정 기준으로 비교)
+    const nowMidnight = new Date(nowDate).getTime(); // 오늘 00:00:00
+    const createdMidnight = new Date(createdDate).getTime(); // 생성일 00:00:00
+    const diffDays = Math.floor((nowMidnight - createdMidnight) / 86400000);
+
+    return `${diffDays}일 전`;
   };
 
   // note
