@@ -515,54 +515,49 @@ const NoteHistory = ({ setIsNoteHistoryOpen }) => {
               className="flex-1 overflow-y-auto flex flex-col-reverse p-4 gap-3"
             >
               {notes.map((note, index) => {
-                const isMyNote =
-                  note.type === 'note' &&
-                  (user?.user_email === note?.user_email ||
-                    user?.user_email === note?.note_writer?.user_email);
+                if (note.type === 'date-separator') {
+                  return (
+                    <div
+                      key={index}
+                      className="text-sm font-bold text-gray-600 py-2 border-t border-gray-300"
+                    >
+                      {note.date}
+                    </div>
+                  );
+                }
 
-                console.log('작성자 : ', note.user_email);
-                console.log('노트리스트 : ', note);
-                console.log('로그인 유저 : ', user?.user_email);
-                console.log('확인 : ', isMyNote);
+                const isMyNote =
+                  user?.user_email === note?.user_email ||
+                  user?.user_email === note?.note_writer?.user_email;
 
                 return (
-                  <React.Fragment key={index}>
-                    {note.type === 'date-separator' ? (
-                      <div className="text-sm font-bold text-gray-600 py-2 border-t border-gray-300">
-                        {note.date}
-                      </div>
-                    ) : (
+                  <div
+                    key={note.note_id}
+                    ref={(el) => (noteRefs.current[note.note_id] = el)}
+                    className={`p-2 w-full flex flex-col 
+        ${highlightedNoteId === note.note_id || searchTargetId === note.note_id ? 'bg-yellow-200' : ''} 
+        ${isMyNote ? 'items-end' : 'items-start'}`}
+                  >
+                    {note.pin_name && (
                       <div
-                        key={note.note_id}
-                        ref={(el) => (noteRefs.current[note.note_id] = el)}
-                        className={`p-2 w-full flex flex-col 
-    ${highlightedNoteId === note.note_id || searchTargetId === note.note_id ? 'bg-yellow-200' : ''} 
-    ${isMyNote ? 'items-end' : 'items-start'}`}
+                        className="px-6 py-1 rounded-md text-sm font-semibold mb-1"
+                        style={{
+                          backgroundColor: note.pin_group_color || '#D1D5DB',
+                          color: '#FFFFFF',
+                          maxWidth: '8rem',
+                          whiteSpace: 'nowrap',
+                          textOverflow: 'ellipsis',
+                          overflow: 'hidden',
+                        }}
                       >
-                        {note.type === 'note' && note.pin_name && (
-                          <div
-                            className="px-6 py-1 rounded-md text-sm font-semibold mb-1"
-                            style={{
-                              backgroundColor:
-                                note.pin_group_color || '#D1D5DB', // 배경색 강제 적용
-                              color: '#FFFFFF', // 글씨색 강제 적용
-                              maxWidth: '8rem',
-                              whiteSpace: 'nowrap',
-                              textOverflow: 'ellipsis',
-                              overflow: 'hidden',
-                            }}
-                          >
-                            {note.pin_name}
-                          </div>
-                        )}
-
-                        <NoteButton
-                          note={note}
-                          onClick={() => handleNoteClick(note)}
-                        />
+                        {note.pin_name}
                       </div>
                     )}
-                  </React.Fragment>
+                    <NoteButton
+                      note={note}
+                      onClick={() => handleNoteClick(note)}
+                    />
+                  </div>
                 );
               })}
             </div>
