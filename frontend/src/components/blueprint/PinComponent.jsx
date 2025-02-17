@@ -11,7 +11,7 @@ import { EventSourcePolyfill, NativeEventSource } from 'event-source-polyfill';
 
 const PinComponent = ({
   blueprintId,
-  blueprintVersion,
+  blueprintVersionId,
   projectId,
   pin,
   onClickPin,
@@ -209,6 +209,8 @@ const PinComponent = ({
         {pin.is_open_note && (
           <div>
             <PinNotePopup
+              projectId={projectId}
+              blueprintVersionId={blueprintVersionId}
               pinInfo={pinInfo}
               isSidebar={false}
               pinId={pinInfo.pin_id}

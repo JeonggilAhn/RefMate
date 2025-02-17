@@ -25,6 +25,7 @@ const AddNote = ({ setOpen, blueprintVersionId, projectId, pinInfo }) => {
     if (!noteTitle.trim() || !noteContent.trim()) return;
 
     try {
+      console.log('blueprintVersionId', blueprintVersionId);
       const response = await post(`pins/${pinInfo.pin_id}/notes`, {
         blueprint_version_id: blueprintVersionId,
         project_id: projectId,
