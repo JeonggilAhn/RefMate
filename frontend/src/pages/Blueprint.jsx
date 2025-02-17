@@ -138,7 +138,9 @@ const Blueprint = () => {
   };
 
   const openNoteHistory = () => {
-    fetchNoteHistory(); // 노트 데이터를 다시 불러오기
+    if (!isNoteHistoryOpen) {
+      fetchNoteHistory(); // 한 번만 호출
+    }
     setIsNoteHistoryOpen(true);
   };
 
