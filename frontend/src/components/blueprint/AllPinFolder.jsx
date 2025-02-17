@@ -9,14 +9,23 @@ const AllPinFolder = ({
   pinActiveActions,
   pinInactiveActions,
   onClickPinImage,
+  setHighlightedPinId,
 }) => {
   return data.map((pin, index) => {
     return (
       <div
         key={pin.pin_id}
-        className="border border-[#CBCBCB] rounded-md p-2 shadow-sm cursor-pointer hover:bg-[#F1F1F1]"
+        className="border border-[#CBCBCB] rounded-md shadow-sm cursor-pointer hover:bg-[#F1F1F1]"
+        onMouseEnter={() => setHighlightedPinId(pin.pin_id)}
+        onMouseLeave={() => setHighlightedPinId(null)}
       >
-        <div className="flex items-center justify-between">
+        <div
+          className="flex items-center justify-between px-2 py-0.5 rounded-t-md"
+          style={{
+            backgroundColor: `${pin.pin_group?.pin_group_color}15`,
+            borderBottom: `2px solid ${pin.pin_group?.pin_group_color}`,
+          }}
+        >
           <div className="flex items-center gap-1">
             <button onClick={() => togglePinVisible(pin.pin_id)}>
               {!isActiveTab ? null : pin.is_visible ? (
@@ -41,13 +50,13 @@ const AllPinFolder = ({
         </div>
 
         {!pin.preview_image_list.length ? (
-          <div className="grid grid-cols-1 grid-rows-1 gap-rows-1 place-items-center mt-2">
+          <div className="grid grid-cols-1 grid-rows-1 gap-rows-1 place-items-center p-2">
             <div className="w-full h-[8rem] flex items-center justify-center text-gray-400 bg-gray-100 rounded-md">
               No image
             </div>
           </div>
         ) : (
-          <div className="grid grid-cols-2 grid-row-2 gap-1 place-items-center mt-2">
+          <div className="grid grid-cols-2 grid-row-2 gap-1 place-items-center p-2">
             {pin.preview_image_list.map((item, idx) => {
               return (
                 <div

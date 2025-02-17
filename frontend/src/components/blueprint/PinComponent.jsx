@@ -14,6 +14,7 @@ const PinComponent = ({
   projectId,
   pin,
   onClickPin,
+  isHighlighted,
 }) => {
   const [pins, setPins] = useRecoilState(pinState);
 
@@ -183,7 +184,13 @@ const PinComponent = ({
   if (!pin) return null;
 
   return (
-    <div className="relative inline-block">
+    <div
+      className={`relative ${
+        isHighlighted
+          ? 'scale-125 transition-transform duration-200'
+          : 'transition-transform duration-200'
+      }`}
+    >
       {/* 핀 아이콘 (활성화 상태일 때 테두리 추가) */}
       <div
         ref={pinRef}
@@ -195,14 +202,21 @@ const PinComponent = ({
           position: 'relative',
         }}
       >
-        {/* 아이콘 뒤 원형 배경 추가 */}
-        {isActive && (
+        {/* 하이라이트 효과용 배경 */}
+        {(isActive || isHighlighted) && (
           <div
-            className="absolute w-16 h-16 rounded-full"
+            className="absolute w-16 h-16 rounded-full transition-all duration-200"
             style={{
-              background: 'radial-gradient(circle, #87B5FA  0%, white 70%)',
-              filter: 'blur(10px)', // 흐림 효과 추가
-              zIndex: -1, // 핀보다 아래로 배치
+              background: isHighlighted
+                ? `radial-gradient(circle, ${pinInfo.pin_group?.pin_group_color || '#87B5FA'} 0%, transparent 70%)`
+                : 'radial-gradient(circle, #87B5FA 0%, transparent 70%)',
+              filter: isHighlighted ? 'blur(8px)' : 'blur(10px)',
+              opacity: isHighlighted ? 0.8 : 0.6,
+              transform: isHighlighted ? 'scale(1.2)' : 'scale(1)',
+              zIndex: -1,
+              animation: isHighlighted
+                ? 'pulse-highlight 1.5s infinite'
+                : 'none',
             }}
           />
         )}
@@ -213,6 +227,7 @@ const PinComponent = ({
           width={40}
           height={40}
           color={pinInfo.pin_group?.pin_group_color || 'gray'}
+          className={isHighlighted ? 'animate-bounce-gentle' : ''}
         />
 
         {/* 읽지 않은 경우 빨간 점 표시 */}

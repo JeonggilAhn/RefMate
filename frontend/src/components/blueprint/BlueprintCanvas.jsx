@@ -1,6 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 
-import React, { useRef, useEffect, useState } from 'react';
+import React, { useRef, useEffect, useState, useCallback } from 'react';
 import PinComponent from './PinComponent';
 import PinPopup from './PinPopup';
 import { useRecoilState } from 'recoil';
@@ -54,6 +54,7 @@ const BlueprintCanvas = ({
   isOverlayVisible,
   isPinButtonEnaled,
   onClickPin,
+  highlightedPinId,
 }) => {
   const canvasRef = useRef(null);
   const [scale, setScale] = useState(1);
@@ -64,6 +65,7 @@ const BlueprintCanvas = ({
   const imgRef = useRef(new Image());
   const overlayImgRef = useRef(new Image());
   const [isCtrlPressed, setIsCtrlPressed] = useState(false);
+  const animationRef = useRef(null);
 
   const [pins, setPins] = useRecoilState(pinState);
   const [modal, setModal] = useRecoilState(modalState);
@@ -83,7 +85,10 @@ const BlueprintCanvas = ({
     canvas.width = canvas.parentElement.clientWidth;
     canvas.height = canvas.parentElement.clientHeight;
 
-    adjustImagePosition();
+    // 최초 로드시에만 위치 조정
+    if (!scale || scale === 1) {
+      adjustImagePosition();
+    }
 
     const ctx = canvas.getContext('2d');
     drawImage(ctx);
@@ -99,7 +104,10 @@ const BlueprintCanvas = ({
 
     imgRef.current.onload = () => {
       const ctx = canvas.getContext('2d');
-      adjustImagePosition();
+      // 최초 로드시에만 위치 조정
+      if (!scale || scale === 1) {
+        adjustImagePosition();
+      }
       drawImage(ctx);
     };
   }, [imageUrl]);
@@ -114,7 +122,6 @@ const BlueprintCanvas = ({
 
     overlayImgRef.current.onload = () => {
       const ctx = canvas.getContext('2d');
-      adjustImagePosition();
       drawImage(ctx);
     };
   }, [overlayImageUrl]);
@@ -211,13 +218,34 @@ const BlueprintCanvas = ({
     }
 
     const zoomSpeed = 0.1;
-    setScale((prev) => {
-      const newScale = Math.max(
-        0.5,
-        prev + (e.deltaY > 0 ? -zoomSpeed : zoomSpeed),
-      );
-      return newScale;
-    });
+    const rect = canvasRef.current.getBoundingClientRect();
+
+    // 마우스 위치를 캔버스 좌표계로 변환
+    const mouseX = e.clientX - rect.left;
+    const mouseY = e.clientY - rect.top;
+
+    // 현재 마우스 위치의 이미지상 좌표 계산
+    const beforeZoomImageX = (mouseX - position.x) / scale;
+    const beforeZoomImageY = (mouseY - position.y) / scale;
+
+    // 새로운 scale 계산
+    const newScale = Math.max(
+      0.5,
+      scale + (e.deltaY > 0 ? -zoomSpeed : zoomSpeed),
+    );
+
+    // 새로운 scale에서의 마우스 위치 계산
+    const afterZoomImageX = (mouseX - position.x) / newScale;
+    const afterZoomImageY = (mouseY - position.y) / newScale;
+
+    // position 조정하여 마우스 위치 유지
+    const newPosition = {
+      x: position.x + (afterZoomImageX - beforeZoomImageX) * newScale,
+      y: position.y + (afterZoomImageY - beforeZoomImageY) * newScale,
+    };
+
+    setScale(newScale);
+    setPosition(newPosition);
   };
 
   const handleMouseDown = (e) => {
@@ -309,6 +337,88 @@ const BlueprintCanvas = ({
     drawImage(ctx);
   }, [scale, position, pins, overlayOpacity]);
 
+  // 특정 핀 위치로 캔버스 이동
+  const centerOnPin = useCallback(
+    (pin) => {
+      if (!pin) return;
+
+      const canvas = canvasRef.current;
+      if (!canvas) return;
+
+      // 이전 애니메이션이 있다면 취소
+      if (animationRef.current) {
+        cancelAnimationFrame(animationRef.current);
+      }
+
+      // 현재 위치에서 핀까지의 상대적 거리 계산
+      const currentCenterX = canvas.width / 2;
+      const currentCenterY = canvas.height / 2;
+      const pinPositionX = position.x + pin.pin_x * scale;
+      const pinPositionY = position.y + pin.pin_y * scale;
+
+      // 핀을 중앙으로 가져오기 위해 필요한 이동 거리
+      const deltaX = currentCenterX - pinPositionX;
+      const deltaY = currentCenterY - pinPositionY;
+
+      const startX = position.x;
+      const startY = position.y;
+      const targetX = position.x + deltaX;
+      const targetY = position.y + deltaY;
+      const duration = 500;
+      const startTime = Date.now();
+
+      const animate = () => {
+        const elapsed = Date.now() - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+
+        const easing =
+          progress < 0.5
+            ? 4 * progress * progress * progress
+            : 1 - Math.pow(-2 * progress + 2, 3) / 2;
+
+        setPosition({
+          x: startX + (targetX - startX) * easing,
+          y: startY + (targetY - startY) * easing,
+        });
+
+        if (progress < 1) {
+          animationRef.current = requestAnimationFrame(animate);
+        }
+      };
+
+      animate();
+
+      // 컴포넌트 언마운트 시 애니메이션 정리
+      return () => {
+        if (animationRef.current) {
+          cancelAnimationFrame(animationRef.current);
+        }
+      };
+    },
+    [scale], // position 제거
+  );
+
+  // highlightedPinId가 변경될 때마다 해당 핀으로 이동
+  useEffect(() => {
+    if (highlightedPinId) {
+      const highlightedPin = pins.find(
+        (pin) => pin.pin_id === highlightedPinId,
+      );
+      if (highlightedPin) {
+        centerOnPin(highlightedPin);
+      }
+    }
+  }, [highlightedPinId, pins, centerOnPin]);
+
+  // 컴포넌트 언마운트 시 애니메이션 정리
+  useEffect(() => {
+    return () => {
+      if (animationRef.current) {
+        cancelAnimationFrame(animationRef.current);
+      }
+    };
+  }, []);
+
   return (
     <div
       className="relative w-full h-full"
@@ -328,8 +438,10 @@ const BlueprintCanvas = ({
             zIndex: 1,
             pointerEvents: 'auto',
             visibility: item.is_visible ? 'visible' : 'hidden',
-            transform: `translate(-50%, -50%) scale(${scale})`, // 핀 크기 자동 확대/축소
-            transformOrigin: 'center center', // 중심을 기준으로 크기 변경
+            transform: `translate(-50%, -50%) scale(${scale})`,
+            transformOrigin: 'center center',
+            animation:
+              highlightedPinId === item.pin_id ? 'pulse 1s infinite' : 'none',
           }}
         >
           <PinComponent
@@ -338,6 +450,7 @@ const BlueprintCanvas = ({
             projectId={projectId}
             pin={item}
             onClickPin={() => onClickPin(item)}
+            isHighlighted={highlightedPinId === item.pin_id}
           />
         </div>
       ))}
