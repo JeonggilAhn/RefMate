@@ -4,6 +4,8 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -62,6 +64,7 @@ import com.dawn.backend.domain.project.entity.Project;
 import com.dawn.backend.domain.project.exception.ProjectNotFoundException;
 import com.dawn.backend.domain.project.repository.ProjectRepository;
 import com.dawn.backend.domain.user.dto.ProjectUserDto;
+import com.dawn.backend.domain.user.dto.ProjectUserWithReadNoteDto;
 import com.dawn.backend.domain.user.entity.User;
 import com.dawn.backend.domain.user.entity.UserProject;
 import com.dawn.backend.domain.user.exception.UserProjectNotFound;
@@ -469,6 +472,27 @@ public class NoteService {
 			return new GetNotesByRangeResponseDto(Collections.emptyList());
 		}
 
+		List<Long> noteIds = noteDtos.stream()
+			.map(NoteWithPinAndPinGroupDto::noteId)
+			.toList();
+
+		// 읽은 noteId를 가지는 user들을 조회
+		List<ProjectUserWithReadNoteDto> readUsers =
+			userRepository.findCheckedUsersWithRolesByNoteIds(noteIds, projectId);
+
+		// 읽은 user들을 noteId 로 그룹핑
+		Map<Long, List<ProjectUserDto>> readUsersMap = readUsers.stream()
+			.collect(Collectors.groupingBy(
+				ProjectUserWithReadNoteDto::noteId,
+				Collectors.mapping(dto -> new ProjectUserDto(
+					dto.userId(),
+					dto.userEmail(),
+					dto.profileUrl(),
+					dto.signupDate(),
+					dto.role()
+				), Collectors.toList())
+			));
+
 		List<ChatItemDto> chatItems = new ArrayList<>();
 		LocalDateTime prevDate = null;
 
@@ -479,10 +503,9 @@ public class NoteService {
 				chatItems.add(DateSeparatorDto.from(currentDate));
 				prevDate = currentDate;
 			}
+			List<ProjectUserDto> mappedReadUsers = readUsersMap.getOrDefault(dto.noteId(), Collections.emptyList());
 
-			List<ProjectUserDto> readUsers = userRepository.findCheckedUsersWithRolesByNoteId(dto.noteId(), projectId);
-
-			BlueprintNoteItemDto blueprintNoteItemDto = BlueprintNoteItemDto.from(dto, readUsers);
+			BlueprintNoteItemDto blueprintNoteItemDto = BlueprintNoteItemDto.from(dto, mappedReadUsers);
 			chatItems.add(blueprintNoteItemDto);
 		}
 		return new GetNotesByRangeResponseDto(chatItems);
