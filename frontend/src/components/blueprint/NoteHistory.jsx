@@ -45,12 +45,19 @@ const NoteHistory = ({ setIsNoteHistoryOpen }) => {
 
   // 날짜별 구분선 추가하여 상태 저장
   useEffect(() => {
-    if (!rawNotes.length) return; // 노트가 아예 없으면 실행 안 함 (빈 배열 방지)
+    if (!rawNotes.length) {
+      console.warn('rawNotes가 비어있음! notes 업데이트 안 됨');
+      return;
+    } // 노트가 아예 없으면 실행 안 함 (빈 배열 방지)
+    console.log('rawNotes 업데이트됨:', rawNotes);
 
     const { notesWithSeparators, lastDate: newLastDate } = processNotes(
       rawNotes,
       lastDate,
     );
+
+    console.log('notesWithSeparators:', notesWithSeparators);
+
     setNotes(notesWithSeparators.reverse()); // 최신 데이터가 아래로 가도록 reverse()
     setLastDate(newLastDate);
 
@@ -527,6 +534,7 @@ const NoteHistory = ({ setIsNoteHistoryOpen }) => {
                 }
               })()}
               {notes.map((note, index) => {
+                console.log(`${index}번째 노트 : `, note);
                 if (!note) {
                   console.warn('note 객체가 undefined입니다:', note);
                   return null;
@@ -547,6 +555,8 @@ const NoteHistory = ({ setIsNoteHistoryOpen }) => {
 
                 // 디버깅 로그 추가
                 console.log('노트 데이터:', note);
+                console.log('유저정보:', user);
+
                 // console.log('note_writer:', note?.note_writer);
 
                 // if (note?.note_writer === undefined) {
@@ -570,9 +580,8 @@ const NoteHistory = ({ setIsNoteHistoryOpen }) => {
                 console.log('작성자:', authorEmail);
                 console.log('로그인 유저:', user?.user_email);
 
-                if (!note.note_id) {
-                  console.warn('note_id가 없음:', note);
-                  return null;
+                if (!note.user_email) {
+                  console.error(`note.user_email이 undefined!`, note);
                 }
 
                 const isMyNote =
