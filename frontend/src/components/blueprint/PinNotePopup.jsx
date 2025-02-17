@@ -5,6 +5,8 @@ import { useParams } from 'react-router-dom';
 import { useRecoilValue } from 'recoil';
 import { pinState } from '../../recoil/blueprint';
 import { processNotes } from '../../utils/temp';
+import { userState } from '../../recoil/common/user';
+import { isMyNote } from '../../utils/isMyNote';
 
 import Icon from '../common/Icon';
 import NoteDetail from './NoteDetail';
@@ -17,6 +19,7 @@ const NoteList = memo(function NoteList({
   searchTargetId,
   onNoteClick,
   noteRefs,
+  user, // user 전달
 }) {
   if (processedNotes.notesWithSeparators.length === 0) {
     return <NoData>등록된 노트가 없습니다.</NoData>;
@@ -28,13 +31,15 @@ const NoteList = memo(function NoteList({
         if (note.type === 'date-separator') {
           return <DateSeparator key={index}>{note.date}</DateSeparator>;
         }
+        const isMine = isMyNote(note, user); // 내 노트 여부 판단
+
         return (
           <div
             key={note.note_id}
             ref={(el) => (noteRefs.current[note.note_id] = el)}
             className={`p-2 ${
               searchTargetId === note.note_id ? 'bg-yellow-200' : ''
-            }`}
+            } ${isMine ? 'items-end' : 'items-start'}`}
           >
             <NoteButton note={note} onClick={() => onNoteClick(note)} />
           </div>
@@ -75,6 +80,8 @@ function PinNotePopup({
   const [isSearching, setIsSearching] = useState(false);
   const [selectedNote, setSelectedNote] = useState(null);
   const [searchTargetId, setSearchTargetId] = useState(null);
+
+  const user = useRecoilValue(userState); // 로그인한 유저 정보 가져오기
 
   const noteRefs = useRef({}); // 노트별 DOM 레퍼런스
 
