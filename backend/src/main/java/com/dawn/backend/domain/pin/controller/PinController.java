@@ -5,7 +5,6 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.messaging.Message;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
@@ -27,6 +26,7 @@ import com.dawn.backend.domain.pin.dto.request.CreatePinRequestDto;
 import com.dawn.backend.domain.pin.dto.request.UpdatePinGroupRequestDto;
 import com.dawn.backend.domain.pin.dto.request.UpdatePinNameRequestDto;
 import com.dawn.backend.domain.pin.dto.response.CreatePinResponseDto;
+import com.dawn.backend.domain.pin.dto.response.PinItemResponseDto;
 import com.dawn.backend.domain.pin.dto.response.UpdatePinGroupResponseDto;
 import com.dawn.backend.domain.pin.dto.response.UpdatePinNameResponseDto;
 import com.dawn.backend.domain.pin.dto.response.UpdatePinStatusResponseDto;
@@ -46,7 +46,7 @@ public class PinController {
 
 	@GetMapping("/blueprints/{blueprintId}/{versionId}/pins")
 	@PreAuthorize("@authExpression.hasBlueprintPermission(#blueprintId)")
-	public ResponseEntity<ResponseWrapper<List<PinItem>>> getPinListByBlueprint(
+	public ResponseEntity<ResponseWrapper<List<PinItemResponseDto>>> getPinListByBlueprint(
 		@PathVariable("blueprintId") Long blueprintId,
 		@PathVariable("versionId") Long versionId,
 		@RequestParam(value = "is_active", required = false) Boolean isActive,
@@ -62,7 +62,7 @@ public class PinController {
 
 	@MessageMapping("/blueprints/{blueprintId}/{versionId}/pins")
 	@SendTo("/api/topic/{blueprintId}/{versionId}")
-	public PinItem handleWebSocketMessage(
+	public PinItemResponseDto handleWebSocketMessage(
 		@DestinationVariable("blueprintId") Long blueprintId,
 		@DestinationVariable("versionId") Long versionId,
 		@Payload Long pinId

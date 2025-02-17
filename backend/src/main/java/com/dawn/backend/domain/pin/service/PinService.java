@@ -1,6 +1,8 @@
 package com.dawn.backend.domain.pin.service;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +28,7 @@ import com.dawn.backend.domain.pin.dto.request.CreatePinRequestDto;
 import com.dawn.backend.domain.pin.dto.request.UpdatePinGroupRequestDto;
 import com.dawn.backend.domain.pin.dto.request.UpdatePinNameRequestDto;
 import com.dawn.backend.domain.pin.dto.response.CreatePinResponseDto;
+import com.dawn.backend.domain.pin.dto.response.PinItemResponseDto;
 import com.dawn.backend.domain.pin.dto.response.UpdatePinGroupResponseDto;
 import com.dawn.backend.domain.pin.dto.response.UpdatePinNameResponseDto;
 import com.dawn.backend.domain.pin.dto.response.UpdatePinStatusResponseDto;
@@ -71,7 +74,7 @@ public class PinService {
 		this.blueprintVersionRepository = blueprintVersionRepository;
 	}
 
-	public List<PinItem> pins(Long blueprintVersionId, Boolean isActive, Long pinGroupId, User user) {
+	public List<PinItemResponseDto> pins(Long blueprintVersionId, Boolean isActive, Long pinGroupId, User user) {
 
 		List<PinVersion> pinlist;
 		if (isActive == null && pinGroupId == null) {
@@ -87,7 +90,44 @@ public class PinService {
 		}
 
 		return pinlist.stream()
-			.map(this::convertPinVersionToPinItem)
+			.map(pinVersion -> {
+
+				List<NoteImage> noteImages =
+					imageRepository.findAllByPinOrderByBookmark(pinVersion.getPin());
+
+				List<ImageItem> previewImages = noteImages.stream()
+					.map(noteImage -> new ImageItem(
+						noteImage.getImageId(),
+						noteImage.getImageOrigin(),
+						noteImage.getImagePreview(),
+						noteImage.getBookmark()
+					))
+					.toList();
+
+				PinGroupDto pinGroupDto = new PinGroupDto(
+					pinVersion.getPinGroup().getPinGroupId(),
+					pinVersion.getPinGroupName() != null
+						? pinVersion.getPinGroupName()
+						: pinVersion.getPinGroup().getPinGroupName(),
+					pinVersion.getPinGroup().getPinGroupColor()
+				);
+
+				List<Long> unreadNotes = new ArrayList<>();
+				if (!(user instanceof UnauthorizeUser)) {
+					unreadNotes = noteRepository.findUnreadNotesByPin(user, pinVersion.getPin());
+				}
+				return new PinItemResponseDto(
+					pinVersion.getPin().getPinId(),
+					pinVersion.getPin().getPinName(),
+					pinVersion.getPin().getPinX(),
+					pinVersion.getPin().getPinY(),
+					previewImages,
+					previewImages.size(),
+					pinGroupDto,
+					pinVersion.getIsActive(),
+					unreadNotes
+				);
+			})
 			.toList();
 	}
 
@@ -254,7 +294,7 @@ public class PinService {
 	}
 
 	@Transactional
-	public PinItem getPin(Long versionId, Long pinId) {
+	public PinItemResponseDto getPin(Long versionId, Long pinId) {
 		log.info(versionId + ":" + pinId);
 		PinVersion pinVersion =
 			pinVersionRepository.findFirstByBlueprintVersionBlueprintVersionIdAndPinPinId(versionId, pinId);
@@ -262,7 +302,7 @@ public class PinService {
 	}
 
 	@Transactional
-	public PinItem convertPinVersionToPinItem(PinVersion pinVersion) {
+	public PinItemResponseDto convertPinVersionToPinItem(PinVersion pinVersion) {
 		List<NoteImage> noteImages =
 			imageRepository.findAllByPinOrderByBookmark(pinVersion.getPin());
 
@@ -283,13 +323,14 @@ public class PinService {
 			pinVersion.getPinGroup().getPinGroupColor()
 		);
 
-		boolean hasUnreadNote = false;
-//				if (!(user instanceof UnauthorizeUser)) {
-//					hasUnreadNote =
-//						noteCheckRepository.hasUnreadNoteByPin(user, pinVersion.getPin());
-//				}
+//		boolean hasUnreadNote = false;
 
-		return new PinItem(
+//		List<Long> unreadNotes = new ArrayList<>();
+//		if (!(user instanceof UnauthorizeUser)) {
+//			unreadNotes = noteRepository.findUnreadNotesByPin(user, pinVersion.getPin());
+//		}
+
+		return new PinItemResponseDto(
 			pinVersion.getPin().getPinId(),
 			pinVersion.getPin().getPinName(),
 			pinVersion.getPin().getPinX(),
@@ -297,8 +338,8 @@ public class PinService {
 			previewImages,
 			previewImages.size(),
 			pinGroupDto,
-			hasUnreadNote,
-			pinVersion.getIsActive()
+			pinVersion.getIsActive(),
+			Collections.<Long>emptyList()
 		);
 	}
 }
