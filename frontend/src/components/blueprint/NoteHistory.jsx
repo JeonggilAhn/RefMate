@@ -335,6 +335,11 @@ const NoteHistory = ({ setIsNoteHistoryOpen }) => {
           const filteredNotes = newNotes.filter(
             (note) => !existingNoteIds.has(note.note_id),
           );
+
+          console.log('기존 노트 목록:', prevNotes);
+          console.log('새로 추가할 노트 목록:', newNotes);
+          console.log('필터링된 노트 목록 (중복 제거 후):', filteredNotes);
+
           // 새로운 노트 기존 노트 앞에 추가.
           const mergedNotes = [...prevNotes, ...filteredNotes];
 
@@ -344,6 +349,7 @@ const NoteHistory = ({ setIsNoteHistoryOpen }) => {
             lastDate,
           );
 
+          console.log('페이지네이션 노트:', notesWithSeparators);
           setNotes(notesWithSeparators);
           setLastDate(newLastDate);
           return notesWithSeparators;
@@ -514,6 +520,12 @@ const NoteHistory = ({ setIsNoteHistoryOpen }) => {
               ref={scrollContainerRef}
               className="flex-1 overflow-y-auto flex flex-col-reverse p-4 gap-3"
             >
+              {(() => {
+                console.log('현재 렌더링되는 notes 상태:', notes);
+                if (!notes || notes.length === 0) {
+                  console.warn('현재 notes가 비어있음:', notes);
+                }
+              })()}
               {notes.map((note, index) => {
                 if (!note) {
                   console.warn('note 객체가 undefined입니다:', note);
