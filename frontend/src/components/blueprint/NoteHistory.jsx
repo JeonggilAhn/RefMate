@@ -514,19 +514,14 @@ const NoteHistory = ({ setIsNoteHistoryOpen }) => {
               ref={scrollContainerRef}
               className="flex-1 overflow-y-auto flex flex-col-reverse p-4 gap-3"
             >
-              {notes.map((note, index) => {
-                if (!note || typeof note !== 'object') return null;
-
-                const isMyNote = (note, user) => {
-                  if (!note || note.type !== 'note' || !note.user_email)
-                    return false;
-                  return user?.user_email && note.user_email
-                    ? user.user_email === note.user_email
-                    : false;
-                };
+              {(notes || []).map((note, index) => {
+                if (!note || typeof note !== 'object') return null; // note가 undefined이면 렌더링 안 함
 
                 console.log('유저정보 : ', user);
-                console.log('노트정보 : ', note.user_email);
+                console.log('노트정보 : ', note?.user_email); // 안전하게 ?. 사용
+
+                const isMyNote =
+                  note.type === 'note' && user?.user_email === note.user_email;
 
                 return (
                   <React.Fragment key={index}>
@@ -537,18 +532,20 @@ const NoteHistory = ({ setIsNoteHistoryOpen }) => {
                     ) : (
                       <div
                         key={note.note_id}
-                        ref={(el) => (noteRefs.current[note.note_id] = el)}
+                        ref={(el) =>
+                          note?.note_id && (noteRefs.current[note.note_id] = el)
+                        } // 안전하게 처리
                         className={`p-2 w-full flex flex-col 
-    ${highlightedNoteId === note.note_id || searchTargetId === note.note_id ? 'bg-yellow-200' : ''} 
-    ${isMyNote(note, user) ? 'items-end' : 'items-start'}`}
+            ${highlightedNoteId === note.note_id || searchTargetId === note.note_id ? 'bg-yellow-200' : ''} 
+            ${isMyNote ? 'items-end' : 'items-start'}`}
                       >
                         {note.type === 'note' && note.pin_name && (
                           <div
                             className="px-6 py-1 rounded-md text-sm font-semibold mb-1"
                             style={{
                               backgroundColor:
-                                note.pin_group_color || '#D1D5DB', // 배경색 강제 적용
-                              color: '#FFFFFF', // 글씨색 강제 적용
+                                note.pin_group_color || '#D1D5DB',
+                              color: '#FFFFFF',
                               maxWidth: '8rem',
                               whiteSpace: 'nowrap',
                               textOverflow: 'ellipsis',
