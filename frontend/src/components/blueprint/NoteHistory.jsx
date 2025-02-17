@@ -4,7 +4,7 @@ import NoteDetail from './NoteDetail';
 import Icon from '../common/Icon';
 import Draggable from 'react-draggable';
 import { Skeleton } from '@/components/ui/skeleton';
-import { processNotes, historyProcessNotes } from '../../utils/temp';
+import { historyProcessNotes } from '../../utils/temp';
 import { useRecoilValue, useRecoilState } from 'recoil';
 import { noteState } from '../../recoil/blueprint';
 import { userState } from '../../recoil/common/user';
@@ -47,10 +47,12 @@ const NoteHistory = ({ setIsNoteHistoryOpen }) => {
   useEffect(() => {
     if (!rawNotes.length) return; // 노트가 아예 없으면 실행 안 함 (빈 배열 방지)
 
-    const { notesWithSeparators, lastDate: newLastDate } = processNotes(
+    const { notesWithSeparators, lastDate: newLastDate } = historyProcessNotes(
       rawNotes,
       lastDate,
     );
+    console.log('historyProcessNotes 실행 후:', notesWithSeparators);
+
     setNotes(notesWithSeparators.reverse()); // 최신 데이터가 아래로 가도록 reverse()
     setLastDate(newLastDate);
 
