@@ -109,7 +109,8 @@ public class PinService {
 					pinVersion.getPinGroupName() != null
 						? pinVersion.getPinGroupName()
 						: pinVersion.getPinGroup().getPinGroupName(),
-					pinVersion.getPinGroup().getPinGroupColor()
+					pinVersion.getPinGroup().getPinGroupColor(),
+					pinVersion.getPinGroup().getPinGroupColorLight()
 				);
 
 				List<Long> unreadNotes = new ArrayList<>();
@@ -170,7 +171,8 @@ public class PinService {
 			.map(pinGroup -> new PinGroupDto(
 				pinGroup.getPinGroupId(),
 				pinGroup.getPinGroupName(),
-				pinGroup.getPinGroupColor()
+				pinGroup.getPinGroupColor(),
+				pinGroup.getPinGroupColorLight()
 			))
 			.toList();
 	}
@@ -320,7 +322,8 @@ public class PinService {
 			pinVersion.getPinGroupName() != null
 				? pinVersion.getPinGroupName()
 				: pinVersion.getPinGroup().getPinGroupName(),
-			pinVersion.getPinGroup().getPinGroupColor()
+			pinVersion.getPinGroup().getPinGroupColor(),
+			pinVersion.getPinGroup().getPinGroupColorLight()
 		);
 
 //		boolean hasUnreadNote = false;

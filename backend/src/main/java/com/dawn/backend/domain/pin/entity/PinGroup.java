@@ -30,6 +30,8 @@ public class PinGroup extends BaseTimeEntity {
 
 	private String pinGroupColor;
 
+	private String pinGroupColorLight;
+
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "blueprint_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
 	private Blueprint blueprint;
@@ -38,10 +40,12 @@ public class PinGroup extends BaseTimeEntity {
 	public PinGroup(
 		String pinGroupName,
 		String pinGroupColor,
+		String pinGroupColorLight,
 		Blueprint blueprint
 	) {
 		this.pinGroupName = pinGroupName;
 		this.pinGroupColor = pinGroupColor;
+		this.pinGroupColorLight = pinGroupColorLight;
 		this.blueprint = blueprint;
 	}
 }
