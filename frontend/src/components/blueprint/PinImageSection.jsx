@@ -14,6 +14,14 @@ const PinImageSection = ({ pinId, onClickImage }) => {
     setData(pin);
   }, [pinId, pins]);
 
+  if (data.length === 0) {
+    return (
+      <div className="text-sm text-left text-gray-500 p-4">
+        등록된 레퍼런스가 없습니다.
+      </div>
+    );
+  }
+
   return (
     <div className="relative border border-[#CBCBCB] rounded-lg shadow-md bg-white h-[250px]">
       <div className="sticky text-center p-2 border-b border-[#CBCBCB] top-0 w-full rounded-t-lg bg-[#F5F5F5]">

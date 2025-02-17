@@ -893,8 +893,18 @@ const Blueprint = () => {
           className={`absolute top-0 right-0 transition-transform duration-500 ease-in-out ${isDetailSidebarOpen ? 'w-[22rem]' : 'min-w-0 w-0 overflow-hidden'} h-screen border-l border-[#CBCBCB] z-[4] bg-white flex flex-col overflow-hidden`}
         >
           <div className="pt-[46px]" />
-          <div className="mt-[60px] px-[0.3rem] grid grid-cols-1 grid-rows[2fr_1fr_2fr] gap-2 overflow-hidden">
-            <div className="flex justify-between items-center">
+          <div
+            className="mt-[60px] px-[0.3rem] grid grid-cols-1 grid-rows[2fr_1fr_2fr] gap-2 overflow-hidden p-1"
+            // style={{
+            //   backgroundColor: detailPin?.pin_group?.pin_group_color,
+            // }}
+          >
+            <div
+              className="flex justify-between items-center rounded-md"
+              style={{
+                backgroundColor: detailPin?.pin_group?.pin_group_color,
+              }}
+            >
               <div className="flex items-center">
                 <button className="w-[2.4rem] h-[2.4rem] flex justify-center items-center rounded-sm cursor-pointer hover:bg-[#F1F1F1]">
                   <Icon
@@ -903,18 +913,12 @@ const Blueprint = () => {
                     onClick={onClickSidebarBackButton}
                   />
                 </button>
-                <p className="pl-2 w-65 truncate break-words">
-                  {blueprintTitle}
-                </p>
+                <p className="truncate break-words">{detailPin.pin_name}</p>
               </div>
-              <div>
+              {/* <div>
                 <EditOption actions={projectActions} />
-              </div>
+              </div> */}
             </div>
-            <PinImageSection
-              pinId={detailPin.pin_id}
-              onClickImage={onClickImage}
-            />
             <ImportantNoteSection
               detailPin={detailPin}
               setDetailNote={setDetailNote}
@@ -926,6 +930,10 @@ const Blueprint = () => {
               pinId={detailPin.pin_id}
               detailNote={detailNote}
               setDetailNote={setDetailNote}
+            />
+            <PinImageSection
+              pinId={detailPin.pin_id}
+              onClickImage={onClickImage}
             />
           </div>
         </div>

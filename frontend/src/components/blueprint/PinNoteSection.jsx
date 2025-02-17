@@ -139,11 +139,11 @@ const PinNoteSection = ({
               </DropdownMenuContent>
             </DropdownMenu>
             <div className="flex items-center justify-center flex-grow gap-2">
-              <div
+              {/* <div
                 className="w-4 h-4 rounded-full"
                 style={{ backgroundColor: pinInfo.pin_group.pin_group_color }}
-              ></div>
-              <div>{pinInfo.pin_name}</div>
+              ></div> */}
+              <div>노트</div>
             </div>
 
             {!onClose && (
