@@ -15,7 +15,7 @@ import { throttle } from 'lodash'; // lodash의 throttle 사용
 
 const NoteHistory = ({ setIsNoteHistoryOpen }) => {
   const rawNotes = useRecoilValue(noteState); // Blueprint에서 받은 전역 상태 사용
-  console.log('rawNotes : ', rawNotes);
+  // console.log('rawNotes : ', rawNotes);
   const user = useRecoilValue(userState); // 로그인한 유저 정보 가져오기
   const [notes, setNotes] = useState([]);
   const [lastDate, setLastDate] = useState('');
@@ -51,7 +51,7 @@ const NoteHistory = ({ setIsNoteHistoryOpen }) => {
       rawNotes,
       lastDate,
     );
-    console.log('historyProcessNotes 실행 후:', notesWithSeparators);
+    // console.log('historyProcessNotes 실행 후:', notesWithSeparators);
 
     setNotes(notesWithSeparators.reverse()); // 최신 데이터가 아래로 가도록 reverse()
     setLastDate(newLastDate);
@@ -380,7 +380,7 @@ const NoteHistory = ({ setIsNoteHistoryOpen }) => {
         scrollTop <= 5 &&
         !isFetching
       ) {
-        console.log('최상단 도달! 페이지네이션 실행');
+        //  console.log('최상단 도달! 페이지네이션 실행');
         fetchMoreNotes();
       }
 
@@ -516,13 +516,14 @@ const NoteHistory = ({ setIsNoteHistoryOpen }) => {
             >
               {notes.map((note, index) => {
                 const isMyNote = (note, user) => {
-                  if (!note || note.type !== 'note') return false;
+                  if (!note || note.type !== 'note' || !note.user_email)
+                    return false;
                   return user?.user_email && note.user_email
                     ? user.user_email === note.user_email
                     : false;
                 };
 
-                //  console.log('유저정보 : ', user);
+                console.log('유저정보 : ', user);
                 console.log('노트정보 : ', note.user_email);
 
                 return (
