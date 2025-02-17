@@ -131,7 +131,7 @@ const NoteHistory = ({ setIsNoteHistoryOpen }) => {
   };
 
   // 노트 범위 요청
-  const fetchRangeNotes = async (searchResults) => {
+  /*const fetchRangeNotes = async (searchResults) => {
     try {
       const rangeApiUrl = `blueprints/${blueprint_id}/${blueprint_version_id}/notes/range`;
       const rangeParams = {
@@ -217,7 +217,7 @@ const NoteHistory = ({ setIsNoteHistoryOpen }) => {
     } catch (error) {
       console.error('범위 노트 요청 실패:', error.message);
     }
-  };
+  };*/
 
   useEffect(() => {
     if (searchTargetId && noteRefs.current[searchTargetId]) {
