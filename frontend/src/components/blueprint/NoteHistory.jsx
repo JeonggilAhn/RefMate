@@ -3,8 +3,9 @@ import NoteButton from './NoteButton';
 import NoteDetail from './NoteDetail';
 import Icon from '../common/Icon';
 import Draggable from 'react-draggable';
+
 import { Skeleton } from '@/components/ui/skeleton';
-import { historyProcessNotes } from '../../utils/temp';
+import { processNotes } from '../../utils/temp';
 import { useRecoilValue, useRecoilState } from 'recoil';
 import { noteState } from '../../recoil/blueprint';
 import { userState } from '../../recoil/common/user';
@@ -15,7 +16,6 @@ import { throttle } from 'lodash'; // lodash의 throttle 사용
 
 const NoteHistory = ({ setIsNoteHistoryOpen }) => {
   const rawNotes = useRecoilValue(noteState); // Blueprint에서 받은 전역 상태 사용
-  // console.log('rawNotes : ', rawNotes);
   const user = useRecoilValue(userState); // 로그인한 유저 정보 가져오기
   const [notes, setNotes] = useState([]);
   const [lastDate, setLastDate] = useState('');
@@ -47,12 +47,10 @@ const NoteHistory = ({ setIsNoteHistoryOpen }) => {
   useEffect(() => {
     if (!rawNotes.length) return; // 노트가 아예 없으면 실행 안 함 (빈 배열 방지)
 
-    const { notesWithSeparators, lastDate: newLastDate } = historyProcessNotes(
+    const { notesWithSeparators, lastDate: newLastDate } = processNotes(
       rawNotes,
       lastDate,
     );
-    // console.log('historyProcessNotes 실행 후:', notesWithSeparators);
-
     setNotes(notesWithSeparators.reverse()); // 최신 데이터가 아래로 가도록 reverse()
     setLastDate(newLastDate);
 
@@ -341,8 +339,10 @@ const NoteHistory = ({ setIsNoteHistoryOpen }) => {
           const mergedNotes = [...prevNotes, ...filteredNotes];
 
           // 날짜 구분선 추가 및 LastDate 업데이트
-          const { notesWithSeparators, lastDate: newLastDate } =
-            historyProcessNotes(mergedNotes, lastDate);
+          const { notesWithSeparators, lastDate: newLastDate } = processNotes(
+            mergedNotes,
+            lastDate,
+          );
 
           setNotes(notesWithSeparators);
           setLastDate(newLastDate);
@@ -380,7 +380,7 @@ const NoteHistory = ({ setIsNoteHistoryOpen }) => {
         scrollTop <= 5 &&
         !isFetching
       ) {
-        //  console.log('최상단 도달! 페이지네이션 실행');
+        console.log('최상단 도달! 페이지네이션 실행');
         fetchMoreNotes();
       }
 
@@ -514,14 +514,11 @@ const NoteHistory = ({ setIsNoteHistoryOpen }) => {
               ref={scrollContainerRef}
               className="flex-1 overflow-y-auto flex flex-col-reverse p-4 gap-3"
             >
-              {(notes || []).map((note, index) => {
-                if (!note || typeof note !== 'object') return null; // note가 undefined이면 렌더링 안 함
-
-                console.log('유저정보 : ', user);
-                console.log('노트정보 : ', note?.user_email); // 안전하게 ?. 사용
-
+              {notes.map((note, index) => {
                 const isMyNote =
-                  note.type === 'note' && user?.user_email === note.user_email;
+                  note.type === 'note' &&
+                  (user?.user_email === note.note_writer?.user_email ||
+                    user?.user_email === note.user_email); // 내 노트인지 확인
 
                 return (
                   <React.Fragment key={index}>
@@ -532,20 +529,18 @@ const NoteHistory = ({ setIsNoteHistoryOpen }) => {
                     ) : (
                       <div
                         key={note.note_id}
-                        ref={(el) =>
-                          note?.note_id && (noteRefs.current[note.note_id] = el)
-                        } // 안전하게 처리
+                        ref={(el) => (noteRefs.current[note.note_id] = el)}
                         className={`p-2 w-full flex flex-col 
-            ${highlightedNoteId === note.note_id || searchTargetId === note.note_id ? 'bg-yellow-200' : ''} 
-            ${isMyNote ? 'items-end' : 'items-start'}`}
+    ${highlightedNoteId === note.note_id || searchTargetId === note.note_id ? 'bg-yellow-200' : ''} 
+    ${isMyNote ? 'items-end' : 'items-start'}`}
                       >
                         {note.type === 'note' && note.pin_name && (
                           <div
                             className="px-6 py-1 rounded-md text-sm font-semibold mb-1"
                             style={{
                               backgroundColor:
-                                note.pin_group_color || '#D1D5DB',
-                              color: '#FFFFFF',
+                                note.pin_group_color || '#D1D5DB', // 배경색 강제 적용
+                              color: '#FFFFFF', // 글씨색 강제 적용
                               maxWidth: '8rem',
                               whiteSpace: 'nowrap',
                               textOverflow: 'ellipsis',
