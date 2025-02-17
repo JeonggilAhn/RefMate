@@ -19,7 +19,9 @@ public record PinItemResponseDto(
 	boolean isActive,
 	List<Long> unreadNoteIds
 ) {
-	public static PinItemResponseDto from(Pin pin, PinGroupDto pinGroupDto, PinVersion pinVersion, List<Long> unreadNoteIds) {
+	public static PinItemResponseDto from(
+		Pin pin, PinGroupDto pinGroupDto, PinVersion pinVersion, List<Long> unreadNoteIds
+	) {
 		return new PinItemResponseDto(
 			pin.getPinId(),
 			pin.getPinName(),

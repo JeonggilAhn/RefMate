@@ -212,7 +212,7 @@ public interface NoteRepository extends JpaRepository<Note, Long> {
 
 	@Query("""
 		SELECT n.noteId FROM Note n
-		LEFT JOIN UserNoteCheck nc 
+		LEFT JOIN UserNoteCheck nc
 			ON n.noteId = nc.note.noteId
 			AND nc.user = :user
 		WHERE n.pin = :pin
