@@ -515,6 +515,11 @@ const NoteHistory = ({ setIsNoteHistoryOpen }) => {
               className="flex-1 overflow-y-auto flex flex-col-reverse p-4 gap-3"
             >
               {notes.map((note, index) => {
+                if (!note) {
+                  console.warn('note 객체가 undefined입니다:', note);
+                  return null;
+                }
+
                 console.log('노트리스트 : ', note);
 
                 if (note.type === 'date-separator') {
@@ -530,15 +535,23 @@ const NoteHistory = ({ setIsNoteHistoryOpen }) => {
 
                 // 작성자 확인 (user_email이 없으면 note_writer에서 가져옴)
                 const authorEmail =
-                  note.user_email || note.note_writer?.user_email;
-
-                // 내 노트인지 판별
-                const isMyNote =
-                  note.type === 'note' && user?.user_email === authorEmail;
+                  note?.user_email ||
+                  note?.note_writer?.user_email ||
+                  'unknown';
 
                 console.log('노트 타입: ', note);
                 console.log('작성자 : ', authorEmail);
                 console.log('로그인 유저 : ', user?.user_email);
+
+                // note_id가 없거나 undefined인 경우 방지
+                if (!note.note_id) {
+                  console.warn('note_id가 없음:', note);
+                  return null;
+                }
+
+                // 내 노트인지 판별
+                const isMyNote =
+                  note.type === 'note' && user?.user_email === authorEmail;
 
                 return (
                   <div
