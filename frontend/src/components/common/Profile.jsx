@@ -10,6 +10,7 @@ import { del } from '../../api';
 import { useRecoilState } from 'recoil';
 import { modalState } from '../../recoil/common/modal';
 import { useNavigate } from 'react-router-dom';
+import { useToast } from '@/hooks/use-toast';
 
 function Profile({
   profileUrl,
@@ -20,6 +21,7 @@ function Profile({
 }) {
   const [, setModal] = useRecoilState(modalState);
   const navigate = useNavigate(); // 페이지 이동을 위한 useNavigate 추가
+  const { toast } = useToast(20);
 
   const handleAccountDeletion = () => {
     setModal({
@@ -36,23 +38,21 @@ function Profile({
             sessionStorage.removeItem('access_token');
             setIsLoggedIn(false);
 
-            // / 회원 탈퇴 후 알림 표시
-            setModal({
-              type: 'alert',
-              message: '회원 탈퇴가 완료되었습니다.',
+            toast({
+              title: '회원탈퇴가 완료되었습니다.',
+              description: String(new Date()),
             });
 
             // 메인 페이지('/')로 이동 + 알림 닫기
             setTimeout(() => {
               navigate('/');
-              setModal(null);
             }, 0);
           })
           .catch((error) => {
             console.error('회원 탈퇴 실패:', error);
-            setModal({
-              type: 'alert',
-              message: '회원 탈퇴 중 문제가 발생했습니다. 다시 시도해주세요.',
+            toast({
+              title: '회원 탈퇴 중 문제가 발생했습니다. 다시 시도해주세요.',
+              description: String(new Date()),
             });
           });
       },
