@@ -516,15 +516,14 @@ const NoteHistory = ({ setIsNoteHistoryOpen }) => {
             >
               {notes.map((note, index) => {
                 const isMyNote = (note, user) => {
-                  if (!note || note.type !== 'note' || !note.note_writer)
-                    return false;
-                  return user?.user_email && note.note_writer.user_email
-                    ? user.user_email === note.note_writer.user_email
+                  if (!note || note.type !== 'note') return false;
+                  return user?.user_email && note.user_email
+                    ? user.user_email === note.user_email
                     : false;
                 };
 
                 //  console.log('유저정보 : ', user);
-                console.log('노트정보 : ', note.note_writer);
+                console.log('노트정보 : ', note.user_email);
 
                 return (
                   <React.Fragment key={index}>
