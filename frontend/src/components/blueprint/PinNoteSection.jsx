@@ -5,7 +5,6 @@ import NoteSearch from './NoteSearch';
 import NoteDetail from './NoteDetail';
 import Icon from '../common/Icon';
 
-import { useParams } from 'react-router-dom';
 import { useRecoilState, useRecoilValue } from 'recoil';
 import { pinState } from '../../recoil/blueprint';
 import { userState } from '../../recoil/common/user';
@@ -26,6 +25,8 @@ const PinNoteSection = ({
   pinId,
   detailNote,
   setDetailNote,
+  projectId,
+  blueprintVersionId,
 }) => {
   if (detailNote) {
     return (
@@ -54,10 +55,6 @@ const PinNoteSection = ({
     () => processNotes(data.pinDetailNotes),
     [data.pinDetailNotes],
   );
-
-  // 노트 추가
-  const { projectId: project_id, blueprintVersionId: blueprint_version_id } =
-    useParams(); // projectId 가져오기
 
   // 노트 검색
   const [isSearching, setIsSearching] = useState(false);
@@ -133,8 +130,8 @@ const PinNoteSection = ({
                 <AddNote
                   setOpen={setOpen}
                   pinInfo={pinInfo}
-                  projectId={project_id}
-                  blueprintVersionId={blueprint_version_id}
+                  projectId={projectId}
+                  blueprintVersionId={blueprintVersionId}
                 />
               </DropdownMenuContent>
             </DropdownMenu>
@@ -183,7 +180,7 @@ const PinNoteSection = ({
           {isSearching && (
             <div className="absolute h-auto w-full top-10 bg-white z-20 flex flex-col">
               <NoteSearch
-                projectId={project_id}
+                projectId={projectId}
                 pinId={pinId}
                 onSelect={handleSearchSelect}
                 onClose={() => {

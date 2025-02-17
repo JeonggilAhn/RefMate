@@ -68,7 +68,7 @@ function NoteImageDetail({ pinInfo, onClose }) {
     <Draggable nodeRef={dragRef}>
       <div
         ref={dragRef}
-        className="border border-[#CBCBCB] h-[350px] w-[320px] bg-[#F5F5F5] rounded-lg shadow-md"
+        className="border border-[#CBCBCB] h-[350px] w-[320px] bg-[#F5F5F5] rounded-lg shadow-md prevent-zoom"
       >
         {/* 헤더 영역 */}
         <div className="flex p-2 border-b border-[#CBCBCB] rounded-t-lg bg-white">
