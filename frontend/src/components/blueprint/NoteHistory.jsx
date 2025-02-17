@@ -515,6 +515,8 @@ const NoteHistory = ({ setIsNoteHistoryOpen }) => {
               className="flex-1 overflow-y-auto flex flex-col-reverse p-4 gap-3"
             >
               {notes.map((note, index) => {
+                if (!note || typeof note !== 'object') return null;
+
                 const isMyNote = (note, user) => {
                   if (!note || note.type !== 'note' || !note.user_email)
                     return false;
@@ -538,7 +540,7 @@ const NoteHistory = ({ setIsNoteHistoryOpen }) => {
                         ref={(el) => (noteRefs.current[note.note_id] = el)}
                         className={`p-2 w-full flex flex-col 
     ${highlightedNoteId === note.note_id || searchTargetId === note.note_id ? 'bg-yellow-200' : ''} 
-    ${isMyNote ? 'items-end' : 'items-start'}`}
+    ${isMyNote(note, user) ? 'items-end' : 'items-start'}`}
                       >
                         {note.type === 'note' && note.pin_name && (
                           <div
