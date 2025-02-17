@@ -10,6 +10,8 @@ import org.springframework.stereotype.Repository;
 
 import com.dawn.backend.domain.note.dto.NoteWithPinAndPinGroupDto;
 import com.dawn.backend.domain.note.entity.Note;
+import com.dawn.backend.domain.pin.entity.Pin;
+import com.dawn.backend.domain.user.entity.User;
 
 @Repository
 public interface NoteRepository extends JpaRepository<Note, Long> {
@@ -207,4 +209,15 @@ public interface NoteRepository extends JpaRepository<Note, Long> {
 		@Param("pinId") Long pinId,
 		@Param("bookmark") boolean bookmark
 	);
+
+	@Query("""
+		SELECT n.noteId FROM Note n
+		LEFT JOIN UserNoteCheck nc 
+			ON n.noteId = nc.note.noteId
+			AND nc.user = :user
+		WHERE n.pin = :pin
+			AND nc.noteCheckId IS NULL
+		""")
+	List<Long> findUnreadNotesByPin(@Param("user") User user,
+									@Param("pin") Pin pin);
 }

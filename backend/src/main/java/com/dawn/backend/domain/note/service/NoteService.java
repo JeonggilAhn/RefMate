@@ -218,7 +218,7 @@ public class NoteService {
 			.user(user)
 			.build();
 		creatorNoteCheck.updateNoteCheck(true);
-//		noteCheckRepository.save(creatorNoteCheck);
+		noteCheckRepository.save(creatorNoteCheck);
 
 //		projectUsers.stream()
 //			.filter(projectUser -> !projectUser.getUserId().equals(user.getUserId()))
@@ -227,7 +227,6 @@ public class NoteService {
 //				.user(projectUser)
 //				.build())
 //			.forEach(noteCheckRepository::save);
-
 
 		UserProject userWithRole = userProjectRepository.findByUserIdAndProjectId(
 			user.getUserId(), createNoteRequestDto.projectId()).orElseThrow(UserProjectNotFound::new);
@@ -373,6 +372,16 @@ public class NoteService {
 		NoteDto noteDto = NoteDto.from(note, noteWriter, noteImages, isEditable);
 
 		PinGroupDto pinGroupDto = getPinGroupDto(note, noteId);
+
+		UserNoteCheck userNoteCheck = noteCheckRepository.findByNoteNoteIdAndUser(noteId, user);
+		if (userNoteCheck == null) {
+			userNoteCheck = UserNoteCheck.builder()
+				.note(note)
+				.user(user)
+				.build();
+			userNoteCheck.updateNoteCheck(true);
+			noteCheckRepository.save(userNoteCheck);
+		}
 
 		return new NoteDetailResponseDto(noteDto, pinGroupDto);
 	}
