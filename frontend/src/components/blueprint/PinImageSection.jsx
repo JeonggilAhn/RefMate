@@ -14,7 +14,7 @@ const PinImageSection = ({ pinId, onClickImage }) => {
     setData(pin);
   }, [pinId, pins]);
 
-  if (data.length === 0) {
+  if (data.pinDetailImages.length === 0) {
     return (
       <div className="text-sm text-left text-gray-500 p-4">
         등록된 레퍼런스가 없습니다.
