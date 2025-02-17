@@ -515,6 +515,8 @@ const NoteHistory = ({ setIsNoteHistoryOpen }) => {
               className="flex-1 overflow-y-auto flex flex-col-reverse p-4 gap-3"
             >
               {notes.map((note, index) => {
+                console.log('노트리스트 : ', note);
+
                 if (note.type === 'date-separator') {
                   return (
                     <div
@@ -525,10 +527,13 @@ const NoteHistory = ({ setIsNoteHistoryOpen }) => {
                     </div>
                   );
                 }
+                console.log('노트 타입 트: ', note);
+                console.log('작성자 : ', note.user_email);
+                console.log('로그인 유저 : ', user?.user_email);
 
                 const isMyNote =
-                  user?.user_email === note?.user_email ||
-                  user?.user_email === note?.note_writer?.user_email;
+                  note.type === 'note' && // note 타입일 때만 계산
+                  user?.user_email === note?.user_email;
 
                 return (
                   <div
