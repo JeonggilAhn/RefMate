@@ -3,8 +3,7 @@ import styled from 'styled-components';
 import ButtonList from './ButtonList';
 import { get } from '../../api';
 import Icon from '../common/Icon';
-import PinNotePopup from './PinNotePopup';
-import PinImagePopup from './PinImagePopup';
+import PinContents from './PinContents';
 import { useRecoilState } from 'recoil';
 import { pinState } from '../../recoil/blueprint';
 import { EventSourcePolyfill, NativeEventSource } from 'event-source-polyfill';
@@ -22,13 +21,17 @@ const PinComponent = ({
   const [hoveredPin, setHoveredPin] = useState(null);
   const [recentNotes, setRecentNotes] = useState(null);
   // const [unreadNotes, setUnreadNotes] = useState(false);
-  const [isClicked, setIsClicked] = useState(false);
+  const [isHoveringButton, setIsHoveringButton] = useState(false);
   const pinRef = useRef(null);
 
   const API_BASE_URL = import.meta.env.VITE_APP_API_BASE_URL;
 
-  // 핀 활성화 여부 (핀 클릭, 노트/이미지 창 열림 시)
-  const isActive = isClicked || pin.is_open_note || pin.is_open_image;
+  // isClicked 제거하고 컨텐츠가 열려있는지 확인
+  const isContentsOpen = pin.is_open_note || pin.is_open_image;
+
+  // 핀 활성화 여부 (노트/이미지 창 열림 시)
+  const isActive = isContentsOpen;
+
   const handleNoteClick = async () => {
     const pinNotRes = await get(`pins/${pin.pin_id}/notes`, {
       project_id: projectId,
@@ -120,6 +123,7 @@ const PinComponent = ({
     try {
       const response = await get(`pins/${pinInfo.pin_id}/notes/recent`);
       const note = response.data?.content.note;
+      console.log('note', note);
 
       if (note) {
         setRecentNotes({
@@ -134,12 +138,47 @@ const PinComponent = ({
     }
   }, [pinInfo]);
 
+  // 호버 상태 관리를 위한 타이머 ref
+  const hoverTimeoutRef = useRef(null);
+
+  const handleMouseLeave = () => {
+    if (!isHoveringButton) {
+      setHoveredPin(null);
+    }
+  };
+
+  const handleButtonMouseEnter = () => {
+    setIsHoveringButton(true);
+  };
+
+  const handleButtonMouseLeave = () => {
+    setIsHoveringButton(false);
+    // 버튼에서 마우스가 벗어난 후 팝업 영역을 벗어났는지 확인
+    if (!hoveredPin) {
+      setHoveredPin(null);
+    }
+  };
+
   useEffect(() => {
     if (!pin) return;
 
     setPinInfo(pin);
     fetchRecentNote();
   }, [pin, fetchRecentNote]);
+
+  const handlePinClick = () => {
+    setPins((prev) => {
+      return prev.map((item) => {
+        if (item.pin_id === pin.pin_id) {
+          return {
+            ...item,
+            is_open_note: !item.is_open_note,
+          };
+        }
+        return item;
+      });
+    });
+  };
 
   if (!pin) return null;
 
@@ -149,9 +188,9 @@ const PinComponent = ({
       <div
         ref={pinRef}
         className="absolute w-8 h-8 flex items-center justify-center"
-        onMouseEnter={() => !isClicked && setHoveredPin(pinInfo)}
-        onMouseLeave={() => setHoveredPin(null)}
-        onClick={() => setIsClicked((prev) => !prev)}
+        onMouseEnter={() => !isContentsOpen && setHoveredPin(pinInfo)}
+        onMouseLeave={handleMouseLeave}
+        onClick={handlePinClick}
         style={{
           position: 'relative',
         }}
@@ -182,76 +221,60 @@ const PinComponent = ({
         )*/}
       </div>
 
-      {/* 호버 시 최근 노트 표시 (기능 유지) */}
-      {!isClicked && hoveredPin && recentNotes && (
-        <Popup>
-          <PopupTitle>{recentNotes.title || '제목 없음'}</PopupTitle>
-          <PopupDivider />
-          <PopupContent>{recentNotes.content || '내용 없음'}</PopupContent>
-        </Popup>
-      )}
-
-      {/* 클릭 시 버튼 목록 표시 (버튼 리스트 유지) */}
-      {isClicked && (
-        <div className="absolute top-6 left-8 z-5">
-          <ButtonList
-            isNoteOpen={pin.is_open_note}
-            isImageOpen={pin.is_open_image}
-            onNoteClick={handleNoteClick}
-            onImgClick={handleImgClick}
-            onInfoClick={handleInfoClick}
-          />
+      {/* 호버 시 최신 노트와 사이드바 버튼 표시 */}
+      {!isContentsOpen && hoveredPin && (
+        <div className="relative">
+          <Popup
+            onMouseEnter={() => setHoveredPin(pinInfo)}
+            onMouseLeave={handleMouseLeave}
+          >
+            {/* 사이드바 버튼을 Popup 내부로 이동 */}
+            <div
+              className="absolute right-2 top-2 p-1 bg-gray-700 rounded-full cursor-pointer hover:bg-gray-600 transition-colors"
+              onClick={(e) => {
+                e.stopPropagation();
+                onClickPin(pinInfo);
+              }}
+              onMouseEnter={handleButtonMouseEnter}
+              onMouseLeave={handleButtonMouseLeave}
+            >
+              <Icon
+                name="IconInfoCircle"
+                width={16}
+                height={16}
+                color="white"
+              />
+            </div>
+            <PopupTitle>{recentNotes?.title || '제목 없음'}</PopupTitle>
+            <PopupDivider />
+            <PopupContent>{recentNotes?.content || '내용 없음'}</PopupContent>
+          </Popup>
         </div>
       )}
 
-      {/* 노트 상세 보기 유지 */}
-      <div className="absolute top-20 -right-10">
-        {pin.is_open_note && (
-          <div>
-            <PinNotePopup
-              projectId={projectId}
-              blueprintVersionId={blueprintVersionId}
-              pinInfo={pinInfo}
-              isSidebar={false}
-              pinId={pinInfo.pin_id}
-              onClose={() =>
-                setPins((prev) => {
-                  return prev.map((item) => {
-                    if (item.pin_id === pin.pin_id) {
-                      return {
-                        ...item,
-                        is_open_note: false,
-                      };
-                    }
-
-                    return item;
-                  });
-                })
-              }
-            />
-          </div>
-        )}
-      </div>
-
-      <div className="absolute top-20 left-20">
-        {/* 이미지들 상세 보기 유지 */}
-        {pin.is_open_image && (
-          <div>
-            <PinImagePopup
-              onClose={() =>
-                setPins((prev) => {
-                  return prev.map((item) => {
-                    if (item.pin_id === pin.pin_id) {
-                      return { ...item, is_open_image: false };
-                    }
-
-                    return item;
-                  });
-                })
-              }
-              pinInfo={pinInfo}
-            />
-          </div>
+      {/* 클릭 시 PinContents 직접 표시 */}
+      <div className="absolute top-10 left-5">
+        {isContentsOpen && (
+          <PinContents
+            pinInfo={pinInfo}
+            pinId={pinInfo.pin_id}
+            activeTab={pin.is_open_image ? 'image' : 'note'}
+            onClickPin={onClickPin}
+            onClose={() =>
+              setPins((prev) => {
+                return prev.map((item) => {
+                  if (item.pin_id === pin.pin_id) {
+                    return {
+                      ...item,
+                      is_open_note: false,
+                      is_open_image: false,
+                    };
+                  }
+                  return item;
+                });
+              })
+            }
+          />
         )}
       </div>
     </div>
@@ -264,12 +287,14 @@ export default PinComponent;
 const Popup = styled.div`
   position: absolute;
   margin-left: 2rem;
-  width: 10rem;
-  background: rgba(0, 0, 0, 0.52);
+  width: 12rem;
+  background: rgba(0, 0, 0, 0.75);
   color: white;
-  padding: 0.5rem;
+  padding: 0.75rem;
+  padding-top: 2rem; /* 버튼을 위한 상단 여백 추가 */
   border-radius: 0.5rem;
   z-index: 10;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 `;
 
 const PopupTitle = styled.div`
