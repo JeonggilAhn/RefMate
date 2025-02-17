@@ -513,25 +513,13 @@ const NoteHistory = ({ setIsNoteHistoryOpen }) => {
             >
               {notes.map((note, index) => {
                 const isMyNote = (note, user) => {
-                  if (!user || typeof user.user_email !== 'string') {
-                    console.log('user 또는 user_email이 undefined임!', user);
-                    return false;
-                  }
-                  if (
-                    !note.note_writer ||
-                    typeof note.note_writer.user_email !== 'string'
-                  ) {
-                    console.log(
-                      'note_writer 또는 note_writer.user_email이 undefined임!',
-                      note,
-                    );
-                    return false;
-                  }
-
-                  return user.user_email === note.note_writer.user_email;
+                  return user?.user_email && note?.note_writer?.user_email
+                    ? user.user_email === note.note_writer.user_email
+                    : false;
                 };
 
                 console.log('유저정보 : ', user);
+                console.log('노트정보 : ', note.note_writer);
 
                 return (
                   <React.Fragment key={index}>
