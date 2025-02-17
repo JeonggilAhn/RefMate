@@ -13,7 +13,7 @@ import Button2 from '../components/main/Button2';
 import Button3 from '../components/main/Button3';
 import Button4 from '../components/main/Button4';
 
-import MainAnimation from '../pages/MainAnimation';
+import Animation from '../components/main/Animation';
 
 const MainPage = () => {
   const setModal = useSetRecoilState(modalState);
@@ -49,7 +49,7 @@ const MainPage = () => {
     <>
       <Header />
       <main className="absolute top-[47px] left-0 w-full h-[calc(100vh-47px)] overflow-y-auto bg-gray-100">
-        <MainAnimation />
+        <Animation />
         {/* todo : scroll 이벤트로 변경 */}
         <div className="flex justify-center items-center h-full gap-40">
           <div className="flex flex-col items-center text-center">

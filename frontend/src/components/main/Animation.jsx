@@ -3,12 +3,12 @@ import { gsap } from 'gsap';
 import { Canvas, useFrame, useLoader, useThree } from '@react-three/fiber';
 import { Plane } from '@react-three/drei';
 import { TextureLoader, RepeatWrapping, LinearFilter } from 'three';
-import Icon from '../components/common/Icon';
-import MainBlue from '../assets/images/MainBlue.svg';
-import MainGreen from '../assets/images/MainGreen.svg';
-import MainRed from '../assets/images/MainRed.svg';
-import MainYellow from '../assets/images/MainYellow.svg';
-import MainBlueprint from '../assets/images/MainBlueprint.jpg';
+import Icon from '../common/Icon';
+import MainBlue from '../../assets/images/MainBlue.svg';
+import MainGreen from '../../assets/images/MainGreen.svg';
+import MainRed from '../../assets/images/MainRed.svg';
+import MainYellow from '../../assets/images/MainYellow.svg';
+import MainBlueprint from '../../assets/images/MainBlueprint.jpg';
 
 // WebGL 컨텍스트 복구 핸들러
 function ContextHandler() {
