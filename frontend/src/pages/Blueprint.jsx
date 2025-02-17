@@ -77,6 +77,7 @@ const Blueprint = () => {
   const [isOverlayVisible, setIsOverlayVisible] = useState(false);
   const [isVersionOpen, setIsVersionOpen] = useState(false);
   const [overlayOpacity, setOverlayOpacity] = useState(0.5);
+  const [isNoteHistoryOpen, setIsNoteHistoryOpen] = useState(false); // 노트 히스토리 팝업 관리리
 
   // sidebar detail
   const [detailPin, setDetailPin] = useState({
@@ -134,6 +135,11 @@ const Blueprint = () => {
         return { ...pin };
       });
     });
+  };
+
+  const openNoteHistory = () => {
+    fetchNoteHistory(); // 노트 데이터를 다시 불러오기
+    setIsNoteHistoryOpen(true);
   };
 
   // 블루프린트별 노트 데이터 가져오기
@@ -805,6 +811,7 @@ const Blueprint = () => {
             onClickMouseButon={onClickMouseButon}
             toggleOverlayVisible={toggleOverlayVisible}
             openBlueprintVersion={openBlueprintVersion}
+            openNoteHistory={openNoteHistory} // NoteHistory 팝업용 토글 함수
           />
         </div>
         {/* sidebar */}
@@ -813,9 +820,6 @@ const Blueprint = () => {
         >
           <div className="pt-[48px]" />
           <div className="mt-[60px] px-[0.3rem] grid grid-cols-1 grid-rows-[1fr_2fr] gap-2 h-[calc(100%-115px)]">
-            <div>
-              <NoteHistory />
-            </div>
             <div>
               {/* pin list section */}
               <div className="h-full border border-[#CBCBCB] rounded-lg shadow-md bg-white">
@@ -924,6 +928,12 @@ const Blueprint = () => {
           </div>
         </div>
       </div>
+      {isNoteHistoryOpen && (
+        <div className="absolute top-20 left-20 z-50">
+          <NoteHistory setIsNoteHistoryOpen={setIsNoteHistoryOpen} />
+        </div>
+      )}
+
       {isVersionOpen && (
         <BlueprintVersions
           projectId={projectId}

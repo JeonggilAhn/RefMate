@@ -10,6 +10,7 @@ const Toolbar = ({
   onClickMouseButon,
   toggleOverlayVisible,
   openBlueprintVersion,
+  openNoteHistory, // NoteHistory 팝업용 토글 함수
 }) => {
   return (
     <div
@@ -61,6 +62,12 @@ const Toolbar = ({
         onClick={openBlueprintVersion}
       >
         <Icon name="IconBsLayers" width={25} height={25} />
+      </button>
+      <button
+        className={`w-[2.4rem] h-[2.4rem] flex justify-center items-center cursor-pointer hover:bg-[#F1F1F1] rounded-md`}
+        onClick={openNoteHistory}
+      >
+        <Icon name="IconTbSearch" width={25} height={25} />
       </button>
     </div>
   );
