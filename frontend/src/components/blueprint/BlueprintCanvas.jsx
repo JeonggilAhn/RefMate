@@ -45,6 +45,8 @@ const getCustomCursor = () => {
 const PIN_CURSOR = getCustomCursor();
 
 const BlueprintCanvas = ({
+  blueprintId,
+  blueprintVersionId,
   projectId,
   imageUrl,
   overlayImageUrl,
@@ -62,8 +64,6 @@ const BlueprintCanvas = ({
   const imgRef = useRef(new Image());
   const overlayImgRef = useRef(new Image());
   const [isCtrlPressed, setIsCtrlPressed] = useState(false);
-
-  const { blueprint_id, blueprint_version_id } = useParams();
 
   const [pins, setPins] = useRecoilState(pinState);
   const [modal, setModal] = useRecoilState(modalState);
@@ -267,8 +267,8 @@ const BlueprintCanvas = ({
       content: (
         <PinPopup
           isCreate={true}
-          blueprintId={blueprint_id}
-          blueprintVersion={blueprint_version_id}
+          blueprintId={blueprintId}
+          blueprintVersion={blueprintVersionId}
           initialPin={pin}
           onConfirm={handleConfirmPin}
         />
@@ -314,8 +314,8 @@ const BlueprintCanvas = ({
           }}
         >
           <PinComponent
-            blueprintId={blueprint_id}
-            blueprintVersion={blueprint_version_id}
+            blueprintId={blueprintId}
+            blueprintVersion={blueprintVersionId}
             projectId={projectId}
             pin={item}
             onClickPin={() => onClickPin(item)}
