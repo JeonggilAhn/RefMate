@@ -170,9 +170,9 @@ const NoteDetail = ({ noteId, onBack }) => {
           <BackButton onClick={onBack}>
             <Icon name="IconGoChevronPrev" width={20} height={20} />
           </BackButton>
-          <TitleWrapper>
-            <Title>{note_title}</Title>
-          </TitleWrapper>
+          <div className="flex items-center justify-center flex-grow gap-2">
+            <div>{note_title}</div>
+          </div>
           <HeaderButtons>
             <IconButton onClick={toggleBookmark}>
               <Icon
@@ -195,19 +195,27 @@ const NoteDetail = ({ noteId, onBack }) => {
         </Header>
         <MainSection>
           <ProfileSection>
-            <Avatar className="w-7 h-7 border border-gray-300 rounded-full">
-              <AvatarImage src={note_writer?.profile_url || ''} alt="프로필" />
-              <AvatarFallback>
-                {note_writer?.user_email?.slice(0, 2).toUpperCase() || 'NA'}
-              </AvatarFallback>
-            </Avatar>
-
-            <ProfileInfo>
-              <UserName>{note_writer?.user_email?.split('@')[0]}</UserName>
-            </ProfileInfo>
-            <CreationDate>
-              {new Date(created_at).toLocaleDateString()}
-            </CreationDate>
+            <div className="flex justify-center gap-3 items-center">
+              <Avatar className="w-7 h-7 border border-gray-300 rounded-full">
+                <AvatarImage
+                  src={note_writer?.profile_url || ''}
+                  alt="프로필"
+                />
+                <AvatarFallback>
+                  {note_writer?.user_email?.slice(0, 2).toUpperCase() || 'NA'}
+                </AvatarFallback>
+              </Avatar>
+              <div className="text-sm">
+                {note_writer?.user_email?.split('@')[0]}
+              </div>
+            </div>
+            <div className="text-xs pr-1">
+              {new Date(created_at).toLocaleDateString('ko-KR', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+              })}
+            </div>
           </ProfileSection>
           <NoteContent>
             <NoteText>{note_content}</NoteText>
@@ -238,7 +246,7 @@ const NoteImage = ({ imageList, onClickImage }) => {
           <img
             src={image.image_preview}
             alt="노트 이미지"
-            className="w-full h-full object-cover rounded-md border"
+            className="w-full h-full object-cover rounded-md"
           />
           {idx === 2 && imageList.length > 3 && (
             <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center text-white text-sm font-semibold rounded-md">
@@ -267,34 +275,17 @@ const Header = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border: 0.0625rem solid #cbcbcb;
-  height: 2.4rem;
-  border-radius: 0.3rem;
-  background-color: #cbcbcb;
-  padding: 0 0.5rem;
-`;
-
-const TitleWrapper = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-grow: 1;
-  gap: 0.5rem;
-  overflow: hidden;
-`;
-
-const Title = styled.h1`
-  font-size: 1.2rem;
-  font-weight: bold;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  margin: 0;
+  padding: 0.5rem;
+  border-bottom: 1px solid #cbcbcb;
+  background-color: #f5f5f5;
+  border-top-left-radius: 6px;
+  border-top-right-radius: 6px;
 `;
 
 const HeaderButtons = styled.div`
   display: flex;
-  gap: 0.5rem;
+  gap: 10px;
+  padding-right: 2px;
 `;
 
 const BackButton = styled.button`
@@ -313,7 +304,6 @@ const MainSection = styled.div`
   flex-grow: 1;
   overflow-y: auto;
   padding: 0.5rem;
-  border: 0.0625rem solid #cbcbcb;
   background-color: #fff;
 `;
 
@@ -321,22 +311,8 @@ const ProfileSection = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
+  margin-top: 2px;
   margin-bottom: 0.5rem;
-`;
-
-const ProfileInfo = styled.div`
-  display: flex;
-  flex-direction: column;
-`;
-
-const UserName = styled.span`
-  font-size: 0.8rem;
-  font-weight: bold;
-`;
-
-const CreationDate = styled.span`
-  font-size: 0.875rem;
-  color: #555;
 `;
 
 const NoteContent = styled.div`
