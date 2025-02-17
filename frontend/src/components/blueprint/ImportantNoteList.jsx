@@ -8,8 +8,8 @@ const ImportantNoteList = ({ notes, onNoteClick }) => {
 
   if (safeNotes.length === 0) {
     return (
-      <div className="text-sm text-left text-gray-500">
-        등록된 노트가 없습니다.
+      <div className="text-sm text-left text-gray-500 p-4">
+        중요한 노트가 없습니다.
       </div>
     );
   }
