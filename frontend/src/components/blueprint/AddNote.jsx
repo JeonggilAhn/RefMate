@@ -5,6 +5,7 @@ import { post } from '../../api';
 import TextButton from '../common/TextButton';
 import ImageUploader from '../common/ImageUploader';
 import Icon from '../common/Icon';
+import { useToast } from '@/hooks/use-toast';
 
 const AddNote = ({ setOpen, blueprintVersionId, projectId, pinInfo }) => {
   const [pins, setPins] = useRecoilState(pinState);
@@ -12,6 +13,8 @@ const AddNote = ({ setOpen, blueprintVersionId, projectId, pinInfo }) => {
   const [noteTitle, setNoteTitle] = useState('');
   const [noteContent, setNoteContent] = useState('');
   const [imageUrls, setImageUrls] = useState([]);
+
+  const { toast } = useToast(20);
 
   const handleImageSelect = (urls) => {
     setImageUrls(urls);
@@ -51,16 +54,25 @@ const AddNote = ({ setOpen, blueprintVersionId, projectId, pinInfo }) => {
       });
 
       if (response.status === 201) {
-        alert('노트 생성 성공');
+        toast({
+          title: '노트를 생성했습니다.',
+          description: String(new Date()),
+        });
         setOpen(false);
         setNoteTitle('');
         setNoteContent('');
       } else {
-        alert('노트 생성 실패');
+        toast({
+          title: '노트를 생성에 실패했습니다.',
+          description: String(new Date()),
+        });
       }
     } catch (error) {
       console.error('노트 생성 중 오류 발생:', error);
-      alert('노트 생성 실패');
+      toast({
+        title: '노트를 생성에 실패했습니다.',
+        description: String(new Date()),
+      });
     }
   };
 
