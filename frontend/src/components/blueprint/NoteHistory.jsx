@@ -16,7 +16,6 @@ import { throttle } from 'lodash'; // lodash의 throttle 사용
 const NoteHistory = ({ setIsNoteHistoryOpen }) => {
   const rawNotes = useRecoilValue(noteState); // Blueprint에서 받은 전역 상태 사용
   const user = useRecoilValue(userState); // 로그인한 유저 정보 가져오기
-  console.log('유저 정보 : ', user);
   const [notes, setNotes] = useState([]);
   const [lastDate, setLastDate] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
@@ -513,10 +512,25 @@ const NoteHistory = ({ setIsNoteHistoryOpen }) => {
               className="flex-1 overflow-y-auto flex flex-col-reverse p-4 gap-3"
             >
               {notes.map((note, index) => {
-                const isMyNote =
-                  note.type === 'note' &&
-                  (user?.user_email === note.note_writer?.user_email ||
-                    user?.user_email === note.user_email);
+                const isMyNote = (note, user) => {
+                  if (!user || typeof user.user_email !== 'string') {
+                    console.log('user 또는 user_email이 undefined임!', user);
+                    return false;
+                  }
+                  if (
+                    !note.note_writer ||
+                    typeof note.note_writer.user_email !== 'string'
+                  ) {
+                    console.log(
+                      'note_writer 또는 note_writer.user_email이 undefined임!',
+                      note,
+                    );
+                    return false;
+                  }
+
+                  return user.user_email === note.note_writer.user_email;
+                };
+
                 console.log('유저정보 : ', user);
 
                 return (
