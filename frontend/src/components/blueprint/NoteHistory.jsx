@@ -2,8 +2,9 @@ import React, { useEffect, useState, useRef, useCallback } from 'react';
 import NoteButton from './NoteButton';
 import NoteDetail from './NoteDetail';
 import Icon from '../common/Icon';
+import Draggable from 'react-draggable';
 import { Skeleton } from '@/components/ui/skeleton';
-import { processNotes } from '../../utils/temp';
+import { processNotes, historyProcessNotes } from '../../utils/temp';
 import { useRecoilValue, useRecoilState } from 'recoil';
 import { noteState } from '../../recoil/blueprint';
 import { userState } from '../../recoil/common/user';
@@ -13,7 +14,7 @@ import { useToast } from '@/hooks/use-toast';
 import { isMyNote } from '../../utils/isMyNote';
 import { throttle } from 'lodash'; // lodash의 throttle 사용
 
-const NoteHistory = () => {
+const NoteHistory = ({ setIsNoteHistoryOpen }) => {
   const rawNotes = useRecoilValue(noteState); // Blueprint에서 받은 전역 상태 사용
   const user = useRecoilValue(userState); // 로그인한 유저 정보 가져오기
   const [notes, setNotes] = useState([]);
@@ -26,6 +27,7 @@ const NoteHistory = () => {
   const scrollContainerRef = useRef(null);
   const scrollPositionRef = useRef(0);
   const { toast } = useToast(20);
+  const draggableRef = useRef(null);
 
   // 검색 기능
   const [keyword, setKeyword] = useState('');
@@ -337,10 +339,8 @@ const NoteHistory = () => {
           const mergedNotes = [...prevNotes, ...filteredNotes];
 
           // 날짜 구분선 추가 및 LastDate 업데이트
-          const { notesWithSeparators, lastDate: newLastDate } = processNotes(
-            mergedNotes,
-            lastDate,
-          );
+          const { notesWithSeparators, lastDate: newLastDate } =
+            historyProcessNotes(mergedNotes, lastDate);
 
           setNotes(notesWithSeparators);
           setLastDate(newLastDate);
@@ -419,135 +419,147 @@ const NoteHistory = () => {
   }
 
   return (
-    <div className="flex flex-col border border-gray-200 rounded-lg bg-white h-full max-h-[20rem]">
-      {selectedNote ? (
-        <NoteDetail noteId={selectedNote.note_id} onBack={handleBack} />
-      ) : (
-        <>
-          <div className="sticky top-0 z-10 bg-gray-100 p-1 text-lg font-bold border-b border-gray-200 flex items-center">
-            {/* 제목 중앙 정렬 */}
-            <span className="flex-1 text-center">전체 노트</span>
-            {/* 검색 아이콘 */}
-            <button
-              onClick={() => setIsSearching((prev) => !prev)}
-              className="text-gray-600"
-            >
-              <Icon name="IconTbSearch" width={20} height={20} />
-            </button>
-          </div>
+    <Draggable nodeRef={draggableRef}>
+      <div
+        ref={draggableRef}
+        className="flex flex-col border border-gray-200 rounded-lg bg-white h-full max-h-[20rem]"
+      >
+        {selectedNote ? (
+          <NoteDetail noteId={selectedNote.note_id} onBack={handleBack} />
+        ) : (
+          <>
+            <div className="sticky top-0 z-10 bg-gray-100 p-1 text-lg font-bold border-b border-gray-200 flex items-center">
+              <button
+                onClick={() => setIsNoteHistoryOpen(false)}
+                className="text-gray-500 hover:text-gray-800"
+              >
+                <Icon name="IconCgClose" width={24} height={24} />
+              </button>
+              {/* 제목 중앙 정렬 */}
+              <span className="flex-1 text-center">전체 노트</span>
+              {/* 검색 아이콘 */}
+              <button
+                onClick={() => setIsSearching((prev) => !prev)}
+                className="text-gray-600"
+              >
+                <Icon name="IconTbSearch" width={20} height={20} />
+              </button>
+            </div>
 
-          {isSearching && (
-            <div className="p-2 border border-gray-300 rounded w-85">
-              <div className="flex items-center space-x-4 justify-between">
-                <input
-                  type="text"
-                  value={keyword}
-                  onChange={(e) => setKeyword(e.target.value)}
-                  onKeyDown={handleKeyDown}
-                  placeholder="search"
-                  className="w-40 focus:outline-none focus:ring-0 border-none"
-                />
+            {isSearching && (
+              <div className="p-2 border border-gray-300 rounded w-85">
+                <div className="flex items-center space-x-4 justify-between">
+                  <input
+                    type="text"
+                    value={keyword}
+                    onChange={(e) => setKeyword(e.target.value)}
+                    onKeyDown={handleKeyDown}
+                    placeholder="search"
+                    className="w-40 focus:outline-none focus:ring-0 border-none"
+                  />
 
-                <div className="flex gap-2">
-                  {/* 검색 버튼 눌렀는데 검색 결과도 없을 때 */}
-                  {isSearched && searchedNotes.length === 0 && (
-                    <div className="text-center text-gray-500">결과 없음</div>
-                  )}
+                  <div className="flex gap-2">
+                    {/* 검색 버튼 눌렀는데 검색 결과도 없을 때 */}
+                    {isSearched && searchedNotes.length === 0 && (
+                      <div className="text-center text-gray-500">결과 없음</div>
+                    )}
 
-                  {searchedNotes.length > 0 && (
-                    <>
-                      <div className="text-center text-gray-500">
-                        {currentIndex + 1} / {searchedNotes.length}
-                      </div>
-                      <button
-                        onClick={goToPreviousNote}
-                        disabled={currentIndex === 0}
-                      >
-                        <Icon
-                          name="IconGoChevronPrev"
-                          width={20}
-                          height={20}
-                          color={currentIndex === 0 ? '#ccc' : '#000'}
-                        />
-                      </button>
-                      <button
-                        onClick={goToNextNote}
-                        disabled={currentIndex === searchedNotes.length - 1}
-                      >
-                        <Icon
-                          name="IconGoChevronNext"
-                          width={20}
-                          height={20}
-                          color={
-                            currentIndex === searchedNotes.length - 1
-                              ? '#ccc'
-                              : '#000'
-                          }
-                        />
-                      </button>
-                    </>
-                  )}
-                  <button onClick={clearSearch}>
-                    <Icon name="IconCgClose" width={20} height={20} />
-                  </button>
-                  <button onClick={fetchSearchNotes}>
-                    <Icon name="IconTbSearch" width={20} height={20} />
-                  </button>
+                    {searchedNotes.length > 0 && (
+                      <>
+                        <div className="text-center text-gray-500">
+                          {currentIndex + 1} / {searchedNotes.length}
+                        </div>
+                        <button
+                          onClick={goToPreviousNote}
+                          disabled={currentIndex === 0}
+                        >
+                          <Icon
+                            name="IconGoChevronPrev"
+                            width={20}
+                            height={20}
+                            color={currentIndex === 0 ? '#ccc' : '#000'}
+                          />
+                        </button>
+                        <button
+                          onClick={goToNextNote}
+                          disabled={currentIndex === searchedNotes.length - 1}
+                        >
+                          <Icon
+                            name="IconGoChevronNext"
+                            width={20}
+                            height={20}
+                            color={
+                              currentIndex === searchedNotes.length - 1
+                                ? '#ccc'
+                                : '#000'
+                            }
+                          />
+                        </button>
+                      </>
+                    )}
+                    <button onClick={clearSearch}>
+                      <Icon name="IconCgClose" width={20} height={20} />
+                    </button>
+                    <button onClick={fetchSearchNotes}>
+                      <Icon name="IconTbSearch" width={20} height={20} />
+                    </button>
+                  </div>
                 </div>
               </div>
-            </div>
-          )}
+            )}
 
-          <div
-            ref={scrollContainerRef}
-            className="flex-1 overflow-y-auto flex flex-col-reverse p-4 gap-3"
-          >
-            {notes.map((note, index) => {
-              const isMine = isMyNote(note, user); // 내 노트 여부 판단
+            <div
+              ref={scrollContainerRef}
+              className="flex-1 overflow-y-auto flex flex-col-reverse p-4 gap-3"
+            >
+              {notes.map((note, index) => {
+                const isMine = isMyNote(note, user); // 내 노트 여부 판단
 
-              return (
-                <React.Fragment key={index}>
-                  {note.type === 'date-separator' ? (
-                    <div className="text-sm font-bold text-gray-600 py-2 border-t border-gray-300">
-                      {note.date}
-                    </div>
-                  ) : (
-                    <div
-                      key={note.note_id}
-                      ref={(el) => (noteRefs.current[note.note_id] = el)}
-                      className={`p-2 w-full flex flex-col 
+                return (
+                  <React.Fragment key={index}>
+                    {note.type === 'date-separator' ? (
+                      <div className="text-sm font-bold text-gray-600 py-2 border-t border-gray-300">
+                        {note.date}
+                      </div>
+                    ) : (
+                      <div
+                        key={note.note_id}
+                        ref={(el) => (noteRefs.current[note.note_id] = el)}
+                        className={`p-2 w-full flex flex-col 
     ${highlightedNoteId === note.note_id || searchTargetId === note.note_id ? 'bg-yellow-200' : ''} 
     ${isMine ? 'items-end' : 'items-start'}`}
-                    >
-                      {note.type === 'note' && note.pin_name && (
-                        <div
-                          className="px-6 py-1 rounded-md text-sm font-semibold mb-1"
-                          style={{
-                            backgroundColor: note.pin_group_color || '#D1D5DB', // 배경색 강제 적용
-                            color: '#FFFFFF', // 글씨색 강제 적용
-                            maxWidth: '8rem',
-                            whiteSpace: 'nowrap',
-                            textOverflow: 'ellipsis',
-                            overflow: 'hidden',
-                          }}
-                        >
-                          {note.pin_name}
-                        </div>
-                      )}
+                      >
+                        {note.type === 'note' && note.pin_name && (
+                          <div
+                            className="px-6 py-1 rounded-md text-sm font-semibold mb-1"
+                            style={{
+                              backgroundColor:
+                                note.pin_group_color || '#D1D5DB', // 배경색 강제 적용
+                              color: '#FFFFFF', // 글씨색 강제 적용
+                              maxWidth: '8rem',
+                              whiteSpace: 'nowrap',
+                              textOverflow: 'ellipsis',
+                              overflow: 'hidden',
+                            }}
+                          >
+                            {note.pin_name}
+                          </div>
+                        )}
 
-                      <NoteButton
-                        note={note}
-                        onClick={() => handleNoteClick(note)}
-                      />
-                    </div>
-                  )}
-                </React.Fragment>
-              );
-            })}
-          </div>
-        </>
-      )}
-    </div>
+                        <NoteButton
+                          note={note}
+                          onClick={() => handleNoteClick(note)}
+                        />
+                      </div>
+                    )}
+                  </React.Fragment>
+                );
+              })}
+            </div>
+          </>
+        )}
+      </div>
+    </Draggable>
   );
 };
 
