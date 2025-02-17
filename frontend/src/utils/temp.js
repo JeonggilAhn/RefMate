@@ -1,15 +1,10 @@
-export const processNotes = (
-  noteList,
-  prevLastDate = '',
-  isPagination = false,
-) => {
-  if (!Array.isArray(noteList)) {
+export const processNotes = (noteList, prevLastDate = '') => {
+  if (!Array.isArray(noteList))
     return { notesWithSeparators: [], lastDate: prevLastDate };
-  }
 
   const notesWithSeparators = [];
   let lastDate = prevLastDate;
-  let lastInsertedIndex = null; // 날짜 구분선이 들어갈 위치 저장
+  let lastInsertedIndex = null; // 마지막으로 날짜 구분선이 들어간 위치 저장
 
   noteList.forEach((note) => {
     if (!note.created_at) return;
@@ -24,22 +19,16 @@ export const processNotes = (
       weekday: 'short',
     });
 
-    // 날짜가 변경되었을 때 처리 방식 구분
+    // 날짜가 바뀌었으면 **바뀌기 직전의 마지막 노트 아래에 구분선 추가**
     if (noteDate !== lastDate && lastInsertedIndex !== null) {
-      if (isPagination) {
-        // 페이지네이션 시: 최신 노트 아래에 날짜 구분선 추가
-        notesWithSeparators.push({ type: 'date-separator', date: lastDate });
-      } else {
-        // 최초 렌더링 시: 가장 오래된 노트 위에 날짜 구분선 추가
-        notesWithSeparators.splice(lastInsertedIndex, 0, {
-          type: 'date-separator',
-          date: lastDate,
-        });
-      }
+      notesWithSeparators.push({
+        type: 'date-separator',
+        date: lastDate,
+      });
     }
 
     notesWithSeparators.push(note);
-    lastInsertedIndex = notesWithSeparators.length; // 현재 노트의 위치 저장
+    lastInsertedIndex = notesWithSeparators.length; // 가장 마지막 노트 위치 저장
     lastDate = noteDate;
   });
 
