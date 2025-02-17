@@ -115,8 +115,7 @@ public class PinService {
 				List<Long> unreadNotes = new ArrayList<>();
 				if (!(user instanceof UnauthorizeUser)) {
 					unreadNotes = noteRepository.findUnreadNotesByPin(user, pinVersion.getPin());
-                }
-
+				}
 				return new PinItemResponseDto(
 					pinVersion.getPin().getPinId(),
 					pinVersion.getPin().getPinName(),
