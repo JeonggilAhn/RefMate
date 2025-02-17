@@ -131,7 +131,7 @@ const NoteHistory = ({ setIsNoteHistoryOpen }) => {
   };
 
   // 노트 범위 요청
-  const fetchRangeNotes = async (searchResults) => {
+  /*const fetchRangeNotes = async (searchResults) => {
     try {
       const rangeApiUrl = `blueprints/${blueprint_id}/${blueprint_version_id}/notes/range`;
       const rangeParams = {
@@ -217,7 +217,7 @@ const NoteHistory = ({ setIsNoteHistoryOpen }) => {
     } catch (error) {
       console.error('범위 노트 요청 실패:', error.message);
     }
-  };
+  };*/
 
   useEffect(() => {
     if (searchTargetId && noteRefs.current[searchTargetId]) {
@@ -547,25 +547,25 @@ const NoteHistory = ({ setIsNoteHistoryOpen }) => {
 
                 // 디버깅 로그 추가
                 console.log('노트 데이터:', note);
-                console.log('note_writer:', note?.note_writer);
+                // console.log('note_writer:', note?.note_writer);
 
-                if (note?.note_writer === undefined) {
-                  console.error('note_writer가 undefined입니다!:', note);
-                }
+                // if (note?.note_writer === undefined) {
+                // console.error('note_writer가 undefined입니다!:', note);
+                // }
 
                 // `note_writer`가 없을 경우 대비
                 let authorEmail = note?.user_email || 'unknown';
 
-                if (note?.note_writer) {
-                  if ('user_email' in note.note_writer) {
-                    authorEmail = note.note_writer.user_email;
-                  } else {
-                    console.error(
-                      'note_writer에 user_email 없음:',
-                      note.note_writer,
-                    );
-                  }
-                }
+                // if (note?.note_writer) {
+                // if ('user_email' in note.note_writer) {
+                //   authorEmail = note.note_writer.user_email;
+                //  } else {
+                //  console.error(
+                //   'note_writer에 user_email 없음:',
+                //  note.note_writer,
+                // );
+                //  }
+                //  }
 
                 console.log('작성자:', authorEmail);
                 console.log('로그인 유저:', user?.user_email);
