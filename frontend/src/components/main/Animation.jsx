@@ -249,7 +249,7 @@ export default function Animation() {
                 }}
                 className="absolute shadow-lg hidden"
                 style={{
-                  left: isLeft ? '-220px' : '60px', // ✅ 고정값 증가
+                  // left: isLeft ? '-220px' : '60px', // ✅ 고정값 증가
                   top: image.top,
                   bottom: image.bottom,
                   left: image.left,
