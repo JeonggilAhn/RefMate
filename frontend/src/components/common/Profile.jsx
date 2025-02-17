@@ -26,7 +26,11 @@ function Profile({
       type: 'confirm',
       message: '정말 회원 탈퇴하시겠습니까?',
       onConfirm: () => {
-        del(`users/me`)
+        const apiUrl = '/users/me';
+        const headers = {
+          Authorization: `Bearer ${sessionStorage.getItem('access_token')}`,
+        };
+        del(apiUrl, { headers })
           .then(() => {
             // 회원 탈퇴 성공 시 로그아웃 처리
             sessionStorage.removeItem('access_token');

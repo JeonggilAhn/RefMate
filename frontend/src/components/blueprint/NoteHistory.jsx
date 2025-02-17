@@ -10,6 +10,7 @@ import { userState } from '../../recoil/common/user';
 import { useParams } from 'react-router-dom';
 import { get } from '../../api/index';
 import { useToast } from '@/hooks/use-toast';
+import { isMyNote } from '../../utils/isMyNote';
 import { throttle } from 'lodash'; // lodash의 throttle 사용
 
 const NoteHistory = () => {
@@ -502,10 +503,7 @@ const NoteHistory = () => {
             className="flex-1 overflow-y-auto flex flex-col-reverse p-4 gap-3"
           >
             {notes.map((note, index) => {
-              const isMyNote =
-                note.type === 'note' &&
-                (user?.user_email === note.note_writer?.user_email ||
-                  user?.user_email === note.user_email); // 내 노트인지 확인
+              const isMine = isMyNote(note, user); // 내 노트 여부 판단
 
               return (
                 <React.Fragment key={index}>
@@ -519,7 +517,7 @@ const NoteHistory = () => {
                       ref={(el) => (noteRefs.current[note.note_id] = el)}
                       className={`p-2 w-full flex flex-col 
     ${highlightedNoteId === note.note_id || searchTargetId === note.note_id ? 'bg-yellow-200' : ''} 
-    ${isMyNote ? 'items-end' : 'items-start'}`}
+    ${isMine ? 'items-end' : 'items-start'}`}
                     >
                       {note.type === 'note' && note.pin_name && (
                         <div
