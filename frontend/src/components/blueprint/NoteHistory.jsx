@@ -516,7 +516,9 @@ const NoteHistory = ({ setIsNoteHistoryOpen }) => {
             >
               {notes.map((note, index) => {
                 const isMyNote = (note, user) => {
-                  return user?.user_email && note?.note_writer?.user_email
+                  if (!note || note.type !== 'note' || !note.note_writer)
+                    return false;
+                  return user?.user_email && note.note_writer.user_email
                     ? user.user_email === note.note_writer.user_email
                     : false;
                 };
