@@ -269,6 +269,7 @@ public class PinService {
 			.map(defaultPinGroup -> PinGroup.builder()
 				.pinGroupName(defaultPinGroup.getName())
 				.pinGroupColor(defaultPinGroup.getColor())
+				.pinGroupColorLight(defaultPinGroup.getLightColor())
 				.blueprint(targetBlueprint)
 				.build()
 			)
