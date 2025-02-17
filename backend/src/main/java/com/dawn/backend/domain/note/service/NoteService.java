@@ -4,6 +4,8 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -53,7 +55,6 @@ import com.dawn.backend.domain.note.repository.NoteCheckRepository;
 import com.dawn.backend.domain.note.repository.NoteRepository;
 import com.dawn.backend.domain.pin.dto.PinGroupDto;
 import com.dawn.backend.domain.pin.entity.Pin;
-import com.dawn.backend.domain.pin.entity.PinGroup;
 import com.dawn.backend.domain.pin.entity.PinVersion;
 import com.dawn.backend.domain.pin.exception.PinNotFoundException;
 import com.dawn.backend.domain.pin.exception.PinVersionNotFoundException;
@@ -63,6 +64,7 @@ import com.dawn.backend.domain.project.entity.Project;
 import com.dawn.backend.domain.project.exception.ProjectNotFoundException;
 import com.dawn.backend.domain.project.repository.ProjectRepository;
 import com.dawn.backend.domain.user.dto.ProjectUserDto;
+import com.dawn.backend.domain.user.dto.ProjectUserWithReadNoteDto;
 import com.dawn.backend.domain.user.entity.User;
 import com.dawn.backend.domain.user.entity.UserProject;
 import com.dawn.backend.domain.user.exception.UserProjectNotFound;
@@ -219,7 +221,7 @@ public class NoteService {
 			.user(user)
 			.build();
 		creatorNoteCheck.updateNoteCheck(true);
-//		noteCheckRepository.save(creatorNoteCheck);
+		noteCheckRepository.save(creatorNoteCheck);
 
 //		projectUsers.stream()
 //			.filter(projectUser -> !projectUser.getUserId().equals(user.getUserId()))
@@ -228,7 +230,6 @@ public class NoteService {
 //				.user(projectUser)
 //				.build())
 //			.forEach(noteCheckRepository::save);
-
 
 		UserProject userWithRole = userProjectRepository.findByUserIdAndProjectId(
 			user.getUserId(), createNoteRequestDto.projectId()).orElseThrow(UserProjectNotFound::new);
@@ -321,67 +322,39 @@ public class NoteService {
 
 		PageRequest pageRequest = PageRequest.of(0, size + 1);
 
-		List<Note> notes = noteRepository.findNotesByBlueprintVersionAfterCursor(
+		List<NoteWithPinAndPinGroupDto> noteDtos =
+			noteRepository.findNotesWithPinAndPinGroupsByBlueprintVersionAfterCursor(
 			blueprintId,
 			blueprintVersion,
 			cursorId,
 			pageRequest
 		);
 
-		boolean hasMore = notes.size() == size + 1;
+		boolean hasMore = noteDtos.size() == size + 1;
 		if (hasMore) {
-			notes = notes.subList(0, size);
+			noteDtos = noteDtos.subList(0, size);
 		}
 
-		Collections.reverse(notes);
+		Collections.reverse(noteDtos);
 
-		List<ChatItemDto> resultList = convertNotesToChatItemsForBlueprint(notes, projectId);
-
-
-		return new GetNotesByBlueprintResponseDto(resultList, hasMore);
-	}
-
-	private List<ChatItemDto> convertNotesToChatItemsForBlueprint(List<Note> notes, Long projectId) {
-		List<ChatItemDto> items = new ArrayList<>();
+		List<ChatItemDto> chatItems = new ArrayList<>();
 		LocalDateTime prevDate = null;
 
-		for (Note note : notes) {
-			LocalDateTime currentDate = note.getCreatedAt().toLocalDate().atStartOfDay();
+		for (NoteWithPinAndPinGroupDto dto : noteDtos) {
+			LocalDateTime currentDate = dto.createdAt().toLocalDate().atStartOfDay();
+
 			if (prevDate == null || !currentDate.equals(prevDate)) {
-				items.add(DateSeparatorDto.from(note.getCreatedAt()));
+				chatItems.add(DateSeparatorDto.from(currentDate));
 				prevDate = currentDate;
 			}
 
-			ProjectUserDto noteWriter = userRepository.findUserWithRoleByUserIdAndProjectId(
-				note.getUser().getUserId(), projectId
-			);
-			boolean isPresentImage = imageRepository.existsByNoteNoteId(note.getNoteId());
-			List<ProjectUserDto> readUsers = userRepository.findCheckedUsersWithRolesByNoteId(
-				note.getNoteId(), projectId
-			);
-			PinVersion pinVersion = pinVersionRepository.findByBlueprintVersionAndPinAndIsActive(
-				note.getBlueprintVersion(),
-				note.getPin(),
-				true
-			).orElse(null);
+			List<ProjectUserDto> readUsers = userRepository.findCheckedUsersWithRolesByNoteId(dto.noteId(), projectId);
 
-			if (pinVersion == null) {
-				continue;
-			}
-
-			Pin pin = note.getPin();
-			PinGroup pinGroup = pinVersion.getPinGroup();
-			ChatItemDto noteItemDto = NoteItemWithTypeDto.fromForBlueprint(
-				note,
-				noteWriter,
-				isPresentImage,
-				readUsers,
-				pin,
-				pinGroup
-			);
-			items.add(noteItemDto);
+			chatItems.add(BlueprintNoteItemDto.from(dto, readUsers));
 		}
-		return items;
+
+		return new GetNotesByBlueprintResponseDto(chatItems, hasMore);
+
 	}
 
 	@Transactional
@@ -402,6 +375,16 @@ public class NoteService {
 		NoteDto noteDto = NoteDto.from(note, noteWriter, noteImages, isEditable);
 
 		PinGroupDto pinGroupDto = getPinGroupDto(note, noteId);
+
+		UserNoteCheck userNoteCheck = noteCheckRepository.findByNoteNoteIdAndUser(noteId, user);
+		if (userNoteCheck == null) {
+			userNoteCheck = UserNoteCheck.builder()
+				.note(note)
+				.user(user)
+				.build();
+			userNoteCheck.updateNoteCheck(true);
+			noteCheckRepository.save(userNoteCheck);
+		}
 
 		return new NoteDetailResponseDto(noteDto, pinGroupDto);
 	}
@@ -489,6 +472,27 @@ public class NoteService {
 			return new GetNotesByRangeResponseDto(Collections.emptyList());
 		}
 
+		List<Long> noteIds = noteDtos.stream()
+			.map(NoteWithPinAndPinGroupDto::noteId)
+			.toList();
+
+		// 읽은 noteId를 가지는 user들을 조회
+		List<ProjectUserWithReadNoteDto> readUsers =
+			userRepository.findCheckedUsersWithRolesByNoteIds(noteIds, projectId);
+
+		// 읽은 user들을 noteId 로 그룹핑
+		Map<Long, List<ProjectUserDto>> readUsersMap = readUsers.stream()
+			.collect(Collectors.groupingBy(
+				ProjectUserWithReadNoteDto::noteId,
+				Collectors.mapping(dto -> new ProjectUserDto(
+					dto.userId(),
+					dto.userEmail(),
+					dto.profileUrl(),
+					dto.signupDate(),
+					dto.role()
+				), Collectors.toList())
+			));
+
 		List<ChatItemDto> chatItems = new ArrayList<>();
 		LocalDateTime prevDate = null;
 
@@ -499,10 +503,9 @@ public class NoteService {
 				chatItems.add(DateSeparatorDto.from(currentDate));
 				prevDate = currentDate;
 			}
+			List<ProjectUserDto> mappedReadUsers = readUsersMap.getOrDefault(dto.noteId(), Collections.emptyList());
 
-			List<ProjectUserDto> readUsers = userRepository.findCheckedUsersWithRolesByNoteId(dto.noteId(), projectId);
-
-			BlueprintNoteItemDto blueprintNoteItemDto = BlueprintNoteItemDto.from(dto, readUsers);
+			BlueprintNoteItemDto blueprintNoteItemDto = BlueprintNoteItemDto.from(dto, mappedReadUsers);
 			chatItems.add(blueprintNoteItemDto);
 		}
 		return new GetNotesByRangeResponseDto(chatItems);
