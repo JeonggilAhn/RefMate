@@ -786,6 +786,8 @@ const Blueprint = () => {
             />
           ) : null}
           <BlueprintCanvas
+            blueprintId={blueprint_id}
+            blueprintVersionId={blueprint_version_id}
             projectId={projectId}
             imageUrl={blueprint.blueprint_image}
             overlayImageUrl={overlayBlueprint.blueprint_image}
