@@ -32,7 +32,10 @@ const UpdateBlueprintName = ({
       setBlueprintName(newTitle);
       setModal(null);
     } catch (error) {
-      alert(error.message);
+      toast({
+        title: '블루프린트 이름 수정에 실패했습니다.',
+        description: String(new Date()),
+      });
     }
   };
 
