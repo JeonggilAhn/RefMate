@@ -6,8 +6,10 @@ import NoteDetail from './NoteDetail';
 import Icon from '../common/Icon';
 
 import { useParams } from 'react-router-dom';
-import { useRecoilState } from 'recoil';
+import { useRecoilState, useRecoilValue } from 'recoil';
 import { pinState } from '../../recoil/blueprint';
+import { userState } from '../../recoil/common/user';
+import { isMyNote } from '../../utils/isMyNote';
 import { processNotes } from '../../utils/temp';
 import AddNote from './AddNote';
 
@@ -38,6 +40,8 @@ const PinNoteSection = ({
     pinDetailNotes: [],
   });
   const [open, setOpen] = useState(false);
+
+  const user = useRecoilValue(userState); // 로그인한 유저 정보 가져오기
 
   useEffect(() => {
     const pin = pins.find((item) => item.pin_id === pinId) || {
@@ -169,7 +173,7 @@ const PinNoteSection = ({
                       searchTargetId === note.note_id
                         ? 'bg-yellow-200'
                         : ''
-                    }`}
+                    } ${isMyNote(note, user) ? 'items-end' : 'items-start'}`}
                   >
                     <NoteButton
                       note={note}

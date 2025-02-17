@@ -36,6 +36,6 @@ export default defineConfig({
     },
   },
   define: {
-    global: 'window',
+    global: 'window', // ✅ global 변수를 window로 대체하여 오류 해결
   },
 });
