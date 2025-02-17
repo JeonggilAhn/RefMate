@@ -94,6 +94,9 @@ const Blueprint = () => {
   // ws state를 recoil state로 변경
   const [ws, setWs] = useRecoilState(websocketState);
 
+  // 하이라이트할 핀 ID를 저장하는 state 추가
+  const [highlightedPinId, setHighlightedPinId] = useState(null);
+
   const filterNoImageList = (data) => {
     return data.filter((item) => {
       return item.image_list.length !== 0;
@@ -803,6 +806,7 @@ const Blueprint = () => {
             isOverlayVisible={isOverlayVisible}
             isPinButtonEnaled={isPinButtonEnaled}
             onClickPin={onClickPin}
+            highlightedPinId={highlightedPinId}
           />
           <Toolbar
             isSidebarOpen={isSidebarOpen}
@@ -818,7 +822,9 @@ const Blueprint = () => {
         </div>
         {/* sidebar */}
         <div
-          className={`absolute top-0 right-0 transition-transform duration-500 ease-in-out ${isSidebarOpen ? 'w-[22rem]' : 'min-w-0 w-0 overflow-hidden'} h-screen border-l border-[#CBCBCB] z-[4] bg-white flex flex-col overflow-hidden`}
+          className={`absolute top-0 right-0 transition-all duration-300 ease-in-out transform ${
+            isSidebarOpen ? 'translate-x-0 w-[22rem]' : 'translate-x-full w-0'
+          } h-screen border-l border-[#CBCBCB] z-[4] bg-white flex flex-col overflow-hidden`}
         >
           <div className="pt-[48px]" />
           <div className="mt-[60px] px-[0.3rem] grid grid-cols-1 grid-rows-1 h-[calc(100%-115px)]">
@@ -865,7 +871,9 @@ const Blueprint = () => {
                 ) : (
                   <div className="relative w-full h-full">
                     <div
-                      className={`absolute w-full left-0 top-0 grid grid-cols-2 grid-rows-4 gap-2 overflow-x-hidden ${isViewFolder ? 'visible' : 'invisible'}`}
+                      className={`absolute w-full left-0 top-0 grid grid-cols-2 gap-2 overflow-y-auto max-h-[calc(100vh-280px)] ${
+                        isViewFolder ? 'visible' : 'invisible'
+                      }`}
                     >
                       <AllPinFolder
                         data={isActiveTab ? pins : donePins}
@@ -874,10 +882,13 @@ const Blueprint = () => {
                         pinActiveActions={pinActiveActions}
                         pinInactiveActions={pinInactiveActions}
                         onClickPinImage={onClickPinImage}
+                        setHighlightedPinId={setHighlightedPinId}
                       />
                     </div>
                     <div
-                      className={`absolute w-full left-0 top-0 grid grid-cols-1 grid-rows-18 gap-2 overflow-x-hidden ${isViewFolder ? 'invisible' : 'visible'}`}
+                      className={`absolute w-full left-0 top-0 grid grid-cols-1 grid-rows-18 gap-2 overflow-y-auto max-h-[calc(100vh-280px)] ${
+                        isViewFolder ? 'invisible' : 'visible'
+                      }`}
                     >
                       <AllPinList
                         data={isActiveTab ? pins : donePins}
@@ -886,6 +897,7 @@ const Blueprint = () => {
                         pinActiveActions={pinActiveActions}
                         pinInactiveActions={pinInactiveActions}
                         onClickPin={onClickPin}
+                        setHighlightedPinId={setHighlightedPinId}
                       />
                     </div>
                   </div>
@@ -896,7 +908,7 @@ const Blueprint = () => {
         </div>
         {/* 상세 */}
         <div
-          className={`absolute top-0 right-0 transition-transform duration-500 ease-in-out ${isDetailSidebarOpen ? 'w-[22rem]' : 'min-w-0 w-0 overflow-hidden'} h-screen border-l border-[#CBCBCB] z-[4] bg-white flex flex-col overflow-hidden`}
+          className={`absolute top-0 right-0 transition-all duration-300 ease-in-out transform ${isDetailSidebarOpen ? 'translate-x-0 w-[22rem]' : 'translate-x-full w-0'} h-screen border-l border-[#CBCBCB] z-[4] bg-white flex flex-col overflow-hidden`}
         >
           <div className="pt-[46px]" />
           <div className="mt-[60px] px-[0.3rem] grid grid-cols-1 grid-rows[2fr_1fr_2fr] gap-2 overflow-hidden p-1">

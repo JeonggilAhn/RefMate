@@ -9,12 +9,18 @@ const AllPinList = ({
   pinInactiveActions,
   togglePinVisible,
   onClickPin,
+  setHighlightedPinId,
 }) => {
   return data.map((pin) => (
     <div
       key={pin.pin_id}
-      className="w-full flex items-center justify-between bg-[#F1F1F1] rounded-md px-2 py-0.5 shadow-sm cursor-pointer hover:bg-black/10"
+      className="w-full flex items-center justify-between rounded-md px-2 py-0.5 shadow-sm cursor-pointer hover:bg-black/10"
+      style={{
+        backgroundColor: `${pin.pin_group?.pin_group_color}15`,
+      }}
       onClick={() => onClickPin(pin)}
+      onMouseEnter={() => setHighlightedPinId(pin.pin_id)}
+      onMouseLeave={() => setHighlightedPinId(null)}
     >
       <div className="flex items-center gap-2">
         <button onClick={() => togglePinVisible(pin.pin_id)}>
