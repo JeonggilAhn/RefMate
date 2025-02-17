@@ -13,7 +13,7 @@ const AllPinList = ({
   return data.map((pin) => (
     <div
       key={pin.pin_id}
-      className="w-full flex items-center justify-between bg-[#F1F1F1] rounded-md p-2 shadow-sm cursor-pointer hover:bg-black/10"
+      className="w-full flex items-center justify-between bg-[#F1F1F1] rounded-md px-2 py-0.5 shadow-sm cursor-pointer hover:bg-black/10"
       onClick={() => onClickPin(pin)}
     >
       <div className="flex items-center gap-2">

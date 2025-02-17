@@ -821,44 +821,51 @@ const Blueprint = () => {
           className={`absolute top-0 right-0 transition-transform duration-500 ease-in-out ${isSidebarOpen ? 'w-[22rem]' : 'min-w-0 w-0 overflow-hidden'} h-screen border-l border-[#CBCBCB] z-[4] bg-white flex flex-col overflow-hidden`}
         >
           <div className="pt-[48px]" />
-          <div className="mt-[60px] px-[0.3rem] grid grid-cols-1 grid-rows-[1fr_2fr] gap-2 h-[calc(100%-115px)]">
-            <div>
-              {/* pin list section */}
-              <div className="h-full border border-[#CBCBCB] rounded-lg shadow-md bg-white">
-                <div className="text-center p-2 border-b border-[#CBCBCB] rounded-t-lg bg-[#F5F5F5]">
-                  전체 핀
+          <div className="mt-[60px] px-[0.3rem] grid grid-cols-1 grid-rows-1 h-[calc(100%-115px)]">
+            <div className="h-full border border-[#CBCBCB] rounded-lg shadow-md bg-white">
+              <div className="text-center p-2 border-b border-[#CBCBCB] rounded-t-lg bg-[#F5F5F5]">
+                전체 핀
+              </div>
+              <div className="p-2 h-[calc(100vh-170px)]">
+                <PinTabs
+                  actions={tabActions}
+                  isViewFolder={isViewFolder}
+                  onClickButton={onClickViewOptionButton}
+                />
+                <div className="py-2 flex justify-end items-center gap-2">
+                  {/* todo : API 연동 */}
+                  <SelectBox
+                    width={40}
+                    value={selectedColor}
+                    onValueChange={onSelectColor}
+                  >
+                    {pinColors.map((item, index) => {
+                      return (
+                        <SelectItem key={item.id} value={item}>
+                          <div className="flex items-center gap-2">
+                            <div
+                              className="w-2.5 h-2.5 rounded-full flex-shrink-0"
+                              style={{ backgroundColor: item.color }}
+                            />
+                            <div>{item.name}</div>
+                          </div>
+                        </SelectItem>
+                      );
+                    })}
+                  </SelectBox>
                 </div>
-                <div className="p-2">
-                  <PinTabs
-                    actions={tabActions}
-                    isViewFolder={isViewFolder}
-                    onClickButton={onClickViewOptionButton}
-                  />
-                  <div className="py-2 flex justify-end items-center gap-2">
-                    {/* todo : API 연동 */}
-                    <SelectBox
-                      width={35}
-                      value={selectedColor}
-                      onValueChange={onSelectColor}
-                    >
-                      {pinColors.map((item, index) => {
-                        return (
-                          <SelectItem key={item.id} value={item}>
-                            <div className="flex items-center gap-2">
-                              <div
-                                className="w-2.5 h-2.5 rounded-full flex-shrink-0"
-                                style={{ backgroundColor: item.color }}
-                              />
-                              <div>{item.name}</div>
-                            </div>
-                          </SelectItem>
-                        );
-                      })}
-                    </SelectBox>
+                {!pins.length && !donePins.length ? (
+                  <div className="border border-dashed rounded-sm border-[#CBCBCB] h-[calc(100%-86px)] flex justify-center items-center bg-[#F1F1F1]">
+                    <p className="text-center text-[#414141]">
+                      생성된 핀이 없습니다.
+                      <br />
+                      도면을 클릭해 핀을 생성해주세요.
+                    </p>
                   </div>
+                ) : (
                   <div className="relative w-full h-full">
                     <div
-                      className={`absolute w-full h-78 grid grid-cols-2 grid-rows-[12rem] gap-2 overflow-y-auto overflow-x-hidden ${isViewFolder ? 'visible' : 'invisible'}`}
+                      className={`absolute w-full left-0 top-0 grid grid-cols-2 grid-rows-4 gap-2 overflow-x-hidden ${isViewFolder ? 'visible' : 'invisible'}`}
                     >
                       <AllPinFolder
                         data={isActiveTab ? pins : donePins}
@@ -870,7 +877,7 @@ const Blueprint = () => {
                       />
                     </div>
                     <div
-                      className={`absolute w-full h-78 grid grid-cols-1 grid-rows-8 gap-2 overflow-y-auto overflow-x-hidden ${isViewFolder ? 'invisible' : 'visible'}`}
+                      className={`absolute w-full left-0 top-0 grid grid-cols-1 grid-rows-18 gap-2 overflow-x-hidden ${isViewFolder ? 'invisible' : 'visible'}`}
                     >
                       <AllPinList
                         data={isActiveTab ? pins : donePins}
@@ -882,10 +889,9 @@ const Blueprint = () => {
                       />
                     </div>
                   </div>
-                </div>
+                )}
               </div>
             </div>
-            {/* pin list section */}
           </div>
         </div>
         {/* 상세 */}
@@ -928,6 +934,8 @@ const Blueprint = () => {
               projectId={projectId}
             />
             <PinNoteSection
+              projectId={projectId}
+              blueprintVersionId={blueprint_version_id}
               pinInfo={detailPin}
               isSidebar={true}
               pinId={detailPin.pin_id}

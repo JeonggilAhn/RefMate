@@ -1,7 +1,6 @@
 import React, { useState, useMemo, useRef, useCallback, memo } from 'react';
 import styled from 'styled-components';
 import Draggable from 'react-draggable';
-import { useParams } from 'react-router-dom';
 import { useRecoilValue } from 'recoil';
 import { pinState } from '../../recoil/blueprint';
 import { processNotes } from '../../utils/temp';
@@ -50,6 +49,8 @@ const NoteList = memo(function NoteList({
 });
 
 function PinNotePopup({
+  projectId,
+  blueprintVersionId,
   pinInfo,
   onClose,
   isSidebar,
@@ -112,8 +113,6 @@ function PinNotePopup({
     }
   }, [searchTargetId]);
 
-  const { projectId, blueprintVersionId } = useParams();
-
   if (selectedNote) {
     // 노트 상세 보기
     return (
@@ -131,7 +130,7 @@ function PinNotePopup({
 
   return (
     <Draggable nodeRef={draggableRef}>
-      <Container ref={draggableRef}>
+      <Container ref={draggableRef} className="prevent-zoom">
         <Header>
           <button className="pl-2" onClick={() => setAddOpen(!addOpen)}>
             <Icon

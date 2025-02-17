@@ -198,6 +198,9 @@ const BlueprintCanvas = ({
   };
 
   const handleWheel = (e) => {
+    // 내부 스크롤이 있는 경우만 zoom 비활성화
+    if (e.target.closest('.prevent-zoom')) return;
+
     if (isPinButtonEnaled) return;
 
     const zoomSpeed = 0.1;
@@ -211,6 +214,7 @@ const BlueprintCanvas = ({
   };
 
   const handleMouseDown = (e) => {
+    if (e.target.closest('.prevent-zoom')) return;
     if (isPinButtonEnaled) return;
 
     setDragging(true);
@@ -218,6 +222,7 @@ const BlueprintCanvas = ({
   };
 
   const handleMouseMove = (e) => {
+    if (e.target.closest('.prevent-zoom')) return;
     if (isPinButtonEnaled) return;
 
     if (dragging) {
@@ -298,7 +303,14 @@ const BlueprintCanvas = ({
   }, [scale, position, pins, overlayOpacity]);
 
   return (
-    <div className="relative w-full h-full" onWheel={handleWheel}>
+    <div
+      className="relative w-full h-full"
+      onWheel={handleWheel}
+      onMouseDown={handleMouseDown}
+      onMouseMove={handleMouseMove}
+      onMouseUp={handleMouseUp}
+      onMouseLeave={handleMouseUp}
+    >
       {pins.map((item, index) => (
         <div
           key={index}
@@ -315,7 +327,7 @@ const BlueprintCanvas = ({
         >
           <PinComponent
             blueprintId={blueprintId}
-            blueprintVersion={blueprintVersionId}
+            blueprintVersionId={blueprintVersionId}
             projectId={projectId}
             pin={item}
             onClickPin={() => onClickPin(item)}
@@ -326,10 +338,10 @@ const BlueprintCanvas = ({
       <canvas
         ref={canvasRef}
         // onWheel={handleWheel}
-        onMouseDown={handleMouseDown}
-        onMouseMove={handleMouseMove}
-        onMouseUp={handleMouseUp}
-        onMouseLeave={handleMouseUp}
+        // onMouseDown={handleMouseDown}
+        // onMouseMove={handleMouseMove}
+        // onMouseUp={handleMouseUp}
+        // onMouseLeave={handleMouseUp}
         onClick={handleCanvasClick}
         style={{
           cursor:
