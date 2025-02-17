@@ -203,6 +203,13 @@ const BlueprintCanvas = ({
 
     if (isPinButtonEnaled) return;
 
+    // PinContents 내부에서의 휠 이벤트는 무시
+    if (e.target.closest('[data-pin-contents]')) {
+      e.preventDefault();
+      e.stopPropagation();
+      return;
+    }
+
     const zoomSpeed = 0.1;
     setScale((prev) => {
       const newScale = Math.max(
