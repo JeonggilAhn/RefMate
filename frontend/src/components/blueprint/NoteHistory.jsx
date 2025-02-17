@@ -15,6 +15,7 @@ import { throttle } from 'lodash'; // lodash의 throttle 사용
 
 const NoteHistory = ({ setIsNoteHistoryOpen }) => {
   const rawNotes = useRecoilValue(noteState); // Blueprint에서 받은 전역 상태 사용
+  console.log('rawNotes : ', rawNotes);
   const user = useRecoilValue(userState); // 로그인한 유저 정보 가져오기
   const [notes, setNotes] = useState([]);
   const [lastDate, setLastDate] = useState('');
@@ -518,7 +519,7 @@ const NoteHistory = ({ setIsNoteHistoryOpen }) => {
                     : false;
                 };
 
-                console.log('유저정보 : ', user);
+                //  console.log('유저정보 : ', user);
                 console.log('노트정보 : ', note.note_writer);
 
                 return (
