@@ -553,15 +553,10 @@ const NoteHistory = ({ setIsNoteHistoryOpen }) => {
                   console.error('note_writer가 undefined입니다!:', note);
                 }
 
-                // 안전한 user_email 가져오기
-                let authorEmail = 'unknown';
+                // `note_writer`가 없을 경우 대비
+                let authorEmail = note?.user_email || 'unknown';
 
-                if (note?.user_email) {
-                  authorEmail = note.user_email;
-                } else if (
-                  note?.note_writer &&
-                  typeof note.note_writer === 'object'
-                ) {
+                if (note?.note_writer) {
                   if ('user_email' in note.note_writer) {
                     authorEmail = note.note_writer.user_email;
                   } else {
@@ -570,11 +565,6 @@ const NoteHistory = ({ setIsNoteHistoryOpen }) => {
                       note.note_writer,
                     );
                   }
-                } else {
-                  console.error(
-                    'note_writer 자체가 undefined이거나 object가 아님:',
-                    note.note_writer,
-                  );
                 }
 
                 console.log('작성자:', authorEmail);
