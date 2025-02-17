@@ -21,7 +21,7 @@ const PinImageSection = ({ pinId, onClickImage }) => {
       </div>
       <div ref={bottomRef} className="h-50 overflow-y-auto p-2">
         {data.pinDetailImages.length === 0 ? (
-          <div className="text-sm text-left text-gray-500 p-4">
+          <div className="text-sm text-left text-gray-500 p-2">
             등록된 레퍼런스가 없습니다.
           </div>
         ) : (
