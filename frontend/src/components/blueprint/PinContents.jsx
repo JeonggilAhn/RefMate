@@ -32,6 +32,15 @@ const Tab = memo(function Tab({ active, onClick, children }) {
 
 // 이미지 리스트 컴포넌트
 const ImageList = memo(function ImageList({ detailPinImages }) {
+  // 이미지가 없는 경우 처리
+  if (!detailPinImages.length) {
+    return (
+      <div className="flex items-center justify-center h-full">
+        <NoData>등록된 이미지가 없습니다.</NoData>
+      </div>
+    );
+  }
+
   const [selectedImage, setSelectedImage] = useState(null);
   const [selectedIndex, setSelectedIndex] = useState(0);
   const allImages = detailPinImages.reduce((acc, pin) => {
@@ -203,7 +212,7 @@ function PinContents({
   const [searchTargetId, setSearchTargetId] = useState(null);
   const noteRefs = useRef({});
 
-  const [selectedTabs, setSelectedTabs] = useState(['note', 'image']);
+  const [selectedTabs, setSelectedTabs] = useState(['note']);
   const [position, setPosition] = useState({ top: 0, left: 0 });
 
   // 새로운 draggable ref 추가
@@ -215,7 +224,18 @@ function PinContents({
         const response = await get(`pins/${pinInfo.pin_id}/images`);
         console.log(pinInfo);
         const { content } = response.data;
-        setDetailPinImages(Array.isArray(content) ? content : []);
+        const images = Array.isArray(content) ? content : [];
+        setDetailPinImages(images);
+
+        // 이미지가 있으면 이미지 탭도 함께 열기
+        if (images.length > 0) {
+          setSelectedTabs((prev) => {
+            if (!prev.includes('image')) {
+              return [...prev, 'image'];
+            }
+            return prev;
+          });
+        }
       } catch (error) {
         console.error('핀 및 노트 데이터 로드 실패:', error);
         setDetailPinImages([]);
@@ -235,17 +255,30 @@ function PinContents({
     setDetailNote && setDetailNote(null);
   }, [setDetailNote]);
 
-  const handleTabClick = useCallback((tabName) => {
-    setSelectedTabs((prev) => {
-      if (prev.includes(tabName)) {
-        if (prev.length > 1) {
-          return prev.filter((tab) => tab !== tabName);
-        }
-        return prev;
+  const handleTabClick = useCallback(
+    (tabName) => {
+      if (tabName === 'image' && !detailPinImages.length) {
+        return;
       }
-      return [...prev, tabName];
-    });
-  }, []);
+
+      setSelectedTabs((prev) => {
+        if (prev.includes(tabName)) {
+          if (prev.length > 1) {
+            return prev.filter((tab) => tab !== tabName);
+          }
+          return prev;
+        }
+        return [...prev, tabName];
+      });
+    },
+    [detailPinImages.length],
+  );
+
+  useEffect(() => {
+    if (!detailPinImages.length) {
+      setSelectedTabs((prev) => prev.filter((tab) => tab !== 'image'));
+    }
+  }, [detailPinImages]);
 
   const handleAddNoteClick = useCallback(() => {
     setAddOpen(true);
@@ -314,22 +347,24 @@ function PinContents({
                   }
                 />
               </TabIconButton>
-              <TabIconButton
-                active={selectedTabs.includes('image')}
-                onClick={() => handleTabClick('image')}
-                backgroundColor={pinInfo.pin_group.pin_group_color}
-              >
-                <Icon
-                  name="IconTbPhoto"
-                  width={15}
-                  height={15}
-                  color={
-                    selectedTabs.includes('image')
-                      ? pinInfo.pin_group.pin_group_color_light
-                      : '#666666'
-                  }
-                />
-              </TabIconButton>
+              {detailPinImages.length > 0 && (
+                <TabIconButton
+                  active={selectedTabs.includes('image')}
+                  onClick={() => handleTabClick('image')}
+                  backgroundColor={pinInfo.pin_group.pin_group_color}
+                >
+                  <Icon
+                    name="IconTbPhoto"
+                    width={15}
+                    height={15}
+                    color={
+                      selectedTabs.includes('image')
+                        ? pinInfo.pin_group.pin_group_color_light
+                        : '#666666'
+                    }
+                  />
+                </TabIconButton>
+              )}
             </TabContainer>
             <div className="flex items-center justify-center flex-grow gap-2">
               <div
@@ -394,7 +429,7 @@ function PinContents({
                 setOpen={setAddOpen}
                 pinInfo={pinInfo}
                 projectId={useParams().projectId}
-                blueprintVersionId={useParams().blueprintVersionId}
+                blueprintVersionId={useParams().blueprint_version_id}
               />
             </AddNoteWrapper>
           )}
