@@ -532,7 +532,7 @@ const NoteHistory = ({ setIsNoteHistoryOpen }) => {
                   return null;
                 }
 
-                console.log('노트리스트 : ', note);
+                console.log('노트리스트:', note);
 
                 if (note.type === 'date-separator') {
                   return (
@@ -545,26 +545,48 @@ const NoteHistory = ({ setIsNoteHistoryOpen }) => {
                   );
                 }
 
-                // 작성자 확인 (user_email이 없으면 note_writer에서 가져옴)
-                const authorEmail =
-                  note?.user_email ||
-                  note?.note_writer?.user_email ||
-                  'unknown';
+                // 디버깅 로그 추가
+                console.log('노트 데이터:', note);
+                console.log('note_writer:', note?.note_writer);
 
-                console.log('노트 타입: ', note);
-                console.log('작성자 : ', authorEmail);
-                console.log('로그인 유저 : ', user?.user_email);
+                if (note?.note_writer === undefined) {
+                  console.error('note_writer가 undefined입니다!:', note);
+                }
 
-                // note_id가 없거나 undefined인 경우 방지
+                // 안전한 user_email 가져오기
+                let authorEmail = 'unknown';
+
+                if (note?.user_email) {
+                  authorEmail = note.user_email;
+                } else if (
+                  note?.note_writer &&
+                  typeof note.note_writer === 'object'
+                ) {
+                  if ('user_email' in note.note_writer) {
+                    authorEmail = note.note_writer.user_email;
+                  } else {
+                    console.error(
+                      'note_writer에 user_email 없음:',
+                      note.note_writer,
+                    );
+                  }
+                } else {
+                  console.error(
+                    'note_writer 자체가 undefined이거나 object가 아님:',
+                    note.note_writer,
+                  );
+                }
+
+                console.log('작성자:', authorEmail);
+                console.log('로그인 유저:', user?.user_email);
+
                 if (!note.note_id) {
                   console.warn('note_id가 없음:', note);
                   return null;
                 }
 
-                // 내 노트인지 판별
                 const isMyNote =
                   note.type === 'note' && user?.user_email === authorEmail;
-
                 return (
                   <div
                     key={note.note_id}
