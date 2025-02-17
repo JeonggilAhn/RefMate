@@ -584,15 +584,15 @@ const NoteHistory = ({ setIsNoteHistoryOpen }) => {
                   console.error(`note.user_email이 undefined!`, note);
                 }
 
-                const isMyNote =
-                  note.type === 'note' && user?.user_email === authorEmail;
+                //  const isMyNote =
+                //note.type === 'note' && user?.user_email === authorEmail;
                 return (
                   <div
                     key={note.note_id}
                     ref={(el) => (noteRefs.current[note.note_id] = el)}
                     className={`p-2 w-full flex flex-col 
         ${highlightedNoteId === note.note_id || searchTargetId === note.note_id ? 'bg-yellow-200' : ''} 
-        ${isMyNote ? 'items-end' : 'items-start'}`}
+       `}
                   >
                     {note.pin_name && (
                       <div
