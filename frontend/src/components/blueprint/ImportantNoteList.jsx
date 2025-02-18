@@ -15,7 +15,7 @@ const ImportantNoteList = ({ notes, onNoteClick }) => {
   }
 
   return (
-    <div className="flex flex-col gap-2 max-h-60 overflow-y-auto max-h-40  p-2 box-border">
+    <div className="flex flex-col gap-2 max-h-40 overflow-y-auto max-h-30  p-2 box-border">
       {safeNotes.map((note) => (
         <div
           key={note.note_id}
