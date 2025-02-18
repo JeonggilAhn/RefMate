@@ -367,12 +367,18 @@ function PinContents({
               )}
             </TabContainer>
             <div className="flex items-center justify-center flex-grow gap-2">
-              <div
-                className="w-4 h-4 rounded-full"
-                style={{ backgroundColor: pinInfo.pin_group.pin_group_color }}
-              />
-              <div className="relative group">
-                <span className="w-[13.8rem] text-sm font-medium truncate">
+              <div className="relative group flex items-center justify-center flex-1 gap-1">
+                <Icon
+                  name="IconTbPinFill"
+                  width={25}
+                  height={25}
+                  color={pinInfo.pin_group.pin_group_color}
+                />
+                <span
+                  className={`${
+                    selectedTabs.length > 1 ? 'max-w-[24rem]' : 'max-w-[8rem]'
+                  } text-sm font-medium truncate text-center`}
+                >
                   {pinInfo.pin_name}
                 </span>
                 <div className="absolute hidden group-hover:block left-0 bottom-10 bg-black bg-opacity-75 text-white p-2 rounded-md text-sm whitespace-nowrap z-20">
