@@ -49,6 +49,7 @@ const PinNoteSection = ({
   const user = useRecoilValue(userState); // 로그인한 유저 정보 가져오기
 
   const scrollRef = useRef(null);
+  const scrollPositionRef = useRef(0); // 초기값 0
 
   console.log(`pinInfo :`, pinInfo);
 
@@ -64,23 +65,21 @@ const PinNoteSection = ({
     [data.pinDetailNotes],
   );
 
-  // 스크롤 최하단 이동 함수 수정 (최상단으로 가지 않도록)
+  // 스크롤 이동 함수
   const scrollToBottom = (forceBottom = false) => {
     if (scrollRef.current) {
       if (forceBottom) {
         scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
       } else {
-        scrollRef.current.scrollTop = scrollPositionRef.current;
+        scrollRef.current.scrollTop = scrollPositionRef.current || 0;
       }
     }
   };
 
-  // 기존 useEffect에서 스크롤 최하단으로 이동하는 로직 수정
+  // 데이터 변경 시 최하단 이동
   useEffect(() => {
-    if (!selectedNote) {
-      scrollToBottom();
-    }
-  }, [data.pinDetailNotes, selectedNote]);
+    scrollToBottom();
+  }, [data.pinDetailNotes]);
 
   // 노트 검색
   const [isSearching, setIsSearching] = useState(false);
@@ -92,16 +91,17 @@ const PinNoteSection = ({
   const handleIconClick = () => {
     setIsSearching((prev) => !prev);
   };
+
   // NoteDetail 열기 전 스크롤 위치 저장
   const handleNoteClick = (note) => {
     scrollPositionRef.current = scrollRef.current?.scrollTop || 0;
     setSelectedNote(note);
   };
 
-  // NoteDetail 닫을 때 이전 스크롤 위치 복원
+  // NoteDetail 닫을 때 스크롤 위치 복원
   const handleBack = () => {
     setSelectedNote(null);
-    setTimeout(() => scrollToBottom(), 50); // 렌더링 후 복원
+    setTimeout(() => scrollToBottom(), 50);
   };
 
   // 검색된 노트 목록 업데이트
