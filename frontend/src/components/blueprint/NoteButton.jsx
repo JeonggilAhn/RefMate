@@ -108,7 +108,7 @@ const NoteButton = ({ note, onClick, previewImage }) => {
       </div>
       {/* 호버 시 이미지 표시 */}
       {isHovered && previewImage && (
-        <div className="absolute left-full ml-4 w-32 h-32 border border-gray-300 rounded-lg shadow-lg bg-white p-1">
+        <div className="absolute left-full ml-4 w-40 h-full border border-gray-300 rounded-lg shadow-lg bg-white p-10">
           <img
             src={previewImage}
             alt="노트 미리보기"
