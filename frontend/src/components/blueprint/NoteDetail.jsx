@@ -83,7 +83,7 @@ const NoteDetail = ({ noteId, onBack, isDetailSidebarOpen, pinName }) => {
       },
     });
   };
-  console.log('받은 pinName:', pinName);
+  // console.log('받은 pinName:', pinName);
 
   // 북마크 토글 기능
 
