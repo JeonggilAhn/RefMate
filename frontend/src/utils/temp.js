@@ -6,7 +6,7 @@ export const processNotes = (noteList, prevLastDate = '') => {
   let lastDate = prevLastDate;
   let lastInsertedIndex = null; // 날짜 구분선이 들어갈 위치 저장
 
-  noteList.forEach((note) => {
+  noteList.forEach((note, index) => {
     if (!note.created_at) return;
 
     const dateObj = new Date(note.created_at);
@@ -20,8 +20,8 @@ export const processNotes = (noteList, prevLastDate = '') => {
     });
 
     // 날짜가 바뀌었으면, 가장 첫 번째 노트 **위**에 구분선 추가
-    if (noteDate !== lastDate && lastInsertedIndex !== null) {
-      notesWithSeparators.splice(lastInsertedIndex, 0, {
+    if (index === 0 || noteDate !== lastDate) {
+      notesWithSeparators.push({
         type: 'date-separator',
         date: noteDate,
       });
