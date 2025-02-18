@@ -80,6 +80,8 @@ const CreateProject = ({ setProjects }) => {
         description: String(new Date()),
       });
 
+      window.location.href = `/projects/${projectId}/blueprints`;
+
       setModal(null);
     } catch (error) {
       console.error('프로젝트 생성 실패:', error);
