@@ -190,6 +190,7 @@ function PinContents({
   detailNote,
   setDetailNote,
   onClickPin,
+  scale = 1,
 }) {
   const [activeTab, setActiveTab] = useState('note');
   const [detailPinImages, setDetailPinImages] = useState([]);
@@ -297,7 +298,14 @@ function PinContents({
 
   if (selectedNote) {
     return (
-      <Draggable nodeRef={draggableRef}>
+      <Draggable
+        nodeRef={draggableRef}
+        onStart={(e) => {
+          e.stopPropagation();
+        }}
+        cancel=".no-drag"
+        scale={scale}
+      >
         <Container
           ref={draggableRef}
           style={{ width: '320px', minWidth: '320px' }}
@@ -305,6 +313,7 @@ function PinContents({
           <NoteDetail
             noteId={selectedNote.note_id}
             note={detailNote}
+            pinName={pinInfo.pin_name}
             onBack={handleBack}
           />
         </Container>
@@ -320,6 +329,7 @@ function PinContents({
           e.stopPropagation();
         }}
         cancel=".no-drag"
+        scale={scale}
       >
         <Container
           ref={draggableRef}
