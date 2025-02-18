@@ -22,6 +22,7 @@ import com.dawn.backend.domain.note.dto.ChatItemDto;
 import com.dawn.backend.domain.note.dto.DateSeparatorDto;
 import com.dawn.backend.domain.note.dto.GetNotesByRangeResponseDto;
 import com.dawn.backend.domain.note.dto.NoteDto;
+import com.dawn.backend.domain.note.dto.NoteItemByBlueprint;
 import com.dawn.backend.domain.note.dto.NoteItemWithTypeDto;
 import com.dawn.backend.domain.note.dto.NoteWithPinAndPinGroupDto;
 import com.dawn.backend.domain.note.dto.request.BookmarkImageRequestDto;
@@ -342,6 +343,35 @@ public class NoteService {
 			pageRequest
 		);
 
+		List<Long> noteIds = noteDtos.stream()
+			.map(NoteWithPinAndPinGroupDto::noteId)
+			.toList();
+
+		List<Long> userIds = noteDtos.stream()
+			.map(NoteWithPinAndPinGroupDto::userId)
+			.distinct() // 중복 제거
+			.toList();
+
+		List<ProjectUserDto> noteWriters = userRepository.findUsersWithRolesByUserIds(userIds, projectId);
+
+		Map<Long, ProjectUserDto> noteWriterMap = noteWriters.stream()
+			.collect(Collectors.toMap(ProjectUserDto::userId, user -> user));
+
+		List<ProjectUserWithReadNoteDto> readUsers =
+			userRepository.findCheckedUsersWithRolesByNoteIds(noteIds, projectId);
+
+		Map<Long, List<ProjectUserDto>> readUsersMap = readUsers.stream()
+			.collect(Collectors.groupingBy(
+				ProjectUserWithReadNoteDto::noteId,
+				Collectors.mapping(dto -> new ProjectUserDto(
+					dto.userId(),
+					dto.userEmail(),
+					dto.profileUrl(),
+					dto.signupDate(),
+					dto.role()
+				), Collectors.toList())
+			));
+
 		boolean hasMore = noteDtos.size() == size + 1;
 		if (hasMore) {
 			noteDtos = noteDtos.subList(0, size);
@@ -360,9 +390,13 @@ public class NoteService {
 				prevDate = currentDate;
 			}
 
-			List<ProjectUserDto> readUsers = userRepository.findCheckedUsersWithRolesByNoteId(dto.noteId(), projectId);
+			ProjectUserDto noteWriter = noteWriterMap.get(dto.userId());
+			List<ProjectUserDto> mappedReadUsers = readUsersMap.getOrDefault(dto.noteId(), new ArrayList<>());
 
-			chatItems.add(BlueprintNoteItemDto.from(dto, readUsers));
+			NoteItemByBlueprint noteItemWithTypeDto = NoteItemByBlueprint.from(
+				dto, noteWriter, mappedReadUsers
+			);
+			chatItems.add(noteItemWithTypeDto);
 		}
 
 		return new GetNotesByBlueprintResponseDto(chatItems, hasMore);
