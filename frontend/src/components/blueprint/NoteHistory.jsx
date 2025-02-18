@@ -48,39 +48,26 @@ const NoteHistory = ({ setIsNoteHistoryOpen }) => {
 
   // 날짜별 구분선 추가하여 상태 저장
   useEffect(() => {
-    if (!rawNotes.length) return; // 노트가 아예 없으면 실행 안 함 (빈 배열 방지)
-
     if (isInitialLoad) {
-      const { notesWithSeparators, lastDate: newLastDate } =
-        historyProcessNotes(rawNotes, lastDate);
-      setNotes(notesWithSeparators.reverse()); // 최신 데이터가 아래로 가도록 reverse()
-      setLastDate(newLastDate);
-    } else {
-      const { notesWithSeparators, lastDate: newLastDate } =
-        historyProcessNotes(rawNotes, lastDate);
-      setNotes((prevNotes) => [...prevNotes, ...notesWithSeparators.reverse()]); // 추가 데이터는 그대로 합침
-      setLastDate(newLastDate);
+      if (rawNotes.length > 0) {
+        // 최초 실행 시 rawNotes를 활용하여 초기 데이터 설정
+        const { notesWithSeparators, lastDate: newLastDate } =
+          historyProcessNotes(rawNotes, '');
+        setNotes(notesWithSeparators.reverse()); // 최신 데이터가 아래로 가도록 reverse()
+        setLastDate(newLastDate);
+
+        // cursorId를 rawNotes의 가장 오래된 ID로 설정
+        cursorIdRef.current = rawNotes.at(-1)?.note_id || null;
+
+        console.log('초기 cursorId 설정:', cursorIdRef.current);
+      }
+
+      // 초기 데이터를 설정한 후 fetchMoreNotes() 실행하여 새로운 데이터도 가져오기
+      fetchMoreNotes();
+
+      setIsInitialLoad(false);
     }
-
-    // cursorIdRef는 가장 오래된 note_id로 설정
-    cursorIdRef.current = rawNotes.at(-1)?.note_id || null;
-
-    //  console.log('초기 cursorId 설정:', cursorIdRef.current);
-    if (rawNotes.length > 5) {
-      // 스크롤 위치를 맨 아래로 설정
-      setTimeout(() => {
-        if (scrollContainerRef.current) {
-          const currentScrollTop = scrollContainerRef.current.scrollTop || 0;
-          const currentScrollHeight =
-            scrollContainerRef.current.scrollHeight || 0;
-
-          scrollContainerRef.current.scrollTop =
-            currentScrollTop +
-            (scrollContainerRef.current.scrollHeight - currentScrollHeight);
-        }
-      }, 0);
-    }
-  }, [rawNotes, isInitialLoad]);
+  }, [isInitialLoad, rawNotes]); // rawNotes가 변경될 때 실행
 
   // 검색 -> 스크롤 & 하이라이트
   const fetchSearchNotes = async () => {
@@ -331,8 +318,6 @@ const NoteHistory = ({ setIsNoteHistoryOpen }) => {
     setIsFetching(true); // 요청 중에는 중복 호출하지 않음음
 
     try {
-      //  console.log('현재 cursorId:', cursorIdRef.current);
-
       const apiUrl = `blueprints/${blueprint_id}/${blueprint_version_id}/notes`;
       const params = {
         project_id: projectId,
@@ -340,9 +325,6 @@ const NoteHistory = ({ setIsNoteHistoryOpen }) => {
         size: 5, // 가져올 data 수
       };
       const response = await get(apiUrl, params);
-
-      // console.log('API 응답 확인:', response.data);
-
       const newNotes = response.data?.content?.note_list || [];
 
       if (response.status === 200 && newNotes.length > 0) {
@@ -359,7 +341,7 @@ const NoteHistory = ({ setIsNoteHistoryOpen }) => {
 
           // 날짜 구분선 추가 및 LastDate 업데이트
           const { notesWithSeparators, lastDate: newLastDate } =
-            historyProcessNotes(mergedNotes, lastDate);
+            historyProcessNotes([...prevNotes, ...filteredNotes], lastDate);
 
           setNotes(notesWithSeparators);
           setLastDate(newLastDate);
