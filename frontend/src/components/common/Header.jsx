@@ -80,15 +80,11 @@ function Header() {
 
         {isLoggedIn ? (
           <div className="flex items-center gap-4">
-            <div className="relative cursor-pointer">
-              <Icon name="IconTbBell" width={24} height={24} />
-            </div>
-
             <div className="cursor-pointer">
               <DropdownMenu>
                 <DropdownMenuTrigger>
                   <Avatar className="w-6 h-6 border border-gray-300">
-                    <AvatarImage src={profileUrl} alt="프로필" />
+                    <AvatarImage src={user.profile_url} alt="프로필" />
                     <AvatarFallback>
                       {userEmail.slice(0, 2).toUpperCase() || 'NA'}
                     </AvatarFallback>

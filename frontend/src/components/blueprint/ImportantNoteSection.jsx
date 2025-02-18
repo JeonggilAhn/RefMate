@@ -94,7 +94,7 @@ const ImportantNoteSection = ({ detailPin, setDetailNote, projectId }) => {
       <h2 className="text-center p-2 border-b border-[#CBCBCB] rounded-t-lg bg-[#F5F5F5]">
         중요한 노트
       </h2>
-      <div className="h-40 overflow-y-auto">
+      <div className="h-40">
         {console.log('ImportantNoteSection - Notes:', notes)}{' '}
         <ImportantNoteList notes={notes} onNoteClick={handleNoteClick} />
       </div>
