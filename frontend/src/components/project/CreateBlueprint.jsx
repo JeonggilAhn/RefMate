@@ -62,6 +62,8 @@ const CreateBlueprint = ({ setBlueprints, projectId }) => {
         title: '블루프린트를 생성에 성공했습니다.',
         description: String(new Date()),
       });
+
+      window.location.href = `/projects/${projectId}/blueprints/${response.data.content.blueprint.blueprint_id}/${response.data.content.blueprint.latest_version_id}`;
       setModal(null);
     } catch (error) {
       console.error('블루프린트 생성 실패:', error);
