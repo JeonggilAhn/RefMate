@@ -5,7 +5,6 @@ import { useRecoilValue } from 'recoil';
 import { pinState } from '../../recoil/blueprint';
 import { processNotes } from '../../utils/temp';
 import { userState } from '../../recoil/common/user';
-import { isMyNote } from '../../utils/isMyNote';
 
 import Icon from '../common/Icon';
 import NoteDetail from './NoteDetail';
@@ -27,18 +26,20 @@ const NoteList = memo(function NoteList({
   return (
     <>
       {processedNotes.notesWithSeparators.map((note, index) => {
+        const isMine =
+          user?.user_email && note?.note_writer?.user_email
+            ? user.user_email === note.note_writer.user_email
+            : false;
+
         if (note.type === 'date-separator') {
           return <DateSeparator key={index}>{note.date}</DateSeparator>;
         }
-        const isMine = isMyNote(note, user); // 내 노트 여부 판단
-
         return (
           <div
             key={note.note_id}
             ref={(el) => (noteRefs.current[note.note_id] = el)}
-            className={`p-2 ${
-              searchTargetId === note.note_id ? 'bg-yellow-200' : ''
-            } ${isMine ? 'items-end' : 'items-start'}`}
+            className={`p-2 ${searchTargetId === note.note_id ? 'bg-yellow-200' : ''} 
+            ${isMine ? 'items-end' : 'items-start'}`}
           >
             <NoteButton note={note} onClick={() => onNoteClick(note)} />
           </div>

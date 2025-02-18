@@ -971,7 +971,7 @@ const Blueprint = () => {
         </div>
       </div>
       {isNoteHistoryOpen && (
-        <div className="absolute top-20 left-20 z-50">
+        <div className="absolute top-40 left-40 z-10">
           <NoteHistory setIsNoteHistoryOpen={setIsNoteHistoryOpen} />
         </div>
       )}

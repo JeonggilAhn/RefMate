@@ -238,6 +238,14 @@ const NoteHistory = ({ setIsNoteHistoryOpen }) => {
     setHighlightedNoteId(searchTargetId);
   }, [searchTargetId]);
 
+  useEffect(() => {
+    if (!selectedNote && scrollContainerRef.current) {
+      requestAnimationFrame(() => {
+        scrollContainerRef.current.scrollTop = scrollPositionRef.current;
+      });
+    }
+  }, [selectedNote]);
+
   const goToPreviousNote = () => {
     const newIndex =
       currentIndex - 1 < 0 ? searchedNotes.length - 1 : currentIndex - 1; // 처음이면 마지막으로 이동
@@ -306,9 +314,12 @@ const NoteHistory = ({ setIsNoteHistoryOpen }) => {
     setSearchTargetId(null);
     setHighlightedNoteId(null);
 
-    if (scrollContainerRef.current) {
-      scrollContainerRef.current.scrollTop = scrollPositionRef.current;
-    }
+    // 스크롤 위치 복원
+    setTimeout(() => {
+      if (scrollContainerRef.current) {
+        scrollContainerRef.current.scrollTop = scrollPositionRef.current;
+      }
+    }, 0); // 0ms 정도 딜레이 줘서 DOM 업데이트 후 반영
   };
 
   // 페이지네이션 추가 노트 불러오기
@@ -432,7 +443,7 @@ const NoteHistory = ({ setIsNoteHistoryOpen }) => {
     <Draggable nodeRef={draggableRef}>
       <div
         ref={draggableRef}
-        className="flex flex-col border border-gray-300 bg-white shadow-md rounded-lg h-full max-h-[20rem]"
+        className="flex flex-col border border-gray-300 bg-white shadow-md rounded-lg w-[25rem] h-[30rem] max-h-none"
       >
         {selectedNote ? (
           <NoteDetail
@@ -529,13 +540,10 @@ const NoteHistory = ({ setIsNoteHistoryOpen }) => {
               {notes.map((note, index) => {
                 if (!note || typeof note !== 'object') return null;
 
-                const isMyNote = (note, user) => {
-                  if (!note || note.type !== 'note' || !note.user_email)
-                    return false;
-                  return user?.user_email && note.user_email
-                    ? user.user_email === note.user_email
-                    : false;
-                };
+                const isMyNote =
+                  note.type === 'note' &&
+                  (user?.user_email === note.note_writer?.user_email ||
+                    user?.user_email === note.user_email); // 내 노트인지 확인
 
                 //console.log('유저정보 : ', user);
                 //console.log('노트정보 : ', note.user_email);
@@ -552,7 +560,7 @@ const NoteHistory = ({ setIsNoteHistoryOpen }) => {
                         ref={(el) => (noteRefs.current[note.note_id] = el)}
                         className={`p-2 w-full flex flex-col 
     ${highlightedNoteId === note.note_id || searchTargetId === note.note_id ? 'bg-yellow-100' : ''} 
-    ${isMyNote(note, user) ? 'items-end' : 'items-start'}`}
+    ${isMyNote ? 'items-end' : 'items-start'}`}
                       >
                         {note.type === 'note' && note.pin_name && (
                           <div

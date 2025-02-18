@@ -14,7 +14,6 @@ import { get } from '../../api';
 import { pinState } from '../../recoil/blueprint';
 import { processNotes } from '../../utils/temp';
 import { userState } from '../../recoil/common/user';
-import { isMyNote } from '../../utils/isMyNote';
 
 import Icon from '../common/Icon';
 import NoteDetail from './NoteDetail';
@@ -164,7 +163,6 @@ const NoteList = memo(function NoteList({
         if (note.type === 'date-separator') {
           return <DateSeparator key={index}>{note.date}</DateSeparator>;
         }
-        const isMine = isMyNote(note, user);
 
         return (
           <div
@@ -172,7 +170,7 @@ const NoteList = memo(function NoteList({
             ref={(el) => (noteRefs.current[note.note_id] = el)}
             className={`p-2 ${
               searchTargetId === note.note_id ? 'bg-yellow-200' : ''
-            } ${isMine ? 'items-end' : 'items-start'}`}
+            }${user?.user_email === note?.note_writer?.user_email ? 'items-end' : 'items-start'}`}
           >
             <NoteButton note={note} onClick={() => onNoteClick(note)} />
           </div>
