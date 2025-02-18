@@ -19,14 +19,17 @@ export const processNotes = (noteList, prevLastDate = '') => {
       weekday: 'short',
     });
 
-    // 날짜가 바뀌었으면, 가장 첫 번째 노트 **위**에 구분선 추가
-    if (index === 0 || noteDate !== lastDate) {
+    // 날짜가 바뀌었고, 마지막으로 추가된 항목이 `date-separator`가 아니라면 추가
+    const lastItem = notesWithSeparators[notesWithSeparators.length - 1];
+    if (
+      index === 0 ||
+      (noteDate !== lastDate && lastItem?.type !== 'date-separator')
+    ) {
       notesWithSeparators.push({
         type: 'date-separator',
         date: noteDate,
       });
     }
-
     lastInsertedIndex = notesWithSeparators.length; // 현재 노트의 위치 저장
     lastDate = noteDate;
     notesWithSeparators.push(note);

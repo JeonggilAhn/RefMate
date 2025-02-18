@@ -53,16 +53,22 @@ const NoteHistory = ({ setIsNoteHistoryOpen }) => {
         // 최초 실행 시 rawNotes를 활용하여 초기 데이터 설정
         const { notesWithSeparators, lastDate: newLastDate } =
           historyProcessNotes(rawNotes, '');
-        setNotes(notesWithSeparators.reverse()); // 최신 데이터가 아래로 가도록 reverse()
+
+        // 중복 방지를 위해 `note_id` 기준으로 Set 활용
+        const uniqueNotes = new Map();
+        notesWithSeparators.forEach((note) =>
+          uniqueNotes.set(note.note_id, note),
+        );
+
+        setNotes(Array.from(uniqueNotes.values()).reverse()); // 최신 데이터가 아래로 가도록 reverse()
         setLastDate(newLastDate);
 
         // cursorId를 rawNotes의 가장 오래된 ID로 설정
         cursorIdRef.current = rawNotes.at(-1)?.note_id || null;
-
         console.log('초기 cursorId 설정:', cursorIdRef.current);
       }
 
-      // 초기 데이터를 설정한 후 fetchMoreNotes() 실행하여 새로운 데이터도 가져오기
+      // 초기 데이터를 설정한 후 `fetchMoreNotes()` 실행하여 새로운 데이터 가져오기
       fetchMoreNotes();
 
       setIsInitialLoad(false);
@@ -341,7 +347,7 @@ const NoteHistory = ({ setIsNoteHistoryOpen }) => {
 
           // 날짜 구분선 추가 및 LastDate 업데이트
           const { notesWithSeparators, lastDate: newLastDate } =
-            historyProcessNotes([...prevNotes, ...filteredNotes], lastDate);
+            historyProcessNotes(mergedNotes, lastDate);
 
           setNotes(notesWithSeparators);
           setLastDate(newLastDate);
