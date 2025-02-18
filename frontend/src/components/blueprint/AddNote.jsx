@@ -12,8 +12,9 @@ const AddNote = ({
   blueprintVersionId,
   projectId,
   pinInfo,
-  detailPinImages,
   setDetailPinImages,
+  detailPinImages,
+  setSelectedTabs,
 }) => {
   const [pins, setPins] = useRecoilState(pinState);
 
@@ -61,16 +62,28 @@ const AddNote = ({
         });
       });
 
-      setDetailPinImages((prev) => {
-        return [
-          ...prev,
-          {
-            note_id: response.data.content.note.note_id,
-            note_title: response.data.content.note.note_title,
-            image_list: response.data.content.image_list,
-          },
-        ];
-      });
+      const noImagesBefore = detailPinImages.length === 0;
+      if (response.data.content.image_list.length > 0) {
+        setDetailPinImages((prev) => {
+          return [
+            ...prev,
+            {
+              note_id: response.data.content.note.note_id,
+              note_title: response.data.content.note.note_title,
+              image_list: response.data.content.image_list,
+            },
+          ];
+        });
+
+        if (noImagesBefore) {
+          setSelectedTabs((prev) => {
+            if (!prev.includes('image')) {
+              return [...prev, 'image'];
+            }
+            return prev;
+          });
+        }
+      }
 
       if (response.status === 201) {
         toast({

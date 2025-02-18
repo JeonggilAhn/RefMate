@@ -371,7 +371,14 @@ function PinContents({
                 className="w-4 h-4 rounded-full"
                 style={{ backgroundColor: pinInfo.pin_group.pin_group_color }}
               />
-              <div>{pinInfo.pin_name}</div>
+              <div className="relative group">
+                <span className="w-[13.8rem] text-sm font-medium truncate">
+                  {pinInfo.pin_name}
+                </span>
+                <div className="absolute hidden group-hover:block left-0 bottom-10 bg-black bg-opacity-75 text-white p-2 rounded-md text-sm whitespace-nowrap z-20">
+                  {pinInfo.pin_name}
+                </div>
+              </div>
             </div>
             <div className="flex items-center gap-2 pr-2">
               <button
@@ -430,8 +437,9 @@ function PinContents({
                 pinInfo={pinInfo}
                 projectId={useParams().projectId}
                 blueprintVersionId={useParams().blueprint_version_id}
-                detailPinImages={detailPinImages}
                 setDetailPinImages={setDetailPinImages}
+                detailPinImages={detailPinImages}
+                setSelectedTabs={setSelectedTabs}
               />
             </AddNoteWrapper>
           )}
