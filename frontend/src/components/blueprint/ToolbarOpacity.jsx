@@ -27,6 +27,8 @@ const ToolbarOpacity = ({
         <SelectBox
           value={selectedBlueprintIndex}
           onValueChange={onSelectBlueprintVersion}
+          width={40}
+          placeholder={``}
         >
           {blueprints.map((print, index) => (
             <SelectItem key={print.blueprint_version_id} value={index}>

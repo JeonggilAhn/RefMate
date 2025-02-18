@@ -16,7 +16,7 @@ import { processNotes } from '../../utils/temp';
 import { userState } from '../../recoil/common/user';
 
 import Icon from '../common/Icon';
-import NoteDetail from './NoteDetail';
+import NotePopupDetail from './NotePopupDetail';
 import NoteButton from './NoteButton';
 import AddNote from './AddNote';
 
@@ -89,7 +89,7 @@ const ImageList = memo(function ImageList({ detailPinImages }) {
           onClick={handlePrevImage}
         >
           <Icon
-            name="IconTbChevronLeft"
+            name="IconGoChevronPrev"
             width={24}
             height={24}
             color="#000000"
@@ -102,7 +102,7 @@ const ImageList = memo(function ImageList({ detailPinImages }) {
           onClick={handleNextImage}
         >
           <Icon
-            name="IconTbChevronRight"
+            name="IconGoChevronNext"
             width={24}
             height={24}
             color="#000000"
@@ -152,7 +152,24 @@ const NoteList = memo(function NoteList({
   onNoteClick,
   noteRefs,
   user,
+  selectedNote,
+  onBack,
+  detailNote,
+  pinName,
 }) {
+  if (selectedNote) {
+    return (
+      <div className="h-full overflow-hidden">
+        <NotePopupDetail
+          noteId={selectedNote.note_id}
+          note={detailNote}
+          pinName={pinName}
+          onBack={onBack}
+        />
+      </div>
+    );
+  }
+
   if (processedNotes.notesWithSeparators.length === 0) {
     return <NoData>등록된 노트가 없습니다.</NoData>;
   }
@@ -294,31 +311,6 @@ function PinContents({
     return null;
   }
 
-  if (selectedNote) {
-    return (
-      <Draggable
-        nodeRef={draggableRef}
-        onStart={(e) => {
-          e.stopPropagation();
-        }}
-        cancel=".no-drag"
-        scale={scale}
-      >
-        <Container
-          ref={draggableRef}
-          style={{ width: '320px', minWidth: '320px' }}
-        >
-          <NoteDetail
-            noteId={selectedNote.note_id}
-            note={detailNote}
-            pinName={pinInfo.pin_name}
-            onBack={handleBack}
-          />
-        </Container>
-      </Draggable>
-    );
-  }
-
   return (
     <>
       <Draggable
@@ -415,25 +407,31 @@ function PinContents({
           <ContentContainer selectedCount={selectedTabs.length}>
             {selectedTabs.includes('note') && (
               <ContentSection>
-                <NotesContainer>
-                  <NoteListWrapper>
+                <NotesContainer hasSelectedNote={!!selectedNote}>
+                  <NoteListWrapper hasSelectedNote={!!selectedNote}>
                     <NoteList
                       processedNotes={processedNotes}
                       searchTargetId={searchTargetId}
                       onNoteClick={handleNoteClick}
                       noteRefs={noteRefs}
                       user={user}
+                      selectedNote={selectedNote}
+                      onBack={handleBack}
+                      detailNote={detailNote}
+                      pinName={pinInfo.pin_name}
                     />
                   </NoteListWrapper>
-                  <AddNoteButton onClick={handleAddNoteClick}>
-                    <Icon
-                      name="IconIoIosAddCircleOutline"
-                      width={20}
-                      height={20}
-                      color="#414141"
-                    />
-                    <span>노트 추가</span>
-                  </AddNoteButton>
+                  {!selectedNote && (
+                    <AddNoteButton onClick={handleAddNoteClick}>
+                      <Icon
+                        name="IconIoIosAddCircleOutline"
+                        width={28}
+                        height={28}
+                        color="#ffffff"
+                      />
+                      {/* <span>노트 추가</span> */}
+                    </AddNoteButton>
+                  )}
                 </NotesContainer>
               </ContentSection>
             )}
@@ -525,10 +523,16 @@ const TabButton = styled.button`
 const NotesContainer = styled.div`
   display: flex;
   flex-direction: column;
-  padding: 1rem;
+  padding-left: 1rem;
   gap: 0.75rem;
   height: 100%;
   position: relative;
+  ${(props) =>
+    props.hasSelectedNote &&
+    `
+    overflow: hidden;
+    padding: 0;
+  `}
 `;
 
 const DateSeparator = styled.div`
@@ -548,23 +552,30 @@ const NoData = styled.div`
 const NoteListWrapper = styled.div`
   flex: 1;
   overflow-y: auto;
-  margin-bottom: 60px;
+  ${(props) =>
+    props.hasSelectedNote &&
+    `
+    overflow: hidden;
+    height: 100%;
+  `}
 `;
 
 const AddNoteButton = styled.button`
   display: flex;
+  justify-content: center;
   align-items: center;
   gap: 8px;
   padding: 8px;
-  width: calc(100% - 2rem);
-  background-color: #ffffff;
+  width: 40px;
+  height: 40px;
+  background-color: #87b5fa;
   border: 1px solid #cbcbcb;
-  border-radius: 4px;
+  border-radius: 100%;
   cursor: pointer;
   transition: background-color 0.2s;
   position: absolute;
-  bottom: 1rem;
-  left: 1rem;
+  bottom: 5px;
+  left: 5px;
 
   &:hover {
     background-color: #f0f0f0;
@@ -593,7 +604,7 @@ const ContentContainer = styled.div`
   display: flex;
   width: ${(props) => (props.selectedCount > 1 ? '640px' : '320px')};
   transition: width 0.3s ease;
-  height: calc(100% - 40px);
+  height: 100%;
   overflow: hidden;
 `;
 

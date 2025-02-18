@@ -97,6 +97,11 @@ const Blueprint = () => {
   // 하이라이트할 핀 ID를 저장하는 state 추가
   const [highlightedPinId, setHighlightedPinId] = useState(null);
 
+  // 노트 표시 상태를 저장하는 state 추가
+  const [isNotesVisible, setIsNotesVisible] = useState(true);
+  // 노트 표시 이전 상태를 저장하는 state 추가
+  const [prevNotesState, setPrevNotesState] = useState({});
+
   const pinGroupColorLight = detailPin?.pin_group?.pin_group_color_light;
 
   const filterNoImageList = (data) => {
@@ -214,9 +219,30 @@ const Blueprint = () => {
 
   const closeAllNotePopup = () => {
     setPins((prev) => {
-      return prev.map((pin) => {
-        return { ...pin, is_open_note: false };
+      // 현재 상태 저장
+      const newPrevState = {};
+      prev.forEach((pin) => {
+        if (pin.is_open_note) {
+          newPrevState[pin.pin_id] = true;
+        }
       });
+
+      if (isNotesVisible) {
+        // 노트가 보이는 상태면 닫고 상태 저장
+        setPrevNotesState(newPrevState);
+        setIsNotesVisible(false);
+        return prev.map((pin) => ({
+          ...pin,
+          is_open_note: false,
+        }));
+      } else {
+        // 노트가 닫힌 상태면 이전 상태로 복원
+        setIsNotesVisible(true);
+        return prev.map((pin) => ({
+          ...pin,
+          is_open_note: prevNotesState[pin.pin_id] || false,
+        }));
+      }
     });
   };
 
@@ -787,6 +813,7 @@ const Blueprint = () => {
           toggleAllPinVisible={toggleAllPinVisible}
           closeAllNotePopup={closeAllNotePopup}
           closeAllImagePopup={closeAllImagePopup}
+          isNotesVisible={isNotesVisible}
         />
         {/* todo : canvas resize 기능 develop */}
         <div className={`w-full h-screen pt-[48px] relative`}>
@@ -811,6 +838,7 @@ const Blueprint = () => {
             overlayOpacity={overlayOpacity}
             isOverlayVisible={isOverlayVisible}
             isPinButtonEnaled={isPinButtonEnaled}
+            setIsPinButtonEnaled={setIsPinButtonEnaled}
             onClickPin={onClickPin}
             highlightedPinId={highlightedPinId}
           />
