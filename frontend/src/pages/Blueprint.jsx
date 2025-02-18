@@ -114,6 +114,23 @@ const Blueprint = () => {
     setHighlightedPinId(pin_id);
   };
 
+  // 화면 클릭 시 강조 해제
+  useEffect(() => {
+    if (!highlightedPinId) return;
+
+    const handleClickOutside = (event) => {
+      if (!event.target.closest('.tooltip-trigger')) {
+        setHighlightedPinId(null);
+      }
+    };
+
+    document.addEventListener('click', handleClickOutside);
+
+    return () => {
+      document.removeEventListener('click', handleClickOutside);
+    };
+  }, [highlightedPinId]);
+
   const onClickPinButton = () => {
     setIsPinButtonEnaled(true);
   };

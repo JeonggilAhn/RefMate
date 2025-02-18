@@ -469,8 +469,8 @@ const BlueprintCanvas = ({
             visibility: item.is_visible ? 'visible' : 'hidden',
             transform: `translate(-50%, -50%) scale(${scale})`,
             transformOrigin: 'center center',
-            animation:
-              highlightedPinId === item.pin_id ? 'pulse 1s infinite' : 'none',
+            // animation:
+            //   highlightedPinId === item.pin_id ? 'pulse 1s infinite' : 'none',
           }}
         >
           <PinComponent
