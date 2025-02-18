@@ -28,6 +28,7 @@ const PinNoteSection = ({
   projectId,
   blueprintVersionId,
   isDetailSidebarOpen,
+  pinGroupColorLight,
 }) => {
   if (detailNote) {
     return (
@@ -46,6 +47,9 @@ const PinNoteSection = ({
   const [open, setOpen] = useState(false);
 
   const user = useRecoilValue(userState); // 로그인한 유저 정보 가져오기
+
+  const scrollRef = useRef(null);
+
   console.log(`pinInfo :`, pinInfo);
 
   useEffect(() => {
@@ -59,6 +63,18 @@ const PinNoteSection = ({
     () => processNotes(data.pinDetailNotes),
     [data.pinDetailNotes],
   );
+
+  // 스크롤을 최하단으로 이동하는 함수
+  const scrollToBottom = () => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    }
+  };
+
+  // 데이터가 변경될 때마다 최하단으로 스크롤
+  useEffect(() => {
+    scrollToBottom();
+  }, [data.pinDetailNotes]);
 
   // 노트 검색
   const [isSearching, setIsSearching] = useState(false);
@@ -116,7 +132,7 @@ const PinNoteSection = ({
         />
       ) : (
         <>
-          <Header>
+          <Header style={{ backgroundColor: pinGroupColorLight }}>
             <DropdownMenu open={open} onOpenChange={setOpen}>
               <DropdownMenuTrigger
                 asChild
@@ -156,7 +172,7 @@ const PinNoteSection = ({
               </button>
             )}
           </Header>
-          <NotesContainer>
+          <NotesContainer ref={scrollRef}>
             {processedNotes.notesWithSeparators.length === 0 ? (
               <NoData>등록된 노트가 없습니다.</NoData>
             ) : (
@@ -232,7 +248,6 @@ const NotesContainer = styled.div`
   overflow-y: auto;
   display: flex;
   flex-direction: column;
-  justfiy-content: flex-end;
   padding: 1rem;
   gap: 0.75rem;
   max-height: calc(100% - 3rem);
