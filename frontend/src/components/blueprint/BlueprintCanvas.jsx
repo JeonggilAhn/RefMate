@@ -451,6 +451,7 @@ const BlueprintCanvas = ({
             pin={item}
             onClickPin={() => onClickPin(item)}
             isHighlighted={highlightedPinId === item.pin_id}
+            scale={scale}
           />
         </div>
       ))}

@@ -15,6 +15,7 @@ const PinComponent = ({
   pin,
   onClickPin,
   isHighlighted,
+  scale = 1,
 }) => {
   const [pins, setPins] = useRecoilState(pinState);
 
@@ -274,6 +275,7 @@ const PinComponent = ({
             pinInfo={pinInfo}
             pinId={pinInfo.pin_id}
             activeTab={pin.is_open_image ? 'image' : 'note'}
+            scale={scale}
             onClickPin={onClickPin}
             onClose={() =>
               setPins((prev) => {
