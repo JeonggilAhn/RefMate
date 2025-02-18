@@ -110,7 +110,7 @@ const NoteButton = ({ note, onClick, previewImage }) => {
       {isHovered && previewImage && (
         <div className="absolute left-full ml-4 w-32 h-32 border border-gray-300 rounded-lg shadow-lg bg-white p-1">
           <img
-            src={blueprint_version_preview_img}
+            src={previewImage}
             alt="노트 미리보기"
             className="w-full h-full object-cover rounded-md"
           />
