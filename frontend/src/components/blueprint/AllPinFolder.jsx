@@ -82,25 +82,34 @@ const AllPinFolder = ({
           </div>
         ) : (
           <div className="grid grid-cols-2 grid-row-2 gap-1 place-items-center p-2">
-            {pin.preview_image_list.map((item, idx) => {
+            {[...Array(4)].map((_, idx) => {
+              const item = pin.preview_image_list[idx];
               return (
                 <div
-                  key={item.image_id}
+                  key={item?.image_id || idx}
                   className="relative"
-                  onClick={() => onClickPinImage(pin.preview_image_list)}
+                  onClick={() =>
+                    item && onClickPinImage(pin.preview_image_list)
+                  }
                 >
-                  <img
-                    src={item.image_preview}
-                    alt="reference"
-                    className="w-[4rem] h-[4rem] object-cover rounded-md shadow-2xs"
-                  />
-                  {item.image_id && item.is_bookmark && (
-                    <div className="absolute top-0 right-0 w-4 h-4 bg-[#87B5FA] clip-triangle"></div>
-                  )}
-                  {idx === 3 && pin.preview_image_list.length > 4 && (
-                    <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center text-white text-sm font-semibold rounded-md">
-                      +{pin.preview_image_list.length - 4}
-                    </div>
+                  {item ? (
+                    <>
+                      <img
+                        src={item.image_preview}
+                        alt="reference"
+                        className="w-[4rem] h-[4rem] object-cover rounded-md shadow-2xs"
+                      />
+                      {item.image_id && item.is_bookmark && (
+                        <div className="absolute top-0 right-0 w-4 h-4 bg-[#87B5FA] clip-triangle"></div>
+                      )}
+                      {idx === 3 && pin.preview_image_list.length > 4 && (
+                        <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center text-white text-sm font-semibold rounded-md">
+                          +{pin.preview_image_list.length - 4}
+                        </div>
+                      )}
+                    </>
+                  ) : (
+                    <div className="w-[4rem] h-[4rem] bg-gray-100 rounded-md shadow-2xs" />
                   )}
                 </div>
               );
