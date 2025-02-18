@@ -81,13 +81,13 @@ const AllPinFolder = ({
             </div>
           </div>
         ) : (
-          <div className="grid grid-cols-2 grid-row-2 gap-1 place-items-center p-2">
+          <div className="grid grid-cols-2 grid-row-2 gap-1 p-2 w-full">
             {[...Array(4)].map((_, idx) => {
               const item = pin.preview_image_list[idx];
               return (
                 <div
                   key={item?.image_id || idx}
-                  className="relative"
+                  className="relative w-full aspect-square"
                   onClick={() =>
                     item && onClickPinImage(pin.preview_image_list)
                   }
@@ -97,7 +97,7 @@ const AllPinFolder = ({
                       <img
                         src={item.image_preview}
                         alt="reference"
-                        className="w-[4rem] h-[4rem] object-cover rounded-md shadow-2xs"
+                        className="w-full h-full object-cover rounded-md shadow-2xs"
                       />
                       {item.image_id && item.is_bookmark && (
                         <div className="absolute top-0 right-0 w-4 h-4 bg-[#87B5FA] clip-triangle"></div>
@@ -109,7 +109,7 @@ const AllPinFolder = ({
                       )}
                     </>
                   ) : (
-                    <div className="w-[4rem] h-[4rem] bg-gray-100 rounded-md shadow-2xs" />
+                    <div className="w-full h-full bg-gray-100 rounded-md shadow-2xs" />
                   )}
                 </div>
               );
