@@ -30,7 +30,7 @@ export function EditOption({ actions = [] }) {
     <DropdownMenu>
       <DropdownMenuTrigger
         asChild
-        className="focus-visible:outline-none focus-visible:ring-0 p-0 hover:bg-[#F1F1F1] cursor-pointer rounded-full w-7 h-7"
+        className="focus-visible:outline-none focus-visible:ring-0 p-0 hover:bg-[#F1F1F1] cursor-pointer rounded-full w-7 h-7 z-5"
       >
         <Button variant="none" onClick={toggleModal}>
           <Icon name="IconPiDotsThree" width={25} height={25} />

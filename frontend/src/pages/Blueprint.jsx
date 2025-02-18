@@ -105,6 +105,10 @@ const Blueprint = () => {
     });
   };
 
+  const onClickPinHighlightIcon = (pin_id) => {
+    setHighlightedPinId(pin_id);
+  };
+
   const onClickPinButton = () => {
     setIsPinButtonEnaled(true);
   };
@@ -841,7 +845,6 @@ const Blueprint = () => {
                   onClickButton={onClickViewOptionButton}
                 />
                 <div className="py-2 flex justify-end items-center gap-2">
-                  {/* todo : API 연동 */}
                   <SelectBox
                     width={40}
                     value={selectedColor}
@@ -884,7 +887,7 @@ const Blueprint = () => {
                         pinActiveActions={pinActiveActions}
                         pinInactiveActions={pinInactiveActions}
                         onClickPinImage={onClickPinImage}
-                        setHighlightedPinId={setHighlightedPinId}
+                        onClickPinHighlightIcon={onClickPinHighlightIcon}
                       />
                     </div>
                     <div
@@ -899,7 +902,7 @@ const Blueprint = () => {
                         pinActiveActions={pinActiveActions}
                         pinInactiveActions={pinInactiveActions}
                         onClickPin={onClickPin}
-                        setHighlightedPinId={setHighlightedPinId}
+                        onClickPinHighlightIcon={onClickPinHighlightIcon}
                       />
                     </div>
                   </div>
@@ -910,7 +913,7 @@ const Blueprint = () => {
         </div>
         {/* 상세 */}
         <div
-          className={`absolute top-0 right-0 transition-all duration-300 ease-in-out transform ${isDetailSidebarOpen ? 'translate-x-0 w-[22rem]' : 'translate-x-full w-0'} h-screen border-l border-[#CBCBCB] z-[4] bg-white flex flex-col overflow-hidden`}
+          className={`absolute top-0 right-0 transition-all duration-50 ease-in-out transform ${isDetailSidebarOpen ? 'translate-x-0 w-[22rem]' : 'translate-x-full w-0'} h-screen border-l border-[#CBCBCB] z-[4] bg-white flex flex-col overflow-hidden`}
         >
           <div className="pt-[46px]" />
           <div className="mt-[60px] px-[0.3rem] grid grid-cols-1 grid-rows[2fr_1fr_2fr] gap-2 overflow-hidden p-1">

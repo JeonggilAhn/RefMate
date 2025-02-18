@@ -10,7 +10,7 @@ const ToolbarSide = ({
 }) => {
   return (
     <div
-      className={`fixed top-[48px] ${isSidebarOpen ? 'w-[21.2rem]' : 'w-[12.3rem]'} right-0 z-10 p-1 flex justify-between items-center border border-[#CBCBCB] rounded-md m-1.5 bg-white`}
+      className={`fixed top-[48px] right-0 z-10 p-1 flex justify-between items-center border border-[#CBCBCB] rounded-md m-1.5 bg-white transition-all duration-300 ease-in-out ${isSidebarOpen ? 'w-[21.2rem]' : 'w-[11.8rem]'}`}
     >
       <button
         onClick={toggleSidebar}
