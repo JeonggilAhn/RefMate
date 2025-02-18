@@ -97,6 +97,8 @@ const Blueprint = () => {
   // 하이라이트할 핀 ID를 저장하는 state 추가
   const [highlightedPinId, setHighlightedPinId] = useState(null);
 
+  const pinGroupColorLight = detailPin?.pin_group?.pin_group_color_light;
+
   const filterNoImageList = (data) => {
     return data.filter((item) => {
       return item.image_list.length !== 0;
@@ -944,6 +946,7 @@ const Blueprint = () => {
               detailPin={detailPin}
               setDetailNote={setDetailNote}
               projectId={projectId}
+              pinGroupColorLight={pinGroupColorLight} // 추가
             />
             <PinNoteSection
               projectId={projectId}
@@ -954,10 +957,12 @@ const Blueprint = () => {
               detailNote={detailNote}
               setDetailNote={setDetailNote}
               isDetailSidebarOpen={isDetailSidebarOpen}
+              pinGroupColorLight={pinGroupColorLight} // 추가
             />
             <PinImageSection
               pinId={detailPin.pin_id}
               onClickImage={onClickImage}
+              pinGroupColorLight={pinGroupColorLight} // 추가
             />
           </div>
         </div>

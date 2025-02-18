@@ -2,13 +2,13 @@ import React from 'react';
 import Icon from '../common/Icon';
 
 const ImportantNoteList = ({ notes, onNoteClick }) => {
-  console.log('ImportantNoteList - Received notes:', notes); // notes 배열 확인
+  // console.log('ImportantNoteList - Received notes:', notes); // notes 배열 확인
 
   const safeNotes = Array.isArray(notes) ? notes : [];
 
   if (safeNotes.length === 0) {
     return (
-      <div className="text-sm text-left text-gray-500 p-4">
+      <div className="text-sm text-center text-gray-500 p-4">
         중요한 노트가 없습니다.
       </div>
     );

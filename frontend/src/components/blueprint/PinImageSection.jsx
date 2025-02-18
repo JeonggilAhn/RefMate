@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import { useRecoilState } from 'recoil';
 import { pinState } from '../../recoil/blueprint';
 
-const PinImageSection = ({ pinId, onClickImage }) => {
+const PinImageSection = ({ pinId, onClickImage, pinGroupColorLight }) => {
   const bottomRef = useRef(null);
   const [pins, setPins] = useRecoilState(pinState);
   const [data, setData] = useState({ pinDetailImages: [] });
@@ -16,12 +16,15 @@ const PinImageSection = ({ pinId, onClickImage }) => {
 
   return (
     <div className="relative border border-[#CBCBCB] rounded-lg shadow-md bg-white h-[250px]">
-      <div className="sticky text-center p-2 border-b border-[#CBCBCB] top-0 w-full rounded-t-lg bg-[#F5F5F5]">
+      <div
+        className="sticky text-center p-2 border-b border-[#CBCBCB] top-0 w-full rounded-t-lg bg-[#F5F5F5]"
+        style={{ backgroundColor: pinGroupColorLight }}
+      >
         레퍼런스
       </div>
       <div ref={bottomRef} className="h-50 overflow-y-auto p-2">
         {data.pinDetailImages.length === 0 ? (
-          <div className="text-sm text-left text-gray-500 p-2">
+          <div className="text-sm text-center text-gray-500 p-2">
             등록된 레퍼런스가 없습니다.
           </div>
         ) : (
