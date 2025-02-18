@@ -53,6 +53,7 @@ import com.dawn.backend.domain.note.repository.EditableRepository;
 import com.dawn.backend.domain.note.repository.ImageRepository;
 import com.dawn.backend.domain.note.repository.NoteCheckRepository;
 import com.dawn.backend.domain.note.repository.NoteRepository;
+import com.dawn.backend.domain.pin.dto.ImageItem;
 import com.dawn.backend.domain.pin.dto.PinGroupDto;
 import com.dawn.backend.domain.pin.entity.Pin;
 import com.dawn.backend.domain.pin.entity.PinVersion;
@@ -60,6 +61,7 @@ import com.dawn.backend.domain.pin.exception.PinNotFoundException;
 import com.dawn.backend.domain.pin.exception.PinVersionNotFoundException;
 import com.dawn.backend.domain.pin.repository.PinRepository;
 import com.dawn.backend.domain.pin.repository.PinVersionRepository;
+import com.dawn.backend.domain.pin.service.PinService;
 import com.dawn.backend.domain.project.entity.Project;
 import com.dawn.backend.domain.project.exception.ProjectNotFoundException;
 import com.dawn.backend.domain.project.repository.ProjectRepository;
@@ -88,6 +90,7 @@ public class NoteService {
 	private final ProjectRepository projectRepository;
 	private final UploadService uploadService;
 	private final EditableRepository editableRepository;
+	private final PinService pinService;
 
 	/**
 	 * 일정 시간마다 note.isDeleted = true 인 노트 삭제 로직 필요
@@ -201,19 +204,27 @@ public class NoteService {
 			savedNote.getCreatedAt()
 		));
 
+		List<ImageItem> imageItems = new ArrayList<>();
 		boolean isPresentImage = createNoteRequestDto.imageUrlList() != null
 			&& !createNoteRequestDto.imageUrlList().isEmpty();
 		if (isPresentImage) {
-			for (String imageUrl : createNoteRequestDto.imageUrlList()) {
-				ImagePathDto imagePathDto = uploadService.getImagePath(imageUrl);
+			List<NoteImage> noteImages = createNoteRequestDto.imageUrlList().stream()
+				.map((imageUrl) -> {
+					ImagePathDto imagePathDto = uploadService.getImagePath(imageUrl);
 
-				NoteImage noteImage = NoteImage.builder()
-					.imageOrigin(imageUrl)
-					.imagePreview(imagePathDto.previewPath())
-					.note(savedNote)
-					.build();
-				imageRepository.save(noteImage);
-			}
+					return NoteImage.builder()
+						.imageOrigin(imageUrl)
+						.imagePreview(imagePathDto.previewPath())
+						.note(savedNote)
+						.build();
+				})
+				.toList();
+
+			List<NoteImage> savedNoteImage = imageRepository.saveAll(noteImages);
+
+			imageItems = savedNoteImage.stream()
+				.map((ImageItem::from))
+				.toList();
 		}
 
 		UserNoteCheck creatorNoteCheck = UserNoteCheck.builder()
@@ -249,7 +260,8 @@ public class NoteService {
 		);
 		return new CreateNoteResponseDto(
 			dateSeparator,
-			noteItemDto
+			noteItemDto,
+			imageItems
 		);
 	}
 
