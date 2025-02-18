@@ -64,17 +64,23 @@ const PinNoteSection = ({
     [data.pinDetailNotes],
   );
 
-  // 스크롤을 최하단으로 이동하는 함수
-  const scrollToBottom = () => {
+  // 스크롤 최하단 이동 함수 수정 (최상단으로 가지 않도록)
+  const scrollToBottom = (forceBottom = false) => {
     if (scrollRef.current) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+      if (forceBottom) {
+        scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+      } else {
+        scrollRef.current.scrollTop = scrollPositionRef.current;
+      }
     }
   };
 
-  // 데이터가 변경될 때마다 최하단으로 스크롤
+  // 기존 useEffect에서 스크롤 최하단으로 이동하는 로직 수정
   useEffect(() => {
-    scrollToBottom();
-  }, [data.pinDetailNotes]);
+    if (!selectedNote) {
+      scrollToBottom();
+    }
+  }, [data.pinDetailNotes, selectedNote]);
 
   // 노트 검색
   const [isSearching, setIsSearching] = useState(false);
@@ -86,13 +92,16 @@ const PinNoteSection = ({
   const handleIconClick = () => {
     setIsSearching((prev) => !prev);
   };
-
+  // NoteDetail 열기 전 스크롤 위치 저장
   const handleNoteClick = (note) => {
+    scrollPositionRef.current = scrollRef.current?.scrollTop || 0;
     setSelectedNote(note);
   };
 
+  // NoteDetail 닫을 때 이전 스크롤 위치 복원
   const handleBack = () => {
     setSelectedNote(null);
+    setTimeout(() => scrollToBottom(), 50); // 렌더링 후 복원
   };
 
   // 검색된 노트 목록 업데이트
