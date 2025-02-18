@@ -3,9 +3,8 @@ import NoteButton from './NoteButton';
 import NoteDetail from './NoteDetail';
 import Icon from '../common/Icon';
 import Draggable from 'react-draggable';
-
 import { Skeleton } from '@/components/ui/skeleton';
-import { processNotes } from '../../utils/temp';
+import { processNotes, historyProcessNotes } from '../../utils/temp';
 import { useRecoilValue, useRecoilState } from 'recoil';
 import { noteState } from '../../recoil/blueprint';
 import { userState } from '../../recoil/common/user';
@@ -16,6 +15,7 @@ import { throttle } from 'lodash'; // lodash의 throttle 사용
 
 const NoteHistory = ({ setIsNoteHistoryOpen }) => {
   const rawNotes = useRecoilValue(noteState); // Blueprint에서 받은 전역 상태 사용
+  // console.log('rawNotes : ', rawNotes);
   const user = useRecoilValue(userState); // 로그인한 유저 정보 가져오기
   const [notes, setNotes] = useState([]);
   const [lastDate, setLastDate] = useState('');
@@ -43,23 +43,26 @@ const NoteHistory = ({ setIsNoteHistoryOpen }) => {
   const [isAtTop, setIsAtTop] = useState(false); // 최상단 여부 상태 추가
   const [lastId, setLastId] = useState(null);
 
+  // 최초 로드 여부
+  const [isInitialLoad, setIsInitialLoad] = useState(true);
+
   // 날짜별 구분선 추가하여 상태 저장
   useEffect(() => {
-    if (!rawNotes.length) {
-      console.warn('rawNotes가 비어있음! notes 업데이트 안 됨');
-      return;
-    } // 노트가 아예 없으면 실행 안 함 (빈 배열 방지)
-    console.log('rawNotes 업데이트됨:', rawNotes);
+    if (!rawNotes.length) return; // 노트가 아예 없으면 실행 안 함 (빈 배열 방지)
 
-    const { notesWithSeparators, lastDate: newLastDate } = processNotes(
-      rawNotes,
-      lastDate,
-    );
-
-    console.log('notesWithSeparators:', notesWithSeparators);
-
-    setNotes(notesWithSeparators.reverse()); // 최신 데이터가 아래로 가도록 reverse()
-    setLastDate(newLastDate);
+    if (isInitialLoad) {
+      const { notesWithSeparators, lastDate: newLastDate } = processNotes(
+        rawNotes,
+        lastDate,
+      );
+      setNotes(notesWithSeparators.reverse()); // 최신 데이터가 아래로 가도록 reverse()
+      setLastDate(newLastDate);
+    } else {
+      const { notesWithSeparators, lastDate: newLastDate } =
+        historyProcessNotes(rawNotes, lastDate);
+      setNotes((prevNotes) => [...prevNotes, ...notesWithSeparators.reverse()]); // 추가 데이터는 그대로 합침
+      setLastDate(newLastDate);
+    }
 
     // cursorIdRef는 가장 오래된 note_id로 설정
     cursorIdRef.current = rawNotes.at(-1)?.note_id || null;
@@ -79,7 +82,7 @@ const NoteHistory = ({ setIsNoteHistoryOpen }) => {
         }
       }, 0);
     }
-  }, [rawNotes]);
+  }, [rawNotes, isInitialLoad]);
 
   // 검색 -> 스크롤 & 하이라이트
   const fetchSearchNotes = async () => {
@@ -138,7 +141,7 @@ const NoteHistory = ({ setIsNoteHistoryOpen }) => {
   };
 
   // 노트 범위 요청
-  /*const fetchRangeNotes = async (searchResults) => {
+  const fetchRangeNotes = async (searchResults) => {
     try {
       const rangeApiUrl = `blueprints/${blueprint_id}/${blueprint_version_id}/notes/range`;
       const rangeParams = {
@@ -224,7 +227,7 @@ const NoteHistory = ({ setIsNoteHistoryOpen }) => {
     } catch (error) {
       console.error('범위 노트 요청 실패:', error.message);
     }
-  };*/
+  };
 
   useEffect(() => {
     if (searchTargetId && noteRefs.current[searchTargetId]) {
@@ -342,21 +345,13 @@ const NoteHistory = ({ setIsNoteHistoryOpen }) => {
           const filteredNotes = newNotes.filter(
             (note) => !existingNoteIds.has(note.note_id),
           );
-
-          console.log('기존 노트 목록:', prevNotes);
-          console.log('새로 추가할 노트 목록:', newNotes);
-          console.log('필터링된 노트 목록 (중복 제거 후):', filteredNotes);
-
           // 새로운 노트 기존 노트 앞에 추가.
           const mergedNotes = [...prevNotes, ...filteredNotes];
 
           // 날짜 구분선 추가 및 LastDate 업데이트
-          const { notesWithSeparators, lastDate: newLastDate } = processNotes(
-            mergedNotes,
-            lastDate,
-          );
+          const { notesWithSeparators, lastDate: newLastDate } =
+            historyProcessNotes(mergedNotes, lastDate);
 
-          console.log('페이지네이션 노트:', notesWithSeparators);
           setNotes(notesWithSeparators);
           setLastDate(newLastDate);
           return notesWithSeparators;
@@ -393,7 +388,7 @@ const NoteHistory = ({ setIsNoteHistoryOpen }) => {
         scrollTop <= 5 &&
         !isFetching
       ) {
-        console.log('최상단 도달! 페이지네이션 실행');
+        //  console.log('최상단 도달! 페이지네이션 실행');
         fetchMoreNotes();
       }
 
@@ -437,19 +432,13 @@ const NoteHistory = ({ setIsNoteHistoryOpen }) => {
     <Draggable nodeRef={draggableRef}>
       <div
         ref={draggableRef}
-        className="flex flex-col border border-gray-200 rounded-lg bg-white h-full max-h-[20rem]"
+        className="flex flex-col border border-gray-300 bg-white shadow-md rounded-lg h-full max-h-[20rem]"
       >
         {selectedNote ? (
           <NoteDetail noteId={selectedNote.note_id} onBack={handleBack} />
         ) : (
           <>
-            <div className="sticky top-0 z-10 bg-gray-100 p-1 text-lg font-bold border-b border-gray-200 flex items-center">
-              <button
-                onClick={() => setIsNoteHistoryOpen(false)}
-                className="text-gray-500 hover:text-gray-800"
-              >
-                <Icon name="IconCgClose" width={24} height={24} />
-              </button>
+            <div className="sticky top-0 z-10 bg-gray-50 p-1 text-lg font-semibold border-b border-gray-300 flex items-center">
               {/* 제목 중앙 정렬 */}
               <span className="flex-1 text-center">전체 노트</span>
               {/* 검색 아이콘 */}
@@ -458,6 +447,12 @@ const NoteHistory = ({ setIsNoteHistoryOpen }) => {
                 className="text-gray-600"
               >
                 <Icon name="IconTbSearch" width={20} height={20} />
+              </button>
+              <button
+                onClick={() => setIsNoteHistoryOpen(false)}
+                className="text-gray-500 hover:text-gray-800"
+              >
+                <Icon name="IconCgClose" width={24} height={24} />
               </button>
             </div>
 
@@ -527,93 +522,58 @@ const NoteHistory = ({ setIsNoteHistoryOpen }) => {
               ref={scrollContainerRef}
               className="flex-1 overflow-y-auto flex flex-col-reverse p-4 gap-3"
             >
-              {(() => {
-                console.log('현재 렌더링되는 notes 상태:', notes);
-                if (!notes || notes.length === 0) {
-                  console.warn('현재 notes가 비어있음:', notes);
-                }
-              })()}
               {notes.map((note, index) => {
-                console.log(`${index}번째 노트 : `, note);
-                if (!note) {
-                  console.warn('note 객체가 undefined입니다:', note);
-                  return null;
-                }
+                if (!note || typeof note !== 'object') return null;
 
-                console.log('노트리스트:', note);
+                const isMyNote = (note, user) => {
+                  if (!note || note.type !== 'note' || !note.user_email)
+                    return false;
+                  return user?.user_email && note.user_email
+                    ? user.user_email === note.user_email
+                    : false;
+                };
 
-                if (note.type === 'date-separator') {
-                  return (
-                    <div
-                      key={index}
-                      className="text-sm font-bold text-gray-600 py-2 border-t border-gray-300"
-                    >
-                      {note.date}
-                    </div>
-                  );
-                }
+                console.log('유저정보 : ', user);
+                console.log('노트정보 : ', note.user_email);
 
-                // 디버깅 로그 추가
-                console.log('노트 데이터:', note);
-                console.log('유저정보:', user);
-
-                // console.log('note_writer:', note?.note_writer);
-
-                // if (note?.note_writer === undefined) {
-                // console.error('note_writer가 undefined입니다!:', note);
-                // }
-
-                // `note_writer`가 없을 경우 대비
-                let authorEmail = note?.user_email || 'unknown';
-
-                // if (note?.note_writer) {
-                // if ('user_email' in note.note_writer) {
-                //   authorEmail = note.note_writer.user_email;
-                //  } else {
-                //  console.error(
-                //   'note_writer에 user_email 없음:',
-                //  note.note_writer,
-                // );
-                //  }
-                //  }
-
-                console.log('작성자:', authorEmail);
-                console.log('로그인 유저:', user?.user_email);
-
-                if (!note.user_email) {
-                  console.error(`note.user_email이 undefined!`, note);
-                }
-
-                const isMyNote =
-                  note.type === 'note' && user?.user_email === authorEmail;
                 return (
-                  <div
-                    key={note.note_id}
-                    ref={(el) => (noteRefs.current[note.note_id] = el)}
-                    className={`p-2 w-full flex flex-col 
-        ${highlightedNoteId === note.note_id || searchTargetId === note.note_id ? 'bg-yellow-200' : ''} 
-      ${isMyNote ? 'items-end' : 'items-start'} `}
-                  >
-                    {note.pin_name && (
+                  <React.Fragment key={index}>
+                    {note.type === 'date-separator' ? (
+                      <div className="text-sm font-bold text-gray-600 py-2 border-t border-gray-300">
+                        {note.date}
+                      </div>
+                    ) : (
                       <div
-                        className="px-6 py-1 rounded-md text-sm font-semibold mb-1"
-                        style={{
-                          backgroundColor: note.pin_group_color || '#D1D5DB',
-                          color: '#FFFFFF',
-                          maxWidth: '8rem',
-                          whiteSpace: 'nowrap',
-                          textOverflow: 'ellipsis',
-                          overflow: 'hidden',
-                        }}
+                        key={note.note_id}
+                        ref={(el) => (noteRefs.current[note.note_id] = el)}
+                        className={`p-2 w-full flex flex-col 
+    ${highlightedNoteId === note.note_id || searchTargetId === note.note_id ? 'bg-yellow-100' : ''} 
+    ${isMyNote(note, user) ? 'items-end' : 'items-start'}`}
                       >
-                        {note.pin_name}
+                        {note.type === 'note' && note.pin_name && (
+                          <div
+                            className="px-6 py-1 rounded-md text-sm font-semibold mb-1"
+                            style={{
+                              backgroundColor:
+                                note.pin_group_color || '#D1D5DB', // 배경색 강제 적용
+                              color: '#FFFFFF', // 글씨색 강제 적용
+                              maxWidth: '8rem',
+                              whiteSpace: 'nowrap',
+                              textOverflow: 'ellipsis',
+                              overflow: 'hidden',
+                            }}
+                          >
+                            {note.pin_name}
+                          </div>
+                        )}
+
+                        <NoteButton
+                          note={note}
+                          onClick={() => handleNoteClick(note)}
+                        />
                       </div>
                     )}
-                    <NoteButton
-                      note={note}
-                      onClick={() => handleNoteClick(note)}
-                    />
-                  </div>
+                  </React.Fragment>
                 );
               })}
             </div>
