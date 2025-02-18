@@ -5,9 +5,10 @@ import Icon from '../common/Icon';
 import { useRecoilValue } from 'recoil';
 import { userState } from '../../recoil/common/user';
 
-const NoteButton = ({ note, onClick }) => {
+const NoteButton = ({ note, onClick, previewImage }) => {
   // 로그인한 유저 정보 가져오기
   const user = useRecoilValue(userState);
+  const [isHovered, setIsHovered] = useState(false);
 
   // 읽은 사용자 목록 표시 여부 상태
   // const [showReaders, setShowReaders] = useState(false);
@@ -57,7 +58,11 @@ const NoteButton = ({ note, onClick }) => {
   } = note;
 
   return (
-    <div className="flex items-center gap-4 p-2 bg-transp">
+    <div
+      className="relative flex items-center gap-4 p-2 bg-transp"
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
       {/* 작성자 프로필 이미지 (로그인한 유저와 다를 때만 표시) */}
       {user?.user_email !== note_writer.user_email && (
         <img
@@ -99,14 +104,18 @@ const NoteButton = ({ note, onClick }) => {
           <span className="mx-1">·</span>
           {/* 작성 시간 (포맷팅된 시간 표시) */}
           <span>{formatCreatedAt(created_at)}</span>
-          {/* 읽은 사용자 목록 버튼 */}
-          {/* <button onClick={handleShowReaders} className="ml-2">
-            😶
-          </button> */}
         </div>
       </div>
-      {/* 읽은 사용자 목록 표시 (showReaders가 true일 경우) */}
-      {/* {showReaders && <NoteReaders read_users={read_users} />} */}
+      {/* 호버 시 이미지 표시 */}
+      {isHovered && previewImage && (
+        <div className="absolute left-full ml-4 w-32 h-32 border border-gray-300 rounded-lg shadow-lg bg-white p-1">
+          <img
+            src={blueprint_version_preview_img}
+            alt="노트 미리보기"
+            className="w-full h-full object-cover rounded-md"
+          />
+        </div>
+      )}
     </div>
   );
 };
@@ -125,4 +134,7 @@ const TitleWrapper = styled.button`
   align-items: center;
   cursor: pointer;
   gap: 0.5rem;
+
+  &:hover {
+    background-color: #cbcbcb; 
 `;
