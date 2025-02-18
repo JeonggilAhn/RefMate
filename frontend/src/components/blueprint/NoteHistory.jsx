@@ -570,6 +570,7 @@ const NoteHistory = ({ setIsNoteHistoryOpen }) => {
                         <NoteButton
                           note={note}
                           onClick={() => handleNoteClick(note)}
+                          previewImage={note.blueprint_version_preview_img}
                         />
                       </div>
                     )}
