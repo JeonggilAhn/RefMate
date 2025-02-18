@@ -6,7 +6,12 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { useRecoilState } from 'recoil';
 import { importantNotesState } from '../../recoil/blueprint';
 
-const ImportantNoteSection = ({ detailPin, setDetailNote, projectId }) => {
+const ImportantNoteSection = ({
+  detailPin,
+  setDetailNote,
+  projectId,
+  pinGroupColorLight,
+}) => {
   const [notes, setNotes] = useRecoilState(importantNotesState);
   const [loading, setLoading] = useState(true);
 
@@ -72,7 +77,10 @@ const ImportantNoteSection = ({ detailPin, setDetailNote, projectId }) => {
   if (loading) {
     return (
       <div className="w-full max-w-md mx-auto p-4 border border-gray-300 rounded-lg bg-white">
-        <h2 className="text-xl font-bold text-gray-800 mb-4 text-center">
+        <h2
+          className="text-xl font-bold text-gray-800 mb-4 text-center"
+          style={{ backgroundColor: pinGroupColorLight }}
+        >
           중요한 노트
         </h2>
         <div className="flex flex-col gap-2 max-h-60 overflow-y-auto p-2">
@@ -91,11 +99,14 @@ const ImportantNoteSection = ({ detailPin, setDetailNote, projectId }) => {
 
   return (
     <div className="w-full border border-[#CBCBCB] rounded-lg shadow-md bg-white">
-      <h2 className="text-center p-2 border-b border-[#CBCBCB] rounded-t-lg bg-[#F5F5F5]">
+      <h2
+        className="text-center p-2 border-b border-[#CBCBCB] rounded-t-lg bg-[#F5F5F5]"
+        style={{ backgroundColor: pinGroupColorLight }}
+      >
         중요한 노트
       </h2>
-      <div className="h-40">
-        {console.log('ImportantNoteSection - Notes:', notes)}{' '}
+      <div className="h-40 overflow-hidden">
+        {/*console.log('ImportantNoteSection - Notes:', notes)*/}{' '}
         <ImportantNoteList notes={notes} onNoteClick={handleNoteClick} />
       </div>
     </div>
