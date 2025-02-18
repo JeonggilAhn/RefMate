@@ -428,6 +428,8 @@ const NoteHistory = ({ setIsNoteHistoryOpen }) => {
     );
   }
 
+  console.log('seletedNote : ', selectedNote);
+
   return (
     <Draggable nodeRef={draggableRef}>
       <div
@@ -435,7 +437,11 @@ const NoteHistory = ({ setIsNoteHistoryOpen }) => {
         className="flex flex-col border border-gray-300 bg-white shadow-md rounded-lg h-full max-h-[20rem]"
       >
         {selectedNote ? (
-          <NoteDetail noteId={selectedNote.note_id} onBack={handleBack} />
+          <NoteDetail
+            noteId={selectedNote.note_id}
+            onBack={handleBack}
+            pinName={selectedNote.pin_name} // pinName props 추가
+          />
         ) : (
           <>
             <div className="sticky top-0 z-10 bg-gray-50 p-1 text-lg font-semibold border-b border-gray-300 flex items-center">
@@ -533,8 +539,8 @@ const NoteHistory = ({ setIsNoteHistoryOpen }) => {
                     : false;
                 };
 
-                console.log('유저정보 : ', user);
-                console.log('노트정보 : ', note.user_email);
+                //console.log('유저정보 : ', user);
+                //console.log('노트정보 : ', note.user_email);
 
                 return (
                   <React.Fragment key={index}>
