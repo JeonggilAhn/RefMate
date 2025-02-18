@@ -431,7 +431,7 @@ const NoteHistory = ({ setIsNoteHistoryOpen }) => {
     <Draggable nodeRef={draggableRef}>
       <div
         ref={draggableRef}
-        className="flex flex-col border border-gray-300 bg-white shadow-md rounded-lg w-[25rem] h-[30rem] max-h-none"
+        className="relative flex flex-col border border-gray-300 bg-white shadow-md rounded-lg w-[25rem] h-[30rem] max-h-none overflow-visible"
       >
         {selectedNote ? (
           <NoteDetail
@@ -546,7 +546,7 @@ const NoteHistory = ({ setIsNoteHistoryOpen }) => {
                       <div
                         key={note.note_id}
                         ref={(el) => (noteRefs.current[note.note_id] = el)}
-                        className={`p-2 w-full flex flex-col 
+                        className={`relative p-2 w-full flex flex-col 
     ${highlightedNoteId === note.note_id || searchTargetId === note.note_id ? 'bg-yellow-100' : ''} 
     ${isMyNote ? 'items-end' : 'items-start'}`}
                       >
