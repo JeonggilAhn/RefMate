@@ -12,7 +12,7 @@ const BackButton = () => {
   return (
     <button
       onClick={handleBack}
-      className="fixed bottom-4 left-4 z-50 flex items-center justify-center w-12 h-12 bg-white bg-opacity-70 hover:bg-opacity-90 rounded-full transition-opacity cursor-pointer"
+      className="fixed bottom-4 left-4 z-40 flex items-center justify-center w-12 h-12 bg-white bg-opacity-70 hover:bg-opacity-90 rounded-full transition-opacity cursor-pointer"
       aria-label="Back"
     >
       <Icon

@@ -2,6 +2,13 @@ import React from 'react';
 import Icon from '../common/Icon';
 import EditOption from '../project/EditOption';
 
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
+
 const AllPinFolder = ({
   data,
   isActiveTab,
@@ -9,38 +16,56 @@ const AllPinFolder = ({
   pinActiveActions,
   pinInactiveActions,
   onClickPinImage,
-  setHighlightedPinId,
+  onClickPinHighlightIcon,
 }) => {
   return data.map((pin, index) => {
     return (
       <div
         key={pin.pin_id}
-        className="border border-[#CBCBCB] rounded-md shadow-sm cursor-pointer hover:bg-[#F1F1F1]"
-        onMouseEnter={() => setHighlightedPinId(pin.pin_id)}
-        onMouseLeave={() => setHighlightedPinId(null)}
+        className="border border-[#CBCBCB] rounded-md shadow-sm cursor-pointer"
       >
         <div
-          className="flex items-center justify-between px-2 py-0.5 rounded-t-md"
+          className="flex items-center justify-between pl-1 py-0.5 rounded-t-md relative group overflow-hidden border-b border-[#CBCBCB]"
           style={{
             backgroundColor: `${pin.pin_group?.pin_group_color}15`,
-            borderBottom: `2px solid ${pin.pin_group?.pin_group_color}`,
           }}
         >
-          <div className="flex items-center gap-1">
-            <button onClick={() => togglePinVisible(pin.pin_id)}>
+          <div
+            className="absolute inset-0 bg-current transition-all duration-300 ease-out transform translate-x-[-100%] group-hover:translate-x-0 z-0"
+            style={{
+              backgroundColor: pin.pin_group?.pin_group_color,
+              opacity: 0.15,
+            }}
+          />
+          <div className="flex items-center gap-1 z-10">
+            <button
+              disabled={!isActiveTab}
+              onClick={() => togglePinVisible(pin.pin_id)}
+              className={`w-7 h-7 flex items-center justify-center ${isActiveTab ? 'hover:bg-white/50 cursor-pointer rounded-full' : 'cursor-default'}`}
+            >
               {!isActiveTab ? null : pin.is_visible ? (
-                <Icon name="IconTbEye" width={19} />
+                <Icon
+                  name="IconTbPinFill"
+                  width={23}
+                  color={pin.pin_group?.pin_group_color}
+                />
               ) : (
-                <Icon name="IconTbEyeClosed" width={19} />
+                <Icon name="IconBiBlock" width={20} color="#414141" />
               )}
             </button>
-            <div
-              className="w-2.5 h-2.5 rounded-full flex-shrink-0"
-              style={{
-                backgroundColor: pin.pin_group.pin_group_color,
-              }}
-            />
-            <span className="w-18 truncate font-medium">{pin.pin_name}</span>
+            <TooltipProvider delayDuration={100}>
+              <Tooltip>
+                <TooltipTrigger
+                  className="w-23 truncate font-medium"
+                  onClick={() => onClickPinHighlightIcon(pin.pin_id)}
+                >
+                  {pin.pin_name}
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>{pin.pin_name}</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           </div>
           <EditOption
             actions={
