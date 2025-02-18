@@ -57,7 +57,10 @@ const AllPinFolder = ({
               <Tooltip>
                 <TooltipTrigger
                   className="w-23 truncate font-medium"
-                  onClick={() => onClickPinHighlightIcon(pin.pin_id)}
+                  onClick={(event) => {
+                    event.stopPropagation(); // 클릭 이벤트 전파 방지
+                    onClickPinHighlightIcon(pin.pin_id);
+                  }}
                 >
                   {pin.pin_name}
                 </TooltipTrigger>
