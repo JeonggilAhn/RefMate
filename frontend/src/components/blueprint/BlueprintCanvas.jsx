@@ -5,7 +5,6 @@ import PinComponent from './PinComponent';
 import PinPopup from './PinPopup';
 import { useRecoilState } from 'recoil';
 import { pinState } from '../../recoil/blueprint';
-import { useParams } from 'react-router-dom';
 import { modalState } from '../../recoil/common/modal';
 
 const A3_WIDTH = 1587;
@@ -217,6 +216,8 @@ const BlueprintCanvas = ({
       return;
     }
 
+    e.preventDefault(); // 기본 스크롤 동작 방지
+
     const zoomSpeed = 0.1;
     const rect = canvasRef.current.getBoundingClientRect();
 
@@ -228,20 +229,16 @@ const BlueprintCanvas = ({
     const beforeZoomImageX = (mouseX - position.x) / scale;
     const beforeZoomImageY = (mouseY - position.y) / scale;
 
-    // 새로운 scale 계산
+    // 새로운 scale 계산 (휠 방향에 따라 확대/축소)
     const newScale = Math.max(
       0.5,
-      scale + (e.deltaY > 0 ? -zoomSpeed : zoomSpeed),
+      Math.min(5, scale * (1 + (e.deltaY < 0 ? 0.1 : -0.1))),
     );
 
-    // 새로운 scale에서의 마우스 위치 계산
-    const afterZoomImageX = (mouseX - position.x) / newScale;
-    const afterZoomImageY = (mouseY - position.y) / newScale;
-
-    // position 조정하여 마우스 위치 유지
+    // 새로운 position 계산 (마우스 포인터 위치 기준)
     const newPosition = {
-      x: position.x + (afterZoomImageX - beforeZoomImageX) * newScale,
-      y: position.y + (afterZoomImageY - beforeZoomImageY) * newScale,
+      x: mouseX - beforeZoomImageX * newScale,
+      y: mouseY - beforeZoomImageY * newScale,
     };
 
     setScale(newScale);
@@ -398,17 +395,16 @@ const BlueprintCanvas = ({
     [scale], // position 제거
   );
 
-  // highlightedPinId가 변경될 때마다 해당 핀으로 이동
+  // highlightedPinId가 변경될 때 자동으로 해당 핀으로 이동하는 효과 제거
   useEffect(() => {
     if (highlightedPinId) {
       const highlightedPin = pins.find(
         (pin) => pin.pin_id === highlightedPinId,
       );
-      if (highlightedPin) {
-        centerOnPin(highlightedPin);
-      }
+
+      centerOnPin(highlightedPin);
     }
-  }, [highlightedPinId, pins, centerOnPin]);
+  }, [highlightedPinId]);
 
   // 컴포넌트 언마운트 시 애니메이션 정리
   useEffect(() => {

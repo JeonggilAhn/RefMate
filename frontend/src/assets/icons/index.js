@@ -33,6 +33,7 @@ import IconTbShare from '../../assets/icons/IconTbShare.svg?react';
 import IconPiDotsThree from '../../assets/icons/IconPiDotsThree.svg?react';
 import IconTbEdit from '../../assets/icons/IconTbEdit.svg?react';
 import IconTbPin from '../../assets/icons/IconTbPin.svg?react';
+import IconBiBlock from '../../assets/icons/IconBiBlock.svg?react';
 
 export {
   IconBsCursor,
@@ -70,4 +71,5 @@ export {
   IconPiDotsThree,
   IconTbEdit,
   IconTbPin,
+  IconBiBlock,
 };
