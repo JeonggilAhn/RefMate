@@ -953,6 +953,7 @@ const Blueprint = () => {
               pinId={detailPin.pin_id}
               detailNote={detailNote}
               setDetailNote={setDetailNote}
+              isDetailSidebarOpen={isDetailSidebarOpen}
             />
             <PinImageSection
               pinId={detailPin.pin_id}
