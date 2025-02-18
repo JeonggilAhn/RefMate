@@ -35,6 +35,7 @@ const PinNoteSection = ({
         noteId={detailNote.note_id}
         onBack={() => setDetailNote(null)}
         isDetailSidebarOpen={isDetailSidebarOpen}
+        pinName={pinInfo.pin_name} // pinName props 추가
       />
     );
   }
@@ -45,6 +46,7 @@ const PinNoteSection = ({
   const [open, setOpen] = useState(false);
 
   const user = useRecoilValue(userState); // 로그인한 유저 정보 가져오기
+  console.log(`pinInfo :`, pinInfo);
 
   useEffect(() => {
     const pin = pins.find((item) => item.pin_id === pinId) || {
@@ -110,6 +112,7 @@ const PinNoteSection = ({
           note={detailNote}
           onBack={handleBack}
           isDetailSidebarOpen={isDetailSidebarOpen}
+          pinName={pinInfo.pin_name} // pinName props 추가
         />
       ) : (
         <>

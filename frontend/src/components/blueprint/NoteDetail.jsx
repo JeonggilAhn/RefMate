@@ -11,7 +11,7 @@ import ImageCarouselPopup from '../blueprint/ImageCarouselPopup';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { useToast } from '@/hooks/use-toast';
 
-const NoteDetail = ({ noteId, onBack, isDetailSidebarOpen }) => {
+const NoteDetail = ({ noteId, onBack, isDetailSidebarOpen, pinName }) => {
   const [noteData, setNoteData] = useState(null);
   const [modal, setModal] = useRecoilState(modalState);
   const [isBookmark, setIsBookmark] = useState(false);
@@ -83,6 +83,7 @@ const NoteDetail = ({ noteId, onBack, isDetailSidebarOpen }) => {
       },
     });
   };
+  console.log('받은 pinName:', pinName);
 
   // 북마크 토글 기능
 
@@ -167,22 +168,26 @@ const NoteDetail = ({ noteId, onBack, isDetailSidebarOpen }) => {
       )}
 
       <NoteDetailWrapper>
-        <Header>
+        <Header
+          style={{
+            backgroundColor:
+              noteData?.pin_group?.pin_group_color_light || 'transparent',
+          }}
+        >
           <BackButton onClick={onBack}>
             <Icon name="IconGoChevronPrev" width={20} height={20} />
           </BackButton>
           <div className="flex items-center justify-center flex-grow gap-2">
             {!isDetailSidebarOpen && (
               <>
-                <div
-                  className="w-4 h-4 rounded-full"
-                  style={{
-                    backgroundColor:
-                      noteData?.pin_group?.pin_group_color || 'transparent',
-                  }}
+                <Icon
+                  name="IconTbPinFill"
+                  width={20}
+                  height={20}
+                  color={noteData?.pin_group?.pin_group_color || 'transparent'}
                 />
                 <div className="text-sm font-semibold">
-                  {noteData?.pin_group?.pin_group_name || ''}
+                  {pinName || '디폴트값'}
                 </div>
               </>
             )}
