@@ -430,6 +430,8 @@ function PinContents({
                 pinInfo={pinInfo}
                 projectId={useParams().projectId}
                 blueprintVersionId={useParams().blueprint_version_id}
+                detailPinImages={detailPinImages}
+                setDetailPinImages={setDetailPinImages}
               />
             </AddNoteWrapper>
           )}
