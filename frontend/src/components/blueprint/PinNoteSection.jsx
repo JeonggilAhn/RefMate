@@ -65,20 +65,35 @@ const PinNoteSection = ({
     [data.pinDetailNotes],
   );
 
-  // 스크롤 이동 함수
+  // 스크롤 이동 함수 개선
   const scrollToBottom = (forceBottom = false) => {
     if (scrollRef.current) {
-      if (forceBottom) {
-        scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
-      } else {
-        scrollRef.current.scrollTop = scrollPositionRef.current || 0;
-      }
+      requestAnimationFrame(() => {
+        if (forceBottom) {
+          scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+        } else {
+          scrollRef.current.scrollTop = scrollPositionRef.current || 0;
+        }
+      });
     }
   };
 
-  // 데이터 변경 시 최하단 이동
+  // 최초 렌더링 시 최하단 이동
   useEffect(() => {
-    scrollToBottom();
+    if (data.pinDetailNotes.length > 0) {
+      setTimeout(() => {
+        scrollToBottom(true);
+      }, 100); // DOM 업데이트 후 실행
+    }
+  }, []); // 빈 배열을 넣어 최초 렌더링 시 1회 실행
+
+  // 새로운 노트 추가 시 최하단 이동
+  useEffect(() => {
+    if (data.pinDetailNotes.length > 0) {
+      setTimeout(() => {
+        scrollToBottom(true);
+      }, 50); // 업데이트 후 적용
+    }
   }, [data.pinDetailNotes]);
 
   // 노트 검색
@@ -94,14 +109,16 @@ const PinNoteSection = ({
 
   // NoteDetail 열기 전 스크롤 위치 저장
   const handleNoteClick = (note) => {
-    scrollPositionRef.current = scrollRef.current?.scrollTop || 0;
+    if (scrollRef.current) {
+      scrollPositionRef.current = scrollRef.current.scrollTop;
+    }
     setSelectedNote(note);
   };
 
-  // NoteDetail 닫을 때 스크롤 위치 복원
+  // NoteDetail 닫을 때 이전 스크롤 위치 복원
   const handleBack = () => {
     setSelectedNote(null);
-    setTimeout(() => scrollToBottom(), 50);
+    requestAnimationFrame(() => scrollToBottom());
   };
 
   // 검색된 노트 목록 업데이트
