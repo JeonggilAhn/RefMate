@@ -210,7 +210,7 @@ const PinComponent = ({
             style={{
               background: isHighlighted
                 ? `radial-gradient(circle, ${pinInfo.pin_group?.pin_group_color || '#87B5FA'} 0%, transparent 70%)`
-                : 'radial-gradient(circle, #87B5FA 0%, transparent 70%)',
+                : `radial-gradient(circle, ${pinInfo.pin_group?.pin_group_color || '#87B5FA'} 0%, transparent 70%)`,
               filter: isHighlighted ? 'blur(8px)' : 'blur(10px)',
               opacity: isHighlighted ? 0.8 : 0.6,
               transform: isHighlighted ? 'scale(1.2)' : 'scale(1)',
