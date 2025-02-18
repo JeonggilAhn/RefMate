@@ -8,7 +8,6 @@ import Icon from '../common/Icon';
 import { useRecoilState, useRecoilValue } from 'recoil';
 import { pinState } from '../../recoil/blueprint';
 import { userState } from '../../recoil/common/user';
-import { isMyNote } from '../../utils/isMyNote';
 import { processNotes } from '../../utils/temp';
 import AddNote from './AddNote';
 
@@ -214,7 +213,7 @@ const PinNoteSection = ({
                       searchTargetId === note.note_id
                         ? 'bg-yellow-200'
                         : ''
-                    } ${isMyNote(note, user) ? 'items-end' : 'items-start'}`}
+                    } ${user?.user_email === note?.note_writer?.user_email ? 'items-end' : 'items-start'}`}
                   >
                     <NoteButton
                       note={note}
