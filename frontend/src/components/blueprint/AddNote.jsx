@@ -30,6 +30,7 @@ const AddNote = ({
 
   // 노트 생성 로직
   const handleSubmit = async () => {
+    console.log('버튼 클릭');
     if (!noteTitle.trim() || !noteContent.trim()) return;
 
     try {
@@ -63,7 +64,10 @@ const AddNote = ({
       });
 
       const noImagesBefore = detailPinImages.length === 0;
-      if (response.data.content.image_list.length > 0) {
+      if (
+        response.data.content.image_list &&
+        response.data.content.image_list.length > 0
+      ) {
         setDetailPinImages((prev) => {
           return [
             ...prev,

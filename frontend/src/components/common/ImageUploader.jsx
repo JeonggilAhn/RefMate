@@ -255,7 +255,7 @@ const ImageUploader = ({ onImageSelect, projectId, type = 'blueprint' }) => {
                     className={`pointer-events-auto p-1.5 rounded-full bg-black/70 hover:bg-black/80 text-white shadow-lg backdrop-blur-sm border border-white/20 
                       ${currentPage === 0 ? 'opacity-50 cursor-not-allowed' : ''}`}
                   >
-                    <Icon name="IconTbChevronLeft" width={20} height={20} />
+                    <Icon name="IconGoChevronPrev" width={20} height={20} />
                   </button>
                   <button
                     onClick={handleNextPage}
@@ -263,7 +263,7 @@ const ImageUploader = ({ onImageSelect, projectId, type = 'blueprint' }) => {
                     className={`pointer-events-auto p-1.5 rounded-full bg-black/70 hover:bg-black/80 text-white shadow-lg backdrop-blur-sm border border-white/20
                       ${currentPage >= totalPages - 1 ? 'opacity-50 cursor-not-allowed' : ''}`}
                   >
-                    <Icon name="IconTbChevronRight" width={20} height={20} />
+                    <Icon name="IconGoChevronNext" width={20} height={20} />
                   </button>
                 </div>
               )}

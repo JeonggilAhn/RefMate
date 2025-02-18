@@ -288,8 +288,8 @@ const DateSeparator = styled.div`
 `;
 
 const NoData = styled.div`
-  font-size: 1rem;
-  color: #999;
+  font-size: 0.875rem;
+  color: oklch(0.551 0.027 264.364);
   text-align: center;
 `;
 

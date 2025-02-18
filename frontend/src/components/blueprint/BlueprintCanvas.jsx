@@ -52,8 +52,10 @@ const BlueprintCanvas = ({
   overlayOpacity,
   isOverlayVisible,
   isPinButtonEnaled,
+  setIsPinButtonEnaled,
   onClickPin,
   highlightedPinId,
+  setHighlightedPinId,
 }) => {
   const canvasRef = useRef(null);
   const [scale, setScale] = useState(1);
@@ -174,13 +176,26 @@ const BlueprintCanvas = ({
     ctx.translate(position.x, position.y);
     ctx.scale(scale, scale);
 
-    ctx.drawImage(
-      imgRef.current,
-      -A3_WIDTH / 2,
-      -A3_HEIGHT / 2,
-      A3_WIDTH,
-      A3_HEIGHT,
-    );
+    // 이미지 원본 비율 계산
+    const imgRatio = imgRef.current.naturalWidth / imgRef.current.naturalHeight;
+    const a3Ratio = A3_WIDTH / A3_HEIGHT;
+
+    let drawWidth = A3_WIDTH;
+    let drawHeight = A3_HEIGHT;
+    let offsetX = -A3_WIDTH / 2;
+    let offsetY = -A3_HEIGHT / 2;
+
+    if (imgRatio > a3Ratio) {
+      // 이미지가 A3보다 더 가로로 긴 경우
+      drawHeight = A3_WIDTH / imgRatio;
+      offsetY = -(drawHeight / 2);
+    } else {
+      // 이미지가 A3보다 더 세로로 긴 경우
+      drawWidth = A3_HEIGHT * imgRatio;
+      offsetX = -(drawWidth / 2);
+    }
+
+    ctx.drawImage(imgRef.current, offsetX, offsetY, drawWidth, drawHeight);
 
     if (isOverlayVisible) {
       if (
@@ -188,13 +203,30 @@ const BlueprintCanvas = ({
         overlayImgRef.current.naturalWidth > 0 &&
         overlayImgRef.current.naturalHeight > 0
       ) {
+        // 오버레이 이미지도 동일한 비율 계산 적용
+        const overlayRatio =
+          overlayImgRef.current.naturalWidth /
+          overlayImgRef.current.naturalHeight;
+        let overlayWidth = A3_WIDTH;
+        let overlayHeight = A3_HEIGHT;
+        let overlayOffsetX = -A3_WIDTH / 2;
+        let overlayOffsetY = -A3_HEIGHT / 2;
+
+        if (overlayRatio > a3Ratio) {
+          overlayHeight = A3_WIDTH / overlayRatio;
+          overlayOffsetY = -(overlayHeight / 2);
+        } else {
+          overlayWidth = A3_HEIGHT * overlayRatio;
+          overlayOffsetX = -(overlayWidth / 2);
+        }
+
         ctx.globalAlpha = overlayOpacity;
         ctx.drawImage(
           overlayImgRef.current,
-          -A3_WIDTH / 2,
-          -A3_HEIGHT / 2,
-          A3_WIDTH,
-          A3_HEIGHT,
+          overlayOffsetX,
+          overlayOffsetY,
+          overlayWidth,
+          overlayHeight,
         );
         ctx.globalAlpha = 1;
       }
@@ -216,7 +248,7 @@ const BlueprintCanvas = ({
       return;
     }
 
-    e.preventDefault(); // 기본 스크롤 동작 방지
+    // e.preventDefault(); // 기본 스크롤 동작 방지
 
     const zoomSpeed = 0.1;
     const rect = canvasRef.current.getBoundingClientRect();
@@ -327,6 +359,7 @@ const BlueprintCanvas = ({
       return [...prevPins, newPin];
     });
     setModal(null);
+    setIsPinButtonEnaled(false);
   };
 
   useEffect(() => {

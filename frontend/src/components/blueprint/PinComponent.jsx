@@ -254,12 +254,7 @@ const PinComponent = ({
               onMouseEnter={handleButtonMouseEnter}
               onMouseLeave={handleButtonMouseLeave}
             >
-              <Icon
-                name="IconInfoCircle"
-                width={16}
-                height={16}
-                color="white"
-              />
+              <Icon name="IconGoInfo" width={16} height={16} color="white" />
             </div>
             <PopupTitle>{recentNotes?.title || '제목 없음'}</PopupTitle>
             <PopupDivider />
