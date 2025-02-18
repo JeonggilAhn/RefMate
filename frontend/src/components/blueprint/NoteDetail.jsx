@@ -11,7 +11,7 @@ import ImageCarouselPopup from '../blueprint/ImageCarouselPopup';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { useToast } from '@/hooks/use-toast';
 
-const NoteDetail = ({ noteId, onBack }) => {
+const NoteDetail = ({ noteId, onBack, isDetailSidebarOpen }) => {
   const [noteData, setNoteData] = useState(null);
   const [modal, setModal] = useRecoilState(modalState);
   const [isBookmark, setIsBookmark] = useState(false);
@@ -31,7 +31,8 @@ const NoteDetail = ({ noteId, onBack }) => {
       try {
         const response = await get(`notes/${noteId}`);
         const note = response.data.content.note;
-        setNoteData(note);
+        const pinGroup = response.data.content.pin_group; // 핀 그룹 정보 추가
+        setNoteData({ ...note, pin_group: pinGroup });
         setIsBookmark(note.is_bookmark);
       } catch (error) {
         console.error('Failed to fetch note:', error);
@@ -171,8 +172,22 @@ const NoteDetail = ({ noteId, onBack }) => {
             <Icon name="IconGoChevronPrev" width={20} height={20} />
           </BackButton>
           <div className="flex items-center justify-center flex-grow gap-2">
-            <div>{note_title}</div>
+            {!isDetailSidebarOpen && (
+              <>
+                <div
+                  className="w-4 h-4 rounded-full"
+                  style={{
+                    backgroundColor:
+                      noteData?.pin_group?.pin_group_color || 'transparent',
+                  }}
+                />
+                <div className="text-sm font-semibold">
+                  {noteData?.pin_group?.pin_group_name || ''}
+                </div>
+              </>
+            )}
           </div>
+
           <HeaderButtons>
             <IconButton onClick={toggleBookmark}>
               <Icon
@@ -194,6 +209,10 @@ const NoteDetail = ({ noteId, onBack }) => {
           </HeaderButtons>
         </Header>
         <MainSection>
+          <div className="text-center font-bold text-xl leading-none mb-4">
+            {note_title}
+          </div>
+
           <ProfileSection>
             <div className="flex justify-center gap-3 items-center">
               <Avatar className="w-7 h-7 border border-gray-300 rounded-full">

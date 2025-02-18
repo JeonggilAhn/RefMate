@@ -27,12 +27,14 @@ const PinNoteSection = ({
   setDetailNote,
   projectId,
   blueprintVersionId,
+  isDetailSidebarOpen,
 }) => {
   if (detailNote) {
     return (
       <NoteDetail
         noteId={detailNote.note_id}
         onBack={() => setDetailNote(null)}
+        isDetailSidebarOpen={isDetailSidebarOpen}
       />
     );
   }
@@ -107,6 +109,7 @@ const PinNoteSection = ({
           noteId={selectedNote.note_id}
           note={detailNote}
           onBack={handleBack}
+          isDetailSidebarOpen={isDetailSidebarOpen}
         />
       ) : (
         <>
