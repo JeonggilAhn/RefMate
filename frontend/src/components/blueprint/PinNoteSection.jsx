@@ -232,6 +232,7 @@ const NotesContainer = styled.div`
   overflow-y: auto;
   display: flex;
   flex-direction: column;
+  justfiy-content: flex-end;
   padding: 1rem;
   gap: 0.75rem;
   max-height: calc(100% - 3rem);
