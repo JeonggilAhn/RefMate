@@ -7,7 +7,14 @@ import ImageUploader from '../common/ImageUploader';
 import Icon from '../common/Icon';
 import { useToast } from '@/hooks/use-toast';
 
-const AddNote = ({ setOpen, blueprintVersionId, projectId, pinInfo }) => {
+const AddNote = ({
+  setOpen,
+  blueprintVersionId,
+  projectId,
+  pinInfo,
+  detailPinImages,
+  setDetailPinImages,
+}) => {
   const [pins, setPins] = useRecoilState(pinState);
 
   const [noteTitle, setNoteTitle] = useState('');
@@ -52,6 +59,17 @@ const AddNote = ({ setOpen, blueprintVersionId, projectId, pinInfo }) => {
 
           return item;
         });
+      });
+
+      setDetailPinImages((prev) => {
+        return [
+          ...prev,
+          {
+            note_id: response.data.content.note.note_id,
+            note_title: response.data.content.note.note_title,
+            image_list: response.data.content.image_list,
+          },
+        ];
       });
 
       if (response.status === 201) {
