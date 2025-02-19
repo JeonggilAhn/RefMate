@@ -44,7 +44,6 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 		registry
 			.addEndpoint("/api/websocket")
 			.setAllowedOrigins(frontUrl)
-//			.setAllowedOriginPatterns("*")
 			.withSockJS();
 	}
 
@@ -54,13 +53,13 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 		registry.setApplicationDestinationPrefixes("/api");
 	}
 
-	@Override
-	public void configureClientInboundChannel(ChannelRegistration registration) {
-		registration.interceptors(new StompSecurityInterceptor(
-			jwtUtil,
-			userRepository,
-			tokenBlackListRepository,
-			grantTokenRepository
-		));
-	}
+//	@Override
+//	public void configureClientInboundChannel(ChannelRegistration registration) {
+//		registration.interceptors(new StompSecurityInterceptor(
+//			jwtUtil,
+//			userRepository,
+//			tokenBlackListRepository,
+//			grantTokenRepository
+//		));
+//	}
 }
