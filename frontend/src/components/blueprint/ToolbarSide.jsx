@@ -7,7 +7,6 @@ const ToolbarSide = ({
   toggleAllPinVisible,
   closeAllNotePopup,
   closeAllImagePopup,
-  isNotesVisible,
 }) => {
   return (
     <div
@@ -28,9 +27,7 @@ const ToolbarSide = ({
         </button>
         <button
           onClick={closeAllNotePopup}
-          className={`w-[2.4rem] h-[2.4rem] flex justify-center items-center rounded-md cursor-pointer hover:bg-[#F1F1F1] ${
-            isNotesVisible ? 'bg-[#F1F1F1]' : ''
-          }`}
+          className="w-[2.4rem] h-[2.4rem] flex justify-center items-center rounded-md cursor-pointer hover:bg-[#F1F1F1]"
         >
           <Icon name="IconTbNote" width={26} height={26} />
         </button>
