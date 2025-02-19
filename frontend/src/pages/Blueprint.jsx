@@ -33,11 +33,15 @@ import Toolbar from '../components/blueprint/Toolbar';
 import ToolbarSide from '../components/blueprint/ToolbarSide';
 import ToolbarOpacity from '../components/blueprint/ToolbarOpacity';
 import { websocketState } from '../recoil/common/websocket';
+import Tutorial from '../components/tutorial/Tutorial';
 
 const API_BASE_URL = import.meta.env.VITE_APP_API_BASE_URL;
 
 const Blueprint = () => {
   const { blueprint_id, blueprint_version_id, projectId } = useParams();
+
+  // 튜토리얼 모드
+  const [isTutorial, setIsTutorial] = useState(false);
 
   // common
   const [colors, setColors] = useRecoilState(colorState);
@@ -761,6 +765,7 @@ const Blueprint = () => {
       }
 
       setPins(data);
+      console.log('///////////핀의 데이터', data);
     }
   };
 
@@ -820,8 +825,60 @@ const Blueprint = () => {
     };
   }, [blueprint_id]);
 
+  // 튜토리얼 모달을 한 번만 표시하기 위한 상태
+  const [hasSeenTutorialModal, setHasSeenTutorialModal] = useState(() => {
+    return localStorage.getItem('hasSeenTutorialModal') === 'true';
+  });
+
+  // 컴포넌트 마운트 시 튜토리얼 모달 표시
+  useEffect(() => {
+    if (!hasSeenTutorialModal) {
+      setModal({
+        type: 'modal',
+        title: '',
+        content: (
+          <div className="flex flex-col items-center gap-6 py-4">
+            <p className="text-lg text-black font-bold">
+              Ref Mate가 처음이신가요?
+            </p>
+            <p className="text-gray-600 text-center text-md py-5">
+              Ref Mate의 주요 기능을 튜토리얼을 통해 알아보세요.
+              <br />
+              <span className="text-sm text-gray-400">
+                이 튜토리얼은 언제든 다시 볼 수 있습니다.
+              </span>
+            </p>
+            <div className="flex gap-4">
+              <button
+                onClick={() => {
+                  setModal(null);
+                  localStorage.setItem('hasSeenTutorialModal', 'true');
+                  setHasSeenTutorialModal(true);
+                }}
+                className="px-4 py-2 text-gray-600 border border-gray-300 rounded-md focus:outline-none hover:bg-gray-50 cursor-pointer"
+              >
+                바로 시작할게요
+              </button>
+              <button
+                onClick={() => {
+                  setModal(null);
+                  localStorage.setItem('hasSeenTutorialModal', 'true');
+                  setHasSeenTutorialModal(true);
+                  setIsTutorial(true);
+                }}
+                className="px-4 py-2 text-white bg-[#B0CFFF] rounded-md hover:bg-[#87B5FA] cursor-pointer"
+              >
+                튜토리얼 볼래요
+              </button>
+            </div>
+          </div>
+        ),
+      });
+    }
+  }, []);
+
   return (
-    <BlueprintLayout>
+    <BlueprintLayout setIsTutorial={setIsTutorial}>
       <ColorInitializer blueprintId={blueprint_id} />
       <div className="relative overflow-hidden">
         <ToolbarSide
@@ -1036,6 +1093,11 @@ const Blueprint = () => {
         isOpen={isDetailPopupOpen}
         onClickCloseButton={() => setIsDetailPopupOpen(false)}
       />
+      {isTutorial && (
+        <div className="absolute inset-0 z-[99] bg-white">
+          <Tutorial setIsTutorial={setIsTutorial} />
+        </div>
+      )}
     </BlueprintLayout>
   );
 };
