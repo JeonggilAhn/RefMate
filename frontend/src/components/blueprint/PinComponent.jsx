@@ -125,7 +125,7 @@ const PinComponent = ({
     try {
       const response = await get(`pins/${pinInfo.pin_id}/notes/recent`);
       const note = response.data?.content.note;
-      console.log('note', note);
+      // console.log('note', note);
 
       if (note) {
         setRecentNotes({

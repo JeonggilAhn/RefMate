@@ -50,7 +50,7 @@ const PinNoteSection = ({
   const scrollRef = useRef(null);
   const scrollPositionRef = useRef(0); // 초기값 0
 
-  console.log(`pinInfo :`, pinInfo);
+  // console.log(`pinInfo :`, pinInfo);
 
   useEffect(() => {
     const pin = pins.find((item) => item.pin_id === pinId) || {
@@ -126,9 +126,9 @@ const PinNoteSection = ({
   };
 
   useEffect(() => {
-    console.log('searchTargetId 변경:', searchTargetId);
+    // console.log('searchTargetId 변경:', searchTargetId);
     if (searchTargetId && noteRefs.current[searchTargetId]) {
-      console.log('노트 찾음:', noteRefs.current[searchTargetId]);
+      //  console.log('노트 찾음:', noteRefs.current[searchTargetId]);
 
       // 현재 노트 스크롤
       noteRefs.current[searchTargetId].scrollIntoView({
