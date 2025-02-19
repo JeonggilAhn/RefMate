@@ -65,7 +65,7 @@ const NoteHistory = ({ setIsNoteHistoryOpen }) => {
 
         // cursorId를 rawNotes의 가장 오래된 ID로 설정
         cursorIdRef.current = rawNotes.at(-1)?.note_id || null;
-        console.log('초기 cursorId 설정:', cursorIdRef.current);
+        // console.log('초기 cursorId 설정:', cursorIdRef.current);
       }
 
       // 초기 데이터를 설정한 후 `fetchMoreNotes()` 실행하여 새로운 데이터 가져오기
@@ -96,8 +96,8 @@ const NoteHistory = ({ setIsNoteHistoryOpen }) => {
       const searchResponse = await get(searchApiUrl, searchParams);
       const searchResults =
         searchResponse.data.content.matched_note_id_list || [];
-      console.log(searchResponse.data.content);
-      console.log('검색된 노트들 : ', searchResults);
+      // console.log(searchResponse.data.content);
+      // console.log('검색된 노트들 : ', searchResults);
 
       // 검색된 노트 ID 리스트 저장 (역순)
       const reversedResults = [...searchResults].reverse();
@@ -113,7 +113,7 @@ const NoteHistory = ({ setIsNoteHistoryOpen }) => {
       const firstMatchId = reversedResults[0];
       nextIdRef.current = firstMatchId;
 
-      console.log('첫 노트 아이디 : ', firstMatchId);
+      //  console.log('첫 노트 아이디 : ', firstMatchId);
 
       const existingNote = notes.some((note) => note.note_id === firstMatchId);
 
@@ -143,7 +143,7 @@ const NoteHistory = ({ setIsNoteHistoryOpen }) => {
       const rangeResponse = await get(rangeApiUrl, rangeParams);
       const newNotes = rangeResponse.data.content.note_list || [];
 
-      console.log('범위 노트 요청 결과:', newNotes);
+      // console.log('범위 노트 요청 결과:', newNotes);
 
       if (newNotes.length > 0) {
         const transformedNotes = newNotes.map((note) => {
@@ -198,12 +198,12 @@ const NoteHistory = ({ setIsNoteHistoryOpen }) => {
         // setNotes((prevNotes) => [...prevNotes, ...newNotes]); // 노트 추가
 
         // cursorId 업데이트 (가장 오래된 노트의 ID로 변경)
-        console.log('변경 전: ', cursorIdRef.current);
+        // console.log('변경 전: ', cursorIdRef.current);
         const firstNote = newNotes.find((item) => item.type === 'note');
         cursorIdRef.current = firstNote
           ? firstNote.note_id
           : cursorIdRef.current;
-        console.log('변경되었는지 확인: ', cursorIdRef.current);
+        // console.log('변경되었는지 확인: ', cursorIdRef.current);
 
         // 추가된 노트 중 검색된 노트가 있는지 확인 후 스크롤
         const foundNote = newNotes.find((note) =>
@@ -247,7 +247,7 @@ const NoteHistory = ({ setIsNoteHistoryOpen }) => {
     const targetNoteId = searchedNotes[newIndex];
     nextIdRef.current = searchedNotes[newIndex];
 
-    console.log('현재 노트 id', targetNoteId);
+    // console.log('현재 노트 id', targetNoteId);
 
     if (!targetNoteId) return;
 
@@ -265,7 +265,7 @@ const NoteHistory = ({ setIsNoteHistoryOpen }) => {
     const targetNoteId = searchedNotes[newIndex];
     nextIdRef.current = searchedNotes[newIndex];
 
-    console.log('현재 노트 id', targetNoteId);
+    // console.log('현재 노트 id', targetNoteId);
 
     if (!targetNoteId) return;
 
@@ -318,7 +318,7 @@ const NoteHistory = ({ setIsNoteHistoryOpen }) => {
   // 페이지네이션 추가 노트 불러오기
   const fetchMoreNotes = useCallback(async () => {
     if (isFetching || cursorIdRef.current === null) {
-      console.log('요청 중이거나, 불러올 데이터 없음. 요청 중단.');
+      // console.log('요청 중이거나, 불러올 데이터 없음. 요청 중단.');
       return;
     }
     setIsFetching(true); // 요청 중에는 중복 호출하지 않음음
@@ -360,7 +360,7 @@ const NoteHistory = ({ setIsNoteHistoryOpen }) => {
         // 검색 시 범위 요청을 위해 현재까지 불러온 노트 아이디 저장
         setLastId(cursorIdRef.current);
       } else {
-        console.log('응답은 정상이나, 불러올 데이터 없음.');
+        // console.log('응답은 정상이나, 불러올 데이터 없음.');
         cursorIdRef.current = null;
       }
     } catch (error) {
@@ -425,7 +425,7 @@ const NoteHistory = ({ setIsNoteHistoryOpen }) => {
     );
   }
 
-  console.log('seletedNote : ', selectedNote);
+  // console.log('seletedNote : ', selectedNote);
 
   return (
     <Draggable nodeRef={draggableRef}>
@@ -570,7 +570,6 @@ const NoteHistory = ({ setIsNoteHistoryOpen }) => {
                         <NoteButton
                           note={note}
                           onClick={() => handleNoteClick(note)}
-                          previewImage={note.blueprint_version_preview_img}
                         />
                       </div>
                     )}
