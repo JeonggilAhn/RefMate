@@ -21,13 +21,13 @@ const NoteButton = ({ note, onClick }) => {
     if (!noteContent) {
       try {
         const response = await get(`notes/${note.note_id}`);
-        console.log(`response :`, response);
+        //  console.log(`response :`, response);
         const content =
           response?.data?.content?.note?.note_content || '내용 없음';
-        console.log(`content : `, content);
+        //  console.log(`content : `, content);
         setNoteContent(content);
       } catch (error) {
-        console.error('노트 상세 조회 실패:', error);
+        //  console.error('노트 상세 조회 실패:', error);
         setNoteContent('내용을 불러올 수 없습니다.');
       }
     }
@@ -80,11 +80,11 @@ const NoteButton = ({ note, onClick }) => {
               className="w-8 h-8 rounded-full shrink-0"
             />
           )}
-          <div className="flex flex-col justify-center flex-1">
+          <div className="flex flex-col justify-center w-full">
             {/* 제목과 아이콘 */}
             <div className="relative flex items-center justify-between w-full p-2 gap-2 bg-white border rounded-lg border-gray-300">
               {/* 제목 표시 (최대 20글자로 제한) */}
-              <span className="text-sm font-bold truncate max-w-[10rem]">
+              <span className="text-sm font-bold truncate flex-1">
                 {note.note_title.length > 20
                   ? `${note.note_title.slice(0, 20)}...`
                   : note.note_title}
@@ -112,7 +112,7 @@ const NoteButton = ({ note, onClick }) => {
           </div>
         </TooltipTrigger>
 
-        {/* 🔥 호버 시 노트 내용 툴팁으로 표시 */}
+        {/* 호버 시 노트 내용 툴팁으로 표시 */}
         <TooltipContent side="top">
           <p className="text-sm max-w-[250px]">{noteContent}</p>
         </TooltipContent>

@@ -14,6 +14,7 @@ import { get } from '../../api';
 import { pinState } from '../../recoil/blueprint';
 import { processNotes } from '../../utils/temp';
 import { userState } from '../../recoil/common/user';
+import { Resizable } from 're-resizable';
 
 import Icon from '../common/Icon';
 import NotePopupDetail from './NotePopupDetail';
@@ -71,10 +72,25 @@ const ImageList = memo(function ImageList({ detailPinImages }) {
   };
 
   if (selectedImage) {
+    const selectedNote = detailPinImages.find((pin) =>
+      pin.image_list.some(
+        (img) => img.image_preview === selectedImage.image_preview,
+      ),
+    );
+    const selectedNoteTitle = selectedNote
+      ? selectedNote.note_title
+      : '제목 없음';
+
     return (
-      <div className="relative w-full h-full">
+      <div className="relative w-full h-full flex items-center justify-center">
+        {/* 제목 표시 (버튼과 겹치지 않도록 여백 추가) */}
+        <div className="absolute top-2 left-1/2 -translate-x-1/2 px-4 py-1.5 rounded-md  text-ms font-bold w-[70%] text-center whitespace-normal overflow-hidden text-ellipsis max-h-[3rem] leading-tight">
+          {selectedNoteTitle}
+        </div>
+
+        {/* 로그아웃 버튼 (위쪽으로 조정) */}
         <button
-          className="absolute top-4 left-4 z-10 p-2 hover:text-gray-200 flex items-center gap-2"
+          className="absolute top-3 left-3 z-10 p-2 hover:text-gray-200 flex items-center gap-2 rounded-md"
           onClick={() => {
             setSelectedImage(null);
             setSelectedIndex(0);
@@ -120,26 +136,44 @@ const ImageList = memo(function ImageList({ detailPinImages }) {
 
   return (
     <div className="p-4 h-full">
-      <div className={`w-full grid grid-cols-${gridCols} gap-2`}>
-        {allImages.slice(0, imagesToShow).map((image, index) => (
-          <div
-            key={image.image_id}
-            className="relative aspect-square cursor-pointer hover:opacity-90"
-            onClick={() => handleImageSelect(image, index)}
-          >
-            <img
-              src={image.image_preview}
-              alt="reference"
-              className="w-full h-full object-cover rounded-md"
-            />
-            {image.is_bookmark && (
-              <div
-                className="absolute top-0 right-0 w-4 h-4 clip-triangle"
-                style={{ backgroundColor: '#87b5fa' }}
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-2 auto-rows-fr">
+        {allImages.slice(0, imagesToShow).map((image, index) => {
+          // 해당 이미지가 속한 노트를 찾아 note_title 가져오기
+          const parentNote = detailPinImages.find((pin) =>
+            pin.image_list.some(
+              (img) => img.image_preview === image.image_preview,
+            ),
+          );
+          const noteTitle = parentNote ? parentNote.note_title : '제목 없음';
+
+          return (
+            <div
+              key={image.image_id}
+              className="relative aspect-square w-full cursor-pointer hover:opacity-90"
+              onClick={() => handleImageSelect(image, index)}
+            >
+              {/* 이미지 */}
+              <img
+                src={image.image_preview}
+                alt="reference"
+                className="w-full h-full object-cover rounded-md"
               />
-            )}
-          </div>
-        ))}
+
+              {/* 북마크 표시 */}
+              {image.is_bookmark && (
+                <div
+                  className="absolute top-0 right-0 w-4 h-4 clip-triangle"
+                  style={{ backgroundColor: '#87b5fa' }}
+                />
+              )}
+
+              {/* 호버하면 노트 제목 표시 (반투명 배경) */}
+              <div className="absolute top-0 left-0 w-full h-full bg-black bg-opacity-50 flex items-center justify-center text-white text-sm font-semibold p-2 opacity-0 transition-opacity duration-300 hover:opacity-100">
+                {noteTitle}
+              </div>
+            </div>
+          );
+        })}
       </div>
     </div>
   );
@@ -316,146 +350,183 @@ function PinContents({
       <Draggable
         nodeRef={draggableRef}
         onStart={(e) => {
+          if (e.target.classList.contains('resize-handle')) {
+            return false;
+          }
           e.stopPropagation();
         }}
-        cancel=".no-drag"
+        handle=".handle"
+        cancel=".no-drag, .resize-handle"
         scale={scale}
+        defaultPosition={{ x: 0, y: 0 }}
+        position={null}
       >
-        <Container
-          ref={draggableRef}
-          data-pin-contents="true"
-          onMouseDown={(e) => {
-            e.stopPropagation();
-          }}
-          style={{ touchAction: 'none' }}
-        >
-          <Header backgroundColor={pinInfo.pin_group.pin_group_color_light}>
-            <TabContainer>
-              <TabIconButton
-                active={selectedTabs.includes('note')}
-                onClick={() => handleTabClick('note')}
-                backgroundColor={pinInfo.pin_group.pin_group_color}
+        <div ref={draggableRef}>
+          <Resizable
+            defaultSize={{
+              width: selectedTabs.length > 1 ? 640 : 320,
+              height: 350,
+            }}
+            minWidth={320}
+            minHeight={350}
+            maxWidth={800}
+            maxHeight={600}
+            handleClasses={{
+              top: 'resize-handle top',
+              right: 'resize-handle right',
+              bottom: 'resize-handle bottom',
+              left: 'resize-handle left',
+              topRight: 'resize-handle topRight',
+              bottomRight: 'resize-handle bottomRight',
+              bottomLeft: 'resize-handle bottomLeft',
+              topLeft: 'resize-handle topLeft',
+            }}
+            enable={{
+              top: true,
+              right: true,
+              bottom: true,
+              left: true,
+              topRight: true,
+              bottomRight: true,
+              bottomLeft: true,
+              topLeft: true,
+            }}
+          >
+            <Container>
+              <Header
+                className="handle"
+                backgroundColor={pinInfo.pin_group.pin_group_color_light}
               >
-                <Icon
-                  name="IconTbNotes"
-                  width={15}
-                  height={15}
-                  color={
-                    selectedTabs.includes('note')
-                      ? pinInfo.pin_group.pin_group_color_light
-                      : '#666666'
-                  }
-                />
-              </TabIconButton>
-              {detailPinImages.length > 0 && (
-                <TabIconButton
-                  active={selectedTabs.includes('image')}
-                  onClick={() => handleTabClick('image')}
-                  backgroundColor={pinInfo.pin_group.pin_group_color}
-                >
-                  <Icon
-                    name="IconTbPhoto"
-                    width={15}
-                    height={15}
-                    color={
-                      selectedTabs.includes('image')
-                        ? pinInfo.pin_group.pin_group_color_light
-                        : '#666666'
-                    }
-                  />
-                </TabIconButton>
-              )}
-            </TabContainer>
-            <div className="flex items-center justify-center flex-grow gap-2">
-              <div className="relative group flex items-center justify-center flex-1 gap-1">
-                <Icon
-                  name="IconTbPinFill"
-                  width={25}
-                  height={25}
-                  color={pinInfo.pin_group.pin_group_color}
-                />
-                <span
-                  className={`${
-                    selectedTabs.length > 1 ? 'max-w-[24rem]' : 'max-w-[8rem]'
-                  } text-sm font-medium truncate text-center`}
-                >
-                  {pinInfo.pin_name}
-                </span>
-                <div className="absolute hidden group-hover:block left-0 bottom-10 bg-black bg-opacity-75 text-white p-2 rounded-md text-sm whitespace-nowrap z-20">
-                  {pinInfo.pin_name}
-                </div>
-              </div>
-            </div>
-            <div className="flex items-center gap-2 pr-2">
-              <button
-                onClick={handleSidebarClick}
-                className="text-gray-500 hover:text-gray-700 transition-colors"
-              >
-                <Icon name="IconLuPanelRight" width={20} height={20} />
-              </button>
-              {onClose && (
-                <button
-                  onClick={onClose}
-                  className="text-gray-500 hover:text-gray-700 transition-colors"
-                >
-                  <Icon name="IconCgClose" width={20} height={20} />
-                </button>
-              )}
-            </div>
-          </Header>
-
-          <ContentContainer selectedCount={selectedTabs.length}>
-            {selectedTabs.includes('note') && (
-              <ContentSection>
-                <NotesContainer hasSelectedNote={!!selectedNote}>
-                  <NoteListWrapper hasSelectedNote={!!selectedNote}>
-                    <NoteList
-                      processedNotes={processedNotes}
-                      searchTargetId={searchTargetId}
-                      onNoteClick={handleNoteClick}
-                      noteRefs={noteRefs}
-                      user={user}
-                      selectedNote={selectedNote}
-                      onBack={handleBack}
-                      detailNote={detailNote}
-                      pinName={pinInfo.pin_name}
+                <TabContainer>
+                  <TabIconButton
+                    active={selectedTabs.includes('note')}
+                    onClick={() => handleTabClick('note')}
+                    backgroundColor={pinInfo.pin_group.pin_group_color}
+                  >
+                    <Icon
+                      name="IconTbNotes"
+                      width={15}
+                      height={15}
+                      color={
+                        selectedTabs.includes('note')
+                          ? pinInfo.pin_group.pin_group_color_light
+                          : '#666666'
+                      }
                     />
-                  </NoteListWrapper>
-                  {!selectedNote && (
-                    <AddNoteButton onClick={handleAddNoteClick}>
+                  </TabIconButton>
+                  {detailPinImages.length > 0 && (
+                    <TabIconButton
+                      active={selectedTabs.includes('image')}
+                      onClick={() => handleTabClick('image')}
+                      backgroundColor={pinInfo.pin_group.pin_group_color}
+                    >
                       <Icon
-                        name="IconIoIosAddCircleOutline"
-                        width={28}
-                        height={28}
-                        color="#ffffff"
+                        name="IconTbPhoto"
+                        width={15}
+                        height={15}
+                        color={
+                          selectedTabs.includes('image')
+                            ? pinInfo.pin_group.pin_group_color_light
+                            : '#666666'
+                        }
                       />
-                      {/* <span>노트 추가</span> */}
-                    </AddNoteButton>
+                    </TabIconButton>
                   )}
-                </NotesContainer>
-              </ContentSection>
-            )}
-            {selectedTabs.includes('image') && (
-              <ContentSection>
-                <ImageList detailPinImages={detailPinImages} />
-              </ContentSection>
-            )}
-          </ContentContainer>
+                </TabContainer>
+                <div className="flex items-center justify-center flex-grow gap-2">
+                  <div className="relative group flex items-center justify-center flex-1 gap-1">
+                    <Icon
+                      name="IconTbPinFill"
+                      width={25}
+                      height={25}
+                      color={pinInfo.pin_group.pin_group_color}
+                    />
+                    <span
+                      className={`${
+                        selectedTabs.length > 1
+                          ? 'max-w-[24rem]'
+                          : 'max-w-[8rem]'
+                      } text-sm font-medium truncate text-center`}
+                    >
+                      {pinInfo.pin_name}
+                    </span>
+                    <div className="absolute hidden group-hover:block left-0 bottom-10 bg-black bg-opacity-75 text-white p-2 rounded-md text-sm whitespace-nowrap z-20">
+                      {pinInfo.pin_name}
+                    </div>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 pr-2">
+                  <button
+                    onClick={handleSidebarClick}
+                    className="text-gray-500 hover:text-gray-700 transition-colors"
+                  >
+                    <Icon name="IconLuPanelRight" width={20} height={20} />
+                  </button>
+                  {onClose && (
+                    <button
+                      onClick={onClose}
+                      className="text-gray-500 hover:text-gray-700 transition-colors"
+                    >
+                      <Icon name="IconCgClose" width={20} height={20} />
+                    </button>
+                  )}
+                </div>
+              </Header>
 
-          {addOpen && (
-            <AddNoteWrapper>
-              <AddNote
-                setOpen={setAddOpen}
-                pinInfo={pinInfo}
-                projectId={useParams().projectId}
-                blueprintVersionId={useParams().blueprint_version_id}
-                setDetailPinImages={setDetailPinImages}
-                detailPinImages={detailPinImages}
-                setSelectedTabs={setSelectedTabs}
-              />
-            </AddNoteWrapper>
-          )}
-        </Container>
+              <ContentContainer selectedCount={selectedTabs.length}>
+                {selectedTabs.includes('note') && (
+                  <ContentSection>
+                    <NotesContainer hasSelectedNote={!!selectedNote}>
+                      <NoteListWrapper hasSelectedNote={!!selectedNote}>
+                        <NoteList
+                          processedNotes={processedNotes}
+                          searchTargetId={searchTargetId}
+                          onNoteClick={handleNoteClick}
+                          noteRefs={noteRefs}
+                          user={user}
+                          selectedNote={selectedNote}
+                          onBack={handleBack}
+                          detailNote={detailNote}
+                          pinName={pinInfo.pin_name}
+                        />
+                      </NoteListWrapper>
+                      {!selectedNote && (
+                        <AddNoteButton onClick={handleAddNoteClick}>
+                          <Icon
+                            name="IconIoIosAddCircleOutline"
+                            width={28}
+                            height={28}
+                            color="#ffffff"
+                          />
+                          {/* <span>노트 추가</span> */}
+                        </AddNoteButton>
+                      )}
+                    </NotesContainer>
+                  </ContentSection>
+                )}
+                {selectedTabs.includes('image') && (
+                  <ContentSection>
+                    <ImageList detailPinImages={detailPinImages} />
+                  </ContentSection>
+                )}
+              </ContentContainer>
+
+              {addOpen && (
+                <AddNoteWrapper>
+                  <AddNote
+                    setOpen={setAddOpen}
+                    pinInfo={pinInfo}
+                    projectId={useParams().projectId}
+                    blueprintVersionId={useParams().blueprint_version_id}
+                    setDetailPinImages={setDetailPinImages}
+                    detailPinImages={detailPinImages}
+                    setSelectedTabs={setSelectedTabs}
+                  />
+                </AddNoteWrapper>
+              )}
+            </Container>
+          </Resizable>
+        </div>
       </Draggable>
     </>
   );
@@ -464,32 +535,18 @@ function PinContents({
 export default memo(PinContents);
 
 const Container = styled.div`
-  position: relative;
+  position: absolute;
   display: flex;
   flex-direction: column;
   border: 0.0625rem solid #cbcbcb;
   background-color: #f5f5f5;
-  height: 350px;
-  width: auto;
-  min-width: 320px;
   z-index: 99;
   border-radius: 8px;
   box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 12px;
   overflow: visible;
-  transition: width 0.3s ease;
-  animation: scaleUp 0.2s ease-out;
   transform-origin: 0 0;
-
-  @keyframes scaleUp {
-    from {
-      transform: scale(0);
-      opacity: 0;
-    }
-    to {
-      transform: scale(1);
-      opacity: 1;
-    }
-  }
+  width: 100%;
+  height: 100%;
 `;
 
 const Header = styled.div`
@@ -602,15 +659,14 @@ const AddNoteWrapper = styled.div`
 
 const ContentContainer = styled.div`
   display: flex;
-  width: ${(props) => (props.selectedCount > 1 ? '640px' : '320px')};
-  transition: width 0.3s ease;
-  height: 100%;
+  width: 100%;
+  height: calc(100% - 40px); // Header 높이 40px 제외
   overflow: hidden;
 `;
 
 const ContentSection = styled.div`
-  flex: 0 0 320px;
-  width: 320px;
+  flex: 1;
+  min-width: 0; // flex item이 너무 작아지는 것 방지
   border-right: 1px solid #cbcbcb;
   overflow-y: auto;
   height: 100%;

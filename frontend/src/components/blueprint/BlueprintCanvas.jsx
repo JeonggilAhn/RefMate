@@ -67,6 +67,7 @@ const BlueprintCanvas = ({
   const overlayImgRef = useRef(new Image());
   const [isCtrlPressed, setIsCtrlPressed] = useState(false);
   const animationRef = useRef(null);
+  const [isResizing, setIsResizing] = useState(false);
 
   const [pins, setPins] = useRecoilState(pinState);
   const [modal, setModal] = useRecoilState(modalState);
@@ -236,9 +237,7 @@ const BlueprintCanvas = ({
   };
 
   const handleWheel = (e) => {
-    // 내부 스크롤이 있는 경우만 zoom 비활성화
-    if (e.target.closest('.prevent-zoom')) return;
-
+    if (e.target.closest('.prevent-zoom') || isResizing) return;
     if (isPinButtonEnaled) return;
 
     // PinContents 내부에서의 휠 이벤트는 무시
@@ -278,16 +277,16 @@ const BlueprintCanvas = ({
   };
 
   const handleMouseDown = (e) => {
-    if (e.target.closest('.prevent-zoom')) return;
-    if (isPinButtonEnaled) return;
+    if (e.target.closest('.prevent-zoom') || isPinButtonEnaled || isResizing)
+      return;
 
     setDragging(true);
     setStartPos({ x: e.clientX - position.x, y: e.clientY - position.y });
   };
 
   const handleMouseMove = (e) => {
-    if (e.target.closest('.prevent-zoom')) return;
-    if (isPinButtonEnaled) return;
+    if (e.target.closest('.prevent-zoom') || isPinButtonEnaled || isResizing)
+      return;
 
     if (dragging) {
       setPosition({ x: e.clientX - startPos.x, y: e.clientY - startPos.y });
@@ -445,6 +444,31 @@ const BlueprintCanvas = ({
       if (animationRef.current) {
         cancelAnimationFrame(animationRef.current);
       }
+    };
+  }, []);
+
+  // 리사이즈 시작/종료를 감지하는 이벤트 핸들러
+  useEffect(() => {
+    const handleResizeStart = () => {
+      setIsResizing(true);
+    };
+
+    const handleResizeEnd = () => {
+      setIsResizing(false);
+    };
+
+    // resize-handle 클래스를 가진 모든 요소에 대해 이벤트 리스너 추가
+    document.addEventListener('mousedown', (e) => {
+      if (e.target.classList.contains('resize-handle')) {
+        handleResizeStart();
+      }
+    });
+
+    document.addEventListener('mouseup', handleResizeEnd);
+
+    return () => {
+      document.removeEventListener('mousedown', handleResizeStart);
+      document.removeEventListener('mouseup', handleResizeEnd);
     };
   }, []);
 
