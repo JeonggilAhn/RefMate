@@ -367,7 +367,7 @@ function PinContents({
               width: selectedTabs.length > 1 ? 640 : 320,
               height: 350,
             }}
-            minWidth={320}
+            minWidth={selectedTabs.length > 1 ? 640 : 320}
             minHeight={350}
             maxWidth={800}
             maxHeight={600}
@@ -392,7 +392,7 @@ function PinContents({
               topLeft: true,
             }}
           >
-            <Container>
+            <Container className="prevent-zoom" data-pin-contents>
               <Header
                 className="handle"
                 backgroundColor={pinInfo.pin_group.pin_group_color_light}
@@ -547,6 +547,16 @@ const Container = styled.div`
   transform-origin: 0 0;
   width: 100%;
   height: 100%;
+
+  // 스크롤 이벤트 처리를 위한 클래스 추가
+  &.prevent-zoom {
+    * {
+      // 모든 자식 요소들에 대해서도 적용
+      &:hover {
+        isolation: isolate;
+      }
+    }
+  }
 `;
 
 const Header = styled.div`
