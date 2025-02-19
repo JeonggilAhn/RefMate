@@ -189,7 +189,7 @@ const Blueprint = () => {
       };
       const response = await get(apiUrl, params);
 
-      console.log('API :', response.data.content.note_list); // 받아온 notes 데이터 확인
+      // console.log('API :', response.data.content.note_list); // 받아온 notes 데이터 확인
 
       if (response.status === 200 && response.data?.content?.note_list) {
         setNotes((prevNotes) => {
@@ -197,7 +197,7 @@ const Blueprint = () => {
             ...prevNotes,
             ...response.data.content.note_list,
           ];
-          console.log('Fetched Notes:', updatedNotes); // 받아온 notes 데이터 확인
+          //  console.log('Fetched Notes:', updatedNotes); // 받아온 notes 데이터 확인
           return updatedNotes;
         });
 
