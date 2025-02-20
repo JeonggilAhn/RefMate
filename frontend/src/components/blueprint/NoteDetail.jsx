@@ -260,7 +260,7 @@ export default NoteDetail;
 
 const NoteImage = ({ imageList, onClickImage }) => {
   return (
-    <div className="grid gap-0.5 mt-2 grid-cols-3 place-items-center">
+    <div className="grid gap-0.5 mt-2 grid-cols-3 place-items-center overflow-y-auto max-h-[200px]">
       {imageList.map((image, idx) => (
         <div
           key={image.image_id}
@@ -292,46 +292,53 @@ const NoteDetailWrapper = styled.div`
 
 const Header = styled.div`
   display: flex;
+  justify-content: space-between;
   align-items: center;
   padding: 0.5rem;
-  border-bottom: 1px solid #e0e0e0;
+  border-bottom: 1px solid #cbcbcb;
+  background-color: #f5f5f5;
+  border-top-left-radius: 6px;
+  border-top-right-radius: 6px;
+`;
+
+const HeaderButtons = styled.div`
+  display: flex;
+  gap: 10px;
+  padding-right: 2px;
 `;
 
 const BackButton = styled.button`
   background: none;
   border: none;
-  padding: 0;
-  margin-right: 0.5rem;
-`;
-
-const HeaderButtons = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
+  cursor: pointer;
 `;
 
 const IconButton = styled.button`
   background: none;
   border: none;
-  padding: 0;
+  cursor: pointer;
 `;
 
 const MainSection = styled.div`
-  padding: 1rem;
+  flex-grow: 1;
+  overflow-y: auto;
+  padding: 0.5rem;
+  background-color: #fff;
 `;
 
 const ProfileSection = styled.div`
   display: flex;
-  justify-content: center;
+  justify-content: space-between;
   align-items: center;
-  gap: 0.5rem;
+  margin-top: 2px;
   margin-bottom: 0.5rem;
 `;
 
 const NoteContent = styled.div`
-  margin-top: 1rem;
+  margin-bottom: 1rem;
 `;
 
 const NoteText = styled.p`
-  margin-bottom: 1rem;
+  font-size: 1rem;
+  line-height: 1.5;
 `;

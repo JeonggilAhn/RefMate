@@ -257,7 +257,7 @@ export default NotePopupDetail;
 
 const NoteImage = ({ imageList, onClickImage }) => {
   return (
-    <div className="grid gap-0.5 mt-2 grid-cols-3 place-items-center">
+    <div className="grid gap-0.5 mt-2 grid-cols-3 place-items-center overflow-y-auto max-h-[200px]">
       {imageList.map((image, idx) => (
         <div
           key={image.image_id}
