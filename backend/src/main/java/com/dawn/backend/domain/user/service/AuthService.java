@@ -63,6 +63,7 @@ public class AuthService {
 
 		String accessToken = jwtUtil.generateToken(user, 24 * 60 * 60 * 1000L);
 		headers.set("Authorization", "Bearer " + accessToken);
+		headers.set("Set-Cookie", "grant_token=; Max-Age=0; Expires=Thu, 01 Jan 1970 00:00:00 GMT; Path=/; HttpOnly");
 		return headers;
 	}
 }
