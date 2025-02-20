@@ -32,7 +32,7 @@ import PinNoteSection from '../components/blueprint/PinNoteSection';
 import Toolbar from '../components/blueprint/Toolbar';
 import ToolbarSide from '../components/blueprint/ToolbarSide';
 import ToolbarOpacity from '../components/blueprint/ToolbarOpacity';
-import { websocketState } from '../recoil/common/websocket';
+// import { websocketState } from '../recoil/common/websocket';
 import Tutorial from '../components/tutorial/Tutorial';
 
 const API_BASE_URL = import.meta.env.VITE_APP_API_BASE_URL;
@@ -96,7 +96,7 @@ const Blueprint = () => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
   // ws state를 recoil state로 변경
-  const [ws, setWs] = useRecoilState(websocketState);
+  // const [ws, setWs] = useRecoilState(websocketState);
 
   // 하이라이트할 핀 ID를 저장하는 state 추가
   const [highlightedPinId, setHighlightedPinId] = useState(null);
@@ -545,11 +545,11 @@ const Blueprint = () => {
                 });
               });
 
-              ws.send(
+              /* ws.send(
                 `/api/blueprints/${blueprint_id}/${blueprint_version_id}/pins`,
                 {},
                 pinId,
-              );
+              );*/
 
               toast({
                 title: '해당 핀의 상태가 완료로 변경되었습니다.',
@@ -789,7 +789,7 @@ const Blueprint = () => {
   ];
 
   // 웹소켓 연결 함수
-  const connectWebSocket = () => {
+  /* const connectWebSocket = () => {
     // 기존 연결이 있다면 닫기
     if (ws) {
       ws.close();
@@ -823,7 +823,7 @@ const Blueprint = () => {
         ws.close();
       }
     };
-  }, [blueprint_id]);
+  }, [blueprint_id]);*/
 
   // 튜토리얼 모달을 한 번만 표시하기 위한 상태
   const [hasSeenTutorialModal, setHasSeenTutorialModal] = useState(() => {
