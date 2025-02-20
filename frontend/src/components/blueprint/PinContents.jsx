@@ -83,12 +83,12 @@ const ImageList = memo(function ImageList({ detailPinImages }) {
 
     return (
       <div className="relative w-full h-full flex items-center justify-center">
-        {/* 제목 표시 (버튼과 겹치지 않도록 여백 추가) */}
-        <div className="absolute top-2 left-1/2 -translate-x-1/2 px-4 py-1.5 rounded-md  text-ms font-bold w-[70%] text-center whitespace-normal overflow-hidden text-ellipsis max-h-[3rem] leading-tight">
+        {/* 제목 표시 */}
+        <div className="absolute top-2 left-1/2 -translate-x-1/2 px-4 py-1.5 rounded-md text-ms font-bold w-[70%] text-center whitespace-normal overflow-hidden text-ellipsis max-h-[3rem] leading-tight">
           {selectedNoteTitle}
         </div>
 
-        {/* 로그아웃 버튼 (위쪽으로 조정) */}
+        {/* 로그아웃 버튼 */}
         <button
           className="absolute top-3 left-3 z-10 p-2 hover:text-gray-200 flex items-center gap-2 rounded-md"
           onClick={() => {
@@ -99,10 +99,24 @@ const ImageList = memo(function ImageList({ detailPinImages }) {
           <Icon name="IconTbLogout2" width={24} height={24} color="#000000" />
         </button>
 
+        {/* 이미지 컨테이너 */}
+        <div className="w-full h-full px-16">
+          {' '}
+          {/* 좌우 여백 추가 */}
+          <img
+            src={selectedImage.image_preview}
+            alt="selected"
+            className="w-full h-full object-contain"
+          />
+        </div>
+
         {/* 이전 이미지 버튼 */}
         <button
-          className="absolute left-4 top-1/2 -translate-y-1/2 p-2 hover:bg-gray-100 rounded-full"
-          onClick={handlePrevImage}
+          className="absolute left-4 top-1/2 -translate-y-1/2 p-2 hover:bg-gray-100 rounded-full bg-white shadow-md z-10"
+          onClick={(e) => {
+            e.stopPropagation();
+            handlePrevImage();
+          }}
         >
           <Icon
             name="IconGoChevronPrev"
@@ -114,8 +128,11 @@ const ImageList = memo(function ImageList({ detailPinImages }) {
 
         {/* 다음 이미지 버튼 */}
         <button
-          className="absolute right-4 top-1/2 -translate-y-1/2 p-2 hover:bg-gray-100 rounded-full"
-          onClick={handleNextImage}
+          className="absolute right-4 top-1/2 -translate-y-1/2 p-2 hover:bg-gray-100 rounded-full bg-white shadow-md z-10"
+          onClick={(e) => {
+            e.stopPropagation();
+            handleNextImage();
+          }}
         >
           <Icon
             name="IconGoChevronNext"
@@ -124,12 +141,6 @@ const ImageList = memo(function ImageList({ detailPinImages }) {
             color="#000000"
           />
         </button>
-
-        <img
-          src={selectedImage.image_preview}
-          alt="selected"
-          className="w-full h-full object-contain p-4"
-        />
       </div>
     );
   }
