@@ -1,0 +1,118 @@
+services:
+  nginx:
+    container_name: nginx
+    image: nginx:latest
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - /home/ubuntu/nginx/conf:/etc/nginx
+      - /home/ubuntu/nginx/html:/usr/share/nginx/html
+      - /home/ubuntu/nginx/logs:/var/log/nginx
+      - /home/ubuntu/certbot/conf:/etc/letsencrypt
+      - /home/ubuntu/certbot/www:/var/www/certbot
+    restart: always
+    environment:
+      - TZ=Asia/Seoul
+
+  certbot:
+    container_name: certbot
+    image: certbot/certbot:latest
+    volumes:
+      - /home/ubuntu/certbot/conf:/etc/letsencrypt
+      - /home/ubuntu/certbot/www:/var/www/certbot
+      - /home/ubuntu/certbot/logs:/var/log/letsencrypt
+    restart: unless-stopped
+    environment:
+      - TZ=Asia/Seoul
+    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
+
+  redis:
+    container_name: redis
+    image: redis:latest
+    volumes:
+      - /home/ubuntu/redis:/data
+    ports:
+      - 6379:6379
+    restart: always
+    environment:
+      - TZ=Asia/Seoul
+
+  minio:
+    container_name: minio
+    image: minio/minio:latest
+    ports:
+      - 8800:9000  # MinIO 콘솔 포트 (변경됨)
+      - 8999:8999  # MinIO 콘솔 주소 (변경됨)
+    volumes:
+      - /home/ubuntu/minio:/data # MinIO 데이터 저장 경로
+      - /home/ubuntu/certbot/conf/archive/i12a807.p.ssafy.io:/root/.minio/certs/CAs # Let's Encrypt 인증서 경로 (your-domain.com을 실제 도메인으로 변경)
+    restart: always
+    environment:
+      - TZ=Asia/Seoul
+      - MINIO_ROOT_USER=${MINIO_USERNAME}
+      - MINIO_ROOT_PASSWORD=${MINIO_PASSWORD}
+    shm_size: "1gb"
+    command: server /data --console-address ":8999" 
+
+  s3www:
+    container_name: s3www
+    image: y4m4/s3www:latest
+    ports:
+      - 3000:8080
+    restart: always
+    command:
+      - "-endpoint=https://i12a807.p.ssafy.io:8800"
+      - "-accessKey=${MINIO_ACCESS_KEY}"
+      - "-secretKey=${MINIO_SECRET_KEY}"
+      - "-bucket=front-static"
+      - "-address=0.0.0.0:8080"
+      - "-spaFile=index.html"
+
+  jenkins-master:
+    container_name: jenkins-master
+    image: jenkins/jenkins:jdk21
+    ports:
+      - 8080:8080
+      - 50000:50000
+    volumes:
+      - /home/ubuntu/jenkins_home/master:/var/jenkins_home
+    restart: always
+    environment:
+      - TZ=Asia/Seoul
+      - JENKINS_OPTS="--prefix=/jenkins"
+
+  jenkins-backend-agent:
+    container_name: jenkins-backend-agent
+    image: jenkins/inbound-agent:latest-jdk21
+    volumes:
+      - /home/ubuntu/jenkins_home/backend:/home/jenkins/agent
+    restart: always
+    environment:
+      - TZ=Asia/Seoul
+      - JENKINS_URL=${JENKINS_MASTER_URL}
+      - JENKINS_AGENT_NAME=backend-agent
+      - JENKINS_SECRET=${BACKEND_AGENT_SECRET}
+      - JENKINS_AGENT_WORKDIR=/home/jenkins/agent
+
+  jenkins-frontend-agent:
+    container_name: jenkins-frontend-agent
+    image: jenkins/inbound-agent:latest
+    volumes:
+      - /home/ubuntu/jenkins_home/frontend:/home/jenkins/agent
+    restart: always
+    environment:
+      - TZ=Asia/Seoul
+      - JENKINS_URL=${JENKINS_MASTER_URL}
+      - JENKINS_AGENT_NAME=frontend-agent
+      - JENKINS_SECRET=${FRONTEND_AGENT_SECRET}
+      - JENKINS_AGENT_WORKDIR=/home/jenkins/agent
+
+  convert-image:
+    container_name: image-converter
+    image: s12171934/image-converter
+    restart: always
+    ports:
+      - 5000:5000
+
+
