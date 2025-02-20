@@ -31,12 +31,6 @@ const ToolbarSide = ({
         >
           <Icon name="IconTbNote" width={26} height={26} />
         </button>
-        <button
-          onClick={closeAllImagePopup}
-          className="w-[2.4rem] h-[2.4rem] flex justify-center items-center rounded-md cursor-pointer hover:bg-[#F1F1F1]"
-        >
-          <Icon name="IconTbPhoto" width={24} height={24} />
-        </button>
       </div>
     </div>
   );
