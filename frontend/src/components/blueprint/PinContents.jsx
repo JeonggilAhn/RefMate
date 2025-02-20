@@ -190,7 +190,15 @@ const NoteList = memo(function NoteList({
   onBack,
   detailNote,
   pinName,
+  scrollRef,
 }) {
+  // 컴포넌트 마운트 시 최하단으로 스크롤
+  useEffect(() => {
+    if (scrollRef.current && !selectedNote) {
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    }
+  }, []);
+
   if (selectedNote) {
     return (
       <div className="h-full overflow-hidden">
@@ -272,6 +280,10 @@ function PinContents({
   // 새로운 draggable ref 추가
   const addNoteRef = useRef(null);
 
+  // 스크롤 위치 저장을 위한 ref 추가
+  const scrollPositionRef = useRef(0);
+  const notesContainerRef = useRef(null);
+
   useEffect(() => {
     async function fetchImgWithPins() {
       try {
@@ -301,12 +313,23 @@ function PinContents({
   }, [pinInfo.pin_id]);
 
   const handleNoteClick = useCallback((note) => {
+    // 노트 클릭 시 현재 스크롤 위치 저장
+    if (notesContainerRef.current) {
+      scrollPositionRef.current = notesContainerRef.current.scrollTop;
+    }
     setSelectedNote(note);
   }, []);
 
   const handleBack = useCallback(() => {
     setSelectedNote(null);
     setDetailNote && setDetailNote(null);
+
+    // 노트 상세에서 돌아올 때 이전 스크롤 위치로 복원
+    requestAnimationFrame(() => {
+      if (notesContainerRef.current) {
+        notesContainerRef.current.scrollTop = scrollPositionRef.current;
+      }
+    });
   }, [setDetailNote]);
 
   const handleTabClick = useCallback(
@@ -344,6 +367,16 @@ function PinContents({
       onClose();
     }
   }, [onClickPin, onClose, pinInfo]);
+
+  // 스크롤을 최하단으로 이동시키는 함수
+  const scrollToBottom = useCallback(() => {
+    if (notesContainerRef.current) {
+      requestAnimationFrame(() => {
+        notesContainerRef.current.scrollTop =
+          notesContainerRef.current.scrollHeight;
+      });
+    }
+  }, []);
 
   if (!pinInfo.pin_id || !currentPin) {
     return null;
@@ -481,7 +514,10 @@ function PinContents({
                 {selectedTabs.includes('note') && (
                   <ContentSection>
                     <NotesContainer hasSelectedNote={!!selectedNote}>
-                      <NoteListWrapper hasSelectedNote={!!selectedNote}>
+                      <NoteListWrapper
+                        hasSelectedNote={!!selectedNote}
+                        ref={notesContainerRef}
+                      >
                         <NoteList
                           processedNotes={processedNotes}
                           searchTargetId={searchTargetId}
@@ -492,6 +528,7 @@ function PinContents({
                           onBack={handleBack}
                           detailNote={detailNote}
                           pinName={pinInfo.pin_name}
+                          scrollRef={notesContainerRef}
                         />
                       </NoteListWrapper>
                       {!selectedNote && (
@@ -525,6 +562,7 @@ function PinContents({
                     setDetailPinImages={setDetailPinImages}
                     detailPinImages={detailPinImages}
                     setSelectedTabs={setSelectedTabs}
+                    onNoteAdded={scrollToBottom}
                   />
                 </AddNoteWrapper>
               )}

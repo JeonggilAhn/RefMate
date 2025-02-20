@@ -83,10 +83,10 @@ const NoteButton = ({ note, onClick }) => {
           <div className="flex flex-col justify-center w-full">
             {/* 제목과 아이콘 */}
             <div className="relative flex items-center justify-between w-full p-2 gap-2 bg-white border rounded-lg border-gray-300">
-              {/* 제목 표시 (최대 20글자로 제한) */}
+              {/* 제목 표시 (최대 12글자로 제한) */}
               <span className="text-sm font-bold truncate flex-1">
-                {note.note_title.length > 20
-                  ? `${note.note_title.slice(0, 20)}...`
+                {note.note_title.length > 12
+                  ? `${note.note_title.slice(0, 12)}...`
                   : note.note_title}
               </span>
               {/* 이미지 아이콘 표시 (첨부된 이미지가 있는 경우) */}
