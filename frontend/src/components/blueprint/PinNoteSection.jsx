@@ -208,12 +208,16 @@ const PinNoteSection = ({
                   <div
                     key={note.note_id}
                     ref={(el) => (noteRefs.current[note.note_id] = el)}
-                    className={`p-2 ${
+                    className={`p-2 flex flex-col ${
                       highlightedNoteId === note.note_id ||
                       searchTargetId === note.note_id
                         ? 'bg-yellow-200'
                         : ''
-                    } ${user?.user_email === note?.note_writer?.user_email ? 'items-end' : 'items-start'}`}
+                    } ${
+                      user?.user_email === note?.note_writer?.user_email
+                        ? 'items-end'
+                        : 'items-start'
+                    }`}
                   >
                     <NoteButton
                       note={note}

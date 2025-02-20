@@ -219,9 +219,13 @@ const NoteList = memo(function NoteList({
           <div
             key={note.note_id}
             ref={(el) => (noteRefs.current[note.note_id] = el)}
-            className={`p-2 ${
+            className={`p-2 flex flex-col ${
               searchTargetId === note.note_id ? 'bg-yellow-200' : ''
-            }${user?.user_email === note?.note_writer?.user_email ? 'items-end' : 'items-start'}`}
+            } ${
+              user?.user_email === note?.note_writer?.user_email
+                ? 'items-end'
+                : 'items-start'
+            }`}
           >
             <NoteButton note={note} onClick={() => onNoteClick(note)} />
           </div>
