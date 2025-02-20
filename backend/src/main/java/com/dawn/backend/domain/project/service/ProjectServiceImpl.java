@@ -155,19 +155,24 @@ public class ProjectServiceImpl implements ProjectService {
 	@Override
 	public void inviteUser(Long projectId, InviteUserRequestDto request, User user) {
 		Project project = getProject(projectId);
-		String[] inviteUsersArray = request.inviteUserList().toArray(new String[0]);
-
 		String userEmail = user.getUserEmail().split("@")[0];
-		String mailSubject = "[RefMate] @" + userEmail + "님이 나를 " + project.getProjectTitle() + " 프로젝트에 초대했습니다.\n";
 
-		EmailMessageRequestDto emailMessageRequestDto =
-			new EmailMessageRequestDto(inviteUsersArray, mailSubject);
-		String grantToken = grantService.createGrantToken(project.getProjectId(), "CLIENT");
-		String unauthorizedGrantToken = grantService.createUnauthorizedGrantToken(project.getProjectId());
-		log.info("grantToken UUID : {}", grantToken);
-		log.info("unauthorizedGrantToken JWT : {}", unauthorizedGrantToken);
-		emailService.sendMail(emailMessageRequestDto, project.getProjectTitle(),
-			grantToken, unauthorizedGrantToken, projectId);
+		for (String inviteEmail : request.inviteUserList()) {
+			String grantToken = grantService.createGrantToken(project.getProjectId(), "CLIENT");
+			String unauthorizedGrantToken = grantService.createUnauthorizedGrantToken(project.getProjectId());
+
+			log.info("inviteEmail: {}", inviteEmail);
+			log.info("grantToken UUID : {}", grantToken);
+			log.info("unauthorizedGrantToken JWT : {}", unauthorizedGrantToken);
+
+			String mailSubject = "[RefMate] @" + userEmail + "님이 나를 " + project.getProjectTitle() + " 프로젝트에 초대했습니다.\n";
+
+			EmailMessageRequestDto emailMessageRequestDto = new EmailMessageRequestDto(
+				new String[]{inviteEmail}, mailSubject);
+			emailService.sendMail(emailMessageRequestDto, project.getProjectTitle(),
+				grantToken, unauthorizedGrantToken, projectId);
+		}
+
 	}
 
 	@Transactional
