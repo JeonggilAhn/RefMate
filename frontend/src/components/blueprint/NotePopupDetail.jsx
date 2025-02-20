@@ -258,7 +258,7 @@ export default NotePopupDetail;
 const NoteImage = ({ imageList, onClickImage }) => {
   return (
     <div className="grid gap-0.5 mt-2 grid-cols-3 place-items-center">
-      {imageList.slice(0, 3).map((image, idx) => (
+      {imageList.map((image, idx) => (
         <div
           key={image.image_id}
           className="relative w-[6.1rem] h-[6.1rem]"
@@ -269,11 +269,6 @@ const NoteImage = ({ imageList, onClickImage }) => {
             alt="노트 이미지"
             className="w-full h-full object-cover rounded-md"
           />
-          {idx === 2 && imageList.length > 3 && (
-            <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center text-white text-sm font-semibold rounded-md">
-              +{imageList.length - 3}
-            </div>
-          )}
         </div>
       ))}
     </div>
