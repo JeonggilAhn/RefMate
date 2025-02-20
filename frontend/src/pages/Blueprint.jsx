@@ -109,9 +109,7 @@ const Blueprint = () => {
   const pinGroupColorLight = detailPin?.pin_group?.pin_group_color_light;
 
   const filterNoImageList = (data) => {
-    console.log('data filterNoImageList', data);
     return data.filter((item) => {
-      console.log('item', item);
       return item.image_list.length !== 0;
     });
   };
@@ -291,7 +289,6 @@ const Blueprint = () => {
     });
 
     if (pinImgRes.status === 200) {
-      console.log('pinImgRes', pinImgRes.data.content);
       setPins((prev) => {
         return prev.map((item) => {
           if (item.pin_id === pin.pin_id) {
@@ -299,7 +296,6 @@ const Blueprint = () => {
               ...item,
               pinDetailImages: filterNoImageList(pinImgRes.data.content),
             };
-            console.log('newItem', newItem);
             setDetailPin(newItem);
             return newItem;
           }
@@ -311,14 +307,12 @@ const Blueprint = () => {
 
     if (pinNotRes.status === 200) {
       setPins((prev) => {
-        console.log('pinNotRes', pinNotRes.data.content.note_list);
         return prev.map((item) => {
           if (item.pin_id === pin.pin_id) {
             const newItem = {
               ...item,
               pinDetailNotes: pinNotRes.data.content.note_list,
             };
-            console.log('newItem', newItem);
             setDetailPin(newItem);
             return newItem;
           }
@@ -470,6 +464,8 @@ const Blueprint = () => {
               is_visible: true,
               is_open_note: false,
               is_open_image: false,
+              pinDetailNotes: [],
+              pinDetailImages: [],
               ...item,
             };
           });
@@ -661,8 +657,6 @@ const Blueprint = () => {
   const onClickNextBlueprintButton = () => {
     setSelectedBlueprintIndex((prev) => {
       if (prev < blueprints.length - 1) {
-        console.log('length error ??');
-        console.log('prev', prev);
         const blueprint = blueprints.find((item, idx) => idx === prev + 1);
 
         if (!blueprint) {
@@ -747,8 +741,6 @@ const Blueprint = () => {
         pinDetailNotes: [],
         pinDetailImages: [],
       }));
-
-      console.log('data hahahahaha', data);
 
       for (let i = 0; i < data.length; i++) {
         const item = data[i];

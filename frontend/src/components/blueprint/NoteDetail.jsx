@@ -261,7 +261,7 @@ export default NoteDetail;
 const NoteImage = ({ imageList, onClickImage }) => {
   return (
     <div className="grid gap-0.5 mt-2 grid-cols-3 place-items-center">
-      {imageList.slice(0, 3).map((image, idx) => (
+      {imageList.map((image, idx) => (
         <div
           key={image.image_id}
           className="relative w-[6.1rem] h-[6.1rem]"
@@ -272,11 +272,6 @@ const NoteImage = ({ imageList, onClickImage }) => {
             alt="노트 이미지"
             className="w-full h-full object-cover rounded-md"
           />
-          {idx === 2 && imageList.length > 3 && (
-            <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center text-white text-sm font-semibold rounded-md">
-              +{imageList.length - 3}
-            </div>
-          )}
         </div>
       ))}
     </div>
@@ -297,53 +292,46 @@ const NoteDetailWrapper = styled.div`
 
 const Header = styled.div`
   display: flex;
-  justify-content: space-between;
   align-items: center;
   padding: 0.5rem;
-  border-bottom: 1px solid #cbcbcb;
-  background-color: #f5f5f5;
-  border-top-left-radius: 6px;
-  border-top-right-radius: 6px;
-`;
-
-const HeaderButtons = styled.div`
-  display: flex;
-  gap: 10px;
-  padding-right: 2px;
+  border-bottom: 1px solid #e0e0e0;
 `;
 
 const BackButton = styled.button`
   background: none;
   border: none;
-  cursor: pointer;
+  padding: 0;
+  margin-right: 0.5rem;
+`;
+
+const HeaderButtons = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 `;
 
 const IconButton = styled.button`
   background: none;
   border: none;
-  cursor: pointer;
+  padding: 0;
 `;
 
 const MainSection = styled.div`
-  flex-grow: 1;
-  overflow-y: auto;
-  padding: 0.5rem;
-  background-color: #fff;
+  padding: 1rem;
 `;
 
 const ProfileSection = styled.div`
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
-  margin-top: 2px;
+  gap: 0.5rem;
   margin-bottom: 0.5rem;
 `;
 
 const NoteContent = styled.div`
-  margin-bottom: 1rem;
+  margin-top: 1rem;
 `;
 
 const NoteText = styled.p`
-  font-size: 1rem;
-  line-height: 1.5;
+  margin-bottom: 1rem;
 `;
