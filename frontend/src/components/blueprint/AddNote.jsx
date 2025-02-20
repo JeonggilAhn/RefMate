@@ -15,6 +15,7 @@ const AddNote = ({
   setDetailPinImages,
   detailPinImages,
   setSelectedTabs,
+  onNoteAdded,
 }) => {
   const [pins, setPins] = useRecoilState(pinState);
 
@@ -97,6 +98,7 @@ const AddNote = ({
         setOpen(false);
         setNoteTitle('');
         setNoteContent('');
+        onNoteAdded?.();
       } else {
         toast({
           title: '노트를 생성에 실패했습니다.',
