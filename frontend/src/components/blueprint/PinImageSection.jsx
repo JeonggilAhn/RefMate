@@ -55,7 +55,7 @@ const PinImageSection = ({ pinId, onClickImage, pinGroupColorLight }) => {
                       )}
                       {idx === 2 && pin.image_list.length > 3 && (
                         <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center text-white text-sm font-semibold rounded-md">
-                          +{pin.preview_image_list.length - 3}
+                          +{pin.image_list.length - 3}
                         </div>
                       )}
                     </div>
