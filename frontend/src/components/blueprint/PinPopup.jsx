@@ -80,9 +80,9 @@ const PinPopup = ({
     try {
       const groupColor =
         groupOptions.find((g) => g.id === pinGroup)?.color || 'gray';
-      const resName = await patch(`pins/${pinId}/name`, { name: pinName });
+      const resName = await patch(`pins/${pinId}/name`, { pin_name: pinName });
       const resGroup = await patch(`pins/${pinId}/${blueprintVersion}/group`, {
-        group: pinGroup,
+        pin_group_id: pinGroup,
       });
 
       let newPin = initialPin;
